@@ -30,26 +30,49 @@
         <procedure name="Q2">
             <statement name="query_stmt">
                 SELECT
-                "l_returnflag",
-                "l_linestatus",
-                SUM("l_quantity") AS sum_qty,
-                SUM("l_extendedprice") AS sum_base_price,
-                SUM("l_extendedprice" * (1 - "l_discount")) AS sum_disc_price,
-                SUM("l_extendedprice" * (1 - "l_discount") * (1 + "l_tax")) AS sum_charge,
-                AVG("l_quantity") AS avg_qty,
-                AVG("l_extendedprice") AS avg_price,
-                AVG("l_discount") AS avg_disc,
-                COUNT(*) AS count_order
+                "s_acctbal",
+                "s_name",
+                "n_name",
+                "p_partkey",
+                "p_mfgr",
+                "s_address",
+                "s_phone",
+                "s_comment"
                 FROM
-                "benchbase"."lineitem"
+                "benchbase"."part",
+                "benchbase"."supplier",
+                "benchbase"."partsupp",
+                "benchbase"."nation",
+                "benchbase"."region"
                 WHERE
-                "l_shipdate" &lt;= DATE '1998-12-01' - INTERVAL 1 DAY
-                GROUP BY
-                "l_returnflag",
-                "l_linestatus"
+                "p_partkey" = "ps_partkey"
+                AND "s_suppkey" = "ps_suppkey"
+                AND "p_size" = 25
+                AND "p_type" LIKE '%STEEL'
+                AND "s_nationkey" = "n_nationkey"
+                AND "n_regionkey" = "r_regionkey"
+                AND "r_name" = 'AMERICA'
+                AND "ps_supplycost" =
+                (
+                SELECT
+                MIN("ps_supplycost")
+                FROM
+                "benchbase"."partsupp",
+                "benchbase"."supplier",
+                "benchbase"."nation",
+                "benchbase"."region"
+                WHERE
+                "p_partkey" = "ps_partkey"
+                AND "s_suppkey" = "ps_suppkey"
+                AND "s_nationkey" = "n_nationkey"
+                AND "n_regionkey" = "r_regionkey"
+                AND "r_name" = 'AMERICA'
+                )
                 ORDER BY
-                "l_returnflag",
-                "l_linestatus"
+                "s_acctbal" DESC,
+                "n_name",
+                "s_name",
+                "p_partkey" LIMIT 100
             </statement>
         </procedure>
 
@@ -82,26 +105,27 @@
         <procedure name="Q4">
             <statement name="query_stmt">
                 SELECT
-                "l_returnflag",
-                "l_linestatus",
-                SUM("l_quantity") AS sum_qty,
-                SUM("l_extendedprice") AS sum_base_price,
-                SUM("l_extendedprice" * (1 - "l_discount")) AS sum_disc_price,
-                SUM("l_extendedprice" * (1 - "l_discount") * (1 + "l_tax")) AS sum_charge,
-                AVG("l_quantity") AS avg_qty,
-                AVG("l_extendedprice") AS avg_price,
-                AVG("l_discount") AS avg_disc,
-                COUNT(*) AS count_order
+                "o_orderpriority",
+                COUNT(*) AS order_count
+                FROM
+                "benchbase"."orders"
+                WHERE
+                "o_orderdate" &gt;= DATE '1993-01-01'
+                AND "o_orderdate" &lt; DATE '1993-01-01' + INTERVAL '3' MONTH
+                AND EXISTS
+                (
+                SELECT
+                *
                 FROM
                 "benchbase"."lineitem"
                 WHERE
-                "l_shipdate" &lt;= DATE '1998-12-01' - INTERVAL 1 DAY
+                "l_orderkey" = "o_orderkey"
+                AND "l_commitdate" &lt; "l_receiptdate"
+                )
                 GROUP BY
-                "l_returnflag",
-                "l_linestatus"
+                "o_orderpriority"
                 ORDER BY
-                "l_returnflag",
-                "l_linestatus"
+                "o_orderpriority"
             </statement>
         </procedure>
 
@@ -134,26 +158,14 @@
         <procedure name="Q6">
             <statement name="query_stmt">
                 SELECT
-                "l_returnflag",
-                "l_linestatus",
-                SUM("l_quantity") AS sum_qty,
-                SUM("l_extendedprice") AS sum_base_price,
-                SUM("l_extendedprice" * (1 - "l_discount")) AS sum_disc_price,
-                SUM("l_extendedprice" * (1 - "l_discount") * (1 + "l_tax")) AS sum_charge,
-                AVG("l_quantity") AS avg_qty,
-                AVG("l_extendedprice") AS avg_price,
-                AVG("l_discount") AS avg_disc,
-                COUNT(*) AS count_order
+                SUM("l_extendedprice" * "l_discount") AS revenue
                 FROM
                 "benchbase"."lineitem"
                 WHERE
-                "l_shipdate" &lt;= DATE '1998-12-01' - INTERVAL 1 DAY
-                GROUP BY
-                "l_returnflag",
-                "l_linestatus"
-                ORDER BY
-                "l_returnflag",
-                "l_linestatus"
+                "l_shipdate" &gt;= DATE '1993-01-01'
+                AND "l_shipdate" &lt; DATE '1993-01-01' + INTERVAL '1' YEAR
+                AND "l_discount" BETWEEN 0.02 - 0.01 AND 0.02 + 0.01
+                AND "l_quantity" &lt; 24
             </statement>
         </procedure>
 
@@ -342,26 +354,22 @@
         <procedure name="Q14">
             <statement name="query_stmt">
                 SELECT
-                "l_returnflag",
-                "l_linestatus",
-                SUM("l_quantity") AS sum_qty,
-                SUM("l_extendedprice") AS sum_base_price,
-                SUM("l_extendedprice" * (1 - "l_discount")) AS sum_disc_price,
-                SUM("l_extendedprice" * (1 - "l_discount") * (1 + "l_tax")) AS sum_charge,
-                AVG("l_quantity") AS avg_qty,
-                AVG("l_extendedprice") AS avg_price,
-                AVG("l_discount") AS avg_disc,
-                COUNT(*) AS count_order
+                100.00 * SUM(
+                CASE
+                WHEN
+                "p_type" LIKE 'PROMO%'
+                THEN
+                "l_extendedprice" * (1 - "l_discount")
+                ELSE
+                0
+                END
+                ) / SUM("l_extendedprice" * (1 - "l_discount")) AS promo_revenue
                 FROM
-                "benchbase"."lineitem"
+                "benchbase"."lineitem", "benchbase"."part"
                 WHERE
-                "l_shipdate" &lt;= DATE '1998-12-01' - INTERVAL 1 DAY
-                GROUP BY
-                "l_returnflag",
-                "l_linestatus"
-                ORDER BY
-                "l_returnflag",
-                "l_linestatus"
+                "l_partkey" = "p_partkey"
+                AND "l_shipdate" &gt;= DATE '1993-01-01'
+                AND "l_shipdate" &lt; DATE '1993-01-01' + INTERVAL '1' MONTH
             </statement>
         </procedure>
 
@@ -420,104 +428,146 @@
         <procedure name="Q17">
             <statement name="query_stmt">
                 SELECT
-                "l_returnflag",
-                "l_linestatus",
-                SUM("l_quantity") AS sum_qty,
-                SUM("l_extendedprice") AS sum_base_price,
-                SUM("l_extendedprice" * (1 - "l_discount")) AS sum_disc_price,
-                SUM("l_extendedprice" * (1 - "l_discount") * (1 + "l_tax")) AS sum_charge,
-                AVG("l_quantity") AS avg_qty,
-                AVG("l_extendedprice") AS avg_price,
-                AVG("l_discount") AS avg_disc,
-                COUNT(*) AS count_order
+                SUM("l_extendedprice") / 7.0 AS avg_yearly
+                FROM
+                "benchbase"."lineitem",
+                "benchbase"."part"
+                WHERE
+                "p_partkey" = "l_partkey"
+                AND "p_brand" = 'Brand#11'
+                AND "p_container" = 'SM CASE'
+                AND "l_quantity" &lt; (
+                SELECT
+                0.2 * AVG("l_quantity")
                 FROM
                 "benchbase"."lineitem"
                 WHERE
-                "l_shipdate" &lt;= DATE '1998-12-01' - INTERVAL 1 DAY
-                GROUP BY
-                "l_returnflag",
-                "l_linestatus"
-                ORDER BY
-                "l_returnflag",
-                "l_linestatus"
+                "l_partkey" = "p_partkey" )
             </statement>
         </procedure>
 
         <procedure name="Q18">
             <statement name="query_stmt">
                 SELECT
-                "l_returnflag",
-                "l_linestatus",
-                SUM("l_quantity") AS sum_qty,
-                SUM("l_extendedprice") AS sum_base_price,
-                SUM("l_extendedprice" * (1 - "l_discount")) AS sum_disc_price,
-                SUM("l_extendedprice" * (1 - "l_discount") * (1 + "l_tax")) AS sum_charge,
-                AVG("l_quantity") AS avg_qty,
-                AVG("l_extendedprice") AS avg_price,
-                AVG("l_discount") AS avg_disc,
-                COUNT(*) AS count_order
+                "c_name",
+                "c_custkey",
+                "o_orderkey",
+                "o_orderdate",
+                "o_totalprice",
+                SUM("l_quantity")
                 FROM
+                "benchbase"."customer",
+                "benchbase"."orders",
                 "benchbase"."lineitem"
                 WHERE
-                "l_shipdate" &lt;= DATE '1998-12-01' - INTERVAL 1 DAY
+                "o_orderkey" IN
+                (
+                SELECT
+                "l_orderkey"
+                FROM
+                "benchbase"."lineitem"
                 GROUP BY
-                "l_returnflag",
-                "l_linestatus"
+                "l_orderkey"
+                HAVING
+                SUM("l_quantity") &gt; 315
+                )
+                AND "c_custkey" = "o_custkey"
+                AND "o_orderkey" = "l_orderkey"
+                GROUP BY
+                "c_name",
+                "c_custkey",
+                "o_orderkey",
+                "o_orderdate",
+                "o_totalprice"
                 ORDER BY
-                "l_returnflag",
-                "l_linestatus"
+                "o_totalprice" DESC,
+                "o_orderdate" LIMIT 100
             </statement>
         </procedure>
 
         <procedure name="Q19">
             <statement name="query_stmt">
                 SELECT
-                "l_returnflag",
-                "l_linestatus",
-                SUM("l_quantity") AS sum_qty,
-                SUM("l_extendedprice") AS sum_base_price,
-                SUM("l_extendedprice" * (1 - "l_discount")) AS sum_disc_price,
-                SUM("l_extendedprice" * (1 - "l_discount") * (1 + "l_tax")) AS sum_charge,
-                AVG("l_quantity") AS avg_qty,
-                AVG("l_extendedprice") AS avg_price,
-                AVG("l_discount") AS avg_disc,
-                COUNT(*) AS count_order
+                SUM("l_extendedprice"* (1 - "l_discount")) AS revenue
                 FROM
-                "benchbase"."lineitem"
+                "benchbase"."lineitem",
+                "benchbase"."part"
                 WHERE
-                "l_shipdate" &lt;= DATE '1998-12-01' - INTERVAL 1 DAY
-                GROUP BY
-                "l_returnflag",
-                "l_linestatus"
-                ORDER BY
-                "l_returnflag",
-                "l_linestatus"
+                (
+                "p_partkey" = "l_partkey"
+                AND "p_brand" = 'Brand#11'
+                AND "p_container" IN ('SM CASE', 'SM BOX', 'SM PACK', 'SM PKG')
+                AND "l_quantity" &gt;= 1
+                AND "l_quantity" &lt;= 1 + 10
+                AND "p_size" BETWEEN 1 AND 5
+                AND "l_shipmode" IN ('AIR', 'AIR REG')
+                AND "l_shipinstruct" = 'DELIVER IN PERSON'
+                )
+                OR
+                (
+                "p_partkey" = "l_partkey"
+                AND "p_brand" = 'Brand#22'
+                AND "p_container" IN ('MED BAG', 'MED BOX', 'MED PKG', 'MED PACK')
+                AND "l_quantity" &gt;= 10
+                AND "l_quantity" &lt;= 10 + 10
+                AND "p_size" BETWEEN 1 AND 10
+                AND "l_shipmode" IN ('AIR', 'AIR REG')
+                AND "l_shipinstruct" = 'DELIVER IN PERSON'
+                )
+                OR
+                (
+                "p_partkey" = "l_partkey"
+                AND "p_brand" = 'Brand#33'
+                AND "p_container" IN ('LG CASE', 'LG BOX', 'LG PACK', 'LG PKG')
+                AND "l_quantity" &gt;= 20
+                AND "l_quantity" &lt;= 20 + 10
+                AND "p_size" BETWEEN 1 AND 15
+                AND "l_shipmode" IN ('AIR', 'AIR REG')
+                AND "l_shipinstruct" = 'DELIVER IN PERSON'
+                )
             </statement>
         </procedure>
 
         <procedure name="Q20">
             <statement name="query_stmt">
                 SELECT
-                "l_returnflag",
-                "l_linestatus",
-                SUM("l_quantity") AS sum_qty,
-                SUM("l_extendedprice") AS sum_base_price,
-                SUM("l_extendedprice" * (1 - "l_discount")) AS sum_disc_price,
-                SUM("l_extendedprice" * (1 - "l_discount") * (1 + "l_tax")) AS sum_charge,
-                AVG("l_quantity") AS avg_qty,
-                AVG("l_extendedprice") AS avg_price,
-                AVG("l_discount") AS avg_disc,
-                COUNT(*) AS count_order
+                "s_name",
+                "s_address"
+                FROM
+                "benchbase"."supplier",
+                "benchbase"."nation"
+                WHERE
+                "s_suppkey" IN
+                (
+                SELECT
+                "ps_suppkey"
+                FROM
+                "benchbase"."partsupp"
+                WHERE
+                "ps_partkey" IN
+                (
+                SELECT
+                "p_partkey"
+                FROM
+                "benchbase"."part"
+                WHERE
+                "p_name" LIKE 'green%'
+                )
+                AND "ps_availqty" > (
+                SELECT
+                0.5 * SUM("l_quantity")
                 FROM
                 "benchbase"."lineitem"
                 WHERE
-                "l_shipdate" &lt;= DATE '1998-12-01' - INTERVAL 1 DAY
-                GROUP BY
-                "l_returnflag",
-                "l_linestatus"
+                "l_partkey" = "ps_partkey"
+                AND "l_suppkey" = "ps_suppkey"
+                AND "l_shipdate" >= DATE '1994-01-01'
+                AND "l_shipdate" < DATE '1994-01-01' + INTERVAL '1' YEAR )
+                )
+                AND "s_nationkey" = "n_nationkey"
+                AND "n_name" = 'BRAZIL'
                 ORDER BY
-                "l_returnflag",
-                "l_linestatus"
+                "s_name"
             </statement>
         </procedure>
 
