@@ -6,7 +6,7 @@
 #Aggregate function max on 10M rows
 type: YUGABYTE
 driver: com.yugabyte.Driver
-url: jdbc:yugabytedb://{{endpoint}}:5433/yugabyte?sslmode=require
+url: jdbc:yugabytedb://{{endpoint}}:5433/yugabyte?sslmode=require&ApplicationName=featurebench&reWriteBatchedInserts=true&load-balance=false
 createdb: drop database if exists yb_colocated; create database yb_colocated with colocated=true
 username: {{username}}
 password: {{password}}
