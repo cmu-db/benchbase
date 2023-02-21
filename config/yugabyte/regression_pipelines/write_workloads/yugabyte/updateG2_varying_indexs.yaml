@@ -1,6 +1,6 @@
 type: YUGABYTE
 driver: com.yugabyte.Driver
-url: jdbc:yugabytedb://{{endpoint}}:5433/yugabyte?sslmode=disable&ApplicationName=featurebench&reWriteBatchedInserts=true
+url: jdbc:yugabytedb://{{endpoint}}:5433/yugabyte?sslmode=require&ApplicationName=featurebench&reWriteBatchedInserts=true
 username: {{username}}
 password: {{password}}
 batchsize: 128
@@ -8,6 +8,7 @@ isolation: TRANSACTION_REPEATABLE_READ
 loaderthreads: 4
 terminals: 1
 collect_pg_stat_statements: true
+use_dist_in_explain : true
 works:
     work:
         time_secs: 60

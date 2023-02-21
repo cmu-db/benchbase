@@ -15,6 +15,7 @@ isolation: TRANSACTION_REPEATABLE_READ
 loaderthreads: 1
 terminals: 1
 collect_pg_stat_statements: true
+use_dist_in_explain : true
 works:
     work:
         time_secs: 120
