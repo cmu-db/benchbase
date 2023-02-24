@@ -26,8 +26,6 @@ import com.oltpbenchmark.benchmarks.featurebench.workerhelpers.Query;
 import com.oltpbenchmark.types.State;
 import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.FileUtil;
-import com.oltpbenchmark.util.JSONUtil;
-import com.oltpbenchmark.util.TimeUtil;
 import com.yugabyte.util.PSQLException;
 import org.apache.commons.configuration2.HierarchicalConfiguration;
 import org.apache.commons.configuration2.tree.ImmutableNode;
@@ -36,8 +34,6 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileNotFoundException;
-import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.*;
 import java.util.*;
@@ -79,6 +75,8 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
                 try {
                     Statement stmt = conn.createStatement();
                     stmt.executeQuery("SELECT pg_stat_statements_reset();");
+                    if(!conn.getAutoCommit())
+                        conn.commit();
                 } catch (SQLException e) {
                     throw new RuntimeException(e);
                 }
@@ -155,6 +153,8 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
             while (countResultSetGen < 3) {
                 try {
                     ddl.executeQuery();
+                    if(!conn.getAutoCommit())
+                        conn.commit();
                 } catch (PSQLException e) {
                     if (distOptionPresent && e.getMessage().contains("unrecognized EXPLAIN option \"dist\"")) {
                         String modifiedQuery = ddl.toString().replace("dist,", "");
@@ -170,6 +170,8 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
             jsonObject.put("SQL", ddl);
             double explainStart = System.currentTimeMillis();
             ResultSet rs = ddl.executeQuery();
+            if(!conn.getAutoCommit())
+                conn.commit();
             StringBuilder data = new StringBuilder();
             while (rs.next()) {
                 data.append(rs.getString(1));
@@ -323,6 +325,8 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
         JSONObject outer = new JSONObject();
         int count = 0;
         ResultSet resultSet = stmt.executeQuery(pgStatDDL);
+        if(!conn.getAutoCommit())
+            conn.commit();
         ResultSetMetaData rsmd = resultSet.getMetaData();
         int columnsNumber = rsmd.getColumnCount();
         while (resultSet.next()) {
