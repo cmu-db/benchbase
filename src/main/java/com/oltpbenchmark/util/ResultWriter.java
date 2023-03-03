@@ -251,6 +251,9 @@ public class ResultWriter {
             summaryMap.put(field, expConf.getString(field));
         }
         Map<String, Object> detailedSummaryMap = new TreeMap<>();
+        Map<String, Object> metadata = new TreeMap<>();
+        metadata.put("yaml_version", expConf.getString("yaml_version", "v1.0"));
+        detailedSummaryMap.put("metadata", metadata);
         detailedSummaryMap.put("Summary", summaryMap);
         detailedSummaryMap.put("queries", results.getFeaturebenchAdditionalResults().getJsonResultsList());
         os.println(JSONUtil.format(JSONUtil.toJSONString(detailedSummaryMap)));
