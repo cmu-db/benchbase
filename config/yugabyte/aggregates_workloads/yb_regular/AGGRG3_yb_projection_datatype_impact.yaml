@@ -8,7 +8,7 @@
 #Aggregate function count on indexed varchar(500) column
 type: YUGABYTE
 driver: com.yugabyte.Driver
-url: jdbc:yugabytedb://{{endpoint}}:5433/yugabyte?sslmode=require
+url: jdbc:yugabytedb://{{endpoint}}:5433/yugabyte?sslmode=require&ApplicationName=featurebench&reWriteBatchedInserts=true&load-balance=false
 username: {{user}}
 password: {{pwd}}
 batchsize: 128
@@ -16,6 +16,7 @@ isolation: TRANSACTION_REPEATABLE_READ
 loaderthreads: 1
 terminals: 1
 collect_pg_stat_statements: true
+yaml_version: v1.1
 works:
     work:
         time_secs: 300
@@ -28,8 +29,8 @@ microbenchmark:
         setAutoCommit: true
         create:
             - DROP TABLE IF EXISTS Indexed1M_1;
-            - CREATE TABLE Indexed1M_1(col_bigint_id_1 bigint, col_bigint_1 bigint, col_bigint_2 bigint, col_bigint_3 bigint, col_bigint_4 bigint, col_bigint_5 bigint, col_float2_1 float(2), col_float2_2 float(2), col_float5_1 float(5), col_float5_2 float(5), col_boolean_1 boolean, col_varchar10_id_1 varchar(10), col_varchar100_id_1 varchar(100), col_varchar100_id_2 varchar(100), col_varchar500_id_1 varchar(500));
-            - CREATE INDEX ON Indexed1M_1(col_bigint_id_1 ASC);
+            - CREATE TABLE Indexed1M_1(col_bigint_id_1 bigint, col_bigint_id_2 bigint, col_bigint_1 bigint, col_bigint_2 bigint, col_bigint_3 bigint, col_bigint_4 bigint, col_float2_1 float(2), col_float2_2 float(2), col_float5_1 float(5), col_float5_2 float(5), col_boolean_1 boolean, col_varchar10_id_1 varchar(10), col_varchar100_id_1 varchar(100), col_varchar100_id_2 varchar(100), col_varchar500_id_1 varchar(500), PRIMARY KEY(col_bigint_id_1 ASC));
+            - CREATE INDEX ON Indexed1M_1(col_bigint_id_2 ASC);
             - CREATE INDEX ON Indexed1M_1(col_varchar10_id_1 ASC);
             - CREATE INDEX ON Indexed1M_1(col_varchar500_id_1 ASC);
             - CREATE INDEX ON Indexed1M_1(col_float5_1 ASC);
@@ -40,11 +41,11 @@ microbenchmark:
                 rows: 1000000
                 columns:
                     - name: col_bigint_id_
-                      count: 1
+                      count: 2
                       util: PrimaryIntGen
                       params: [ 1, 1000000 ]
                     - name: col_bigint_
-                      count: 5
+                      count: 4
                       util: RandomNumber
                       params: [ 1, 1000000 ]
                     - name: col_float2_
@@ -82,7 +83,7 @@ microbenchmark:
                   - name: yb_count_on_indexed_bigint
                     weight: 100
                     queries:
-                        - query: select count(col_bigint_id_1) from Indexed1M_1
+                        - query: select count(col_bigint_id_2) from Indexed1M_1
             - workload: AGGRG3_yb_count_on_indexed_float
               run:
                   - name: yb_count_on_indexed_varchar10

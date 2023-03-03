@@ -14,6 +14,7 @@ isolation: TRANSACTION_REPEATABLE_READ
 loaderthreads: 1
 terminals: 1
 collect_pg_stat_statements: true
+yaml_version: v1.1
 use_dist_in_explain : true
 works:
     work:
@@ -26,101 +27,23 @@ microbenchmark:
     properties:
         setAutoCommit: true
         create:
-            - DROP TABLE IF EXISTS nonIndexed1M_1;
-            - DROP TABLE IF EXISTS pkeyBigint1M_1;
             - DROP TABLE IF EXISTS Indexed1M_1;
-            - CREATE TABLE nonIndexed1M_1(col_bigint_id_1 bigint, col_bigint_1 bigint, col_bigint_2 bigint, col_bigint_3 bigint, col_bigint_4 bigint, col_bigint_5 bigint, col_float2_1 float(2), col_float2_2 float(2), col_float5_1 float(5), col_float5_2 float(5), col_boolean_1 boolean, col_varchar10_id_1 varchar(10), col_varchar100_id_1 varchar(100), col_varchar100_id_2 varchar(100), col_varchar500_id_1 varchar(500));
-            - CREATE TABLE pkeyBigint1M_1(col_bigint_id_1 bigint, col_bigint_1 bigint, col_bigint_2 bigint, col_bigint_3 bigint, col_bigint_4 bigint, col_bigint_5 bigint, col_float2_1 float(2), col_float2_2 float(2), col_float5_1 float(5), col_float5_2 float(5), col_boolean_1 boolean, col_varchar10_id_1 varchar(10), col_varchar100_id_1 varchar(100), col_varchar100_id_2 varchar(100), col_varchar500_id_1 varchar(500), PRIMARY KEY(col_bigint_id_1 ASC));
-            - CREATE TABLE Indexed1M_1(col_bigint_id_1 bigint, col_bigint_1 bigint, col_bigint_2 bigint, col_bigint_3 bigint, col_bigint_4 bigint, col_bigint_5 bigint, col_float2_1 float(2), col_float2_2 float(2), col_float5_1 float(5), col_float5_2 float(5), col_boolean_1 boolean, col_varchar10_id_1 varchar(10), col_varchar100_id_1 varchar(100), col_varchar100_id_2 varchar(100), col_varchar500_id_1 varchar(500));
-            - CREATE INDEX ON Indexed1M_1(col_bigint_id_1 ASC);
-            - CREATE INDEX ON Indexed1M_1(col_varchar10_id_1 ASC);
-            - CREATE INDEX ON Indexed1M_1(col_varchar500_id_1 ASC);
-            - CREATE INDEX ON Indexed1M_1(col_float5_1 ASC);
+            - CREATE TABLE Indexed1M_1(col_bigint_id_1 bigint, col_bigint_id_2 bigint, col_bigint_id_3 bigint, col_bigint_1 bigint, col_bigint_2 bigint, col_bigint_3 bigint, col_float2_1 float(2), col_float2_2 float(2), col_float5_1 float(5), col_float5_2 float(5), col_boolean_1 boolean, col_varchar10_id_1 varchar(10), col_varchar100_id_1 varchar(100), col_varchar100_id_2 varchar(100), col_varchar500_id_1 varchar(500), PRIMARY KEY(col_bigint_id_1 ASC));
+            - CREATE INDEX ON Indexed1M_1(col_bigint_id_2 ASC);
         cleanup:
-            - DROP TABLE IF EXISTS nonIndexed1M_1;
-            - DROP TABLE IF EXISTS pkeyBigint1M_1;
             - DROP TABLE IF EXISTS Indexed1M_1;
+
         loadRules:
-              - table: nonIndexed1M_
-                count: 1
-                rows: 1000000
-                columns:
-                    - name: col_bigint_id_
-                      count: 1
-                      util: PrimaryIntGen
-                      params: [ 1, 1000000 ]
-                    - name: col_bigint_
-                      count: 5
-                      util: RandomNumber
-                      params: [ 1, 1000000 ]
-                    - name: col_float2_
-                      count: 2
-                      util: RandomNoWithDecimalPoints
-                      params: [ 1, 1000000, 2 ]
-                    - name: col_float5_
-                      count: 2
-                      util: RandomNoWithDecimalPoints
-                      params: [ 1, 1000000, 5 ]
-                    - name: col_boolean_
-                      count: 1
-                      util: RandomBoolean
-                    - name: col_varchar10_id_
-                      count: 1
-                      util: PrimaryStringGen
-                      params: [1, 10]
-                    - name: col_varchar100_id_
-                      count: 2
-                      util: PrimaryStringGen
-                      params: [1, 100]
-                    - name: col_varchar500_id_
-                      count: 1
-                      util: PrimaryStringGen
-                      params: [1, 500]
-              - table: pkeyBigint1M_
-                count: 1
-                rows: 1000000
-                columns:
-                    - name: col_bigint_id_
-                      count: 1
-                      util: PrimaryIntGen
-                      params: [ 1, 1000000 ]
-                    - name: col_bigint_
-                      count: 5
-                      util: RandomNumber
-                      params: [ 1, 1000000 ]
-                    - name: col_float2_
-                      count: 2
-                      util: RandomNoWithDecimalPoints
-                      params: [ 1, 1000000, 2 ]
-                    - name: col_float5_
-                      count: 2
-                      util: RandomNoWithDecimalPoints
-                      params: [ 1, 1000000, 5 ]
-                    - name: col_boolean_
-                      count: 1
-                      util: RandomBoolean
-                    - name: col_varchar10_id_
-                      count: 1
-                      util: PrimaryStringGen
-                      params: [1, 10]
-                    - name: col_varchar100_id_
-                      count: 2
-                      util: PrimaryStringGen
-                      params: [1, 100]
-                    - name: col_varchar500_id_
-                      count: 1
-                      util: PrimaryStringGen
-                      params: [1, 500]
               - table: Indexed1M_
                 count: 1
                 rows: 1000000
                 columns:
                     - name: col_bigint_id_
-                      count: 1
+                      count: 3
                       util: PrimaryIntGen
                       params: [ 1, 1000000 ]
                     - name: col_bigint_
-                      count: 5
+                      count: 3
                       util: RandomNumber
                       params: [ 1, 1000000 ]
                     - name: col_float2_
@@ -146,22 +69,23 @@ microbenchmark:
                       count: 1
                       util: PrimaryStringGen
                       params: [1, 500]
+
         executeRules:
             - workload: AGGRG1_count_bigint_non_indexed_column
               run:
                   - name: yb_count_bigint_non_indexed_column
                     weight: 100
                     queries:
-                        - query: select count(col_bigint_id_1) from nonIndexed1M_1
+                        - query: select count(col_bigint_id_3) from Indexed1M_1
             - workload: AGGRG1_count_bigint_pkey_column
               run:
                   - name: yb_count_bigint_non_indexed_column
                     weight: 100
                     queries:
-                        - query: select count(col_bigint_id_1) from pkeyBigint1M_1
+                        - query: select count(col_bigint_id_1) from Indexed1M_1
             - workload: AGGRG1_count_bigint_secondary_indexed_column
               run:
                   - name: yb_count_bigint_non_indexed_column
                     weight: 100
                     queries:
-                        - query: select count(col_bigint_id_1) from Indexed1M_1
+                        - query: select count(col_bigint_id_2) from Indexed1M_1
