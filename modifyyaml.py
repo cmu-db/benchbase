@@ -30,6 +30,8 @@ def main():
                 if "sslmode" in data:
                     doc[key] = doc[key].replace("disable", "require") if data["sslmode"] else doc[key].replace(
                         "require", "disable")
+            elif key == "setAutoCommit":
+                doc["microbenchmark"]["properties"]["setAutoCommit"] = value
             else:
                 doc[key] = value
             print(key, value)
