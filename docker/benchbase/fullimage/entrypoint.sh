@@ -15,4 +15,4 @@ cd ./profiles/${BENCHBASE_PROFILE}/
 if ! [ -d results/ ] || ! [ -w results/ ]; then
     echo "ERROR: The results directory either doesn't exist or isn't writable." >&2
 fi
-java -jar benchbase.jar $*
+exec java -jar benchbase.jar $*
