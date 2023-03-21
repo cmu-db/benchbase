@@ -27,8 +27,9 @@ fi
 
 cd "$rootdir"
 MAVEN_CONFIG="${MAVEN_CONFIG:-$HOME/.m2}"
-mkdir -p "$MAVEN_CONFIG"
+mkdir -p "$MAVEN_CONFIG" || true
 set -x
+SRC_DIR="${LOCAL_WORKSPACE_FOLDER:-$PWD}"
 docker run ${INTERACTIVE_ARGS:-} --rm \
     --env=http_proxy="${http_proxy:-}" --env=https_proxy="${https_proxy:-}" \
     --env MAVEN_OPTS="-Dhttp.proxyHost=${http_proxy_host} -Dhttp.proxyPort=${http_proxy_port} -Dhttps.proxyHost=${https_proxy_host} -Dhttps.proxyPort=${https_proxy_port}" \
@@ -37,5 +38,5 @@ docker run ${INTERACTIVE_ARGS:-} --rm \
     --env SKIP_TESTS="$SKIP_TESTS" \
     --user "$CONTAINERUSER_UID:$CONTAINERUSER_GID" \
     -v "$MAVEN_CONFIG:/home/containeruser/.m2" \
-    -v "$PWD:/benchbase" benchbase-dev:latest $*
+    -v "$SRC_DIR:/benchbase" benchbase-dev:latest $*
 set +x
