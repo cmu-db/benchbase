@@ -9,7 +9,7 @@ rootdir=$(readlink -f "$scriptdir/../../")
 
 cd "$scriptdir"
 . ./common-env.sh
-./build-dev-image.sh
+./build-dev-image.sh >&2
 
 if [ "$imagename" != 'benchbase-dev' ]; then
     echo "ERROR: Unexpected imagename: $imagename" >&2
@@ -30,7 +30,7 @@ MAVEN_CONFIG="${MAVEN_CONFIG:-$HOME/.m2}"
 mkdir -p "$MAVEN_CONFIG"
 set -x
 docker run ${INTERACTIVE_ARGS:-} --rm \
-    --env=http_proxy="${http_proxy:-}" --env=https_proxy="${https_proxy:-}" \
+    --env=http_proxy="${http_proxy:-}" --env=https_proxy="${https_proxy:-}" --env=no_proxy="${no_proxy:-}" \
     --env MAVEN_OPTS="-Dhttp.proxyHost=${http_proxy_host} -Dhttp.proxyPort=${http_proxy_port} -Dhttps.proxyHost=${https_proxy_host} -Dhttps.proxyPort=${https_proxy_port}" \
     --env BENCHBASE_PROFILES="$BENCHBASE_PROFILES" \
     --env CLEAN_BUILD="$CLEAN_BUILD" \
