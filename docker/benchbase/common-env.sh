@@ -69,3 +69,17 @@ if [ -n "$git_vers_tag" ]; then
         image_tag_args+=" -t $CONTAINER_REGISTRY_NAME/$imagename:$git_vers_tag"
     fi
 fi
+
+docker_build_args=''
+if ! docker buildx version >/dev/null 2>&1; then
+    echo 'NOTE: docker buildkit is unavailable.' >&2
+    DOCKER_BUILDKIT=0
+    docker_build_args=''
+elif [ -z "$DOCKER_BUILDKIT" ]; then
+    # If not already set, default to buildkit.
+    DOCKER_BUILDKIT=1
+fi
+if [ "$DOCKER_BUILDKIT" == 1 ]; then
+    docker_build_args='--progress=plain'
+fi
+export DOCKER_BUILDKIT
