@@ -438,7 +438,8 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                     break;
 
                 } catch (UserAbortException ex) {
-                    conn.rollback();
+                    if (!conn.getAutoCommit())
+                        conn.rollback();
 
                     ABORT_LOG.debug(String.format("%s Aborted", transactionType), ex);
 
@@ -447,7 +448,8 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                     break;
 
                 } catch (SQLException ex) {
-                    conn.rollback();
+                    if (!conn.getAutoCommit())
+                        conn.rollback();
 
                     if (isRetryable(ex)) {
                         LOG.debug(String.format("Retryable SQLException occurred during [%s]... current retry attempt [%d], max retry attempts [%d], sql state [%s], error code [%d].", transactionType, retryCount, maxRetryCount, ex.getSQLState(), ex.getErrorCode()), ex);
@@ -512,6 +514,8 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
             return true;
         } else if (errorCode == 1205 && sqlState.equals("41000")) {
             // MySQL ER_LOCK_WAIT_TIMEOUT
+            return true;
+        } else if(errorCode > 0 && !sqlState.isEmpty()) {
             return true;
         }
 

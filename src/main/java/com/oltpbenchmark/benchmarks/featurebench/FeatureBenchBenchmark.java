@@ -56,11 +56,11 @@ public class FeatureBenchBenchmark extends BenchmarkModule {
         String workloadName = conf.getString("properties/executeRules[" + workcount + "]/workload") != null ? conf.getString("properties/executeRules[" + workcount + "]/workload") : TimeUtil.getCurrentTimeString();
 
         for (int i = 0; i < workConf.getTerminals(); ++i) {
-            FeatureBenchWorker worker = new FeatureBenchWorker(this, i);
-            worker.workloadClass = conf.getString("class");
-            worker.config = conf.configurationAt("properties");
-            worker.executeRules = configToExecuteRues(confExecuteRules, i, workConf.getTerminals());
-            worker.workloadName = workloadName;
+            FeatureBenchWorker worker = new FeatureBenchWorker(this, i,
+                conf.getString("class"),
+                conf.configurationAt("properties"),
+                configToExecuteRues(confExecuteRules, i, workConf.getTerminals()),
+                workloadName);
             workers.add(worker);
         }
         return workers;

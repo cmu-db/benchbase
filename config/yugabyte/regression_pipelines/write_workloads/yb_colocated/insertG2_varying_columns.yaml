@@ -10,7 +10,7 @@ createdb: drop database if exists yb_colocated; create database yb_colocated wit
 batchsize: 128
 isolation: TRANSACTION_REPEATABLE_READ
 loaderthreads: 4
-terminals: 4
+terminals: 1
 collect_pg_stat_statements: true
 use_dist_in_explain : true
 works:
