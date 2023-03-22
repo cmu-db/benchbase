@@ -500,7 +500,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
         if (errorCode == 1213 && sqlState.equals("40001")) {
             // MySQL ER_LOCK_DEADLOCK
             return true;
-        } else if (errorCode == 1205 && sqlState.equals("41000")) {
+        } else if (errorCode == 1205 && sqlState.equals("40001")) {
             // MySQL ER_LOCK_WAIT_TIMEOUT
             return true;
         }
