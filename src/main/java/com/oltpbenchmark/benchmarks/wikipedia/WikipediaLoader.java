@@ -498,7 +498,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                 char[] old_text = TextGenerator.randomChars(rng(), old_text_length);
 
                 for (int i = 0; i < num_revised; i++) {
-                    // Generate the User who's doing the revision and the Page  revised
+                    // Generate the User who's doing the revision and the Page revised
                     // Makes sure that we always update their counter
                     int user_id = h_users.nextInt();
                     this.user_revision_ctr[user_id - 1]++;
@@ -513,7 +513,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                     String rev_comment = TextGenerator.randomStr(rng(), rev_comment_len);
 
                     // The REV_USER_TEXT field is usually the username, but we'll
-                    // just  put in gibberish for now
+                    // just put in gibberish for now
                     String user_text = TextGenerator.randomStr(rng(), h_nameLength.nextValue() + 1);
 
                     // Insert the text

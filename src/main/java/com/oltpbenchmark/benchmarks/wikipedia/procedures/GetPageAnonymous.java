@@ -54,7 +54,7 @@ public class GetPageAnonymous extends Procedure {
                     " WHERE page_id = rev_page " +
                     "   AND rev_page = ? " +
                     "   AND page_id = ? " +
-                        "   AND rev_id = page_latest LIMIT 1"
+                    "   AND rev_id = page_latest LIMIT 1"
     );
     public SQLStmt selectText = new SQLStmt(
             "SELECT old_text, old_flags FROM " + WikipediaConstants.TABLENAME_TEXT +
