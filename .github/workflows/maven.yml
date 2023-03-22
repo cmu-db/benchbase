@@ -161,7 +161,8 @@ jobs:
           MARIADB_PORT: ${{ job.services.mariadb.ports[3306] }}
         run: |
           mysql -h127.0.0.1 -P$MARIADB_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
-          java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/mariadb/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true
+          # TODO: Check the histograms for failures
+          java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/mariadb/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
 
   ## ----------------------------------------------------------------------------------
   ## MYSQL
