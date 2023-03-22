@@ -54,3 +54,5 @@ build/
 
 # vim swap files
 .*.swp
+
+.env
