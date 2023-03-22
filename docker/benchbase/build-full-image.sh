@@ -57,14 +57,23 @@ function create_image() {
     # Make (hard-linked) copies of the build results that we can put into the image.
     pushd "$scriptdir/fullimage/"
     rm -rf tmp/
-    mkdir -p tmp/docker-build-stage/
+    mkdir -p tmp/config/
+    mkdir -p tmp/profiles/
+    cp -a "$rootdir/config/plugin.xml" tmp/config/
     for profile in $profiles; do
         if ! [ -f "$rootdir/profiles/$profile/benchbase.jar" ]; then
             echo "ERROR: build for $profile appears to have failed." >&2
             exit 1
         fi
-        cp -al "$rootdir/profiles/$profile" tmp/docker-build-stage/
+        cp -al "$rootdir/profiles/$profile" tmp/profiles/
+
+        # Consolidate the configs across profiles.
+        cp -a "$rootdir/profiles/$profile/config/$profile" tmp/config/
+        rm -rf tmp/profiles/$profile/config
+        ln -s ../../config/$profile "tmp/profiles/$profile/config"
+        ln -s . tmp/profiles/$profile/config/$profile
     done
+
     # Make a copy of the entrypoint script that changes the default profile to
     # execute for singleton images.
     cp -a entrypoint.sh tmp/entrypoint.sh
