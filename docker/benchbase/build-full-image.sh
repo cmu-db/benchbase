@@ -72,6 +72,7 @@ function create_image() {
         rm -rf tmp/profiles/$profile/config
         ln -s ../../config/$profile "tmp/profiles/$profile/config"
         ln -s . tmp/profiles/$profile/config/$profile
+        ln -s ../plugin.xml tmp/config/$profile/
     done
 
     # Make a copy of the entrypoint script that changes the default profile to
