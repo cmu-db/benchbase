@@ -2,53 +2,100 @@
 
 set -eu
 
-BENCHBASE_PROFILES="${BENCHBASE_PROFILES:-cockroachdb mariadb mysql postgres spanner phoenix sqlserver}"
-
 scriptdir=$(dirname "$(readlink -f "$0")")
 rootdir=$(readlink -f "$scriptdir/../../")
-cd "$rootdir"
 
-http_proxy_host=''
-http_proxy_port=''
-https_proxy_host=''
-https_proxy_port=''
+cd "$scriptdir"
+. ./common-env.sh
 
-if echo "${http_proxy:-}" | egrep -q 'http[s]?://[^:]+:[0-9]+[/]?$'; then
-    http_proxy_host=$(echo "$http_proxy" | sed -r -e 's|^http[s]?://([^:]+):([0-9]+)[/]?$|\1|')
-    http_proxy_port=$(echo "$http_proxy" | sed -r -e 's|^http[s]?://([^:]+):([0-9]+)[/]?$|\2|')
+
+if [ "$CLEAN_BUILD" == 'true' ]; then
+    grep '^FROM ' fullimage/Dockerfile \
+        | sed -r -e 's/^FROM\s+//' -e 's/--platform=\S+\s+//' -e 's/\s+AS \S+\s*$/ /' \
+        | while read base_image; do
+            set -x
+            docker pull $base_image &
+            set +x
+        done
+        wait
 fi
 
-if echo "${https_proxy:-}" | egrep -q 'http[s]?://[^:]+:[0-9]+[/]?$'; then
-    https_proxy_host=$(echo "$https_proxy" | sed -r -e 's|^http[s]?://([^:]+):([0-9]+)[/]?$|\1|')
-    https_proxy_port=$(echo "$https_proxy" | sed -r -e 's|^http[s]?://([^:]+):([0-9]+)[/]?$|\2|')
-fi
 
-target=
-tag=
-basename=$(basename "$0")
-if [ "$basename" == "build-full-image.sh" ]; then
-    target='fullimage'
-    tag='benchbase'
-elif [ "$basename" == "build-dev-image.sh" ]; then
-    target='devcontainer'
-    tag='benchbase-dev'
-else
-    echo "ERROR: Unhandled mode: $basename" >&2
+logs_child_pid=
+container_id=
+function trap_ctrlc() {
+    docker stop -t 1 $container_id >/dev/null || true
+    if [ -n "$logs_child_pid" ]; then
+        kill $logs_child_pid 2>/dev/null || true
+    fi
     exit 1
+}
+
+# Build the requested profiles using the dev image.
+./build-dev-image.sh
+# Use non-interactive mode so that the build doesn't prompt us to accept git ssh keys.
+# But setup some Ctrl-C handlers as well.
+container_id=$(INTERACTIVE='false' ./run-dev-image.sh /benchbase/docker/benchbase/devcontainer/build-in-container.sh)
+trap trap_ctrlc SIGINT SIGTERM
+echo "INFO: build-devcontainer-id: $container_id"
+docker logs -f $container_id &
+logs_child_pid=$!
+rc=$(docker wait $container_id)
+trap - SIGINT SIGTERM
+if [ "$rc" != 0 ]; then
+    echo "ERROR: Build in devcontainer failed." >&2
+    exit $rc
 fi
 
-CONTAINERUSER_UID="${CONTAINERUSER_UID:-$UID}"
-if [ "$CONTAINERUSER_UID" -eq 0 ] && [ -n "${SUDO_UID:-}" ]; then
-    CONTAINERUSER_UID="$SUDO_UID"
-fi
-CONTAINERUSER_GID=${CONTAINERUSER_GID:-$(getent passwd "$CONTAINERUSER_UID" | cut -d: -f4)}
-if [ -z "$CONTAINERUSER_GID" ]; then
-    echo "WARNING: missing CONTAINERUSER_GID." >&2
-fi
 
-set -x
-docker build --progress=plain --build-arg=http_proxy=${http_proxy:-} --build-arg=https_proxy=${https_proxy:-} \
-    --build-arg MAVEN_OPTS="-Dhttp.proxyHost=${http_proxy_host} -Dhttp.proxyPort=${http_proxy_port} -Dhttps.proxyHost=${https_proxy_host} -Dhttps.proxyPort=${https_proxy_port}" \
-    --build-arg BENCHBASE_PROFILES="${BENCHBASE_PROFILES}" \
-    --build-arg CONTAINERUSER_UID="$CONTAINERUSER_UID" --build-arg CONTAINERUSER_GID="$CONTAINERUSER_GID" \
-    -t $tag -f ./docker/benchbase/Dockerfile --target $target .
+function create_image() {
+    local profiles="$1"
+    local default_profile=$(echo "$profiles" | awk '{ print $1 }')
+
+    # Prepare the build context.
+
+    # Make (hard-linked) copies of the build results that we can put into the image.
+    pushd "$scriptdir/fullimage/"
+    rm -rf tmp/
+    mkdir -p tmp/docker-build-stage/
+    for profile in $profiles; do
+        if ! [ -f "$rootdir/profiles/$profile/benchbase.jar" ]; then
+            echo "ERROR: build for $profile appears to have failed." >&2
+            exit 1
+        fi
+        cp -al "$rootdir/profiles/$profile" tmp/docker-build-stage/
+    done
+    # Make a copy of the entrypoint script that changes the default profile to
+    # execute for singleton images.
+    cp -a entrypoint.sh tmp/entrypoint.sh
+    sed -i "s/:-postgres/:-${default_profile}/" tmp/entrypoint.sh
+
+    # Adjust the image tags.
+    local image_name='benchbase'
+    if [ "$profiles" == "$default_profile" ]; then
+        # This is a singleton image, mark it as such.
+        image_name="benchbase-${default_profile}"
+    fi
+    local target_image_tag_args=$(echo "-t benchbase:latest ${image_tag_args:-}" | sed "s/benchbase:/$image_name:/g")
+
+    set -x
+    docker build $docker_build_args \
+        --build-arg BUILDKIT_INLINE_CACHE=1 \
+        --build-arg="http_proxy=${http_proxy:-}" --build-arg="https_proxy=${https_proxy:-}" --build-arg="no_proxy=${no_proxy:-}" \
+        --build-arg CONTAINERUSER_UID="$CONTAINERUSER_UID" --build-arg CONTAINERUSER_GID="$CONTAINERUSER_GID" \
+        $target_image_tag_args -f "$scriptdir/fullimage/Dockerfile" "$scriptdir/fullimage/tmp/"
+    set +x
+
+    # Cleanup the temporary copies.
+    rm -rf "$scriptdir/fullimage/tmp/"
+    popd
+}
+
+# Create the combo image.
+if [ $(echo "$BENCHBASE_PROFILES" | wc -w) -gt 1 ]; then
+    create_image "$BENCHBASE_PROFILES"
+fi
+# Now create split images as well.
+for profile in $BENCHBASE_PROFILES; do
+    create_image $profile
+done

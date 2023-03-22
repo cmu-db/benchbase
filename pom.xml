@@ -15,6 +15,7 @@
         <java.version>17</java.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
+        <buildDirectory>${project.basedir}/target</buildDirectory>
     </properties>
 
     <scm>
@@ -133,7 +134,7 @@
                 <dependency>
                     <groupId>com.microsoft.sqlserver</groupId>
                     <artifactId>mssql-jdbc</artifactId>
-                    <version>10.2.0.jre17</version>
+                    <version>11.2.0.jre17</version>
                 </dependency>
             </dependencies>
         </profile>
@@ -229,6 +230,7 @@
     </dependencies>
 
     <build>
+        <directory>${buildDirectory}</directory>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

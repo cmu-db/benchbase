@@ -1,0 +1,17 @@
+#!/bin/sh
+
+set -eu
+
+set -x
+
+scriptdir=$(dirname "$(readlink -f "$0")")
+# Start in the root of the repository.
+cd "$scriptdir/../../"
+
+# Make sure the .env file exists for the devcontainer to load.
+if [ ! -f .env ]; then
+    echo "Creating empty .env file for devcontainer."
+    touch .env
+fi
+# Attempt to pre-create the maven cache directory for bind mounting into the devcontainer.
+mkdir -p ~/.m2 || true
