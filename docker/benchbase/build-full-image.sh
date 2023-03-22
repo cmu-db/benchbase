@@ -11,7 +11,7 @@ cd "$scriptdir"
 
 if [ "$CLEAN_BUILD" == 'true' ]; then
     grep '^FROM ' fullimage/Dockerfile \
-        | sed -r -e 's/^FROM\s+//' -e 's/\s+AS \S+\s*$/ /' \
+        | sed -r -e 's/^FROM\s+//' -e 's/--platform=\S+\s+//' -e 's/\s+AS \S+\s*$/ /' \
         | while read base_image; do
             set -x
             docker pull $base_image &
@@ -79,8 +79,9 @@ function create_image() {
     local target_image_tag_args=$(echo "-t benchbase:latest ${image_tag_args:-}" | sed "s/benchbase:/$image_name:/g")
 
     set -x
-    docker build --progress=plain \
-        --build-arg="http_proxy=${http_proxy:-}" --build-arg="https_proxy=${https_proxy:-}" \
+    docker build $docker_build_args \
+        --build-arg BUILDKIT_INLINE_CACHE=1 \
+        --build-arg="http_proxy=${http_proxy:-}" --build-arg="https_proxy=${https_proxy:-}" --build-arg="no_proxy=${no_proxy:-}" \
         --build-arg CONTAINERUSER_UID="$CONTAINERUSER_UID" --build-arg CONTAINERUSER_GID="$CONTAINERUSER_GID" \
         $target_image_tag_args -f "$scriptdir/fullimage/Dockerfile" "$scriptdir/fullimage/tmp/"
     set +x
