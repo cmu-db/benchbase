@@ -313,7 +313,7 @@ jobs:
     strategy:
       matrix:
         # TODO: add more benchmarks
-        benchmark: [ 'tpcc', 'tpch' ]
+        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
     services:
       sqlserver:
         image: mcr.microsoft.com/mssql/server:latest
