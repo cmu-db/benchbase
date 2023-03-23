@@ -316,7 +316,7 @@ jobs:
         benchmark: [ 'tpcc', 'tpch' ]
     services:
       sqlserver:
-        image: mcr.microsoft.com/mssql/server:2019-latest
+        image: mcr.microsoft.com/mssql/server:latest
         env:
           ACCEPT_EULA: Y
           SA_PASSWORD: SApassword1
