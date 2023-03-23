@@ -23,7 +23,7 @@ run_sqlcmd_in_docker -Q "DROP DATABASE IF EXISTS benchbase;"
 run_sqlcmd_in_docker -Q "CREATE DATABASE benchbase;"
 
 # Setup login
-run_sqlcmd_in_docker -Q "CREATE LOGIN benchuser01 WITH PASSWORD='P@ssw0rd';"
+run_sqlcmd_in_docker -Q "CREATE LOGIN benchuser01 WITH PASSWORD='P@ssw0rd';" || true
 
 # Setup access
-run_sqlcmd_in_docker -Q "USE benchbase; CREATE USER benchuser01 FROM LOGIN benchuser01; EXEC sp_addrolemember 'db_owner', 'benchuser01';"
+run_sqlcmd_in_docker -Q "USE benchbase; CREATE USER benchuser01 FROM LOGIN benchuser01; EXEC sp_addrolemember 'db_owner', 'benchuser01';" || true
