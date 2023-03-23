@@ -110,7 +110,8 @@ jobs:
 
       - name: Run benchmark
         run: |
-          java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/sqlite/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true
+          java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/sqlite/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
+          ./scripts/check_histogram_results.sh results/histograms.json
 
   ## ----------------------------------------------------------------------------------
   ## MARIADB
@@ -161,8 +162,8 @@ jobs:
           MARIADB_PORT: ${{ job.services.mariadb.ports[3306] }}
         run: |
           mysql -h127.0.0.1 -P$MARIADB_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
-          # TODO: Check the histograms for failures
           java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/mariadb/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
+          ./scripts/check_histogram_results.sh results/histograms.json
 
   ## ----------------------------------------------------------------------------------
   ## MYSQL
@@ -213,7 +214,8 @@ jobs:
           MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
           mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
-          java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/mysql/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true
+          java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/mysql/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
+          ./scripts/check_histogram_results.sh results/histograms.json
 
   ## ----------------------------------------------------------------------------------
   ## POSTGRESQL
@@ -262,7 +264,8 @@ jobs:
         run: |
           PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
           PGPASSWORD=password createdb -h localhost -U admin benchbase
-          java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/postgres/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true
+          java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/postgres/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
+          ./scripts/check_histogram_results.sh results/histograms.json
 
   ## ----------------------------------------------------------------------------------
   ## COCKROACHDB
@@ -303,7 +306,8 @@ jobs:
 
       - name: Run benchmark
         run: |
-          java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/cockroachdb/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true
+          java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/cockroachdb/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
+          ./scripts/check_histogram_results.sh results/histograms.json
 
   ## ----------------------------------------------------------------------------------
   ## MSSQL
@@ -375,7 +379,8 @@ jobs:
       - name: Run benchmark
         # Note: user/pass should match those used in sample configs.
         run: |
-          java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/sqlserver/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true
+          java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/sqlserver/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
+          ./scripts/check_histogram_results.sh results/histograms.json
 
   ## ----------------------------------------------------------------------------------
   ## Docker Build Test Publish
@@ -439,9 +444,10 @@ jobs:
             mkdir -p results
             docker run --rm --name benchbase-postgres --network "$docker_network" \
               --env BENCHBASE_PROFILE=postgres -v /tmp/config.xml:/tmp/config.xml -v "$PWD/results:/benchbase/results" \
-              "$image" -b "$benchmark" -c /tmp/config.xml --create=true --load=true --execute=true
+              "$image" -b "$benchmark" -c /tmp/config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
             # Test that the results files were produced.
             ls results/${benchmark}_*.csv
+            ./scripts/check_histogram_results.sh results/histograms.json
           done
       # Publish the docker image if the build/test was successful.
       # Only do this with approved PRs and if the login secrets are available.
