@@ -32,7 +32,7 @@
         "no_proxy": "${localEnv:no_proxy}",
         "MAVEN_CONFIG": "${localEnv:HOME}/.m2",
         "LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}",
-        "CONTAINER_WORKSPACE_FOLDER": "${containerWorkspaceFolder}",
+        "CONTAINER_WORKSPACE_FOLDER": "${containerWorkspaceFolder}"
     },
     // Set *default* container specific settings.json values on container create.
     "customizations": {
