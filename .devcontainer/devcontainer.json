@@ -40,6 +40,7 @@
             "settings": {},
             // Add the IDs of extensions you want installed when the container is created.
             "extensions": [
+                "github.vscode-github-actions",
                 "vscjava.vscode-java-pack",
                 "EditorConfig.EditorConfig"
             ]
