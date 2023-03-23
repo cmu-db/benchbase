@@ -5,7 +5,7 @@ services:
   sqlserver:
     container_name: sqlserver
     hostname: sqlserver
-    image: mcr.microsoft.com/mssql/server:2019-latest
+    image: mcr.microsoft.com/mssql/server:latest
     environment:
       ACCEPT_EULA: Y
       SA_PASSWORD: SApassword1
