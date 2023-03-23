@@ -8,8 +8,6 @@ services:
     image: mysql:latest
     command: --max-connections=500
     environment:
-      MYSQL_USER: admin
-      MYSQL_PASSWORD: password
       MYSQL_ROOT_PASSWORD: password
       MYSQL_USER: admin
       MYSQL_PASSWORD: password
