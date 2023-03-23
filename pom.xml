@@ -69,7 +69,7 @@
                 <dependency>
                     <groupId>mysql</groupId>
                     <artifactId>mysql-connector-java</artifactId>
-                    <version>8.0.28</version>
+                    <version>8.0.29</version>
                 </dependency>
             </dependencies>
         </profile>
@@ -192,7 +192,7 @@
         <dependency>
             <groupId>com.opencsv</groupId>
             <artifactId>opencsv</artifactId>
-            <version>5.6</version>
+            <version>5.7.1</version>
         </dependency>
 
         <dependency>
@@ -341,7 +341,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
-                <version>3.0.0</version>
+                <version>3.1.0</version>
                 <configuration>
                     <mainClass>com.oltpbenchmark.DBWorkload</mainClass>
                 </configuration>
