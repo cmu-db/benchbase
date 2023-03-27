@@ -253,10 +253,13 @@ public class WorkloadConfiguration {
      */
     public void init() {
         try {
-            Class.forName(this.driverClass);
+            // The newInstance() call is a work around for some broken Java implementations
+            Class.forName(this.driverClass).newInstance();
         } catch (ClassNotFoundException ex) {
             throw new RuntimeException("Failed to initialize JDBC driver '" + this.driverClass + "'", ex);
-        }
+	} catch (java.lang.InstantiationException | java.lang.IllegalAccessException ex) {
+            throw new RuntimeException("Failed to initialize JDBC driver '" + this.driverClass + "'", ex);
+        }    
     }
 
     public int getTerminals() {

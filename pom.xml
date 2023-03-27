@@ -51,6 +51,13 @@
     <profiles>
         <profile>
             <id>arcion</id>
+            <repositories>
+            <repository>
+                <id>jumpmind</id>
+                <name>jumpmind</name>
+                <url>https://maven.jumpmind.com/repo</url>
+            </repository>
+            </repositories>            
             <properties>
                 <classifier>arcion</classifier>
             </properties>
@@ -70,12 +77,7 @@
                     <artifactId>postgresql</artifactId>
                     <version>42.4.0</version>
                 </dependency>
-                <!-- https://mvnrepository.com/artifact/net.snowflake/snowflake-jdbc -->
-                <dependency>
-                    <groupId>net.snowflake</groupId>
-                    <artifactId>snowflake-jdbc</artifactId>
-                    <version>3.13.30</version>
-                </dependency>
+                
                 <dependency>
                     <groupId>mysql</groupId>
                     <artifactId>mysql-connector-java</artifactId>
@@ -102,12 +104,13 @@
                     <artifactId>jdbc</artifactId>
                     <version>4.50.3</version>
                 </dependency>
-                <!-- https://mvnrepository.com/artifact/org.mongodb/bson -->
+                  
+                <!-- https://mvnrepository.com/artifact/jdbc.sybase/jconn4 -->
                 <dependency>
-                    <groupId>org.mongodb</groupId>
-                    <artifactId>bson</artifactId>
-                    <version>3.8.0</version>
-                </dependency>  
+                    <groupId>jdbc.sybase</groupId>
+                    <artifactId>jconn4</artifactId>
+                    <version>16.0</version>
+                </dependency>                
             </dependencies>
         </profile>
 
@@ -134,9 +137,23 @@
                     <groupId>com.ibm.db2</groupId>
                     <artifactId>jcc</artifactId>
 		            <version>11.5.8.0</version>
-                </dependency>
+            	</dependency>
             </dependencies>
-        </profile>
+     	</profile>
+    	<profile>
+	    <id>sybase</id>
+	    <properties>
+		    <classifier>sybase</classifier>
+            </properties>
+	    <!-- https://mvnrepository.com/artifact/jdbc.sybase/jconn4 -->
+	    <dependencies>
+                <dependency>
+                    <groupId>jdbc.sybase</groupId>
+                    <artifactId>jconn4</artifactId>
+                    <version>16.0</version>
+	    	</dependency>
+    	    </dependencies>
+    	</profile>
         <profile>
             <id>postgres</id>
             <properties>
@@ -150,20 +167,7 @@
                 </dependency>
             </dependencies>
         </profile>
-        <profile>
-            <id>snowflake</id>
-            <properties>
-                <classifier>snowflake</classifier>
-            </properties>
-            <dependencies>
-                <!-- https://mvnrepository.com/artifact/net.snowflake/snowflake-jdbc -->
-                <dependency>
-                    <groupId>net.snowflake</groupId>
-                    <artifactId>snowflake-jdbc</artifactId>
-                    <version>3.13.30</version>
-                </dependency>
-            </dependencies>
-        </profile>
+        
         <profile>
             <id>mysql</id>
             <properties>
@@ -266,13 +270,7 @@
                     <groupId>com.ibm.informix</groupId>
                     <artifactId>jdbc</artifactId>
                     <version>4.50.3</version>
-                </dependency>
-                <!-- https://mvnrepository.com/artifact/org.mongodb/bson -->
-                <dependency>
-                    <groupId>org.mongodb</groupId>
-                    <artifactId>bson</artifactId>
-                    <version>3.8.0</version>
-                </dependency>                
+                </dependency>              
             </dependencies>
         </profile>
     </profiles>
