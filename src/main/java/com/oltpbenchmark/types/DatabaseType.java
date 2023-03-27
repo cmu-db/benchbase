@@ -35,6 +35,7 @@ public enum DatabaseType {
     DB2(true, false),
     H2(true, false),
     HSQLDB(false, false),
+    INFORMIX(false, false),
     POSTGRES(false, false),
     MARIADB(true, false),
     MONETDB(false, false),
