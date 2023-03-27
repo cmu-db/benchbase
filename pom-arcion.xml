@@ -16,6 +16,21 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <buildDirectory>${project.basedir}/target</buildDirectory>
+        <!--
+            Provids a way to limit which assembly package formats we produce.
+            This is useful for quick iterations where compressing and extracting
+            the package repeatedly to build a container image is wasteful.
+            By default we continue to produce zip and tgz package outputs.
+            This can be reset on the CLI by passing the following (for instance):
+            -Ddescriptors=src/main/assembly/tgz.xml
+        -->
+        <!--
+        <descriptors>src/main/assembly/dir.xml,src/main/assembly/tgz.xml,src/main/assembly/zip.xml</descriptors>
+        -->
+        <descriptors>src/main/assembly/tgz.xml,src/main/assembly/zip.xml</descriptors>
+        <!--
+        <descriptors>src/main/assembly/tgz.xml</descriptors>
+        -->
     </properties>
 
     <scm>
@@ -35,6 +50,81 @@
 
     <profiles>
         <profile>
+            <id>arcion</id>
+            <repositories>
+            <repository>
+                <id>jumpmind</id>
+                <name>jumpmind</name>
+                <url>https://maven.jumpmind.com/repo</url>
+            </repository>
+            </repositories>            
+            <properties>
+                <classifier>arcion</classifier>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>org.xerial</groupId>
+                    <artifactId>sqlite-jdbc</artifactId>
+                    <version>3.36.0.3</version>
+                </dependency>
+                <dependency>
+                    <groupId>com.ibm.db2</groupId>
+                    <artifactId>jcc</artifactId>
+		            <version>11.5.8.0</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.postgresql</groupId>
+                    <artifactId>postgresql</artifactId>
+                    <version>42.4.0</version>
+                </dependency>
+                <!-- https://mvnrepository.com/artifact/net.snowflake/snowflake-jdbc -->
+                <dependency>
+                    <groupId>net.snowflake</groupId>
+                    <artifactId>snowflake-jdbc</artifactId>
+                    <version>3.13.30</version>
+                </dependency>
+                <dependency>
+                    <groupId>mysql</groupId>
+                    <artifactId>mysql-connector-java</artifactId>
+                    <version>8.0.29</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.mariadb.jdbc</groupId>
+                    <artifactId>mariadb-java-client</artifactId>
+                    <version>2.7.8</version>
+                </dependency>
+                <dependency>
+                    <groupId>com.oracle.database.jdbc</groupId>
+                    <artifactId>ojdbc8</artifactId>
+                    <version>21.1.0.0</version>
+                </dependency>
+                <dependency>
+                    <groupId>com.microsoft.sqlserver</groupId>
+                    <artifactId>mssql-jdbc</artifactId>
+                    <version>11.2.3.jre17</version>
+                </dependency>
+                <!-- https://mvnrepository.com/artifact/com.ibm.informix/jdbc -->
+                <dependency>
+                    <groupId>com.ibm.informix</groupId>
+                    <artifactId>jdbc</artifactId>
+                    <version>4.50.3</version>
+                </dependency>
+                <!-- https://mvnrepository.com/artifact/org.mongodb/bson -->
+                <dependency>
+                    <groupId>org.mongodb</groupId>
+                    <artifactId>bson</artifactId>
+                    <version>3.8.0</version>
+                </dependency>  
+                <!-- https://mvnrepository.com/artifact/jdbc.sybase/jconn4 -->
+                <dependency>
+                    <groupId>jdbc.sybase</groupId>
+                    <artifactId>jconn4</artifactId>
+                    <version>16.0</version>
+                </dependency>                
+            </dependencies>
+        </profile>
+
+        <profile>
             <id>sqlite</id>
             <properties>
                 <classifier>sqlite</classifier>
@@ -43,7 +133,7 @@
                 <dependency>
                     <groupId>org.xerial</groupId>
                     <artifactId>sqlite-jdbc</artifactId>
-                    <version>3.36.0.3</version>
+                    <version>3.41.2.1</version>
                 </dependency>
             </dependencies>
         </profile>
@@ -56,10 +146,22 @@
                 <dependency>
                     <groupId>com.ibm.db2</groupId>
                     <artifactId>jcc</artifactId>
-		    <version>11.5.8.0</version>
+		            <version>11.5.8.0</version>
                 </dependency>
             </dependencies>
-        </profile>
+    </profile>
+     <profile>
+            <id>sybase</id>
+            <properties>
+                    <classifier>sybase</classifier>
+            </properties>
+                    <!-- https://mvnrepository.com/artifact/jdbc.sybase/jconn4 -->
+                <dependency>
+                    <groupId>jdbc.sybase</groupId>
+                    <artifactId>jconn4</artifactId>
+                    <version>16.0</version>
+    </dependency>
+    </profile>
         <profile>
             <id>postgres</id>
             <properties>
@@ -69,7 +171,7 @@
                 <dependency>
                     <groupId>org.postgresql</groupId>
                     <artifactId>postgresql</artifactId>
-                    <version>42.4.0</version>
+                    <version>42.6.0</version>
                 </dependency>
             </dependencies>
         </profile>
@@ -96,7 +198,7 @@
                 <dependency>
                     <groupId>mysql</groupId>
                     <artifactId>mysql-connector-java</artifactId>
-                    <version>8.0.29</version>
+                    <version>8.0.30</version>
                 </dependency>
             </dependencies>
         </profile>
@@ -122,7 +224,7 @@
                 <dependency>
                     <groupId>com.google.cloud</groupId>
                     <artifactId>google-cloud-spanner-jdbc</artifactId>
-                    <version>2.6.1</version>
+                    <version>2.9.13</version>
                 </dependency>
             </dependencies>
         </profile>
@@ -135,7 +237,7 @@
                 <dependency>
                     <groupId>org.postgresql</groupId>
                     <artifactId>postgresql</artifactId>
-                    <version>42.4.0</version>
+                    <version>42.6.0</version>
                 </dependency>
             </dependencies>
         </profile>
@@ -204,19 +306,19 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.36</version>
+            <version>2.0.7</version>
         </dependency>
 
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-reload4j</artifactId>
-            <version>1.7.36</version>
+            <version>2.0.7</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-configuration2</artifactId>
-            <version>2.8.0</version>
+            <version>2.9.0</version>
         </dependency>
 
         <dependency>
@@ -258,7 +360,7 @@
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20220320</version>
+            <version>20230227</version>
         </dependency>
 
         <dependency>
@@ -270,7 +372,7 @@
         <dependency>
             <groupId>org.glassfish.jaxb</groupId>
             <artifactId>jaxb-runtime</artifactId>
-            <version>4.0.0</version>
+            <version>4.0.2</version>
         </dependency>
 
         <dependency>
@@ -286,7 +388,6 @@
             <scope>test</scope>
         </dependency>
 
-
     </dependencies>
 
     <build>
@@ -295,7 +396,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.10.1</version>
+                <version>3.11.0</version>
                 <configuration>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
@@ -304,7 +405,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.2.2</version>
+                <version>3.3.0</version>
                 <configuration>
                     <classifier>${classifier}</classifier>
                     <archive>
@@ -321,21 +422,19 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.4.1</version>
+                <version>3.5.0</version>
+                <configuration>
+                    <appendAssemblyId>false</appendAssemblyId>
+                    <finalName>${project.artifactId}-${classifier}</finalName>
+                    <recompressZippedFiles>false</recompressZippedFiles>
+                    <descriptors>${descriptors}</descriptors>
+                </configuration>
                 <executions>
                     <execution>
                         <phase>package</phase>
                         <goals>
                             <goal>single</goal>
                         </goals>
-                        <configuration>
-                            <appendAssemblyId>false</appendAssemblyId>
-                            <finalName>${project.artifactId}-${classifier}</finalName>
-                            <descriptors>
-                                <descriptor>src/main/assembly/tgz.xml</descriptor>
-                                <descriptor>src/main/assembly/zip.xml</descriptor>
-                            </descriptors>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -356,7 +455,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-release-plugin</artifactId>
-                <version>2.5.3</version>
+                <version>3.0.0</version>
                 <configuration>
                     <useReleaseProfile>false</useReleaseProfile>
                     <tagNameFormat>v@{version}</tagNameFormat>
@@ -376,16 +475,22 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <!--
+                        NOTE: Run in tight loops you can run with -Dmaven.gitcommitid.skip=true
+                        to avoid regenerating the git.properties file that causes recompiliation.
+                    -->
                     <generateGitPropertiesFile>true</generateGitPropertiesFile>
                     <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
                     <commitIdGenerationMode>full</commitIdGenerationMode>
                     <useNativeGit>true</useNativeGit>
+                    <verbose>true</verbose>
+                    <failOnNoGitDirectory>false</failOnNoGitDirectory>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.3.0</version>
+                <version>3.5.0</version>
                 <executions>
                     <execution>
                         <id>analyze</id>
