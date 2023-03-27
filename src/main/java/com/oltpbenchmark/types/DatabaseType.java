@@ -35,7 +35,8 @@ public enum DatabaseType {
     DB2(true, false),
     H2(true, false),
     HSQLDB(false, false),
-    POSTGRES(false, false, true),
+    INFORMIX(false, false),
+    POSTGRES(false, false),
     MARIADB(true, false),
     MONETDB(false, false),
     MYROCKS(true, false),
@@ -47,8 +48,9 @@ public enum DatabaseType {
     SPANNER(false, true),
     SQLAZURE(true, true, true),
     SQLITE(true, false),
-    SQLSERVER(true, true, true),
-    TIMESTEN(true, false),
+    SQLSERVER(true, false),
+    SYBASEASE(true, false),
+    TIMESTEN(true,false),
     PHOENIX(true, true);
 
 
