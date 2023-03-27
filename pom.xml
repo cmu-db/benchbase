@@ -186,7 +186,7 @@
                 <dependency>
                     <groupId>org.mariadb.jdbc</groupId>
                     <artifactId>mariadb-java-client</artifactId>
-                    <version>3.1.4</version>
+                    <version>2.7.8</version>
                 </dependency>
             </dependencies>
         </profile>
@@ -217,6 +217,19 @@
             </dependencies>
         </profile>
         <profile>
+            <id>oracle</id>
+            <properties>
+                <classifier>oracle</classifier>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>com.oracle.database.jdbc</groupId>
+                    <artifactId>ojdbc8</artifactId>
+                    <version>21.1.0.0</version>
+            </dependency>
+            </dependencies>
+        </profile>
+        <profile>
             <id>phoenix</id>
             <properties>
                 <classifier>phoenix</classifier>
@@ -240,6 +253,26 @@
                     <artifactId>mssql-jdbc</artifactId>
                     <version>11.2.3.jre17</version>
                 </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>informix</id>
+            <properties>
+                <classifier>informix</classifier>
+            </properties>
+            <dependencies>
+                <!-- https://mvnrepository.com/artifact/com.ibm.informix/jdbc -->
+                <dependency>
+                    <groupId>com.ibm.informix</groupId>
+                    <artifactId>jdbc</artifactId>
+                    <version>4.50.3</version>
+                </dependency>
+                <!-- https://mvnrepository.com/artifact/org.mongodb/bson -->
+                <dependency>
+                    <groupId>org.mongodb</groupId>
+                    <artifactId>bson</artifactId>
+                    <version>3.8.0</version>
+                </dependency>                
             </dependencies>
         </profile>
     </profiles>
