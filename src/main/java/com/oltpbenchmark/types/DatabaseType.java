@@ -49,7 +49,8 @@ public enum DatabaseType {
     SQLAZURE(true, false),
     SQLITE(true, false),
     SQLSERVER(true, false),
-    TIMESTEN(true, false),
+    SYBASEASE(true, false),
+    TIMESTEN(true,false),
     PHOENIX(true, true);
 
 
