@@ -1,0 +1,28 @@
+type: YUGABYTE
+driver: com.yugabyte.Driver
+url: jdbc:yugabytedb://{{endpoint}}:5433/yugabyte?sslmode=require&ApplicationName=featurebench&reWriteBatchedInserts=true
+username: {{username}}
+password: {{password}}
+createdb: drop database if exists yb_colocated; create database yb_colocated with colocated=true
+batchsize: 128
+isolation: TRANSACTION_REPEATABLE_READ
+collect_pg_stat_statements: false
+loaderthreads: 1
+terminals: 1
+works:
+    work:
+        rate: unlimited
+        serial: true
+
+microbenchmark:
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.bulkload.Goal1
+    properties:
+        # Goal 1 - 3 :: create table with PK -> create 5 index -> load data (5 index)
+        workload: create5index_load
+        tableName: orders
+        columns: 15
+        rows: 3000000
+        indexes: 5
+        filePath: orders.csv
+        stringLength: 32
+        recreateCsvIfExists: false

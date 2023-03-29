@@ -1,0 +1,28 @@
+type: POSTGRES
+driver: org.postgresql.Driver
+url: jdbc:postgresql://{{endpoint}}:5432/postgres?sslmode=require
+username: {{username}}
+password: {{password}}
+
+batchsize: 128
+isolation: TRANSACTION_REPEATABLE_READ
+collect_pg_stat_statements: false
+loaderthreads: 1
+terminals: 1
+works:
+    work:
+        rate: unlimited
+        serial: true
+
+microbenchmark:
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.bulkload.Goal1
+    properties:
+        # Goal 1 - 2 :: create table with PK -> create 1 index -> load data (1 index)
+        workload: create1index_load
+        tableName: orders
+        columns: 15
+        rows: 3000000
+        indexes: 1
+        filePath: orders.csv
+        stringLength: 32
+        recreateCsvIfExists: false

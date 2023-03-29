@@ -675,7 +675,13 @@ public class DBWorkload {
                     // Bombs away!
                     try {
                         Results r = runWorkload(benchList, intervalMonitor, workCount);
-                        writeOutputs(r, activeTXTypes, argsLine, xmlConfig, executeRules == null ? null : workloads.get(workCount - 1).getString("workload"));
+                        // if block currently only valid for bulkload experiments
+                        if(xmlConfig.containsKey("microbenchmark/properties/workload")) {
+                            writeOutputs(r, activeTXTypes, argsLine, xmlConfig, xmlConfig.getString("microbenchmark/properties/workload"));
+                        }
+                        else {
+                            writeOutputs(r, activeTXTypes, argsLine, xmlConfig, executeRules == null ? null : workloads.get(workCount - 1).getString("workload"));
+                        }
                         writeHistograms(r);
 
                         if (argsLine.hasOption("json-histograms")) {

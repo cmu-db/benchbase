@@ -8,6 +8,7 @@ import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -21,6 +22,8 @@ public class Goal1 extends YBMicroBenchmark {
     String filePath;
     int stringLength;
 
+    boolean recreateCsvIfExists;
+
     public Goal1(HierarchicalConfiguration<ImmutableNode> config) {
         super(config);
         this.executeOnceImplemented = true;
@@ -31,6 +34,7 @@ public class Goal1 extends YBMicroBenchmark {
         this.indexCount = config.getInt("/indexes");
         this.filePath = config.getString("/filePath");
         this.stringLength = config.getInt("/stringLength");
+        this.recreateCsvIfExists = config.getBoolean("/recreateCsvIfExists", true);
     }
 
     public void create(Connection conn) throws SQLException {
@@ -39,8 +43,13 @@ public class Goal1 extends YBMicroBenchmark {
         stmtOBj.executeUpdate(String.format("DROP TABLE IF EXISTS %s", this.tableName));
         stmtOBj.close();
         createTableAndIndexes(conn);
-        LOG.info("Create CSV file with data");
-        BulkloadUtils.createCSV(this.filePath, this.numOfRows, this.numOfColumns, this.stringLength);
+
+        if(!this.recreateCsvIfExists && (new File(this.filePath).exists()))
+            LOG.info("Using existing CSV file.");
+        else {
+            LOG.info("Create CSV file with data");
+            BulkloadUtils.createCSV(this.filePath, this.numOfRows, this.numOfColumns, this.stringLength);
+        }
     }
 
     public void loadOnce(Connection conn) throws SQLException {

@@ -1,0 +1,26 @@
+type: POSTGRES
+driver: org.postgresql.Driver
+url: jdbc:postgresql://{{endpoint}}:5432/postgres?sslmode=require
+username: {{username}}
+password: {{password}}
+
+batchsize: 128
+isolation: TRANSACTION_REPEATABLE_READ
+collect_pg_stat_statements: false
+loaderthreads: 1
+terminals: 1
+
+works:
+    work:
+        rate: unlimited
+        serial: true
+microbenchmark:
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.bulkload.Goal4
+    properties:
+        # Goal4 - 3 :: create table with 100 fields, 3M rows -> load data (only PK)
+        workload: create_100fields_table_then_load
+        tableName: orders
+        columns: 100
+        rows: 3000000
+        filePath: orders.csv
+        stringLength: 32

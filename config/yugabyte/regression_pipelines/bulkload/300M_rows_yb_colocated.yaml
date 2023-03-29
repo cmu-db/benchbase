@@ -1,0 +1,26 @@
+
+type: YUGABYTE
+driver: com.yugabyte.Driver
+url: jdbc:yugabytedb://{{endpoint}}:5433/yugabyte?sslmode=disable&ApplicationName=featurebench&reWriteBatchedInserts=true
+username: {{username}}
+password: {{password}}
+createdb: drop database if exists yb_colocated; create database yb_colocated with colocated=true
+batchsize: 128
+isolation: TRANSACTION_REPEATABLE_READ
+collect_pg_stat_statements: false
+loaderthreads: 1
+terminals: 1
+works:
+    work:
+        rate: unlimited
+        serial: true
+microbenchmark:
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.bulkload.Goal3
+    properties:
+        # Goal3 - 3 :: create table with 15 fields -> load data for 300M rows (only PK)
+        workload: load_300Mrows
+        tableName: orders
+        columns: 15
+        rows: 300000000
+        filePath: orders.csv
+        stringLength: 32
