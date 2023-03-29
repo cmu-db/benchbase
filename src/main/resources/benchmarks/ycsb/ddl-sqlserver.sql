@@ -1,17 +1,17 @@
--- YCSB DDL for Microsoft SQL Server
+-- ycsb ddl for microsoft sql server
 
-IF OBJECT_ID('USERTABLE') IS NOT NULL DROP table USERTABLE;
+if object_id('usertable') is not null drop table usertable;
 
-CREATE TABLE USERTABLE(
-  YCSB_KEY INT PRIMARY KEY,
-  FIELD1 TEXT, 
-  FIELD2 TEXT,
-  FIELD3 TEXT, 
-  FIELD4 TEXT,
-  FIELD5 TEXT, 
-  FIELD6 TEXT,
-  FIELD7 TEXT, 
-  FIELD8 TEXT,
-  FIELD9 TEXT, 
-  FIELD10 TEXT
+create table usertable(
+  ycsb_key int primary key,
+  field1 text, 
+  field2 text,
+  field3 text, 
+  field4 text,
+  field5 text, 
+  field6 text,
+  field7 text, 
+  field8 text,
+  field9 text, 
+  field10 text
   );
