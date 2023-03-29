@@ -40,7 +40,7 @@ CREATE TABLE USERACCT (
     u_id                BIGINT NOT NULL,
     u_rating            BIGINT NOT NULL,
     u_balance           FLOAT NOT NULL,
-    u_comments			INTEGER DEFAULT 0,
+    u_comments          BIGINT DEFAULT 0,
     u_r_id              BIGINT NOT NULL REFERENCES REGION (r_id),
     u_created           DATETIME,
     u_updated           DATETIME,
@@ -59,7 +59,7 @@ CREATE TABLE USERACCT (
     u_iattr4            BIGINT DEFAULT NULL,
     u_iattr5            BIGINT DEFAULT NULL,
     u_iattr6            BIGINT DEFAULT NULL,
-    u_iattr7            BIGINT DEFAULT NULL, 
+    u_iattr7            BIGINT DEFAULT NULL,
     PRIMARY KEY (u_id)
 );
 CREATE INDEX IDX_USERACCT_REGION ON USERACCT (u_id, u_r_id);
@@ -119,7 +119,7 @@ CREATE TABLE ITEM (
     i_iattr4            BIGINT DEFAULT NULL,
     i_iattr5            BIGINT DEFAULT NULL,
     i_iattr6            BIGINT DEFAULT NULL,
-    i_iattr7            BIGINT DEFAULT NULL, 
+    i_iattr7            BIGINT DEFAULT NULL,
     PRIMARY KEY (i_id, i_u_id)
 );
 CREATE INDEX IDX_ITEM_SELLER ON ITEM (i_u_id);
@@ -157,7 +157,7 @@ CREATE TABLE ITEM_COMMENT (
     ic_updated          DATETIME,
     FOREIGN KEY (ic_i_id, ic_u_id) REFERENCES ITEM (i_id, i_u_id) ON DELETE CASCADE,
     PRIMARY KEY (ic_id, ic_i_id, ic_u_id)
-); 
+);
 -- CREATE INDEX IDX_ITEM_COMMENT ON ITEM_COMMENT (ic_i_id, ic_u_id);
 
 CREATE TABLE ITEM_BID (
