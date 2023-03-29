@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    <type>sqlserver</type>
+    <driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</driver>
+    <url>jdbc:sqlserver://localhost:1433;encrypt=false;database=benchbase;</url>
+    <username>benchuser01</username>
+    <password>P@ssw0rd</password>
+    <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    <batchsize>128</batchsize>
+
+    <!-- Scalefactor in AuctionMark scales by *1000 the number of customers-->
+    <scalefactor>1</scalefactor>
+
+    <!-- The workload -->
+    <terminals>1</terminals>
+    <works>
+        <work>
+            <time>60</time>
+            <rate>10000</rate>
+            <weights>45, 10, 20, 2, 1, 4, 10, 5, 3</weights>
+        </work>
+    </works>
+
+    <!-- AuctionMark Procedures declaration -->
+    <transactiontypes>
+        <transactiontype>
+            <name>GetItem</name>
+        </transactiontype>
+        <transactiontype>
+            <name>GetUserInfo</name>
+        </transactiontype>
+        <transactiontype>
+            <name>NewBid</name>
+        </transactiontype>
+        <transactiontype>
+            <name>NewComment</name>
+        </transactiontype>
+        <transactiontype>
+            <name>NewCommentResponse</name>
+        </transactiontype>
+        <transactiontype>
+            <name>NewFeedback</name>
+        </transactiontype>
+        <transactiontype>
+            <name>NewItem</name>
+        </transactiontype>
+        <transactiontype>
+            <name>NewPurchase</name>
+        </transactiontype>
+        <transactiontype>
+            <name>UpdateItem</name>
+        </transactiontype>
+    </transactiontypes>
+</parameters>
