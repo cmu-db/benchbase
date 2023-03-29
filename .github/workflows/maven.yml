@@ -85,6 +85,7 @@ jobs:
     needs: package-and-upload
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         # BROKEN: tpch
         benchmark: [ 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
@@ -120,6 +121,7 @@ jobs:
     needs: package-and-upload
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
     services:
@@ -172,6 +174,7 @@ jobs:
     needs: package-and-upload
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
     services:
@@ -224,6 +227,7 @@ jobs:
     needs: package-and-upload
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
     services:
@@ -274,6 +278,7 @@ jobs:
     needs: package-and-upload
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
     services:
@@ -316,6 +321,7 @@ jobs:
     needs: package-and-upload
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         # TODO: add more benchmarks
         #benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
