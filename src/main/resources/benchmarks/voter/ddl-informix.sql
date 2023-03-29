@@ -1,54 +1,54 @@
-DROP VIEW IF EXISTS V_VOTES_BY_PHONE_NUMBER;
-DROP VIEW IF EXISTS V_VOTES_BY_CONTESTANT_NUMBER_STATE;
-DROP TABLE IF EXISTS VOTES;
-DROP TABLE IF EXISTS AREA_CODE_STATE;
-DROP TABLE IF EXISTS CONTESTANTS;
+drop view if exists v_votes_by_phone_number;
+drop view if exists v_votes_by_contestant_number_state;
+drop table if exists votes;
+drop table if exists area_code_state;
+drop table if exists contestants;
 
 -- contestants table holds the contestants numbers (for voting) and names
-CREATE TABLE CONTESTANTS
+create table contestants
 (
-    contestant_number integer     NOT NULL,
-    contestant_name   varchar(50) NOT NULL,
-    PRIMARY KEY (contestant_number)
+    contestant_number integer     not null,
+    contestant_name   varchar(50) not null,
+    primary key (contestant_number)
 );
 
--- Map of Area Codes and States for geolocation classification of incoming calls
-CREATE TABLE AREA_CODE_STATE
+-- map of area codes and states for geolocation classification of incoming calls
+create table area_code_state
 (
-  area_code smallint   NOT NULL,
-  state     varchar(2) NOT NULL,
-  PRIMARY KEY ( area_code )
+  area_code smallint   not null,
+  state     varchar(2) not null,
+  primary key ( area_code )
 );
 
 -- votes table holds every valid vote.
 --   voters are not allowed to submit more than <x> votes, x is passed to client application
-CREATE TABLE VOTES
+create table votes
 (
-  vote_id            bigint     NOT NULL,
-  phone_number       bigint     NOT NULL,
-  state              varchar(2) NOT NULL,
-  contestant_number  integer    NOT NULL REFERENCES CONTESTANTS (contestant_number),
-  created            DATETIME YEAR TO FRACTION(3)  NOT NULL
+  vote_id            bigint     not null,
+  phone_number       bigint     not null,
+  state              varchar(2) not null,
+  contestant_number  integer    not null references contestants (contestant_number),
+  created            datetime year to fraction(3)  not null
 );
 -- informix auto creates based on references
--- CREATE INDEX idx_votes_phone_number ON VOTES (phone_number);
+-- create index idx_votes_phone_number on votes (phone_number);
 
 -- rollup of votes by phone number, used to reject excessive voting
-CREATE VIEW V_VOTES_BY_PHONE_NUMBER
+create view v_votes_by_phone_number
 (
   phone_number, num_votes
 )
-AS
-   SELECT phone_number, COUNT(*)
-     FROM VOTES
- GROUP BY phone_number;
+as
+   select phone_number, count(*)
+     from votes
+ group by phone_number;
 
 -- rollup of votes by contestant and state for the heat map and results
-CREATE VIEW V_VOTES_BY_CONTESTANT_NUMBER_STATE
+create view v_votes_by_contestant_number_state
 (
   contestant_number, state, num_votes
 )
-AS
-   SELECT contestant_number, state , COUNT(*)
-     FROM VOTES
- GROUP BY contestant_number, state;
+as
+   select contestant_number, state , count(*)
+     from votes
+ group by contestant_number, state;

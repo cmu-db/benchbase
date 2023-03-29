@@ -1,27 +1,27 @@
--- Drop all views / tables
-IF OBJECT_ID('V_VOTES_BY_PHONE_NUMBER') IS NOT NULL DROP view V_VOTES_BY_PHONE_NUMBER;
-IF OBJECT_ID('V_VOTES_BY_CONTESTANT_NUMBER_STATE') IS NOT NULL DROP view V_VOTES_BY_CONTESTANT_NUMBER_STATE;
-IF OBJECT_ID('AREA_CODE_STATE') IS NOT NULL DROP table AREA_CODE_STATE;
-IF OBJECT_ID('VOTES') IS NOT NULL DROP table VOTES;
-IF OBJECT_ID('CONTESTANTS') IS NOT NULL DROP table CONTESTANTS;
+-- drop all views / tables
+if object_id('v_votes_by_phone_number') is not null drop view v_votes_by_phone_number;
+if object_id('v_votes_by_contestant_number_state') is not null drop view v_votes_by_contestant_number_state;
+if object_id('area_code_state') is not null drop table area_code_state;
+if object_id('votes') is not null drop table votes;
+if object_id('contestants') is not null drop table contestants;
 
 -- contestants table holds the contestants numbers (for voting) and names
-CREATE TABLE CONTESTANTS
+create table contestants
 (
-  contestant_number integer     NOT NULL
-, contestant_name   varchar(50) NOT NULL
-, PRIMARY KEY
+  contestant_number integer     not null
+, contestant_name   varchar(50) not null
+, primary key
   (
     contestant_number
   )
 );
 
--- Map of Area Codes and States for geolocation classification of incoming calls
-CREATE TABLE AREA_CODE_STATE
+-- map of area codes and states for geolocation classification of incoming calls
+create table area_code_state
 (
-  area_code smallint   NOT NULL
-, state     varchar(2) NOT NULL
-, PRIMARY KEY
+  area_code smallint   not null
+, state     varchar(2) not null
+, primary key
   (
     area_code
   )
@@ -29,41 +29,41 @@ CREATE TABLE AREA_CODE_STATE
 
 -- votes table holds every valid vote.
 --   voters are not allowed to submit more than <x> votes, x is passed to client application
-CREATE TABLE VOTES
+create table votes
 (
-  vote_id            bigint     NOT NULL
-, phone_number       bigint     NOT NULL
-, state              varchar(2) NOT NULL
-, contestant_number  integer    NOT NULL REFERENCES CONTESTANTS (contestant_number)
-, created            timestamp  NOT NULL
+  vote_id            bigint     not null
+, phone_number       bigint     not null
+, state              varchar(2) not null
+, contestant_number  integer    not null references contestants (contestant_number)
+, created            timestamp  not null
 );
-CREATE INDEX idx_votes_phone_number ON VOTES (phone_number);
+create index idx_votes_phone_number on votes (phone_number);
 
 -- rollup of votes by phone number, used to reject excessive voting
-CREATE VIEW V_VOTES_BY_PHONE_NUMBER
+create view v_votes_by_phone_number
 (
   phone_number
 , num_votes
 )
-AS
-   SELECT phone_number
-        , COUNT(*)
-     FROM VOTES
- GROUP BY phone_number
+as
+   select phone_number
+        , count(*)
+     from votes
+ group by phone_number
 ;
 
 -- rollup of votes by contestant and state for the heat map and results
-CREATE VIEW V_VOTES_BY_CONTESTANT_NUMBER_STATE
+create view v_votes_by_contestant_number_state
 (
   contestant_number
 , state
 , num_votes
 )
-AS
-   SELECT contestant_number
+as
+   select contestant_number
         , state
-        , COUNT(*)
-     FROM VOTES
- GROUP BY contestant_number
+        , count(*)
+     from votes
+ group by contestant_number
         , state
 ;
