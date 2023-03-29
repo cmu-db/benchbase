@@ -31,7 +31,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-//import ch.ethz.ssh2.log.Logger;
 public class UpdatePage extends Procedure {
     private static final Logger LOG = LoggerFactory.getLogger(UpdatePage.class);
 
@@ -122,8 +121,8 @@ public class UpdatePage extends Procedure {
             ps.setInt(param++, userId);           // rc_user
             ps.setString(param++, userText);      // rc_user_text
             ps.setString(param++, revComment);    // rc_comment
-            ps.setLong(param++, nextTextId);       // rc_this_oldid
-            ps.setLong(param++, textId);           // rc_last_oldid
+            ps.setLong(param++, nextTextId);      // rc_this_oldid
+            ps.setLong(param++, textId);          // rc_last_oldid
             ps.setInt(param++, 0);                // rc_bot
             ps.setInt(param++, 0);                // rc_moved_to_ns
             ps.setString(param++, "");            // rc_moved_to_title
