@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    <type>sqlserver</type>
+    <driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</driver>
+    <url>jdbc:sqlserver://localhost:1433;encrypt=false;database=benchbase;</url>
+    <username>benchuser01</username>
+    <password>P@ssw0rd</password>
+    <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    <batchsize>128</batchsize>
+
+    <!-- Scalefactor in Epinions scales by *2000 the number of users-->
+    <scalefactor>1</scalefactor>
+
+    <!-- The workload -->
+    <terminals>1</terminals>
+    <works>
+        <work>
+            <time>60</time>
+            <rate>10000</rate>
+            <weights>10,10,10,10,10,10,10,10,20</weights>
+        </work>
+    </works>
+
+    <!-- Epinions Procedures Declaration -->
+    <transactiontypes>
+        <transactiontype>
+            <name>GetReviewItemById</name>
+        </transactiontype>
+        <transactiontype>
+            <name>GetReviewsByUser</name>
+        </transactiontype>
+        <transactiontype>
+            <name>GetAverageRatingByTrustedUser</name>
+        </transactiontype>
+        <transactiontype>
+            <name>GetItemAverageRating</name>
+        </transactiontype>
+        <transactiontype>
+            <name>GetItemReviewsByTrustedUser</name>
+        </transactiontype>
+        <transactiontype>
+            <name>UpdateUserName</name>
+        </transactiontype>
+        <transactiontype>
+            <name>UpdateItemTitle</name>
+        </transactiontype>
+        <transactiontype>
+            <name>UpdateReviewRating</name>
+        </transactiontype>
+        <transactiontype>
+            <name>UpdateTrustRating</name>
+        </transactiontype>
+    </transactiontypes>
+</parameters>
