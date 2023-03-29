@@ -412,10 +412,9 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.m2/repository
-          # Try to use the same key as https://github.com/actions/setup-java uses in the steps above.
-          key: setup-java-${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          key: setup-java-${{ runner.os }}-docker-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
-            setup-java-${{ runner.os }}-maven-
+            setup-java-${{ runner.os }}-docker-maven-
       - name: Build benchbase-dev image
         run: |
           ./docker/benchbase/build-dev-image.sh
