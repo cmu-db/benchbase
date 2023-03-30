@@ -13,6 +13,8 @@ IF OBJECT_ID('useracct') IS NOT NULL DROP table useracct;
 IF OBJECT_ID('user_groups') IS NOT NULL DROP table user_groups;
 IF OBJECT_ID('value_backup') IS NOT NULL DROP table value_backup;
 IF OBJECT_ID('watchlist') IS NOT NULL DROP table watchlist;
+IF OBJECT_ID('text_old_id_seq') IS NOT NULL DROP SEQUENCE text_old_id_seq;
+IF OBJECT_ID('revision_rev_id_seq') IS NOT NULL DROP SEQUENCE revision_rev_id_seq;
 
 -- Create tables
 
@@ -152,8 +154,9 @@ CREATE INDEX IDX_RC_IP ON recentchanges (rc_ip);
 CREATE INDEX IDX_RC_NS_USERTEXT ON recentchanges (rc_namespace,rc_user_text);
 CREATE INDEX IDX_RC_USER_TEXT ON recentchanges (rc_user_text,rc_timestamp);
 
+CREATE SEQUENCE revision_rev_id_seq START WITH 1 MINVALUE 1 INCREMENT BY 1;
 CREATE TABLE revision (
-  rev_id int IDENTITY NOT NULL,
+  rev_id int NOT NULL DEFAULT NEXT VALUE FOR revision_rev_id_seq,
   rev_page int NOT NULL,
   rev_text_id int NOT NULL,
   rev_comment varchar(255) NOT NULL,
@@ -172,8 +175,9 @@ CREATE INDEX IDX_PAGE_TIMESTAMP ON revision (rev_page,rev_timestamp);
 CREATE INDEX IDX_USER_TIMESTAMP ON revision (rev_user,rev_timestamp);
 CREATE INDEX IDX_USERTEXT_TIMESTAMP ON revision (rev_user_text,rev_timestamp);
 
+CREATE SEQUENCE text_old_id_seq START WITH 1 MINVALUE 1 INCREMENT BY 1;
 CREATE TABLE text (
-  old_id int IDENTITY NOT NULL,
+  old_id int NOT NULL DEFAULT NEXT VALUE FOR text_old_id_seq,
   old_text varchar(max) NOT NULL,
   old_flags varchar(255) NOT NULL,
   old_page int DEFAULT NULL,

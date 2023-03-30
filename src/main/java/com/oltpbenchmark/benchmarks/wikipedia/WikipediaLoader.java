@@ -241,6 +241,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
     private void loadUsers(Connection conn, int lo, int hi) throws SQLException {
         Table catalog_tbl = benchmark.getCatalog().getTable(WikipediaConstants.TABLENAME_USER);
 
+        SQLUtil.setIdentityInsert(conn, getDatabaseType(), catalog_tbl, true);
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
 
         try (PreparedStatement userInsert = conn.prepareStatement(sql)) {
@@ -307,7 +308,13 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                 userInsert.clearBatch();
             }
         }
-        if (this.getDatabaseType() == DatabaseType.POSTGRES || this.getDatabaseType() == DatabaseType.COCKROACHDB) {
+        SQLUtil.setIdentityInsert(conn, getDatabaseType(), catalog_tbl, false);
+        DatabaseType dbType = this.getDatabaseType();
+        if (dbType == DatabaseType.POSTGRES
+                || dbType == DatabaseType.COCKROACHDB
+                || dbType == DatabaseType.SQLSERVER
+                || dbType == DatabaseType.SQLAZURE
+        ) {
             this.updateAutoIncrement(conn, catalog_tbl.getColumn(0), this.benchmark.num_users);
         }
         if (LOG.isDebugEnabled()) {
@@ -321,7 +328,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
     private void loadPages(Connection conn, int lo, int hi) throws SQLException {
         Table catalog_tbl = benchmark.getCatalog().getTable(WikipediaConstants.TABLENAME_PAGE);
 
-
+        SQLUtil.setIdentityInsert(conn, getDatabaseType(), catalog_tbl, true);
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
         try (PreparedStatement pageInsert = conn.prepareStatement(sql)) {
             FlatHistogram<String> h_restrictions = new FlatHistogram<>(rng(), PageHistograms.RESTRICTIONS);
@@ -370,7 +377,13 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                 this.addToTableCount(catalog_tbl.getName(), batchSize);
             }
         }
-        if (this.getDatabaseType() == DatabaseType.POSTGRES || this.getDatabaseType() == DatabaseType.COCKROACHDB) {
+        SQLUtil.setIdentityInsert(conn, getDatabaseType(), catalog_tbl, false);
+        DatabaseType dbType = this.getDatabaseType();
+        if (dbType == DatabaseType.POSTGRES
+                || dbType == DatabaseType.COCKROACHDB
+                || dbType == DatabaseType.SQLSERVER
+                || dbType == DatabaseType.SQLAZURE
+        ) {
             this.updateAutoIncrement(conn, catalog_tbl.getColumn(0), this.benchmark.num_pages);
         }
         if (LOG.isDebugEnabled()) {
@@ -570,7 +583,12 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
             }
         }
 
-        if (this.getDatabaseType() == DatabaseType.POSTGRES || this.getDatabaseType() == DatabaseType.COCKROACHDB) {
+        DatabaseType dbType = this.getDatabaseType();
+        if (dbType == DatabaseType.POSTGRES
+                || dbType == DatabaseType.COCKROACHDB
+                || dbType == DatabaseType.SQLSERVER
+                || dbType == DatabaseType.SQLAZURE
+        ) {
             this.updateAutoIncrement(conn, textTable.getColumn(0), rev_id);
             this.updateAutoIncrement(conn, revTable.getColumn(0), rev_id);
         }
