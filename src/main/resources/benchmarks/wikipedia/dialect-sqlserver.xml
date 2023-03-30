@@ -3,7 +3,7 @@
     <dialect type="SQLSERVER">
         <procedure name="AddWatchList">
             <statement name="insertWatchList">
-                INSERT INTO [watchlist] (wl_user,wl_namespace,wl_title,wl_notificationtimestamp) VALUES (?,?,?,NULL) 
+                INSERT INTO [watchlist] (wl_user,wl_namespace,wl_title,wl_notificationtimestamp) VALUES (?,?,?,NULL)
             </statement>
             <statement name="setUserTouched">
                 UPDATE [useracct] SET user_touched = ? WHERE user_id =  ?
@@ -14,7 +14,7 @@
                 DELETE FROM [watchlist] WHERE wl_user = ? AND wl_namespace = ? AND wl_title = ?
             </statement>
             <statement name="setUserTouched">
-                UPDATE [useracct] SET user_touched = ? WHERE user_id =  ? 
+                UPDATE [useracct] SET user_touched = ? WHERE user_id =  ?
             </statement>
         </procedure>
         <procedure name="GetPageAnonymous">
@@ -29,6 +29,12 @@
             </statement>
         </procedure>
         <procedure name="UpdatePage">
+            <statement name="insertRevision">
+                INSERT INTO revision (rev_page, rev_text_id, rev_comment, rev_minor_edit, rev_user, rev_user_text, rev_timestamp, rev_deleted, rev_len, rev_parent_id) OUTPUT INSERTED.rev_id VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            </statement>
+            <statement name="insertText">
+                INSERT INTO text (old_page,old_text,old_flags) OUTPUT INSERTED.old_id VALUES (?,?,?)
+            </statement>
             <statement name="selectUser">
                 SELECT  *  FROM [useracct]  WHERE user_id = ?
             </statement>
