@@ -31,7 +31,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class AddWatchList extends Procedure {
-    private static final Logger LOG = LoggerFactory.getLogger(UpdatePage.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AddWatchList.class);
 
     // -----------------------------------------------------------------
     // STATEMENTS
