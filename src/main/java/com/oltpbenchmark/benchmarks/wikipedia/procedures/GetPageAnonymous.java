@@ -91,7 +91,6 @@ public class GetPageAnonymous extends Procedure {
             try (ResultSet rs = st.executeQuery()) {
                 while (rs.next()) {
                     rs.getBytes(1);
-
                 }
             }
         }
