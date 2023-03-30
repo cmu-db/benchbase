@@ -40,10 +40,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up JDK
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
           java-version: ${{env.JAVA_VERSION}}
           cache: 'maven'
@@ -60,10 +60,10 @@ jobs:
         profile: [ 'cockroachdb', 'mariadb', 'mysql', 'postgres', 'spanner', 'phoenix', 'sqlserver', 'sqlite' ]
     steps:
     - name: Checkout repo
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Set up JDK
-      uses: actions/setup-java@v2
+      uses: actions/setup-java@v3
       with:
         java-version: ${{env.JAVA_VERSION}}
         cache: 'maven'
@@ -73,7 +73,7 @@ jobs:
       run: mvn -B package -P ${{matrix.profile}} --file pom.xml -DskipTests
 
     - name: Upload TGZ artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: benchbase-${{matrix.profile}}
         path: target/benchbase-${{matrix.profile}}.tgz
@@ -90,7 +90,7 @@ jobs:
         benchmark: [ 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: benchbase-sqlite
 
@@ -103,7 +103,7 @@ jobs:
           rm -rf benchbase-sqlite.tgz
 
       - name: Set up JDK
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
           java-version: ${{env.JAVA_VERSION}}
           distribution: 'temurin'
@@ -138,7 +138,7 @@ jobs:
           - 3306:3306
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: benchbase-mariadb
 
@@ -151,7 +151,7 @@ jobs:
           rm -rf benchbase-mariadb.tgz
 
       - name: Set up JDK
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
           java-version: ${{env.JAVA_VERSION}}
           distribution: 'temurin'
@@ -189,7 +189,7 @@ jobs:
           - 3306:3306
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: benchbase-mysql
 
@@ -202,7 +202,7 @@ jobs:
           rm -rf benchbase-mysql.tgz
 
       - name: Set up JDK
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
           java-version: ${{env.JAVA_VERSION}}
           distribution: 'temurin'
@@ -239,7 +239,7 @@ jobs:
           - 5432:5432
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: benchbase-postgres
 
@@ -252,7 +252,7 @@ jobs:
           rm -rf benchbase-postgres.tgz
 
       - name: Set up JDK
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
           java-version: ${{env.JAVA_VERSION}}
           distribution: 'temurin'
@@ -282,7 +282,7 @@ jobs:
           - 26257:26257
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: benchbase-cockroachdb
 
@@ -295,7 +295,7 @@ jobs:
           rm -rf benchbase-cockroachdb.tgz
 
       - name: Set up JDK
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
           java-version: ${{env.JAVA_VERSION}}
           distribution: 'temurin'
@@ -313,7 +313,8 @@ jobs:
     strategy:
       matrix:
         # TODO: add more benchmarks
-        benchmark: [ 'tpcc', 'tpch' ]
+        #benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
+        benchmark: [ 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'sibench', 'smallbank', 'tatp', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
     services:
       sqlserver:
         image: mcr.microsoft.com/mssql/server:latest
@@ -329,7 +330,7 @@ jobs:
           - 1433:1433
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: benchbase-sqlserver
 
@@ -342,7 +343,7 @@ jobs:
           rm -rf benchbase-sqlserver.tgz
 
       - name: Set up JDK
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
           java-version: ${{env.JAVA_VERSION}}
           distribution: 'temurin'
@@ -405,16 +406,15 @@ jobs:
           PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
           PGPASSWORD=password createdb -h localhost -U admin benchbase
       - name: Checkout repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       # https://github.com/actions/cache/blob/master/examples.md#java---maven
       - name: Cache local Maven repository
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.m2/repository
-          # Try to use the same key as https://github.com/actions/setup-java uses in the steps above.
-          key: setup-java-${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          key: setup-java-${{ runner.os }}-docker-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
-            setup-java-${{ runner.os }}-maven-
+            setup-java-${{ runner.os }}-docker-maven-
       - name: Build benchbase-dev image
         run: |
           ./docker/benchbase/build-dev-image.sh

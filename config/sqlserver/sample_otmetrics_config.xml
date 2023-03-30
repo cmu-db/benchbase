@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    <type>sqlserver</type>
+    <driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</driver>
+    <url>jdbc:sqlserver://localhost:1433;encrypt=false;database=benchbase;</url>
+    <username>benchuser01</username>
+    <password>P@ssw0rd</password>
+
+    <batchsize>2048</batchsize>
+    <scalefactor>0.1</scalefactor>
+
+    <!-- The workload -->
+    <terminals>1</terminals>
+    <works>
+        <work>
+            <time>60</time>
+            <rate>unlimited</rate>
+            <weights>100</weights>
+        </work>
+    </works>
+
+    <!-- Transaction Declaration -->
+    <transactiontypes>
+        <transactiontype>
+            <name>GetSessionRange</name>
+        </transactiontype>
+    </transactiontypes>
+</parameters>
