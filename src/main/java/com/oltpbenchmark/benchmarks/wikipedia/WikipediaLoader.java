@@ -101,6 +101,8 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
             public void load(Connection conn) throws SQLException {
                 Table catalog_tbl = benchmark.getCatalog().getTable(WikipediaConstants.TABLENAME_USER);
 
+                SQLUtil.setIdentityInsert(conn, getDatabaseType(), catalog_tbl, true);
+
                 String sql = SQLUtil.getInsertSQL(catalog_tbl, benchmark.getWorkloadConfiguration().getDatabaseType());
 
                 // load anonymous user
@@ -124,6 +126,8 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
 
                     stmt.executeUpdate();
                 }
+
+                SQLUtil.setIdentityInsert(conn, getDatabaseType(), catalog_tbl, false);
             }
 
             @Override

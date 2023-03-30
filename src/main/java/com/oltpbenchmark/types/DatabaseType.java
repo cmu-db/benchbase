@@ -45,9 +45,9 @@ public enum DatabaseType {
     ORACLE(true, false),
     SINGLESTORE(true, false),
     SPANNER(false, true),
-    SQLAZURE(true, false),
+    SQLAZURE(true, true),
     SQLITE(true, false),
-    SQLSERVER(true, false),
+    SQLSERVER(true, true),
     TIMESTEN(true, false),
     PHOENIX(true, true);
 
