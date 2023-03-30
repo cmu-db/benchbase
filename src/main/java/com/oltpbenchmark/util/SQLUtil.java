@@ -209,7 +209,14 @@ WHERE t.name='%s' AND c.name='%s'
 
         if (sql != null) {
             try (Statement stmt = conn.createStatement()) {
-                stmt.execute(sql);
+                boolean result = stmt.execute(sql);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(String.format("%s => [%s]", sql, result));
+                    SQLWarning warnings = stmt.getWarnings();
+                    if (warnings != null) {
+                        LOG.debug(warnings.toString());
+                    }
+                }
             }
         }
     }
@@ -403,6 +410,13 @@ WHERE t.name='%s' AND c.name='%s'
         boolean escape_names = db_type.shouldEscapeNames();
 
         StringBuilder sb = new StringBuilder();
+
+        if (db_type == DatabaseType.SQLSERVER || db_type == DatabaseType.SQLAZURE) {
+            sb.append("SET IDENTITY_INSERT ");
+            sb.append(escape_names ? catalog_tbl.getEscapedName() : catalog_tbl.getName());
+            sb.append(" ON; ");
+        }
+
         if(db_type.equals(DatabaseType.PHOENIX)) {
             sb.append("UPSERT");
         } else {
@@ -451,6 +465,16 @@ WHERE t.name='%s' AND c.name='%s'
         sb.append(" VALUES ");
         for (int i = 0; i < batchSize; i++) {
             sb.append("(").append(values.toString()).append(")");
+        }
+
+        if (db_type == DatabaseType.SQLSERVER || db_type == DatabaseType.SQLAZURE) {
+            sb.append("; SET IDENTITY_INSERT ");
+            sb.append(escape_names ? catalog_tbl.getEscapedName() : catalog_tbl.getName());
+            sb.append(" OFF");
+        }
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(sb.toString());
         }
 
         return (sb.toString());
