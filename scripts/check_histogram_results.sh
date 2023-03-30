@@ -16,11 +16,24 @@ threshold="${2:-0.01}"
 
 echo "INFO: Checking that error results in $results_json are below $threshold"
 
-for error_type in {aborted,rejected,unexpected}; do
-    if cat "$results_json" | jq -e '(.'$error_type'.NUM_SAMPLES / .completed.NUM_SAMPLES) >= '$threshold >/dev/null; then
-        echo "ERROR: $error_type errors in $results_json are too high"
-        exit 1
-    fi
-done
+# First transform the histograms into a single object with aggregate count of error and completed samples.
+summary_json=$(cat "$results_json" | jq '
+    to_entries
+    | {
+        "completed_samples": ( .[] | select(.key == "completed") | .value.NUM_SAMPLES ),
+        "errored_samples": ( [ .[] | select(.key != "completed" ) | .value.NUM_SAMPLES ] | add )
+    }
+    | .error_rate = (.errored_samples / .completed_samples)'
+)
+
+# Print it out for debugging.
+echo "$summary_json" | jq .
+
+# Check the value of the error rate.
+if ! echo "$summary_json" | jq -e '(.error_rate < '$threshold')' >/dev/null; then
+    echo "ERROR: error rate is too high"
+    exit 1
+fi
+# else
 echo 'OK!'
 exit 0
