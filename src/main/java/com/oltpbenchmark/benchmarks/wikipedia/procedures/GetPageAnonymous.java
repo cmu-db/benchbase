@@ -23,12 +23,16 @@ import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.wikipedia.WikipediaConstants;
 import com.oltpbenchmark.benchmarks.wikipedia.util.Article;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class GetPageAnonymous extends Procedure {
+    private static final Logger LOG = LoggerFactory.getLogger(GetPageAnonymous.class);
 
     // -----------------------------------------------------------------
     // STATEMENTS
