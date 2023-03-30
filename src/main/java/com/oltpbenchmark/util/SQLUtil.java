@@ -192,6 +192,27 @@ WHERE t.name='%s' AND c.name='%s'
         return seqName;
     }
 
+    /**
+     * Mark the given table which has an identity column to be able to be
+     * inserted into with explicit values.
+     *
+     * @param conn
+     * @param dbType
+     * @param catalog_tbl
+     * @param on
+     */
+    public static void setIdentityInsert(Connection conn, DatabaseType dbType, Table catalog_tbl, boolean on) throws SQLException {
+        String sql = null;
+        if (dbType == DatabaseType.SQLSERVER || dbType == DatabaseType.SQLAZURE) {
+            sql = "SET IDENTITY_INSERT " + catalog_tbl.getName() + " " + (on ? "ON" : "OFF");
+        }
+
+        if (sql != null) {
+            try (Statement stmt = conn.createStatement()) {
+                stmt.execute(sql);
+            }
+        }
+    }
 
     public static Object[] getRowAsArray(ResultSet rs) throws SQLException {
         ResultSetMetaData rs_md = rs.getMetaData();
