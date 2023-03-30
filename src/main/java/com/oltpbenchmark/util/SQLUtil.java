@@ -21,7 +21,6 @@ import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.catalog.*;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.types.SortDirectionType;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
