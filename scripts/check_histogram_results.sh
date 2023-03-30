@@ -7,7 +7,7 @@ scriptdir=$(dirname "$(readlink -f "$0")")
 cd "$scriptdir/.."
 
 if ! type jq >/dev/null 2>&1; then
-    echo "ERROR: Missing jq utility.  Please install it (e.g. using apt-get)i." >&2
+    echo "ERROR: Missing jq utility.  Please install it (e.g. using apt-get)." >&2
     exit 1
 fi
 
