@@ -149,20 +149,47 @@ public abstract class SQLUtil {
     /**
      * Return the internal sequence name for the given Column
      *
+     * @param conn
      * @param dbType
      * @param catalog_col
      * @return
      */
-    public static String getSequenceName(DatabaseType dbType, Column catalog_col) {
+    public static String getSequenceName(Connection conn, DatabaseType dbType, Column catalog_col) throws SQLException {
         Table catalog_tbl = catalog_col.getTable();
 
+        String seqName = null;
+        String sql = null;
         if (dbType == DatabaseType.POSTGRES) {
-            return String.format("pg_get_serial_sequence('%s', '%s')",
+            sql = String.format("pg_get_serial_sequence('%s', '%s')",
                     catalog_tbl.getName(), catalog_col.getName());
+        } else if (dbType == DatabaseType.SQLSERVER || dbType == DatabaseType.SQLAZURE) {
+            // NOTE: This likely only handles certain syntaxes for defaults.
+            sql = String.format("""
+SELECT REPLACE(REPLACE([definition], '(NEXT VALUE FOR [', ''), '])', '') AS seq
+FROM sys.default_constraints dc
+JOIN sys.columns c ON c.default_object_id=dc.object_id
+JOIN sys.tables t ON c.object_id=t.object_id
+WHERE t.name='%s' AND c.name='%s'
+""",
+                catalog_tbl.getName(), catalog_col.getName());
         } else {
-            LOG.warn("Unexpected request for sequence name on {} using {}", catalog_col, dbType);
+            LOG.debug("Unexpected request for sequence name on {} using {}", catalog_col, dbType);
         }
-        return (null);
+
+        if (sql != null) {
+            try (Statement stmt = conn.createStatement()) {
+                try (ResultSet result = stmt.executeQuery(sql)) {
+                    if (result.next()) {
+                        seqName = result.getString(1);
+                    }
+                }
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(String.format("%s => [%s]", sql, seqName));
+                }
+            }
+        }
+
+        return seqName;
     }
 
 

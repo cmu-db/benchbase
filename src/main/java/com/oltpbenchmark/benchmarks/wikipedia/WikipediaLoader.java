@@ -144,7 +144,6 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                 @Override
                 public void load(Connection conn) throws SQLException {
                     loadUsers(conn, lo, hi);
-
                 }
 
                 @Override
@@ -159,7 +158,6 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
-
                 }
             });
         }
