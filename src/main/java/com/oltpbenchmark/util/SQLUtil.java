@@ -616,6 +616,10 @@ WHERE t.name='%s' AND c.name='%s'
             if (sqlEx.getSQLState().contains("23505")) {
                 return (true);
             }
+            // SQLSERVER
+            else if (sqlEx.getSQLState().equals("23000") && sqlEx.getErrorCode() == 2627) {
+                return (true);
+            }
         }
         return (false);
     }
