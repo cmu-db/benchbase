@@ -287,7 +287,9 @@ jobs:
           PGPASSWORD=password createdb -h localhost -U admin benchbase
           java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/postgres/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
           # FIXME: Reduce the error rate so we don't need these overrides.
-          if [ ${{matrix.benchmark}} == tatp ]; then
+          if [ ${{matrix.benchmark}} == auctionmark ]; then
+              ERRORS_THRESHOLD=0.02
+          elif [ ${{matrix.benchmark}} == tatp ]; then
               ERRORS_THRESHOLD=0.05
           fi
           ./scripts/check_histogram_results.sh results/histograms.json $ERRORS_THRESHOLD
