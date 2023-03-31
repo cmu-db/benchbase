@@ -97,7 +97,7 @@
                 <dependency>
                     <groupId>org.mariadb.jdbc</groupId>
                     <artifactId>mariadb-java-client</artifactId>
-                    <version>3.0.6</version>
+                    <version>3.1.3</version>
                 </dependency>
             </dependencies>
         </profile>
@@ -258,7 +258,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.2.2</version>
+                <version>3.3.0</version>
                 <configuration>
                     <classifier>${classifier}</classifier>
                     <archive>
