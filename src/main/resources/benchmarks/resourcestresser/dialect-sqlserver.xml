@@ -32,12 +32,16 @@
             										 +?))
             										Z FROM cputable WHERE empid &gt;= 1 AND empid &lt;= 100) cputemp
             </statement>
-        </procedure>     
+        </procedure>
         <procedure name="Contention1">
             <statement name="lockSleep">
             	WAITFOR DELAY ?
             </statement>
-        </procedure>   
+            <!-- TODO: Should we also hint with HOLDLOCK to keep the lock until the end of the transaction? -->
+            <statement name="lockUpdate">
+                UPDATE locktable WITH (TABLOCK) SET salary = ? WHERE empid IN (??)
+            </statement>
+        </procedure>
         <procedure name="Contention2">
             <statement name="lockSleep">
             	WAITFOR DELAY ?
