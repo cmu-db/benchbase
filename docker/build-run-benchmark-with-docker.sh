@@ -21,9 +21,7 @@ if [ ! -x "docker/${BENCHBASE_PROFILE}-latest/up.sh" ]; then
     echo "ERROR: No docker up.sh script available for '$BENCHBASE_PROFILE'"
 fi
 
-pushd "docker/${BENCHBASE_PROFILE}-latest"
-./up.sh
-popd
+"./docker/${BENCHBASE_PROFILE}-latest/up.sh"
 
 SKIP_TESTS=${SKIP_TESTS:-true} EXTRA_DOCKER_ARGS="--network=host" \
 ./docker/benchbase/run-full-image.sh \
