@@ -12,12 +12,15 @@ SKIP_TESTS="${SKIP_TESTS:-false}"
 cd /benchbase
 mkdir -p results
 
+SKIP_TEST_ARGS='-D skipTests -D maven.test.skip -D maven.javadoc.skip=true'
+
 function build_profile() {
     local profile="$1"
     # Build in a separate directory so we can do it in parallel.
     rm -rf profiles/$profile/
     mkdir -p target/$profile
-    mvn -T 2C -B --file pom.xml package -P $profile -D skipTests -D buildDirectory=target/$profile
+    # Build the profile without tests (we did that separately).
+    mvn -T 2C -B --file pom.xml package -P $profile $SKIP_TEST_ARGS -D buildDirectory=target/$profile
     # Extract the resultant package.
     mkdir -p profiles/$profile
     tar -C profiles/$profile/ --strip-components=1 -xvzf target/$profile/benchbase-$profile.tgz
@@ -62,7 +65,7 @@ function clean_profile_build() {
     local profile="$1"
     echo "INFO: Cleaning profile $profile"
     if [ -d target/$profile ]; then
-        mvn -B --file pom.xml -D buildDirectory=target/$profile clean
+        mvn -B --file pom.xml $SKIP_TEST_ARGS -D buildDirectory=target/$profile clean
         rm -rf target/$profile
     fi
 }
@@ -89,7 +92,7 @@ for profile in ${BENCHBASE_PROFILES}; do
 done
 
 # Make sure that we've built the base stuff (and test) before we build individual profiles.
-mvn -T 2C -B --file pom.xml compile # ${TEST_TARGET:-}
+mvn -T 2C -B --file pom.xml $SKIP_TEST_ARGS compile # ${TEST_TARGET:-}
 if [ -n "${TEST_TARGET:-}" ]; then
     # FIXME: Run tests without parallelism to work around some buggy behavior.
     mvn -B --file pom.xml $TEST_TARGET
