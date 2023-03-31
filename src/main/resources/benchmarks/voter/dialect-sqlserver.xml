@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<dialects>
+    <dialect type="SQLSERVER">
+        <procedure name="Vote">
+            <!-- SqlServer doesn't support NOW() -->
+            <statement name="insertVoteStmt">
+                INSERT INTO votes (vote_id, phone_number, state, contestant_number, created) VALUES (?, ?, ?, ?, GETDATE())
+            </statement>
+        </procedure>
+    </dialect>
+</dialects>
