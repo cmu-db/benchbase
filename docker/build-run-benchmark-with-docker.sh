@@ -23,9 +23,14 @@ fi
 
 "./docker/${BENCHBASE_PROFILE}-latest/up.sh"
 
+CREATE_DB_ARGS='--create=true --load=true'
+if [ "$SKIP_LOAD_DB" == 'true' ]; then
+    CREATE_DB_ARGS=''
+fi
+
 SKIP_TESTS=${SKIP_TESTS:-true} EXTRA_DOCKER_ARGS="--network=host" \
 ./docker/benchbase/run-full-image.sh \
     --config "config/sample_${benchmark}_config.xml" --bench "$benchmark" \
-    --create=true --load=true --execute=true \
+    $CREATE_DB_ARGS --execute=true \
     --sample 1 --interval-monitor 1000 \
     --json-histograms results/histograms.json

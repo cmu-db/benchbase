@@ -15,9 +15,9 @@ if ! docker image ls --quiet benchbase-$BENCHBASE_PROFILE:latest | grep -q .; th
     CLEAN_BUILD=true
 fi
 
-if [ "$CLEAN_BUILD" != 'false' ]; then
+#if [ "$CLEAN_BUILD" != 'false' ]; then
     ./build-full-image.sh
-fi
+#fi
 
 if [ "$imagename" != 'benchbase' ]; then
     echo "ERROR: Unexpected imagename: $imagename" >&2
