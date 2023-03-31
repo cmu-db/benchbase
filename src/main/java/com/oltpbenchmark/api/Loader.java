@@ -123,7 +123,7 @@ public abstract class Loader<T extends BenchmarkModule> {
         DatabaseType dbType = getDatabaseType();
         if (seqName != null) {
             if (dbType == DatabaseType.POSTGRES) {
-                sql = String.format("SELECT setval(%s, %d)", seqName.toLowerCase(), value);
+                sql = String.format("SELECT setval('%s', %d)", seqName.toLowerCase(), value);
             }
             else if (dbType == DatabaseType.SQLSERVER || dbType == DatabaseType.SQLAZURE) {
                 sql = String.format("ALTER SEQUENCE [%s] RESTART WITH %d", seqName, value);
