@@ -31,6 +31,7 @@ function build_profile() {
         $SKIP_TEST_ARGS $EXTRA_MAVEN_ARGS -D buildDirectory=target/$profile
     # Copy the resultant output to the profiles directory.
     cp -rulv target/benchbase-$profile/benchbase-$profile profiles/$profile
+    cp -rulv target/classes/{log4j,logging}.properties profiles/$profile/
     # Later the container entrypoint will move into this directory to run it, so
     # save all of the results back to the common volume mapping location.
     ln -s ../../results profiles/$profile/results
