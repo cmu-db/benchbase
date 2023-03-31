@@ -127,7 +127,6 @@ public abstract class Procedure {
             pStmt = conn.prepareStatement(stmt.getSQL());
         }
 
-
         return (pStmt);
     }
 
