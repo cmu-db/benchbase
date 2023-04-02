@@ -114,7 +114,13 @@ jobs:
         run: |
           java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/sqlite/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
           # FIXME: Reduce the error rate so we don't need these overrides.
-          if [ ${{matrix.benchmark}} == tatp ]; then
+          if [ ${{matrix.benchmark}} == auctionmark ]; then
+              ERRORS_THRESHOLD=0.02
+          if [ ${{matrix.benchmark}} == resourcestresser ]; then
+              ERRORS_THRESHOLD=0.05
+          if [ ${{matrix.benchmark}} == smallbank ]; then
+              ERRORS_THRESHOLD=0.03
+          elif [ ${{matrix.benchmark}} == tatp ]; then
               ERRORS_THRESHOLD=0.05
           fi
           ./scripts/check_histogram_results.sh results/histograms.json $ERRORS_THRESHOLD

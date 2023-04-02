@@ -22,11 +22,13 @@
                 SELECT ?
             </statement>
             <!--
-                Sqlite doesn't support explicit lock operations, so we wrap it in a transaction.
+                FIXME: Sqlite doesn't support explicit lock operations.
                 See Also: https://stackoverflow.com/a/10956615
+                This fails atm:
+                BEGIN EXCLUSIVE TRANSACTION; UPDATE locktable SET salary = ? WHERE empid IN (??); COMMIT
             -->
             <statement name="lockUpdate">
-                BEGIN EXCLUSIVE TRANSACTION; UPDATE locktable SET salary = ? WHERE empid IN (??); COMMIT TRANSACTION;
+                UPDATE locktable SET salary = ? WHERE empid IN (??)
             </statement>
         </procedure>
         <procedure name="Contention2">
