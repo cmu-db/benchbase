@@ -116,9 +116,9 @@ jobs:
           # FIXME: Reduce the error rate so we don't need these overrides.
           if [ ${{matrix.benchmark}} == auctionmark ]; then
               ERRORS_THRESHOLD=0.02
-          if [ ${{matrix.benchmark}} == resourcestresser ]; then
+          elif [ ${{matrix.benchmark}} == resourcestresser ]; then
               ERRORS_THRESHOLD=0.05
-          if [ ${{matrix.benchmark}} == smallbank ]; then
+          elif [ ${{matrix.benchmark}} == smallbank ]; then
               ERRORS_THRESHOLD=0.03
           elif [ ${{matrix.benchmark}} == tatp ]; then
               ERRORS_THRESHOLD=0.05
