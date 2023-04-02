@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<dialects>
+    <dialect type="SQLITE">
+        <procedure name="CPU1">
+            <statement name="cpuSelect">
+                <![CDATA[SELECT count(*) FROM (SELECT passwd || ? || ? || ? || ? || ? FROM cputable WHERE empid >= 0 AND empid < 100) AS T1]]>
+            </statement>
+        </procedure>
+        <procedure name="CPU2">
+            <statement name="cpuSelect">
+                <![CDATA[SELECT count(*) FROM (SELECT passwd || ? || ? || ? || ? || ? FROM cputable WHERE empid >= 0 AND empid < 100) AS T2]]>
+            </statement>
+        </procedure>
+        <procedure name="Contention1">
+            <!--
+                FIXME: Sqlite doesn't support SLEEP without setting up function
+                callbacks which would require loading sqlite specific driver
+                code, so we just skip it for now.
+                See Also: https://stackoverflow.com/a/23758390
+            -->
+            <statement name="lockSleep">
+                SELECT ?
+            </statement>
+            <!--
+                Sqlite doesn't support explicit lock operations, so we wrap it in a transaction.
+                See Also: https://stackoverflow.com/a/10956615
+            -->
+            <statement name="lockUpdate">
+                BEGIN EXCLUSIVE TRANSACTION; UPDATE locktable SET salary = ? WHERE empid IN (??); COMMIT TRANSACTION;
+            </statement>
+        </procedure>
+        <procedure name="Contention2">
+            <!-- See SLEEP comments above. -->
+            <statement name="lockSleep">
+                SELECT ?
+            </statement>
+        </procedure>
+    </dialect>
+</dialects>
