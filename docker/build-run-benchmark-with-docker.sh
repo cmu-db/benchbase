@@ -17,11 +17,13 @@ scriptdir=$(dirname "$(readlink -f "$0")")
 rootdir=$(readlink -f "$scriptdir/..")
 cd "$rootdir"
 
-if [ ! -x "docker/${BENCHBASE_PROFILE}-latest/up.sh" ]; then
-    echo "ERROR: No docker up.sh script available for '$BENCHBASE_PROFILE'"
-fi
+if [ "$BENCHBASE_PROFILE" != 'sqlite' ]; then
+    if [ ! -x "docker/${BENCHBASE_PROFILE}-latest/up.sh" ]; then
+        echo "ERROR: No docker up.sh script available for '$BENCHBASE_PROFILE'"
+    fi
 
-"./docker/${BENCHBASE_PROFILE}-latest/up.sh"
+    "./docker/${BENCHBASE_PROFILE}-latest/up.sh"
+fi
 
 CREATE_DB_ARGS='--create=true --load=true'
 if [ "$SKIP_LOAD_DB" == 'true' ]; then
