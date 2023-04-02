@@ -75,7 +75,7 @@ if ! docker buildx version >/dev/null 2>&1; then
     echo 'NOTE: docker buildkit is unavailable.' >&2
     DOCKER_BUILDKIT=0
     docker_build_args=''
-elif [ -z "$DOCKER_BUILDKIT" ]; then
+elif [ -z "${DOCKER_BUILDKIT:-}" ]; then
     # If not already set, default to buildkit.
     DOCKER_BUILDKIT=1
 fi

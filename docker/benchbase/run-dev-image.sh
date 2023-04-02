@@ -36,6 +36,7 @@ docker run ${INTERACTIVE_ARGS:-} --rm \
     --env BENCHBASE_PROFILES="$BENCHBASE_PROFILES" \
     --env CLEAN_BUILD="$CLEAN_BUILD" \
     --env SKIP_TESTS="$SKIP_TESTS" \
+    --env EXTRA_MAVEN_ARGS="${EXTRA_MAVEN_ARGS:-}" \
     --user "$CONTAINERUSER_UID:$CONTAINERUSER_GID" \
     -v "$MAVEN_CONFIG:/home/containeruser/.m2" \
     -v "$SRC_DIR:/benchbase" benchbase-dev:latest $*
