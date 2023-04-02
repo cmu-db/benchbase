@@ -2,6 +2,8 @@
 
 set -eu
 
+set -o pipefail
+
 # Move to the root of the repository.
 scriptdir=$(dirname "$(readlink -f "$0")")
 cd "$scriptdir/.."
@@ -27,7 +29,7 @@ summary_json=$(cat "$results_json" | jq '
 )
 
 # Print it out for debugging.
-echo "$summary_json" | jq .
+echo "$summary_json" | jq -e .
 
 # Check the value of the error rate.
 if ! echo "$summary_json" | jq -e '(.error_rate < '$threshold')' >/dev/null; then
