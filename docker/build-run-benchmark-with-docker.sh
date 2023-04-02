@@ -26,7 +26,7 @@ if [ "$BENCHBASE_PROFILE" != 'sqlite' ]; then
 fi
 
 CREATE_DB_ARGS='--create=true --load=true'
-if [ "$SKIP_LOAD_DB" == 'true' ]; then
+if [ "${SKIP_LOAD_DB:-false}" == 'true' ]; then
     CREATE_DB_ARGS=''
 fi
 
@@ -36,3 +36,4 @@ SKIP_TESTS=${SKIP_TESTS:-true} EXTRA_DOCKER_ARGS="--network=host" \
     $CREATE_DB_ARGS --execute=true \
     --sample 1 --interval-monitor 1000 \
     --json-histograms results/histograms.json
+./scripts/check_histogram_results.sh results/historgrams.json
