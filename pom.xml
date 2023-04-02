@@ -16,6 +16,21 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <buildDirectory>${project.basedir}/target</buildDirectory>
+        <!--
+            Provids a way to limit which assembly package formats we produce.
+            This is useful for quick iterations where compressing and extracting
+            the package repeatedly to build a container image is wasteful.
+            By default we continue to produce zip and tgz package outputs.
+            This can be reset on the CLI by passing the following (for instance):
+            -Ddescriptors=src/main/assembly/tgz.xml
+        -->
+        <!--
+        <descriptors>src/main/assembly/dir.xml,src/main/assembly/tgz.xml,src/main/assembly/zip.xml</descriptors>
+        -->
+        <descriptors>src/main/assembly/tgz.xml,src/main/assembly/zip.xml</descriptors>
+        <!--
+        <descriptors>src/main/assembly/tgz.xml</descriptors>
+        -->
     </properties>
 
     <scm>
@@ -259,7 +274,6 @@
             <scope>test</scope>
         </dependency>
 
-
     </dependencies>
 
     <build>
@@ -294,21 +308,19 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.4.1</version>
+                <version>3.5.0</version>
+                <configuration>
+                    <appendAssemblyId>false</appendAssemblyId>
+                    <finalName>${project.artifactId}-${classifier}</finalName>
+                    <recompressZippedFiles>false</recompressZippedFiles>
+                    <descriptors>${descriptors}</descriptors>
+                </configuration>
                 <executions>
                     <execution>
                         <phase>package</phase>
                         <goals>
                             <goal>single</goal>
                         </goals>
-                        <configuration>
-                            <appendAssemblyId>false</appendAssemblyId>
-                            <finalName>${project.artifactId}-${classifier}</finalName>
-                            <descriptors>
-                                <descriptor>src/main/assembly/tgz.xml</descriptor>
-                                <descriptor>src/main/assembly/zip.xml</descriptor>
-                            </descriptors>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -349,10 +361,16 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <!--
+                        NOTE: Run in tight loops you can run with -Dmaven.gitcommitid.skip=true
+                        to avoid regenerating the git.properties file that causes recompiliation.
+                    -->
                     <generateGitPropertiesFile>true</generateGitPropertiesFile>
                     <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
                     <commitIdGenerationMode>full</commitIdGenerationMode>
                     <useNativeGit>true</useNativeGit>
+                    <verbose>true</verbose>
+                    <failOnNoGitDirectory>false</failOnNoGitDirectory>
                 </configuration>
             </plugin>
             <plugin>

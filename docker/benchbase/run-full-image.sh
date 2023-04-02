@@ -15,9 +15,9 @@ if ! docker image ls --quiet benchbase-$BENCHBASE_PROFILE:latest | grep -q .; th
     CLEAN_BUILD=true
 fi
 
-if [ "$CLEAN_BUILD" != 'false' ]; then
+#if [ "$CLEAN_BUILD" != 'false' ]; then
     ./build-full-image.sh
-fi
+#fi
 
 if [ "$imagename" != 'benchbase' ]; then
     echo "ERROR: Unexpected imagename: $imagename" >&2
@@ -32,7 +32,7 @@ cd "$rootdir"
 mkdir -p results/
 set -x
 docker run -it --rm \
-    "${EXTRA_DOCKER_ARGS:-}" \
+    ${EXTRA_DOCKER_ARGS:-} \
     --env=http_proxy="${http_proxy:-}" --env=https_proxy="${https_proxy:-}" \
     --env BENCHBASE_PROFILE="$BENCHBASE_PROFILE" \
     --user "$CONTAINERUSER_UID:$CONTAINERUSER_GID" \

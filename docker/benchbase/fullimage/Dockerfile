@@ -22,7 +22,7 @@ VOLUME /benchbase/results
 # Only copy the content necessary for running (not building) benchbase over to the image.
 # These files should have been built using the devcontainer by the
 # build-full-image.sh script.
-COPY . /benchbase/
+COPY --chown=containeruser:containergroup . /benchbase/
 
 ENTRYPOINT ["/benchbase/entrypoint.sh"]
 CMD ["--help"]

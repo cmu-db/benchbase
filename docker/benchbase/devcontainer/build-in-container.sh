@@ -11,16 +11,27 @@ SKIP_TESTS="${SKIP_TESTS:-false}"
 
 cd /benchbase
 mkdir -p results
+mkdir -p profiles
+
+SKIP_TEST_ARGS='-D skipTests -D maven.test.skip -D maven.javadoc.skip=true'
+EXTRA_MAVEN_ARGS="${EXTRA_MAVEN_ARGS:-}"
+
+if [ "$CLEAN_BUILD" == false ]; then
+    # In tight dev build loops we want to avoid regenerating classes when only
+    # the git properties have changed.
+    EXTRA_MAVEN_ARGS+=" -D maven.gitcommitid.skip=true"
+fi
 
 function build_profile() {
     local profile="$1"
     # Build in a separate directory so we can do it in parallel.
     rm -rf profiles/$profile/
     mkdir -p target/$profile
-    mvn -T 2C -B --file pom.xml package -P $profile -D skipTests -D buildDirectory=target/$profile
-    # Extract the resultant package.
-    mkdir -p profiles/$profile
-    tar -C profiles/$profile/ --strip-components=1 -xvzf target/$profile/benchbase-$profile.tgz
+    # Build the profile without tests (we did that separately).
+    mvn -T 2C -B --file pom.xml package -D descriptors=src/main/assembly/dir.xml -P $profile \
+        $SKIP_TEST_ARGS $EXTRA_MAVEN_ARGS -D buildDirectory=target/$profile
+    # Copy the resultant output to the profiles directory.
+    cp -rlv target/$profile/benchbase-$profile/benchbase-$profile profiles/$profile
     # Later the container entrypoint will move into this directory to run it, so
     # save all of the results back to the common volume mapping location.
     ln -s ../../results profiles/$profile/results
@@ -62,7 +73,7 @@ function clean_profile_build() {
     local profile="$1"
     echo "INFO: Cleaning profile $profile"
     if [ -d target/$profile ]; then
-        mvn -B --file pom.xml -D buildDirectory=target/$profile clean
+        mvn -B --file pom.xml $SKIP_TEST_ARGS $EXTRA_MAVEN_ARGS -D buildDirectory=target/$profile clean
         rm -rf target/$profile
     fi
 }
@@ -85,14 +96,14 @@ fi
 # Fetch resources serially to work around mvn races with downloading the same
 # file in multiple processes (mvn uses *.part instead of use tmpfile naming).
 for profile in ${BENCHBASE_PROFILES}; do
-    mvn -T2C -B --file pom.xml -D buildDirectory=target/$profile process-resources dependency:copy-dependencies
+    mvn -T2C -B --file pom.xml -D buildDirectory=target/$profile $EXTRA_MAVEN_ARGS process-resources dependency:copy-dependencies
 done
 
 # Make sure that we've built the base stuff (and test) before we build individual profiles.
-mvn -T 2C -B --file pom.xml compile # ${TEST_TARGET:-}
+mvn -T 2C -B --file pom.xml $SKIP_TEST_ARGS $EXTRA_MAVEN_ARGS compile # ${TEST_TARGET:-}
 if [ -n "${TEST_TARGET:-}" ]; then
     # FIXME: Run tests without parallelism to work around some buggy behavior.
-    mvn -B --file pom.xml $TEST_TARGET
+    mvn -B --file pom.xml $EXTRA_MAVEN_ARGS $TEST_TARGET
 fi
 
 for profile in ${BENCHBASE_PROFILES}; do
