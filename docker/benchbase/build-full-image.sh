@@ -88,12 +88,6 @@ function create_image() {
     fi
     local target_image_tag_args=$(echo "-t benchbase:latest ${image_tag_args:-}" | sed "s/benchbase:/$image_name:/g")
 
-    if [ "${NO_CACHE:-false}" != 'true' ]; then
-        set -x
-        docker pull -q benchbase.azurecr.io/$image_name:latest || true
-        set +x
-    fi
-
     set -x
     docker build $docker_build_args \
         --build-arg BUILDKIT_INLINE_CACHE=1 \

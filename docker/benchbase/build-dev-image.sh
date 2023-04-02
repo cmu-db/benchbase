@@ -6,12 +6,6 @@ scriptdir=$(dirname "$(readlink -f "$0")")
 cd "$scriptdir"
 . ./common-env.sh
 
-if [ "${NO_CACHE:-false}" != 'true' ]; then
-    set -x
-    docker pull -q benchbase.azurecr.io/benchbase-dev:latest || true
-    set +x
-fi
-
 set -x
 # See comments in devcontainer/Dockerfile explaining empty build context (/dev/null or empty tmpdir).
 tmpdir=$(mktemp -d)
