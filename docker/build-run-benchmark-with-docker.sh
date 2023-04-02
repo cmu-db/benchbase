@@ -17,7 +17,15 @@ scriptdir=$(dirname "$(readlink -f "$0")")
 rootdir=$(readlink -f "$scriptdir/..")
 cd "$rootdir"
 
-if [ "$BENCHBASE_PROFILE" != 'sqlite' ]; then
+if [ "$BENCHBASE_PROFILE" == 'sqlite' ]; then
+    # Map the sqlite db back to the host.
+    touch $PWD/$benchmark.db
+    SRC_DIR="$PWD"
+    if [ -n "$LOCAL_WORKSPACE_FOLDER" ]; then
+        SRC_DIR="$LOCAL_WORKSPACE_FOLDER"
+    fi
+    EXTRA_DOCKER_ARGS="-v $SRC_DIR/$benchmark.db:/benchbase/profiles/sqlite/$benchmark.db"
+else
     if [ ! -x "docker/${BENCHBASE_PROFILE}-latest/up.sh" ]; then
         echo "ERROR: No docker up.sh script available for '$BENCHBASE_PROFILE'"
     fi
@@ -30,7 +38,7 @@ if [ "${SKIP_LOAD_DB:-false}" == 'true' ]; then
     CREATE_DB_ARGS=''
 fi
 
-SKIP_TESTS=${SKIP_TESTS:-true} EXTRA_DOCKER_ARGS="--network=host" \
+SKIP_TESTS=${SKIP_TESTS:-true} EXTRA_DOCKER_ARGS="--network=host $EXTRA_DOCKER_ARGS" \
 ./docker/benchbase/run-full-image.sh \
     --config "config/sample_${benchmark}_config.xml" --bench "$benchmark" \
     $CREATE_DB_ARGS --execute=true \
