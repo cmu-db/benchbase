@@ -11,6 +11,7 @@ SKIP_TESTS="${SKIP_TESTS:-false}"
 
 cd /benchbase
 mkdir -p results
+mkdir -p profiles
 
 SKIP_TEST_ARGS='-D skipTests -D maven.test.skip -D maven.javadoc.skip=true'
 EXTRA_MAVEN_ARGS="${EXTRA_MAVEN_ARGS:-}"
