@@ -83,3 +83,7 @@ if [ "$DOCKER_BUILDKIT" == 1 ]; then
     docker_build_args='--progress=plain'
 fi
 export DOCKER_BUILDKIT
+
+if [ "${NO_CACHE:-false}" == 'true' ]; then
+    docker_build_args+=' --pull --no-cache'
+fi

@@ -415,6 +415,12 @@ jobs:
           key: setup-java-${{ runner.os }}-docker-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             setup-java-${{ runner.os }}-docker-maven-
+      - name: Pull base image caches for PR builds
+        if: ${{ github.ref != 'refs/heads/main' }}
+        run: |
+          docker pull benchbase.azurecr.io/benchbase-dev:latest || true
+          docker pull benchbase.azurecr.io/benchbase:latest || true
+          echo "NO_CACHE=true" >> $GITHUB_ENV
       - name: Build benchbase-dev image
         run: |
           ./docker/benchbase/build-dev-image.sh

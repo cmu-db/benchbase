@@ -12,7 +12,7 @@
             "no_proxy": "${localEnv:no_proxy}",
             "--tag": "benchbase-dev:latest"
         },
-        "cacheFrom": "benchbase.azurecr.io/benchbase-dev"
+        "cacheFrom": "benchbase.azurecr.io/benchbase-dev:latest"
     },
     "initializeCommand": [
         ".devcontainer/scripts/initializeCommand"
