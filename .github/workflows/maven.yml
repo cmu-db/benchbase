@@ -420,6 +420,9 @@ jobs:
         run: |
           docker pull benchbase.azurecr.io/benchbase-dev:latest || true
           docker pull benchbase.azurecr.io/benchbase:latest || true
+      - name: Set NO_CACHE env var for main branch builds
+        if: ${{ github.ref == 'refs/heads/main' }}
+        run: |
           echo "NO_CACHE=true" >> $GITHUB_ENV
       - name: Build benchbase-dev image
         run: |
