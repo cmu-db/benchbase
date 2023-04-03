@@ -411,7 +411,6 @@ WHERE t.name='%s' AND c.name='%s'
         boolean escape_names = db_type.shouldEscapeNames();
 
         StringBuilder sb = new StringBuilder();
-
         if(db_type.equals(DatabaseType.PHOENIX)) {
             sb.append("UPSERT");
         } else {
@@ -460,10 +459,6 @@ WHERE t.name='%s' AND c.name='%s'
         sb.append(" VALUES ");
         for (int i = 0; i < batchSize; i++) {
             sb.append("(").append(values.toString()).append(")");
-        }
-
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(sb.toString());
         }
 
         return (sb.toString());
