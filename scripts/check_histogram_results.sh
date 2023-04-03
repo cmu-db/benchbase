@@ -1,7 +1,8 @@
 #!/bin/bash
 
-set -eu
+# A simple script to check the error rate in the --json-histograms file results.
 
+set -eu
 set -o pipefail
 
 # Move to the root of the repository.
@@ -18,8 +19,13 @@ threshold="${2:-0.01}"
 
 echo "INFO: Checking that error results in $results_json are below $threshold"
 
+if ! [ -s "$results_json" ]; then
+    echo "ERROR: Missing or empty results file: $results_json" >&2
+    exit 1
+fi
+
 # First transform the histograms into a single object with aggregate count of error and completed samples.
-summary_json=$(cat "$results_json" | jq '
+summary_json=$(cat "$results_json" | jq -e '
     to_entries
     | {
         "completed_samples": ( .[] | select(.key == "completed") | .value.NUM_SAMPLES ),
