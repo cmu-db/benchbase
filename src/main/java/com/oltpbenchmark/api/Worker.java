@@ -204,6 +204,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
         while (true) {
 
             // PART 1: Init and check if done
+
             State preState = workloadState.getGlobalState();
 
             // Do nothing
@@ -230,13 +231,16 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
             // Grab some work and update the state, in case it changed while we
             // waited.
+
             SubmittedProcedure pieceOfWork = workloadState.fetchWork();
+
             prePhase = workloadState.getCurrentPhase();
             if (prePhase == null) {
                 continue;
             }
 
             preState = workloadState.getGlobalState();
+
             switch (preState) {
                 case DONE, EXIT, LATENCY_COMPLETE -> {
                     // Once a latency run is complete, we wait until the next
@@ -250,8 +254,11 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
             }
 
             // PART 3: Execute work
+
             TransactionType transactionType = getTransactionType(pieceOfWork, prePhase, preState, workloadState);
+
             if (!transactionType.equals(TransactionType.INVALID)) {
+
                 // TODO: Measuring latency when not rate limited is ... a little
                 // weird because if you add more simultaneous clients, you will
                 // increase latency (queue delay) but we do this anyway since it is
@@ -259,9 +266,11 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
                 // Wait before transaction if specified
                 long preExecutionWaitInMillis = getPreExecutionWaitInMillis(transactionType);
+
                 if (preExecutionWaitInMillis > 0) {
                     try {
                         LOG.debug("{} will sleep for {} ms before executing", transactionType.getName(), preExecutionWaitInMillis);
+
                         Thread.sleep(preExecutionWaitInMillis);
                     } catch (InterruptedException e) {
                         LOG.error("Pre-execution sleep interrupted", e);
@@ -269,10 +278,13 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                 }
 
                 long start = System.nanoTime();
+
                 doWork(configuration.getDatabaseType(), transactionType);
+
                 long end = System.nanoTime();
 
                 // PART 4: Record results
+
                 State postState = workloadState.getGlobalState();
 
                 switch (postState) {

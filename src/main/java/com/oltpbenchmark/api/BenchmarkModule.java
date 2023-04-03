@@ -79,6 +79,7 @@ public abstract class BenchmarkModule {
     // --------------------------------------------------------------------------
 
     public final Connection makeConnection() throws SQLException {
+
         if (StringUtils.isEmpty(workConf.getUsername())) {
             return DriverManager.getConnection(workConf.getUrl());
         } else {
