@@ -310,11 +310,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         }
         SQLUtil.setIdentityInsert(conn, getDatabaseType(), catalog_tbl, false);
         DatabaseType dbType = this.getDatabaseType();
-        if (dbType == DatabaseType.POSTGRES
-                || dbType == DatabaseType.COCKROACHDB
-                || dbType == DatabaseType.SQLSERVER
-                || dbType == DatabaseType.SQLAZURE
-        ) {
+        if (dbType.shouldUpdateColumnSequenceAfterLoad()) {
             this.updateAutoIncrement(conn, catalog_tbl.getColumn(0), this.benchmark.num_users);
         }
         if (LOG.isDebugEnabled()) {
@@ -379,11 +375,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         }
         SQLUtil.setIdentityInsert(conn, getDatabaseType(), catalog_tbl, false);
         DatabaseType dbType = this.getDatabaseType();
-        if (dbType == DatabaseType.POSTGRES
-                || dbType == DatabaseType.COCKROACHDB
-                || dbType == DatabaseType.SQLSERVER
-                || dbType == DatabaseType.SQLAZURE
-        ) {
+        if (dbType.shouldUpdateColumnSequenceAfterLoad()) {
             this.updateAutoIncrement(conn, catalog_tbl.getColumn(0), this.benchmark.num_pages);
         }
         if (LOG.isDebugEnabled()) {
@@ -584,11 +576,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         }
 
         DatabaseType dbType = this.getDatabaseType();
-        if (dbType == DatabaseType.POSTGRES
-                || dbType == DatabaseType.COCKROACHDB
-                || dbType == DatabaseType.SQLSERVER
-                || dbType == DatabaseType.SQLAZURE
-        ) {
+        if (dbType.shouldUpdateColumnSequenceAfterLoad()) {
             this.updateAutoIncrement(conn, textTable.getColumn(0), rev_id);
             this.updateAutoIncrement(conn, revTable.getColumn(0), rev_id);
         }

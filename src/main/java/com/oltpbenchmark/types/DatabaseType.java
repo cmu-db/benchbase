@@ -31,11 +31,11 @@ public enum DatabaseType {
 
     AMAZONRDS(true, false),
     CASSANDRA(true, true),
-    COCKROACHDB(false, false),
+    COCKROACHDB(false, false, true),
     DB2(true, false),
     H2(true, false),
     HSQLDB(false, false),
-    POSTGRES(false, false),
+    POSTGRES(false, false, true),
     MARIADB(true, false),
     MONETDB(false, false),
     MYROCKS(true, false),
@@ -45,16 +45,21 @@ public enum DatabaseType {
     ORACLE(true, false),
     SINGLESTORE(true, false),
     SPANNER(false, true),
-    SQLAZURE(true, true),
+    SQLAZURE(true, true, true),
     SQLITE(true, false),
-    SQLSERVER(true, true),
+    SQLSERVER(true, true, true),
     TIMESTEN(true, false),
     PHOENIX(true, true);
 
 
-    DatabaseType(boolean escapeNames, boolean includeColNames) {
+    DatabaseType(boolean escapeNames, boolean includeColNames, boolean loadNeedsUpdateColumnSequence) {
         this.escapeNames = escapeNames;
         this.includeColNames = includeColNames;
+        this.loadNeedsUpdateColumnSequence = loadNeedsUpdateColumnSequence;
+    }
+
+    DatabaseType(boolean escapeNames, boolean includeColNames) {
+        this(escapeNames, includeColNames, false);
     }
 
     /**
@@ -68,6 +73,12 @@ public enum DatabaseType {
      * when generating INSERT queries for loading data.
      */
     private final boolean includeColNames;
+
+    /**
+     * If this flag is set to true, the framework will attempt to update the
+     * column sequence after loading data.
+     */
+    private final boolean loadNeedsUpdateColumnSequence;
 
 
     // ---------------------------------------------------------------
@@ -90,6 +101,13 @@ public enum DatabaseType {
         return (this.includeColNames);
     }
 
+    /**
+     * @return True if the framework should attempt to update the column
+     * sequence after loading data.
+     */
+    public boolean shouldUpdateColumnSequenceAfterLoad() {
+        return (this.loadNeedsUpdateColumnSequence);
+    }
 
     // ----------------------------------------------------------------
     // STATIC METHODS + MEMBERS
