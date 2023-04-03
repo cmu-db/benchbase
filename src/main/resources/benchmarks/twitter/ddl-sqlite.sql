@@ -1,4 +1,5 @@
 -- MySQL ddl from Twitter dump
+-- Adapted for sqlite
 
 DROP TABLE IF EXISTS added_tweets;
 DROP TABLE IF EXISTS tweets;
