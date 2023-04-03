@@ -37,7 +37,10 @@
             <statement name="lockSleep">
                 WAITFOR DELAY ?
             </statement>
-            <!-- TODO: Should we also hint with HOLDLOCK to keep the lock until the end of the transaction? -->
+            <!--
+                NOTE: We could also use the HOLDLOCK hint to keep the lock until the end of the transaction.
+                However, since this is a single statement transaction, it shouldn't matter.
+            -->
             <statement name="lockUpdate">
                 UPDATE locktable WITH (TABLOCK) SET salary = ? WHERE empid IN (??)
             </statement>
