@@ -172,7 +172,9 @@ WHERE t.name='%s' AND c.name='%s'
 """,
                 catalog_tbl.getName(), catalog_col.getName());
         } else {
-            LOG.debug("Unexpected request for sequence name on {} using {}", catalog_col, dbType);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Unexpected request for sequence name on {} using {}", catalog_col, dbType);
+            }
         }
 
         if (sql != null) {
