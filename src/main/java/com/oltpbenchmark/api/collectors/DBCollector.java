@@ -21,6 +21,10 @@ import com.oltpbenchmark.util.JSONUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -59,5 +63,25 @@ public class DBCollector implements DBParameterCollector {
         return version;
     }
 
+    public void collectDBParameters(Connection conn) {
+        try (Statement s = conn.createStatement()) {
 
+            // Collect DBMS version
+            try (ResultSet out = s.executeQuery("SELECT version();")) {
+                if (out.next()) {
+                    this.version = out.getString(1);
+                }
+            }
+
+            // Collect DBMS parameters
+            try (ResultSet out = s.executeQuery("SHOW ALL;")) {
+                while (out.next()) {
+                    dbParameters.put(out.getString("variable"), out.getString("value"));
+                }
+            }
+
+        } catch (SQLException e) {
+            LOG.error("Error while collecting DB parameters: {}", e.getMessage());
+        }
+    }
 }
