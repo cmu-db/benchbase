@@ -44,34 +44,94 @@ public abstract class JSONUtil {
     private static final String JSON_CLASS_SUFFIX = "_class";
     private static final Map<Class<?>, Field[]> SERIALIZABLE_FIELDS = new HashMap<>();
 
-    /**
-     * @param clazz
-     * @return
-     */
-    public static Field[] getSerializableFields(Class<?> clazz, String... fieldsToExclude) {
-        Field[] ret = SERIALIZABLE_FIELDS.get(clazz);
-        if (ret == null) {
-            Collection<String> exclude = CollectionUtil.addAll(new HashSet<>(), fieldsToExclude);
-            synchronized (SERIALIZABLE_FIELDS) {
-                ret = SERIALIZABLE_FIELDS.get(clazz);
-                if (ret == null) {
-                    List<Field> fields = new ArrayList<>();
-                    for (Field f : clazz.getFields()) {
-                        int modifiers = f.getModifiers();
-                        if (!Modifier.isTransient(modifiers) &&
-                                Modifier.isPublic(modifiers) &&
-                                !Modifier.isStatic(modifiers) &&
-                                !exclude.contains(f.getName())) {
-                            fields.add(f);
-                        }
+//    /**
+//     * @param clazz
+//     * @return
+//     */
+//    public static Field[] getSerializableFields(Class<?> clazz, String... fieldsToExclude) {
+//        Field[] ret = SERIALIZABLE_FIELDS.get(clazz);
+//        if (ret == null) {
+//            Collection<String> exclude = CollectionUtil.addAll(new HashSet<>(), fieldsToExclude);
+//            synchronized (SERIALIZABLE_FIELDS) {
+//                ret = SERIALIZABLE_FIELDS.get(clazz);
+//                if (ret == null) {
+//                    List<Field> fields = new ArrayList<>();
+//                    for (Field f : clazz.getFields()) {
+//                        int modifiers = f.getModifiers();
+//                        if (!Modifier.isTransient(modifiers) &&
+//                                Modifier.isPublic(modifiers) &&
+//                                !Modifier.isStatic(modifiers) &&
+//                                !exclude.contains(f.getName())) {
+//                            fields.add(f);
+//                        }
+//                    }
+//                    ret = fields.toArray(new Field[0]);
+//                    SERIALIZABLE_FIELDS.put(clazz, ret);
+//                }
+//            }
+//        }
+//        return (ret);
+//    }
+
+    abstract class SerializableFieldProvider {
+        abstract Field[] getSerializableFields(Class<?> clazz, String... fieldsToExclude);
+    }
+
+    class CachedSerializableFieldProvider extends SerializableFieldProvider {
+        private final Map<Class<?>, Field[]> cache = new HashMap<>();
+
+        @Override
+        Field[] getSerializableFields(Class<?> clazz, String... fieldsToExclude) {
+            Field[] ret = cache.get(clazz);
+            if (ret == null) {
+                Collection<String> exclude = CollectionUtil.addAll(new HashSet<>(), fieldsToExclude);
+                List<Field> fields = new ArrayList<>();
+                for (Field f : clazz.getFields()) {
+                    int modifiers = f.getModifiers();
+                    if (!Modifier.isTransient(modifiers) &&
+                        Modifier.isPublic(modifiers) &&
+                        !Modifier.isStatic(modifiers) &&
+                        !exclude.contains(f.getName())) {
+                        fields.add(f);
                     }
-                    ret = fields.toArray(new Field[0]);
-                    SERIALIZABLE_FIELDS.put(clazz, ret);
+                }
+                ret = fields.toArray(new Field[0]);
+                cache.put(clazz, ret);
+            }
+            return ret;
+        }
+    }
+
+    class NonCachedSerializableFieldProvider extends SerializableFieldProvider {
+        @Override
+        Field[] getSerializableFields(Class<?> clazz, String... fieldsToExclude) {
+            Collection<String> exclude = CollectionUtil.addAll(new HashSet<>(), fieldsToExclude);
+            List<Field> fields = new ArrayList<>();
+            for (Field f : clazz.getFields()) {
+                int modifiers = f.getModifiers();
+                if (!Modifier.isTransient(modifiers) &&
+                    Modifier.isPublic(modifiers) &&
+                    !Modifier.isStatic(modifiers) &&
+                    !exclude.contains(f.getName())) {
+                    fields.add(f);
                 }
             }
+            return fields.toArray(new Field[0]);
         }
-        return (ret);
     }
+
+    public Field[] getSerializableFields(Class<?> clazz, String... fieldsToExclude) {
+        SerializableFieldProvider provider;
+        if (SERIALIZABLE_FIELDS.containsKey(clazz)) {
+            provider = new CachedSerializableFieldProvider();
+        } else {
+            provider = new NonCachedSerializableFieldProvider();
+        }
+        Field[] ret = provider.getSerializableFields(clazz, fieldsToExclude);
+        SERIALIZABLE_FIELDS.put(clazz, ret);
+        return ret;
+    }
+
 
     /**
      * JSON Pretty Print
@@ -342,7 +402,7 @@ public abstract class JSONUtil {
     @SuppressWarnings("unchecked")
     protected static void readCollectionField(final JSONArray json_array, final Collection collection, final Stack<Class> inner_classes) throws Exception {
         // We need to figure out what the inner type of the collection is
-        // If it's a Collection or a Map, then we need to instantiate it before 
+        // If it's a Collection or a Map, then we need to instantiate it before
         // we can call readFieldValue() again for it.
         Class inner_class = inner_classes.pop();
         Collection<Class<?>> inner_interfaces = ClassUtil.getInterfaces(inner_class);
