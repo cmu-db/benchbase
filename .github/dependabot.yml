@@ -18,7 +18,13 @@ updates:
     assignees:
       - "bpkroth"
   - package-ecosystem: "docker"
-    directory: "/docker"
+    directory: "/docker/benchbase/devcontainer/"
+    schedule:
+      interval: "daily"
+    assignees:
+      - "bpkroth"
+  - package-ecosystem: "docker"
+    directory: "/docker/benchbase/fullimage/"
     schedule:
       interval: "daily"
     assignees:
