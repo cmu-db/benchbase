@@ -58,7 +58,7 @@
                 <dependency>
                     <groupId>org.xerial</groupId>
                     <artifactId>sqlite-jdbc</artifactId>
-                    <version>3.36.0.3</version>
+                    <version>3.41.2.1</version>
                 </dependency>
             </dependencies>
         </profile>
@@ -110,7 +110,7 @@
                 <dependency>
                     <groupId>com.google.cloud</groupId>
                     <artifactId>google-cloud-spanner-jdbc</artifactId>
-                    <version>2.6.1</version>
+                    <version>2.9.9</version>
                 </dependency>
             </dependencies>
         </profile>
@@ -258,7 +258,7 @@
         <dependency>
             <groupId>org.glassfish.jaxb</groupId>
             <artifactId>jaxb-runtime</artifactId>
-            <version>4.0.0</version>
+            <version>4.0.2</version>
         </dependency>
 
         <dependency>
@@ -376,7 +376,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.3.0</version>
+                <version>3.5.0</version>
                 <executions>
                     <execution>
                         <id>analyze</id>
