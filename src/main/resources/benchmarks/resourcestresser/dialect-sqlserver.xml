@@ -3,45 +3,52 @@
     <dialect type="SQLSERVER">
         <procedure name="CPU1">
             <statement name="cpuSelect">
-            	SELECT count(*) FROM (SELECT CONVERT(VARCHAR(32),
-            										 HashBytes('MD5',CONVERT(VARCHAR(32),
-            										 					     HashBytes('MD5',CONVERT(VARCHAR(32), 
-            										 					     						 HashBytes('MD5',CONVERT(VARCHAR(32),
-            										 					     						 						 HashBytes('MD5',CONVERT(VARCHAR(32),
-            										 					     						 						                         HashBytes('MD5',passwd+?)
-            										 					     						 						                         )
-            										 					     						 						 +?))
-            										 					     						 +?))
-            										 					     +?))
-            										 +?))
-            										Z FROM cputable WHERE empid &gt;= 1 AND empid &lt;= 100) cputemp
-            </statement>
-        </procedure>   
-        <procedure name="CPU2">
-            <statement name="cpuSelect">
-            	            	SELECT count(*) FROM (SELECT CONVERT(VARCHAR(32),
-            										 HashBytes('MD5',CONVERT(VARCHAR(32),
-            										 					     HashBytes('MD5',CONVERT(VARCHAR(32), 
-            										 					     						 HashBytes('MD5',CONVERT(VARCHAR(32),
-            										 					     						 						 HashBytes('MD5',CONVERT(VARCHAR(32),
-            										 					     						 						                         HashBytes('MD5',passwd+?)
-            										 					     						 						                         )
-            										 					     						 						 +?))
-            										 					     						 +?))
-            										 					     +?))
-            										 +?))
-            										Z FROM cputable WHERE empid &gt;= 1 AND empid &lt;= 100) cputemp
-            </statement>
-        </procedure>     
-        <procedure name="Contention1">
-            <statement name="lockSleep">
-            	WAITFOR DELAY ?
-            </statement>
-        </procedure>   
-        <procedure name="Contention2">
-            <statement name="lockSleep">
-            	WAITFOR DELAY ?
+                SELECT count(*) FROM (SELECT CONVERT(VARCHAR(32),
+                                                     HashBytes('MD5',CONVERT(VARCHAR(32),
+                                                                              HashBytes('MD5',CONVERT(VARCHAR(32),
+                                                                                                       HashBytes('MD5',CONVERT(VARCHAR(32),
+                                                                                                                                HashBytes('MD5',CONVERT(VARCHAR(32),
+                                                                                                                                                        HashBytes('MD5',passwd+?)
+                                                                                                                                                        )
+                                                                                                                                +?))
+                                                                                                       +?))
+                                                                              +?))
+                                                     +?))
+                                                    Z FROM cputable WHERE empid &gt;= 1 AND empid &lt;= 100) cputemp
             </statement>
         </procedure>
-	</dialect>
+        <procedure name="CPU2">
+            <statement name="cpuSelect">
+                                SELECT count(*) FROM (SELECT CONVERT(VARCHAR(32),
+                                                     HashBytes('MD5',CONVERT(VARCHAR(32),
+                                                                              HashBytes('MD5',CONVERT(VARCHAR(32),
+                                                                                                       HashBytes('MD5',CONVERT(VARCHAR(32),
+                                                                                                                                HashBytes('MD5',CONVERT(VARCHAR(32),
+                                                                                                                                                        HashBytes('MD5',passwd+?)
+                                                                                                                                                        )
+                                                                                                                                +?))
+                                                                                                       +?))
+                                                                              +?))
+                                                     +?))
+                                                    Z FROM cputable WHERE empid &gt;= 1 AND empid &lt;= 100) cputemp
+            </statement>
+        </procedure>
+        <procedure name="Contention1">
+            <statement name="lockSleep">
+                WAITFOR DELAY ?
+            </statement>
+            <!--
+                NOTE: We could also use the HOLDLOCK hint to keep the lock until the end of the transaction.
+                However, since this is a single statement transaction, it shouldn't matter.
+            -->
+            <statement name="lockUpdate">
+                UPDATE locktable WITH (TABLOCK) SET salary = ? WHERE empid IN (??)
+            </statement>
+        </procedure>
+        <procedure name="Contention2">
+            <statement name="lockSleep">
+                WAITFOR DELAY ?
+            </statement>
+        </procedure>
+    </dialect>
 </dialects>

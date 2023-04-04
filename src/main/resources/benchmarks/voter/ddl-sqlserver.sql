@@ -35,7 +35,7 @@ CREATE TABLE VOTES
 , phone_number       bigint     NOT NULL
 , state              varchar(2) NOT NULL
 , contestant_number  integer    NOT NULL REFERENCES CONTESTANTS (contestant_number)
-, created            timestamp  NOT NULL
+, created            datetime2  NOT NULL DEFAULT (CURRENT_TIMESTAMP)
 );
 CREATE INDEX idx_votes_phone_number ON VOTES (phone_number);
 

@@ -34,6 +34,7 @@ on:
 env:
   POM_VERSION: 2021-SNAPSHOT
   JAVA_VERSION: 17
+  ERRORS_THRESHOLD: 0.01
 
 jobs:
   compile-and-test:
@@ -85,6 +86,7 @@ jobs:
     needs: package-and-upload
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         # BROKEN: tpch
         benchmark: [ 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
@@ -110,7 +112,18 @@ jobs:
 
       - name: Run benchmark
         run: |
-          java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/sqlite/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true
+          java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/sqlite/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
+          # FIXME: Reduce the error rate so we don't need these overrides.
+          if [ ${{matrix.benchmark}} == auctionmark ]; then
+              ERRORS_THRESHOLD=0.02
+          elif [ ${{matrix.benchmark}} == resourcestresser ]; then
+              ERRORS_THRESHOLD=0.05
+          elif [ ${{matrix.benchmark}} == smallbank ]; then
+              ERRORS_THRESHOLD=0.03
+          elif [ ${{matrix.benchmark}} == tatp ]; then
+              ERRORS_THRESHOLD=0.05
+          fi
+          ./scripts/check_histogram_results.sh results/histograms.json $ERRORS_THRESHOLD
 
   ## ----------------------------------------------------------------------------------
   ## MARIADB
@@ -119,6 +132,7 @@ jobs:
     needs: package-and-upload
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
     services:
@@ -161,7 +175,14 @@ jobs:
           MARIADB_PORT: ${{ job.services.mariadb.ports[3306] }}
         run: |
           mysql -h127.0.0.1 -P$MARIADB_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
-          java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/mariadb/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true
+          java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/mariadb/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
+          # FIXME: Reduce the error rate so we don't need these overrides.
+          if [ ${{matrix.benchmark}} == auctionmark ]; then
+              ERRORS_THRESHOLD=0.02
+          elif [ ${{matrix.benchmark}} == tatp ]; then
+              ERRORS_THRESHOLD=0.05
+          fi
+          ./scripts/check_histogram_results.sh results/histograms.json $ERRORS_THRESHOLD
 
   ## ----------------------------------------------------------------------------------
   ## MYSQL
@@ -170,6 +191,7 @@ jobs:
     needs: package-and-upload
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
     services:
@@ -212,7 +234,14 @@ jobs:
           MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
           mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
-          java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/mysql/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true
+          java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/mysql/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
+          # FIXME: Reduce the error rate so we don't need these overrides.
+          if [ ${{matrix.benchmark}} == auctionmark ]; then
+              ERRORS_THRESHOLD=0.02
+          elif [ ${{matrix.benchmark}} == tatp ]; then
+              ERRORS_THRESHOLD=0.05
+          fi
+          ./scripts/check_histogram_results.sh results/histograms.json $ERRORS_THRESHOLD
 
   ## ----------------------------------------------------------------------------------
   ## POSTGRESQL
@@ -221,6 +250,7 @@ jobs:
     needs: package-and-upload
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
     services:
@@ -261,7 +291,14 @@ jobs:
         run: |
           PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
           PGPASSWORD=password createdb -h localhost -U admin benchbase
-          java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/postgres/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true
+          java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/postgres/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
+          # FIXME: Reduce the error rate so we don't need these overrides.
+          if [ ${{matrix.benchmark}} == auctionmark ]; then
+              ERRORS_THRESHOLD=0.02
+          elif [ ${{matrix.benchmark}} == tatp ]; then
+              ERRORS_THRESHOLD=0.05
+          fi
+          ./scripts/check_histogram_results.sh results/histograms.json $ERRORS_THRESHOLD
 
   ## ----------------------------------------------------------------------------------
   ## COCKROACHDB
@@ -270,6 +307,7 @@ jobs:
     needs: package-and-upload
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
     services:
@@ -302,7 +340,15 @@ jobs:
 
       - name: Run benchmark
         run: |
-          java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/cockroachdb/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true
+          java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/cockroachdb/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
+          # FIXME: Reduce the error rate so we don't need these overrides.
+          # FIXME: Reduce the error rate so we don't need these overrides.
+          if [ ${{matrix.benchmark}} == auctionmark ]; then
+              ERRORS_THRESHOLD=0.02
+          elif [ ${{matrix.benchmark}} == tatp ]; then
+              ERRORS_THRESHOLD=0.05
+          fi
+          ./scripts/check_histogram_results.sh results/histograms.json $ERRORS_THRESHOLD
 
   ## ----------------------------------------------------------------------------------
   ## MSSQL
@@ -311,6 +357,7 @@ jobs:
     needs: package-and-upload
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         # TODO: add more benchmarks
         #benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
@@ -375,7 +422,12 @@ jobs:
       - name: Run benchmark
         # Note: user/pass should match those used in sample configs.
         run: |
-          java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/sqlserver/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true
+          java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/sqlserver/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
+          # FIXME: Reduce the error rate so we don't need these overrides.
+          if [ ${{matrix.benchmark}} == tatp ]; then
+              ERRORS_THRESHOLD=0.05
+          fi
+          ./scripts/check_histogram_results.sh results/histograms.json $ERRORS_THRESHOLD
 
   ## ----------------------------------------------------------------------------------
   ## Docker Build Test Publish
@@ -447,9 +499,10 @@ jobs:
             mkdir -p results
             docker run --rm --name benchbase-postgres --network "$docker_network" \
               --env BENCHBASE_PROFILE=postgres -v /tmp/config.xml:/tmp/config.xml -v "$PWD/results:/benchbase/results" \
-              "$image" -b "$benchmark" -c /tmp/config.xml --create=true --load=true --execute=true
+              "$image" -b "$benchmark" -c /tmp/config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
             # Test that the results files were produced.
             ls results/${benchmark}_*.csv
+            ./scripts/check_histogram_results.sh results/histograms.json $ERRORS_THRESHOLD
           done
       # Publish the docker image if the build/test was successful.
       # Only do this with approved PRs and if the login secrets are available.
