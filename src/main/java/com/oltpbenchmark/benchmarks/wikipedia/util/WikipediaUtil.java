@@ -26,6 +26,10 @@ import java.util.Random;
 public abstract class WikipediaUtil {
 
     public static String generatePageTitle(Random rand, int page_id) {
+        // Yo we need to do this to ensure that for a given page_id, we always get back the same title.
+        // This is a hack for now (as it will break the <randomSeed> option in the config file.
+        // But from what I can tell it works.
+        rand.setSeed(page_id);
         FlatHistogram<Integer> h_titleLength = new FlatHistogram<>(rand, PageHistograms.TITLE_LENGTH);
         // HACK: Always append the page id to the title
         // so that it's guaranteed to be unique.

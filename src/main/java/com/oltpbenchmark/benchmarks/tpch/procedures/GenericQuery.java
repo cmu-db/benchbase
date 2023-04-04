@@ -26,6 +26,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLSyntaxErrorException;
 
 public abstract class GenericQuery extends Procedure {
 
@@ -34,12 +35,18 @@ public abstract class GenericQuery extends Procedure {
     protected abstract PreparedStatement getStatement(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException;
 
     public void run(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
-
-        try (PreparedStatement stmt = getStatement(conn, rand, scaleFactor); ResultSet rs = stmt.executeQuery()) {
-            while (rs.next()) {
-                //do nothing
+        try (PreparedStatement stmt = getStatement(conn, rand, scaleFactor)) {
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    //do nothing
+                }
+            }
+            catch (SQLSyntaxErrorException ex) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(this.getClass().getName() + ": stmt: " + stmt.toString());
+                }
+                throw ex;
             }
         }
-
     }
 }

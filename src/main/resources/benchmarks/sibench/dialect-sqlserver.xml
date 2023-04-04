@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<dialects>
+    <dialect type="SQLSERVER">
+        <procedure name="MinRecord">
+            <!-- SqlServer doesn't support LIMIT -->
+            <statement name="minStmt">
+                SELECT TOP 1 id FROM sitest ORDER BY value ASC
+            </statement>
+        </procedure>
+    </dialect>
+</dialects>

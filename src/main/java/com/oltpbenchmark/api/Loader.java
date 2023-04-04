@@ -119,14 +119,20 @@ public abstract class Loader<T extends BenchmarkModule> {
 
     protected void updateAutoIncrement(Connection conn, Column catalog_col, int value) throws SQLException {
         String sql = null;
-        if (getDatabaseType() == DatabaseType.POSTGRES) {
-            String seqName = SQLUtil.getSequenceName(getDatabaseType(), catalog_col);
-
-            sql = String.format("SELECT setval(%s, %d)", seqName.toLowerCase(), value);
+        String seqName = SQLUtil.getSequenceName(conn, getDatabaseType(), catalog_col);
+        DatabaseType dbType = getDatabaseType();
+        if (seqName != null) {
+            if (dbType == DatabaseType.POSTGRES) {
+                sql = String.format("SELECT setval('%s', %d)", seqName.toLowerCase(), value);
+            }
+            else if (dbType == DatabaseType.SQLSERVER || dbType == DatabaseType.SQLAZURE) {
+                sql = String.format("ALTER SEQUENCE [%s] RESTART WITH %d", seqName, value);
+            }
         }
+
         if (sql != null) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug(String.format("Updating %s auto-increment counter with value '%d'", catalog_col.getName(), value));
+                LOG.debug(String.format("Updating %s auto-increment counter %s with value '%d'", catalog_col.getName(), seqName, value));
             }
             try (Statement stmt = conn.createStatement()) {
                 boolean result = stmt.execute(sql);

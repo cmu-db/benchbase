@@ -21,13 +21,17 @@ package com.oltpbenchmark.benchmarks.wikipedia.procedures;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.wikipedia.WikipediaConstants;
+import com.oltpbenchmark.util.SQLUtil;
 import com.oltpbenchmark.util.TimeUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class AddWatchList extends Procedure {
+    private static final Logger LOG = LoggerFactory.getLogger(AddWatchList.class);
 
     // -----------------------------------------------------------------
     // STATEMENTS
@@ -58,6 +62,15 @@ public class AddWatchList extends Procedure {
                 ps.setInt(2, nameSpace);
                 ps.setString(3, pageTitle);
                 ps.executeUpdate();
+            }
+            catch (SQLException e) {
+                if (SQLUtil.isDuplicateKeyException(e)) {
+                    LOG.debug(e.toString());
+                    throw new UserAbortException("User " + userId + " already has " + pageTitle + " in their watchlist");
+                }
+                else {
+                    throw e;
+                }
             }
 
             if (nameSpace == 0) {
