@@ -22,6 +22,7 @@ import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkConstants;
 import com.oltpbenchmark.benchmarks.auctionmark.util.AuctionMarkUtil;
+import com.oltpbenchmark.util.SQLUtil;
 
 import java.sql.*;
 
@@ -93,6 +94,14 @@ public class NewComment extends Procedure {
                 currentTime,
                 currentTime)) {
             preparedStatement.executeUpdate();
+        }
+        catch (SQLException ex) {
+            if (SQLUtil.isDuplicateKeyException(ex)) {
+                throw new UserAbortException("item comment id " + ic_id + " already exists for item " + item_id + " and seller " + seller_id);
+            }
+            else {
+                throw ex;
+            }
         }
 
         try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, updateItemComments, item_id, seller_id)) {
