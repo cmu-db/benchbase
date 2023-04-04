@@ -560,4 +560,17 @@ public abstract class SQLUtil {
         }
         return (false);
     }
+
+    public static boolean isConnectionErrorException(SQLException ex) {
+        if (ex.getMessage().equals("Connection reset")
+            || ex.getMessage().equals("The connection is closed.")
+            || ex.getMessage().equals("Read timed out.")
+            || ex.getMessage().contains("The connection has been closed.")
+            || ex.getMessage().endsWith("Command could not be timed out. Reason: Socket closed")
+        ) {
+            return true;
+        }
+
+        return false;
+    }
 }

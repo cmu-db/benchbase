@@ -126,6 +126,7 @@ public class DBWorkload {
             wrkld.setBatchSize(xmlConfig.getInt("batchsize", 128));
             wrkld.setMaxRetries(xmlConfig.getInt("retries", 3));
             wrkld.setNewConnectionPerTxn(xmlConfig.getBoolean("newConnectionPerTxn", false));
+            wrkld.setReconnectOnConnectionFailure(xmlConfig.getBoolean("reconnectOnConnectionFailure", false));
 
             int terminals = xmlConfig.getInt("terminals[not(@bench)]", 0);
             terminals = xmlConfig.getInt("terminals" + pluginTest, terminals);
@@ -172,6 +173,7 @@ public class DBWorkload {
             initDebug.put("Scale Factor", wrkld.getScaleFactor());
             initDebug.put("Terminals", wrkld.getTerminals());
             initDebug.put("New Connection Per Txn", wrkld.getNewConnectionPerTxn());
+            initDebug.put("Reconnect on Connection Failure", wrkld.getReconnectOnConnectionFailure());
 
             if (selectivity != -1) {
                 initDebug.put("Selectivity", selectivity);

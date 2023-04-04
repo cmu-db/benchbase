@@ -56,6 +56,13 @@ public class WorkloadConfiguration {
      */
     private boolean newConnectionPerTxn = false;
 
+    /**
+     * If true, attempt to catch connection closed exceptions and reconnect.
+     * This allows the benchmark to recover like a typical application would in
+     * the case of a replicated cluster primary-secondary failover.
+     */
+    private boolean reconnectOnConnectionFailure = false;
+
     public String getBenchmarkName() {
         return benchmarkName;
     }
@@ -140,6 +147,24 @@ public class WorkloadConfiguration {
     public void setNewConnectionPerTxn(boolean newConnectionPerTxn) {
         this.newConnectionPerTxn = newConnectionPerTxn;
     }
+
+    /**
+     * @return @see reconnectOnConnectionFailure member docs for behavior.
+     */
+    public boolean getReconnectOnConnectionFailure() {
+        return reconnectOnConnectionFailure;
+    }
+
+    /**
+     * Used by the configuration loader at startup. Changing it any other time is probably dangeroues. @see
+     * reconnectOnConnectionFailure member docs for behavior.
+     *
+     * @param reconnectOnConnectionFailure
+     */
+    public void setReconnectOnConnectionFailure(boolean reconnectOnConnectionFailure) {
+        this.reconnectOnConnectionFailure = reconnectOnConnectionFailure;
+    }
+
 
     /**
      * Initiate a new benchmark and workload state
