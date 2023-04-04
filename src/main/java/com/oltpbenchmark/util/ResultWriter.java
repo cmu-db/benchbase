@@ -197,8 +197,10 @@ public class ResultWriter {
 
         // This is needed because nanTime does not guarantee offset... we
         // ground it (and round it) to ms from 1970-01-01 like currentTime
-        double x = ((double) System.nanoTime() / (double) 1000000000);
-        double y = ((double) System.currentTimeMillis() / (double) 1000);
+        double nanosInSecond = 1_000_000_000.0;
+        double microsInSecond = 1_000_000.0;
+        double x = ((double) System.nanoTime() / nanosInSecond);
+        double y = ((double) System.currentTimeMillis() / microsInSecond);
         double offset = x - y;
 
         // long startNs = latencySamples.get(0).startNs;
