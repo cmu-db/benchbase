@@ -286,7 +286,7 @@ public class AuctionMarkProfile {
         this.items_per_category = other.items_per_category;
         this.gag_ids = other.gag_ids;
 
-        // Initialize the UserIdGenerator so we can figure out whether our 
+        // Initialize the UserIdGenerator so we can figure out whether our
         // client should even have these ids
         this.initializeUserIdGenerator(this.client_id);
 
@@ -854,32 +854,32 @@ public class AuctionMarkProfile {
         tmp_seenItems.clear();
         while (num_items > 0 && tries-- > 0 && tmp_seenItems.size() < num_items) {
             idx = this.rng.nextInt(num_items);
-            ItemInfo temp = itemSet.get(idx);
+            ItemInfo randomItem = itemSet.get(idx);
 
-            if (tmp_seenItems.contains(temp)) {
+            if (tmp_seenItems.contains(randomItem)) {
                 continue;
             }
-            tmp_seenItems.add(temp);
+            tmp_seenItems.add(randomItem);
 
             // Needs to have an embedded currentPrice
-            if (needCurrentPrice && !temp.hasCurrentPrice()) {
+            if (needCurrentPrice && !randomItem.hasCurrentPrice()) {
                 continue;
             }
 
-            // If they want an item that is ending in the future, then we compare it with 
+            // If they want an item that is ending in the future, then we compare it with
             // the current timestamp
             if (needFutureEndDate) {
-                boolean compareTo = (temp.getEndDate().compareTo(currentTime) < 0);
+                boolean compareTo = (randomItem.getEndDate().compareTo(currentTime) < 0);
                 if (LOG.isTraceEnabled()) {
-                    LOG.trace("CurrentTime:{} / EndTime:{} [compareTo={}]", currentTime, temp.getEndDate(), compareTo);
+                    LOG.trace("CurrentTime:{} / EndTime:{} [compareTo={}]", currentTime, randomItem.getEndDate(), compareTo);
                 }
-                if (!temp.hasEndDate() || compareTo) {
+                if (!randomItem.hasEndDate() || compareTo) {
                     continue;
                 }
             }
 
             // Uniform
-            itemInfo = temp;
+            itemInfo = randomItem;
             break;
         }
         if (itemInfo == null) {
