@@ -109,59 +109,16 @@ public class ScriptRunner {
                 String trimmedLine = line.trim();
                 line = line.replaceAll("\\-\\-.*$", ""); // remove comments in line;
 
-                if (trimmedLine.startsWith("--") || trimmedLine.startsWith("//")) {
+                if (isCommentLine(trimmedLine)) {
                     LOG.debug(trimmedLine);
-                } else if (trimmedLine.length() < 1) {
+                } else if (isBlankLine(trimmedLine)) {
                     // Do nothing
-                } else if (trimmedLine.endsWith(getDelimiter())) {
-                    command.append(line, 0, line.lastIndexOf(getDelimiter()));
-                    command.append(" ");
+                } else if (isEndOfStatement(trimmedLine)) {
+                    command.append(getStatementWithoutDelimiter(line));
 
-                    try (Statement statement = conn.createStatement()) {
+                    executeStatement(conn, command.toString().trim());
 
-                        boolean hasResults = false;
-                        final String sql = command.toString().trim();
-                        if (stopOnError) {
-                            hasResults = statement.execute(sql);
-                        } else {
-                            try {
-                                statement.execute(sql);
-                            } catch (SQLException e) {
-                                LOG.error(e.getMessage(), e);
-                            }
-                        }
-
-                        if (autoCommit && !conn.getAutoCommit()) {
-                            conn.commit();
-                        }
-
-                        // HACK
-                        if (hasResults && !sql.toUpperCase().startsWith("CREATE")) {
-                            try (ResultSet rs = statement.getResultSet()) {
-                                if (hasResults && rs != null) {
-                                    ResultSetMetaData md = rs.getMetaData();
-                                    int cols = md.getColumnCount();
-                                    for (int i = 0; i < cols; i++) {
-                                        String name = md.getColumnLabel(i);
-                                        LOG.debug(name);
-                                    }
-
-                                    while (rs.next()) {
-                                        for (int i = 0; i < cols; i++) {
-                                            String value = rs.getString(i);
-                                            LOG.debug(value);
-                                        }
-                                    }
-
-                                }
-                            }
-                        }
-
-                        command = null;
-                    } finally {
-
-                        Thread.yield();
-                    }
+                    command = null;
                 } else {
                     command.append(line);
                     command.append(" ");
@@ -176,6 +133,68 @@ public class ScriptRunner {
             }
         }
     }
+
+    private boolean isCommentLine(String line) {
+        return line.startsWith("--") || line.startsWith("//");
+    }
+
+    private boolean isBlankLine(String line) {
+        return line.length() < 1;
+    }
+
+    private boolean isEndOfStatement(String line) {
+        return line.endsWith(getDelimiter());
+    }
+
+    private String getStatementWithoutDelimiter(String line) {
+        return line.substring(0, line.lastIndexOf(getDelimiter()));
+    }
+
+    private void executeStatement(Connection conn, String sql) throws SQLException {
+        try (Statement statement = conn.createStatement()) {
+            boolean hasResults = false;
+            if (stopOnError) {
+                hasResults = statement.execute(sql);
+            } else {
+                try {
+                    statement.execute(sql);
+                } catch (SQLException e) {
+                    LOG.error(e.getMessage(), e);
+                }
+            }
+
+            if (autoCommit && !conn.getAutoCommit()) {
+                conn.commit();
+            }
+
+            if (hasResults && !sql.toUpperCase().startsWith("CREATE")) {
+                processResultSet(statement);
+            }
+        } finally {
+            Thread.yield();
+        }
+    }
+
+    private void processResultSet(Statement statement) throws SQLException {
+        try (ResultSet rs = statement.getResultSet()) {
+            if (rs != null) {
+                ResultSetMetaData md = rs.getMetaData();
+                int cols = md.getColumnCount();
+                for (int i = 0; i < cols; i++) {
+                    String name = md.getColumnLabel(i);
+                    LOG.debug(name);
+                }
+
+                while (rs.next()) {
+                    for (int i = 0; i < cols; i++) {
+                        String value = rs.getString(i);
+                        LOG.debug(value);
+                    }
+                }
+            }
+        }
+    }
+
 
     private String getDelimiter() {
         return DEFAULT_DELIMITER;
