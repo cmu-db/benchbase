@@ -23,12 +23,16 @@ import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.wikipedia.WikipediaConstants;
 import com.oltpbenchmark.benchmarks.wikipedia.util.Article;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class GetPageAnonymous extends Procedure {
+    private static final Logger LOG = LoggerFactory.getLogger(GetPageAnonymous.class);
 
     // -----------------------------------------------------------------
     // STATEMENTS
@@ -75,7 +79,7 @@ public class GetPageAnonymous extends Procedure {
             st.setString(param++, pageTitle);
             try (ResultSet rs = st.executeQuery()) {
                 if (!rs.next()) {
-                    String msg = String.format("Invalid Page: Namespace:%d / Title:--%s--", pageNamespace, pageTitle);
+                    String msg = String.format("Invalid Page: Namespace:%d / Title:\"%s\"", pageNamespace, pageTitle);
                     throw new UserAbortException(msg);
                 }
                 pageId = rs.getInt(1);
@@ -87,7 +91,6 @@ public class GetPageAnonymous extends Procedure {
             try (ResultSet rs = st.executeQuery()) {
                 while (rs.next()) {
                     rs.getBytes(1);
-
                 }
             }
         }
@@ -113,7 +116,7 @@ public class GetPageAnonymous extends Procedure {
             st.setInt(2, pageId);
             try (ResultSet rs = st.executeQuery()) {
                 if (!rs.next()) {
-                    String msg = String.format("Invalid Page: Namespace:%d / Title:--%s-- / PageId:%d",
+                    String msg = String.format("Invalid Page: Namespace:%d / Title:\"%s\" / PageId:%d",
                             pageNamespace, pageTitle, pageId);
                     throw new UserAbortException(msg);
                 }

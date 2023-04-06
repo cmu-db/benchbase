@@ -31,7 +31,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-//import ch.ethz.ssh2.log.Logger;
 public class UpdatePage extends Procedure {
     private static final Logger LOG = LoggerFactory.getLogger(UpdatePage.class);
 
@@ -81,12 +80,12 @@ public class UpdatePage extends Procedure {
             int param = 1;
             ps.setInt(param++, pageId);       // rev_page
             ps.setLong(param++, nextTextId);   // rev_text_id
-            ps.setString(param++, revComment);// rev_comment
+            ps.setString(param++, revComment.substring(0, Math.min(revComment.length(), 255-1))); // rev_comment
             ps.setInt(param++, revMinorEdit); // rev_minor_edit // this is an error
             ps.setInt(param++, userId);       // rev_user
             ps.setString(param++, userText);  // rev_user_text
             ps.setString(param++, timestamp); // rev_timestamp
-            ps.setInt(param++, 0);            // rev_deleted //this is an error
+            ps.setInt(param++, 0);            // rev_deleted // this is an error
             ps.setInt(param++, pageText.length()); // rev_len
             ps.setLong(param++, revisionId);   // rev_parent_id // this is an error
             execute(conn, ps);
@@ -122,8 +121,8 @@ public class UpdatePage extends Procedure {
             ps.setInt(param++, userId);           // rc_user
             ps.setString(param++, userText);      // rc_user_text
             ps.setString(param++, revComment);    // rc_comment
-            ps.setLong(param++, nextTextId);       // rc_this_oldid
-            ps.setLong(param++, textId);           // rc_last_oldid
+            ps.setLong(param++, nextTextId);      // rc_this_oldid
+            ps.setLong(param++, textId);          // rc_last_oldid
             ps.setInt(param++, 0);                // rc_bot
             ps.setInt(param++, 0);                // rc_moved_to_ns
             ps.setString(param++, "");            // rc_moved_to_title

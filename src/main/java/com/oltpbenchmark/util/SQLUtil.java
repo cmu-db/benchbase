@@ -21,7 +21,6 @@ import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.catalog.*;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.types.SortDirectionType;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -149,22 +148,79 @@ public abstract class SQLUtil {
     /**
      * Return the internal sequence name for the given Column
      *
+     * @param conn
      * @param dbType
      * @param catalog_col
      * @return
      */
-    public static String getSequenceName(DatabaseType dbType, Column catalog_col) {
+    public static String getSequenceName(Connection conn, DatabaseType dbType, Column catalog_col) throws SQLException {
         Table catalog_tbl = catalog_col.getTable();
 
+        String seqName = null;
+        String sql = null;
         if (dbType == DatabaseType.POSTGRES) {
-            return String.format("pg_get_serial_sequence('%s', '%s')",
+            sql = String.format("SELECT pg_get_serial_sequence('%s', '%s')",
                     catalog_tbl.getName(), catalog_col.getName());
+        } else if (dbType == DatabaseType.SQLSERVER || dbType == DatabaseType.SQLAZURE) {
+            // NOTE: This likely only handles certain syntaxes for defaults.
+            sql = String.format("""
+SELECT REPLACE(REPLACE([definition], '(NEXT VALUE FOR [', ''), '])', '') AS seq
+FROM sys.default_constraints dc
+JOIN sys.columns c ON c.default_object_id=dc.object_id
+JOIN sys.tables t ON c.object_id=t.object_id
+WHERE t.name='%s' AND c.name='%s'
+""",
+                catalog_tbl.getName(), catalog_col.getName());
         } else {
-            LOG.warn("Unexpected request for sequence name on {} using {}", catalog_col, dbType);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Unexpected request for sequence name on {} using {}", catalog_col, dbType);
+            }
         }
-        return (null);
+
+        if (sql != null) {
+            try (Statement stmt = conn.createStatement()) {
+                try (ResultSet result = stmt.executeQuery(sql)) {
+                    if (result.next()) {
+                        seqName = result.getString(1);
+                    }
+                }
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(String.format("%s => [%s]", sql, seqName));
+                }
+            }
+        }
+
+        return seqName;
     }
 
+    /**
+     * Mark the given table which has an identity column to be able to be
+     * inserted into with explicit values.
+     *
+     * @param conn
+     * @param dbType
+     * @param catalog_tbl
+     * @param on
+     */
+    public static void setIdentityInsert(Connection conn, DatabaseType dbType, Table catalog_tbl, boolean on) throws SQLException {
+        String sql = null;
+        if (dbType == DatabaseType.SQLSERVER || dbType == DatabaseType.SQLAZURE) {
+            sql = "SET IDENTITY_INSERT " + catalog_tbl.getName() + " " + (on ? "ON" : "OFF");
+        }
+
+        if (sql != null) {
+            try (Statement stmt = conn.createStatement()) {
+                boolean result = stmt.execute(sql);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(String.format("%s => [%s]", sql, result));
+                    SQLWarning warnings = stmt.getWarnings();
+                    if (warnings != null) {
+                        LOG.debug(warnings.toString());
+                    }
+                }
+            }
+        }
+    }
 
     public static Object[] getRowAsArray(ResultSet rs) throws SQLException {
         ResultSetMetaData rs_md = rs.getMetaData();
@@ -555,6 +611,10 @@ public abstract class SQLUtil {
 
             // POSTGRES
             if (sqlEx.getSQLState().contains("23505")) {
+                return (true);
+            }
+            // SQLSERVER
+            else if (sqlEx.getSQLState().equals("23000") && sqlEx.getErrorCode() == 2627) {
                 return (true);
             }
         }

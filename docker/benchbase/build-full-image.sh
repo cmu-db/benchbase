@@ -11,7 +11,7 @@ cd "$scriptdir"
 
 if [ "$CLEAN_BUILD" == 'true' ]; then
     grep '^FROM ' fullimage/Dockerfile \
-        | sed -r -e 's/^FROM\s+//' -e 's/\s+AS \S+\s*$/ /' \
+        | sed -r -e 's/^FROM\s+//' -e 's/--platform=\S+\s+//' -e 's/\s+AS \S+\s*$/ /' \
         | while read base_image; do
             set -x
             docker pull $base_image &
@@ -57,14 +57,24 @@ function create_image() {
     # Make (hard-linked) copies of the build results that we can put into the image.
     pushd "$scriptdir/fullimage/"
     rm -rf tmp/
-    mkdir -p tmp/docker-build-stage/
+    mkdir -p tmp/config/
+    mkdir -p tmp/profiles/
+    cp -a "$rootdir/config/plugin.xml" tmp/config/
     for profile in $profiles; do
         if ! [ -f "$rootdir/profiles/$profile/benchbase.jar" ]; then
             echo "ERROR: build for $profile appears to have failed." >&2
             exit 1
         fi
-        cp -al "$rootdir/profiles/$profile" tmp/docker-build-stage/
+        cp -al "$rootdir/profiles/$profile" tmp/profiles/
+
+        # Consolidate the configs across profiles.
+        cp -a "$rootdir/profiles/$profile/config/$profile" tmp/config/
+        rm -rf tmp/profiles/$profile/config
+        ln -s ../../config/$profile "tmp/profiles/$profile/config"
+        ln -s . tmp/profiles/$profile/config/$profile
+        ln -s ../plugin.xml tmp/config/$profile/
     done
+
     # Make a copy of the entrypoint script that changes the default profile to
     # execute for singleton images.
     cp -a entrypoint.sh tmp/entrypoint.sh
@@ -79,8 +89,9 @@ function create_image() {
     local target_image_tag_args=$(echo "-t benchbase:latest ${image_tag_args:-}" | sed "s/benchbase:/$image_name:/g")
 
     set -x
-    docker build --progress=plain \
-        --build-arg="http_proxy=${http_proxy:-}" --build-arg="https_proxy=${https_proxy:-}" \
+    docker build $docker_build_args \
+        --build-arg BUILDKIT_INLINE_CACHE=1 \
+        --build-arg="http_proxy=${http_proxy:-}" --build-arg="https_proxy=${https_proxy:-}" --build-arg="no_proxy=${no_proxy:-}" \
         --build-arg CONTAINERUSER_UID="$CONTAINERUSER_UID" --build-arg CONTAINERUSER_GID="$CONTAINERUSER_GID" \
         $target_image_tag_args -f "$scriptdir/fullimage/Dockerfile" "$scriptdir/fullimage/tmp/"
     set +x

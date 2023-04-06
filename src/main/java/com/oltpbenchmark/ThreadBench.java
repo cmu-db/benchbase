@@ -210,8 +210,9 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                 }
             }
 
-            // Go to next phase if this one is complete
-            if (phaseComplete && !lastEntry) {
+            // Go to next phase if this one is complete or enter if error was thrown
+            boolean errorThrown = testState.getState() == State.ERROR;
+            if ((phaseComplete || errorThrown) && !lastEntry) {
                 // enters here after each phase of the test
                 // reset the queues so that the new phase is not affected by the
                 // queue of the previous one
@@ -374,19 +375,25 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
 
     @Override
     public void uncaughtException(Thread t, Throwable e) {
-
-        // HERE WE HANDLE THE CASE IN WHICH ONE OF OUR WOKERTHREADS DIED
+        // Here we handle the case in which one of our worker threads died
         LOG.error(e.getMessage(), e);
-        System.exit(-1);
-
-        /*
-         * Alternatively, we could keep an HashMap<Thread,Worker> storing the
-         * runnable for each thread, so that we can get the latency numbers from
-         * a thread that died, and either continue or at least report current
-         * status. (Remember to remove this thread from the list of threads to
-         * wait for)
-         */
-
+        // We do not continue with the experiment. Instead, bypass rest of
+        // phases that were left in the test and signal error state.
+        // The rest of the workflow to finish the experiment remains the same,
+        // and partial metrics will be reported (i.e., until failure happened).
+        synchronized (testState) {
+            for (WorkloadConfiguration workConf : this.workConfs) {
+                synchronized (workConf.getWorkloadState()) {
+                    WorkloadState workState = workConf.getWorkloadState();
+                    Phase phase = workState.getCurrentPhase();
+                    while (phase != null) {
+                        workState.switchToNextPhase();
+                        phase = workState.getCurrentPhase();
+                    }
+                }
+            }
+            testState.signalError();
+        }
     }
 
     public static final class TimeBucketIterable implements Iterable<DistributionStatistics> {

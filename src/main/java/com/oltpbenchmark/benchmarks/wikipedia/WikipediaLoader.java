@@ -101,6 +101,8 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
             public void load(Connection conn) throws SQLException {
                 Table catalog_tbl = benchmark.getCatalog().getTable(WikipediaConstants.TABLENAME_USER);
 
+                SQLUtil.setIdentityInsert(conn, getDatabaseType(), catalog_tbl, true);
+
                 String sql = SQLUtil.getInsertSQL(catalog_tbl, benchmark.getWorkloadConfiguration().getDatabaseType());
 
                 // load anonymous user
@@ -125,6 +127,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                     stmt.executeUpdate();
                 }
 
+                SQLUtil.setIdentityInsert(conn, getDatabaseType(), catalog_tbl, false);
             }
 
             @Override
@@ -144,7 +147,6 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                 @Override
                 public void load(Connection conn) throws SQLException {
                     loadUsers(conn, lo, hi);
-
                 }
 
                 @Override
@@ -159,7 +161,6 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
-
                 }
             });
         }
@@ -240,6 +241,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
     private void loadUsers(Connection conn, int lo, int hi) throws SQLException {
         Table catalog_tbl = benchmark.getCatalog().getTable(WikipediaConstants.TABLENAME_USER);
 
+        SQLUtil.setIdentityInsert(conn, getDatabaseType(), catalog_tbl, true);
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
 
         try (PreparedStatement userInsert = conn.prepareStatement(sql)) {
@@ -306,7 +308,9 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                 userInsert.clearBatch();
             }
         }
-        if (this.getDatabaseType() == DatabaseType.POSTGRES || this.getDatabaseType() == DatabaseType.COCKROACHDB) {
+        SQLUtil.setIdentityInsert(conn, getDatabaseType(), catalog_tbl, false);
+        DatabaseType dbType = this.getDatabaseType();
+        if (dbType.shouldUpdateColumnSequenceAfterLoad()) {
             this.updateAutoIncrement(conn, catalog_tbl.getColumn(0), this.benchmark.num_users);
         }
         if (LOG.isDebugEnabled()) {
@@ -320,7 +324,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
     private void loadPages(Connection conn, int lo, int hi) throws SQLException {
         Table catalog_tbl = benchmark.getCatalog().getTable(WikipediaConstants.TABLENAME_PAGE);
 
-
+        SQLUtil.setIdentityInsert(conn, getDatabaseType(), catalog_tbl, true);
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
         try (PreparedStatement pageInsert = conn.prepareStatement(sql)) {
             FlatHistogram<String> h_restrictions = new FlatHistogram<>(rng(), PageHistograms.RESTRICTIONS);
@@ -369,7 +373,9 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                 this.addToTableCount(catalog_tbl.getName(), batchSize);
             }
         }
-        if (this.getDatabaseType() == DatabaseType.POSTGRES || this.getDatabaseType() == DatabaseType.COCKROACHDB) {
+        SQLUtil.setIdentityInsert(conn, getDatabaseType(), catalog_tbl, false);
+        DatabaseType dbType = this.getDatabaseType();
+        if (dbType.shouldUpdateColumnSequenceAfterLoad()) {
             this.updateAutoIncrement(conn, catalog_tbl.getColumn(0), this.benchmark.num_pages);
         }
         if (LOG.isDebugEnabled()) {
@@ -473,12 +479,11 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         Table revTable = benchmark.getCatalog().getTable(WikipediaConstants.TABLENAME_REVISION);
         String revSQL = SQLUtil.getInsertSQL(revTable, this.getDatabaseType());
 
-        WikipediaBenchmark b = this.benchmark;
         int batchSize = 1;
         Zipf h_users = new Zipf(rng(), 1, this.benchmark.num_users, WikipediaConstants.REVISION_USER_SIGMA);
         FlatHistogram<Integer> h_textLength = new FlatHistogram<>(rng(), TextHistograms.TEXT_LENGTH);
-        FlatHistogram<Integer> h_commentLength = b.commentLength;
-        FlatHistogram<Integer> h_minorEdit = b.minorEdit;
+        FlatHistogram<Integer> h_commentLength = this.benchmark.commentLength;
+        FlatHistogram<Integer> h_minorEdit = this.benchmark.minorEdit;
         FlatHistogram<Integer> h_nameLength = new FlatHistogram<>(rng(), UserHistograms.NAME_LENGTH);
         FlatHistogram<Integer> h_numRevisions = new FlatHistogram<>(rng(), PageHistograms.REVISIONS_PER_PAGE);
 
@@ -492,33 +497,29 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
             for (int page_id = 1; page_id <= this.benchmark.num_pages; page_id++) {
                 // There must be at least one revision per page
                 int num_revised = h_numRevisions.nextValue();
+                LOG.debug(String.format("# Revisions for Page %d: %d", page_id, num_revised));
 
                 // Generate what the new revision is going to be
                 int old_text_length = h_textLength.nextValue();
-
                 char[] old_text = TextGenerator.randomChars(rng(), old_text_length);
 
                 for (int i = 0; i < num_revised; i++) {
-                    // Generate the User who's doing the revision and the Page
-                    // revised
+                    // Generate the User who's doing the revision and the Page revised
                     // Makes sure that we always update their counter
                     int user_id = h_users.nextInt();
-
                     this.user_revision_ctr[user_id - 1]++;
 
                     // Generate what the new revision is going to be
                     if (i > 0) {
-                        old_text = b.generateRevisionText(old_text);
+                        old_text = this.benchmark.generateRevisionText(old_text);
                         old_text_length = old_text.length;
                     }
 
                     int rev_comment_len = Math.min(rev_comment_max, h_commentLength.nextValue() + 1); // HACK
                     String rev_comment = TextGenerator.randomStr(rng(), rev_comment_len);
 
-
                     // The REV_USER_TEXT field is usually the username, but we'll
-                    // just
-                    // put in gibberish for now
+                    // just put in gibberish for now
                     String user_text = TextGenerator.randomStr(rng(), h_nameLength.nextValue() + 1);
 
                     // Insert the text
@@ -566,15 +567,22 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                     }
                 }
             }
+            if (batchSize > 0) {
+                textInsert.executeBatch();
+                revisionInsert.executeBatch();
+                this.addToTableCount(textTable.getName(), batchSize);
+                this.addToTableCount(revTable.getName(), batchSize);
+            }
         }
-        if (this.getDatabaseType() == DatabaseType.POSTGRES || this.getDatabaseType() == DatabaseType.COCKROACHDB) {
+
+        DatabaseType dbType = this.getDatabaseType();
+        if (dbType.shouldUpdateColumnSequenceAfterLoad()) {
             this.updateAutoIncrement(conn, textTable.getColumn(0), rev_id);
             this.updateAutoIncrement(conn, revTable.getColumn(0), rev_id);
         }
 
         // UPDATE USER
         revTable = benchmark.getCatalog().getTable(WikipediaConstants.TABLENAME_USER);
-
         String revTableName = (this.getDatabaseType().shouldEscapeNames()) ? revTable.getEscapedName() : revTable.getName();
 
         String updateUserSql = "UPDATE " + revTableName + "   SET user_editcount = ?, " + "       user_touched = ? " + " WHERE user_id = ?";

@@ -108,10 +108,15 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
             final int lo = i * loadPerThread;
             final int hi = Math.min(this.num_users, (i + 1) * loadPerThread);
 
+            // To ensure that we don't wind up with an empty trust table for
+            // small scales we have the first loader thread ensure that at
+            // least a single trust record is inserted.
+            final boolean firstLoader = (i == 0);
+
             threads.add(new LoaderThread(this.benchmark) {
                 @Override
                 public void load(Connection conn) throws SQLException {
-                    loadTrust(conn, lo, hi);
+                    loadTrust(conn, lo, hi, firstLoader);
                 }
 
                 @Override
@@ -309,7 +314,7 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
      * Zipfian distribution Trusted users are not correlated to heavy
      * reviewers (drawn using a scrambled distribution)
      */
-    public void loadTrust(Connection conn, int lo, int hi) throws SQLException {
+    public void loadTrust(Connection conn, int lo, int hi, boolean firstLoader) throws SQLException {
         Table catalog_tbl = this.benchmark.getCatalog().getTable("trust");
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
 
@@ -324,6 +329,12 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
             for (int i = lo; i < hi; i++) {
                 long timestamp = System.currentTimeMillis();
                 int trust_count = numTrust.nextInt();
+                // To avoid having an empty trust table during small scale
+                // tests, we make sure that at least one trust record is
+                // inserted to the table.
+                if (firstLoader && i == lo) {
+                    trust_count = Math.max(trust_count, 1);
+                }
                 for (int tc = 0; tc < trust_count; ) {
                     int u_id = reviewed.nextInt();
                     if (!trusted.contains(u_id)) {

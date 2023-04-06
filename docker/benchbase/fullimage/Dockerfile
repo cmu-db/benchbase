@@ -1,5 +1,6 @@
 # Use a smaller base image that only has the jre, not the full jdk.
-FROM --platform=linux eclipse-temurin:17-jre AS fullimage
+#FROM --platform=linux eclipse-temurin:17-jre AS fullimage
+FROM eclipse-temurin:17-jre AS fullimage
 
 LABEL org.opencontainers.image.source = "https://github.com/cmu-db/benchbase/"
 
@@ -21,8 +22,7 @@ VOLUME /benchbase/results
 # Only copy the content necessary for running (not building) benchbase over to the image.
 # These files should have been built using the devcontainer by the
 # build-full-image.sh script.
-COPY ./entrypoint.sh /entrypoint.sh
-COPY ./docker-build-stage/ /benchbase/profiles/
+COPY --chown=containeruser:containergroup . /benchbase/
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/benchbase/entrypoint.sh"]
 CMD ["--help"]

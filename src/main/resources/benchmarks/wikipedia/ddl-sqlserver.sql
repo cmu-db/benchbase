@@ -13,11 +13,13 @@ IF OBJECT_ID('useracct') IS NOT NULL DROP table useracct;
 IF OBJECT_ID('user_groups') IS NOT NULL DROP table user_groups;
 IF OBJECT_ID('value_backup') IS NOT NULL DROP table value_backup;
 IF OBJECT_ID('watchlist') IS NOT NULL DROP table watchlist;
+IF OBJECT_ID('text_old_id_seq') IS NOT NULL DROP SEQUENCE text_old_id_seq;
+IF OBJECT_ID('revision_rev_id_seq') IS NOT NULL DROP SEQUENCE revision_rev_id_seq;
 
 -- Create tables
 
 CREATE TABLE ipblocks (
-  ipb_id int NOT NULL,
+  ipb_id int IDENTITY NOT NULL,
   ipb_address varchar(15) NOT NULL,
   ipb_user int NOT NULL DEFAULT '0',
   ipb_by int NOT NULL DEFAULT '0',
@@ -43,7 +45,7 @@ CREATE INDEX IDX_IPB_TIMESTAMP ON ipblocks (ipb_timestamp);
 CREATE INDEX IDX_IPB_EXPIRY ON ipblocks (ipb_expiry);
 
 CREATE TABLE logging (
-  log_id int NOT NULL,
+  log_id int IDENTITY NOT NULL,
   log_type varchar(32) NOT NULL,
   log_action varchar(32) NOT NULL,
   log_timestamp varchar(14) NOT NULL DEFAULT '19700101000000',
@@ -65,7 +67,7 @@ CREATE INDEX IDX_LOG_USER_TYPE_TIME ON logging (log_user,log_type,log_timestamp)
 CREATE INDEX IDX_LOG_PAGE_ID_TIME ON logging (log_page,log_timestamp);
 
 CREATE TABLE page (
-  page_id int NOT NULL,
+  page_id int IDENTITY NOT NULL,
   page_namespace int NOT NULL,
   page_title varchar(255) NOT NULL,
   page_restrictions varchar(255) NOT NULL,
@@ -83,7 +85,7 @@ CREATE INDEX IDX_PAGE_RANDOM ON page (page_random);
 CREATE INDEX IDX_PAGE_LEN ON page (page_len);
 
 CREATE TABLE page_backup (
-  page_id int NOT NULL,
+  page_id int IDENTITY NOT NULL,
   page_namespace int NOT NULL,
   page_title varchar(255) NOT NULL,
   page_restrictions varbinary NOT NULL,
@@ -116,7 +118,7 @@ CREATE INDEX IDX_PR_LEVEL ON page_restrictions (pr_level);
 CREATE INDEX IDX_PR_CASCADE ON page_restrictions (pr_cascade);
 
 CREATE TABLE recentchanges (
-  rc_id int NOT NULL,
+  rc_id int IDENTITY NOT NULL,
   rc_timestamp varchar(14) NOT NULL DEFAULT '',
   rc_cur_time varchar(14) NOT NULL DEFAULT '',
   rc_user int NOT NULL DEFAULT '0',
@@ -152,8 +154,9 @@ CREATE INDEX IDX_RC_IP ON recentchanges (rc_ip);
 CREATE INDEX IDX_RC_NS_USERTEXT ON recentchanges (rc_namespace,rc_user_text);
 CREATE INDEX IDX_RC_USER_TEXT ON recentchanges (rc_user_text,rc_timestamp);
 
+CREATE SEQUENCE revision_rev_id_seq START WITH 1 MINVALUE 1 INCREMENT BY 1;
 CREATE TABLE revision (
-  rev_id int NOT NULL,
+  rev_id int NOT NULL DEFAULT NEXT VALUE FOR revision_rev_id_seq,
   rev_page int NOT NULL,
   rev_text_id int NOT NULL,
   rev_comment varchar(255) NOT NULL,
@@ -172,16 +175,18 @@ CREATE INDEX IDX_PAGE_TIMESTAMP ON revision (rev_page,rev_timestamp);
 CREATE INDEX IDX_USER_TIMESTAMP ON revision (rev_user,rev_timestamp);
 CREATE INDEX IDX_USERTEXT_TIMESTAMP ON revision (rev_user_text,rev_timestamp);
 
+CREATE SEQUENCE text_old_id_seq START WITH 1 MINVALUE 1 INCREMENT BY 1;
 CREATE TABLE text (
-  old_id int NOT NULL,
+  old_id int NOT NULL DEFAULT NEXT VALUE FOR text_old_id_seq,
   old_text varchar(max) NOT NULL,
   old_flags varchar(255) NOT NULL,
   old_page int DEFAULT NULL,
   PRIMARY KEY (old_id)
 );
 
+
 CREATE TABLE useracct (
-  user_id int NOT NULL,
+  user_id int IDENTITY NOT NULL,
   user_name varchar(255) NOT NULL DEFAULT '',
   user_real_name varchar(255) NOT NULL DEFAULT '',
   user_password varchar(255) NOT NULL,

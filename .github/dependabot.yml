@@ -5,9 +5,27 @@
 
 version: 2
 updates:
-  - package-ecosystem: "maven" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  - package-ecosystem: "maven"
+    directory: "/"
     schedule:
       interval: "daily"
     assignees:
       - "apavlo"
+  - package-ecosystem: "github-actions"
+    directory: "/.github/workflows"
+    schedule:
+      interval: "daily"
+    assignees:
+      - "bpkroth"
+  - package-ecosystem: "docker"
+    directory: "/docker/benchbase/devcontainer/"
+    schedule:
+      interval: "daily"
+    assignees:
+      - "bpkroth"
+  - package-ecosystem: "docker"
+    directory: "/docker/benchbase/fullimage/"
+    schedule:
+      interval: "daily"
+    assignees:
+      - "bpkroth"

@@ -92,6 +92,12 @@ public final class BenchmarkState {
         state = State.MEASURE;
     }
 
+    public void signalError() {
+        // A thread died, decrement the count and set error state
+        notDoneCount.decrementAndGet();
+        state = State.ERROR;
+    }
+
     public void startCoolDown() {
         state = State.DONE;
 

@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    <type>sqlserver</type>
+    <driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</driver>
+    <url>jdbc:sqlserver://localhost:1433;encrypt=false;database=benchbase;</url>
+    <username>benchuser01</username>
+    <password>P@ssw0rd</password>
+    <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    <batchsize>128</batchsize>
+
+    <scalefactor>1</scalefactor>
+
+    <!-- The workload -->
+    <terminals>1</terminals>
+    <works>
+        <work>
+            <time>60</time>
+            <rate>unlimited</rate>
+            <weights>50,50</weights>
+        </work>
+    </works>
+
+    <!-- SIBENCH Procedures declaration -->
+    <transactiontypes>
+        <transactiontype>
+            <name>MinRecord</name>
+        </transactiontype>
+        <transactiontype>
+            <name>UpdateRecord</name>
+        </transactiontype>
+    </transactiontypes>
+</parameters>
