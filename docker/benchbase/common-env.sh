@@ -52,7 +52,10 @@ git_vers_tag=$(git tag -l --points-at HEAD | grep ^v | sort -V | tail -n1)
 
 # We could also include a short tag to follow semantic versioning, but it adds
 # cleanup complexity, so we omit it for now.
-#git_rev_short=$(git rev-parse --revs-only --short HEAD)
+git_rev_short=''
+if [ "${WITH_GIT_SHORT_REV_TAG:-false}" == 'true' ]; then
+    git_rev_short=$(git rev-parse --revs-only --short HEAD)
+fi
 
 # Local image gets a :latest tag, always, for local dev/run convenience.
 image_tag_args="-t $imagename:latest"
@@ -67,6 +70,13 @@ if [ -n "$git_vers_tag" ]; then
     image_tag_args+=" -t $imagename:$git_vers_tag"
     if [ -n "$CONTAINER_REGISTRY_NAME" ]; then
         image_tag_args+=" -t $CONTAINER_REGISTRY_NAME/$imagename:$git_vers_tag"
+    fi
+fi
+
+if [ -n "$git_rev_short" ]; then
+    image_tag_args+=" -t $imagename:$git_rev_short"
+    if [ -n "$CONTAINER_REGISTRY_NAME" ]; then
+        image_tag_args+=" -t $CONTAINER_REGISTRY_NAME/$imagename:$git_rev_short"
     fi
 fi
 
