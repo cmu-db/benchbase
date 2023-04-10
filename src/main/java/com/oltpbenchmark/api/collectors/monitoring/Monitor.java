@@ -5,6 +5,7 @@ import java.util.List;
 import com.oltpbenchmark.BenchmarkState;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Worker;
+import com.oltpbenchmark.util.MonitorInfo;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +17,7 @@ import org.slf4j.LoggerFactory;
 public class Monitor extends Thread {
     protected static final Logger LOG = LoggerFactory.getLogger(DatabaseMonitor.class);
 
-    protected final int intervalMonitor;
+    protected final MonitorInfo monitorInfo;
     protected final BenchmarkState testState;
     protected final List<? extends Worker<? extends BenchmarkModule>> workers;
 
@@ -27,15 +28,17 @@ public class Monitor extends Thread {
     /**
      * @param interval How long to wait between polling in milliseconds
      */
-    Monitor(int interval, BenchmarkState testState, List<? extends Worker<? extends BenchmarkModule>> workers) {
-        this.intervalMonitor = interval;
+    Monitor(MonitorInfo monitorInfo, BenchmarkState testState, List<? extends Worker<? extends BenchmarkModule>> workers) {
+        this.monitorInfo = monitorInfo;
         this.testState = testState;
         this.workers = workers;
     }
 
     @Override
     public void run() {
-        LOG.info("Starting MonitorThread Interval [{}ms]", this.intervalMonitor);
+        int interval = this.monitorInfo.getMonitoringInterval();
+
+        LOG.info("Starting MonitorThread Interval [{}ms]", interval);
         while (!Thread.currentThread().isInterrupted()) {
             // Compute the last throughput
             long measuredRequests = 0;
@@ -44,12 +47,12 @@ public class Monitor extends Thread {
                     measuredRequests += w.getAndResetIntervalRequests();
                 }
             }
-            double seconds = this.intervalMonitor / 1000d;
+            double seconds = interval / 1000d;
             double tps = (double) measuredRequests / seconds;
             LOG.info("Throughput: {} txn/sec", tps);
 
             try {
-                Thread.sleep(this.intervalMonitor);
+                Thread.sleep(interval);
             } catch (InterruptedException ex) {
                 // Restore interrupt flag.
                 Thread.currentThread().interrupt();

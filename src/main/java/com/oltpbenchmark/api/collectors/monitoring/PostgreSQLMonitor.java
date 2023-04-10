@@ -16,6 +16,7 @@ import com.oltpbenchmark.BenchmarkState;
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Worker;
+import com.oltpbenchmark.util.MonitorInfo;
 
 /**
  * Implementation of a monitor specific to PostgreSQL. Uses the
@@ -38,9 +39,9 @@ public class PostgreSQLMonitor extends DatabaseMonitor {
 
     private final Set<String> stored_queries;
 
-    public PostgreSQLMonitor(int interval, BenchmarkState testState,
+    public PostgreSQLMonitor(MonitorInfo monitorInfo, BenchmarkState testState,
             List<? extends Worker<? extends BenchmarkModule>> workers, WorkloadConfiguration conf) {
-        super(interval, testState, workers, conf);
+        super(monitorInfo, testState, workers, conf);
 
         this.stored_queries = new HashSet<String>();
 

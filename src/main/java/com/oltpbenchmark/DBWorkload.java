@@ -81,11 +81,16 @@ public class DBWorkload {
         }
 
 
-        // Seconds
-        int intervalMonitor = 0;
+        ImmutableMonitorInfo.Builder builder = ImmutableMonitorInfo.builder();
         if (argsLine.hasOption("im")) {
-            intervalMonitor = Integer.parseInt(argsLine.getOptionValue("im"));
+            builder.monitoringInterval(Integer.parseInt(argsLine.getOptionValue("im")));
         }
+        if (argsLine.hasOption("imt")) {
+            if (argsLine.getOptionValue("imt")=="advanced") {
+                builder.monitoringType(MonitorInfo.MonitoringType.ADVANCED);
+            }
+        }
+        MonitorInfo monitorInfo = builder.build();
 
         // -------------------------------------------------------------------
         // GET PLUGIN LIST
@@ -459,7 +464,7 @@ public class DBWorkload {
         if (isBooleanOptionSet(argsLine, "execute")) {
             // Bombs away!
             try {
-                Results r = runWorkload(benchList, intervalMonitor);
+                Results r = runWorkload(benchList, monitorInfo);
                 writeOutputs(r, activeTXTypes, argsLine, xmlConfig);
                 writeHistograms(r);
 
@@ -633,7 +638,7 @@ public class DBWorkload {
         bench.loadDatabase();
     }
 
-    private static Results runWorkload(List<BenchmarkModule> benchList, int intervalMonitor) throws IOException {
+    private static Results runWorkload(List<BenchmarkModule> benchList, MonitorInfo monitorInfo) throws IOException {
         List<Worker<?>> workers = new ArrayList<>();
         List<WorkloadConfiguration> workConfs = new ArrayList<>();
         for (BenchmarkModule bench : benchList) {
@@ -645,7 +650,7 @@ public class DBWorkload {
             workConfs.add(bench.getWorkloadConfiguration());
 
         }
-        Results r = ThreadBench.runRateLimitedBenchmark(workers, workConfs, intervalMonitor);
+        Results r = ThreadBench.runRateLimitedBenchmark(workers, workConfs, monitorInfo);
         LOG.info(SINGLE_LINE);
         LOG.info("Rate limited reqs/s: {}", r);
         return r;

@@ -2,11 +2,11 @@
 
 Monitoring in BenchBase can be enabled using the
 ```text
- -im,--interval-monitor <arg>   Throughput Monitoring Interval in
-                                milliseconds
+ -im,--interval-monitor <arg>   Monitoring (Interval in ms)
+ -Im,--interval-monitor <arg>   Advanced Monitoring (Interval in ms)
 ```
 command line option when executing BenchBase, where the monitoring interval describes the sleeping period of the thread between recording monitoring information.
-We currently support two types of monitoring: 1) Basic throughput monitoring and 2) Monitoring of query and system statistics via system tables for both SQLServer and Postgres.
+We currently support two types of monitoring: 1) Basic throughput monitoring to track the progress while executing a benchmark and 2) monitoring of query and system properties via system tables for both SQLServer and Postgres.
 The latter are automatically enabled if the DBMS that BenchBase is executed against is either SQLServer or Postgres, otherwise, monitoring will default to basic throughput monitoring.
 
 The output of the monitoring queries are in logs in .proto format where each element corresponds to a query resp. a monitoring event.

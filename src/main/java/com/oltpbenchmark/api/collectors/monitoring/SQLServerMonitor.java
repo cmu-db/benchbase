@@ -16,6 +16,7 @@ import com.oltpbenchmark.BenchmarkState;
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Worker;
+import com.oltpbenchmark.util.MonitorInfo;
 
 /**
  * Implementation of a monitor specific to SQLServer. Uses SQLServer's system
@@ -49,9 +50,9 @@ public class SQLServerMonitor extends DatabaseMonitor {
 
     private final Set<String> cached_plans;
 
-    public SQLServerMonitor(int interval, BenchmarkState testState,
+    public SQLServerMonitor(MonitorInfo monitorInfo, BenchmarkState testState,
             List<? extends Worker<? extends BenchmarkModule>> workers, WorkloadConfiguration conf) {
-        super(interval, testState, workers, conf);
+        super(monitorInfo, testState, workers, conf);
 
         // Extract the database instance from url.
         String[] params = conf.getUrl().split(";");

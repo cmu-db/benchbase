@@ -18,6 +18,7 @@ import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.util.FileUtil;
+import com.oltpbenchmark.util.MonitorInfo;
 import com.oltpbenchmark.util.StringUtil;
 
 import org.apache.commons.lang3.StringUtils;
@@ -66,9 +67,9 @@ public abstract class DatabaseMonitor extends Monitor {
     }
 
     public DatabaseMonitor(
-            int interval, BenchmarkState testState,
+            MonitorInfo monitorInfo, BenchmarkState testState,
             List<? extends Worker<? extends BenchmarkModule>> workers, WorkloadConfiguration workloadConf) {
-        super(interval, testState, workers);
+        super(monitorInfo, testState, workers);
 
         try {
             this.conf = workloadConf;
@@ -235,8 +236,9 @@ public abstract class DatabaseMonitor extends Monitor {
      */
     @Override
     public void run() {
-        LOG.info("Starting Monitor Interval [{}ms]", this.intervalMonitor);
+        int interval = this.monitorInfo.getMonitoringInterval();
 
+        LOG.info("Starting Monitor Interval [{}ms]", interval);
         // Make sure we record one event during setup.
         if (this.conn != null) {
             cleanupCache();
@@ -245,7 +247,7 @@ public abstract class DatabaseMonitor extends Monitor {
         // Periodically extract sys table stats.
         while (!Thread.currentThread().isInterrupted()) {
             try {
-                Thread.sleep(this.intervalMonitor);
+                Thread.sleep(interval);
             } catch (InterruptedException ex) {
                 // Restore interrupt flag.
                 Thread.currentThread().interrupt();

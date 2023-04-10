@@ -24,6 +24,7 @@ import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.api.collectors.monitoring.Monitor;
 import com.oltpbenchmark.api.collectors.monitoring.MonitorGen;
 import com.oltpbenchmark.types.State;
+import com.oltpbenchmark.util.MonitorInfo;
 import com.oltpbenchmark.util.StringUtil;
 import org.apache.commons.collections4.map.ListOrderedMap;
 import org.slf4j.Logger;
@@ -39,22 +40,22 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
     private final ArrayList<Thread> workerThreads;
     private final List<WorkloadConfiguration> workConfs;
     private final ArrayList<LatencyRecord.Sample> samples = new ArrayList<>();
-    private final int intervalMonitor;
+    private final MonitorInfo monitorInfo;
 
     private Monitor monitor = null;
 
     private ThreadBench(List<? extends Worker<? extends BenchmarkModule>> workers,
-            List<WorkloadConfiguration> workConfs, int intervalMonitoring) {
+            List<WorkloadConfiguration> workConfs, MonitorInfo monitorInfo) {
         this.workers = workers;
         this.workConfs = workConfs;
         this.workerThreads = new ArrayList<>(workers.size());
-        this.intervalMonitor = intervalMonitoring;
+        this.monitorInfo = monitorInfo;
         this.testState = new BenchmarkState(workers.size() + 1);
     }
 
     public static Results runRateLimitedBenchmark(List<Worker<? extends BenchmarkModule>> workers,
-            List<WorkloadConfiguration> workConfs, int intervalMonitoring) {
-        ThreadBench bench = new ThreadBench(workers, workConfs, intervalMonitoring);
+            List<WorkloadConfiguration> workConfs, MonitorInfo monitorInfo) {
+        ThreadBench bench = new ThreadBench(workers, workConfs, monitorInfo);
         return bench.runRateLimitedMultiPhase();
     }
 
@@ -155,9 +156,9 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         boolean lastEntry = false;
 
         // Initialize the Monitor
-        if (this.intervalMonitor > 0) {
+        if (this.monitorInfo.getMonitoringInterval() > 0) {
             this.monitor = MonitorGen.getMonitor(
-                    this.intervalMonitor, this.testState, this.workers, this.workConfs.get(0));
+                    this.monitorInfo, this.testState, this.workers, this.workConfs.get(0));
             this.monitor.start();
         }
 
