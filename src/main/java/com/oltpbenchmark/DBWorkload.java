@@ -89,7 +89,7 @@ public class DBWorkload {
         }
         if (argsLine.hasOption("mt")) {
             LOG.info("recognized mt");
-            if (argsLine.getOptionValue("mt")=="advanced") {
+            if (argsLine.getOptionValue("mt").equals("advanced")) {
                 LOG.info("setting value to advanced");
                 builder.monitoringType(MonitorInfo.MonitoringType.ADVANCED);
             }
