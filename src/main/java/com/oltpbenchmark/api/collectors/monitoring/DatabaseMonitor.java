@@ -38,7 +38,7 @@ public abstract class DatabaseMonitor extends Monitor {
     protected final int FILE_FLUSH_COUNT = 1000;
 
     protected DatabaseState currentState = DatabaseState.INVALID;
-    protected int fileCounter = 1;
+    protected int ticks = 1;
 
     protected WorkloadConfiguration conf;
     protected Connection conn;
@@ -90,7 +90,7 @@ public abstract class DatabaseMonitor extends Monitor {
     }
 
     protected void writeSingleQueryEventsToCSV() {
-        String filePath = getFilePath(SINGLE_QUERY_EVENT_CSV, this.fileCounter);
+        String filePath = getFilePath(SINGLE_QUERY_EVENT_CSV, this.ticks);
         try {
             if (this.singleQueryEvents.size() == 0) {
                 LOG.warn("No query events have been recorded, file not written.");
@@ -118,7 +118,7 @@ public abstract class DatabaseMonitor extends Monitor {
     }
 
     protected void writeRepeatedQueryEventsToCSV() {
-        String filePath = getFilePath(REP_QUERY_EVENT_CSV, this.fileCounter);
+        String filePath = getFilePath(REP_QUERY_EVENT_CSV, this.ticks);
         try {
             if (this.repeatedQueryEvents.size() == 0) {
                 LOG.warn("No repeated query events have been recorded, file not written.");
@@ -147,7 +147,7 @@ public abstract class DatabaseMonitor extends Monitor {
     }
 
     protected void writeRepeatedSystemEventsToCSV() {
-        String filePath = getFilePath(REP_SYSTEM_EVENT_CSV, this.fileCounter);
+        String filePath = getFilePath(REP_SYSTEM_EVENT_CSV, this.ticks);
         try {
             if (this.repeatedSystemEvents.size() == 0) {
                 LOG.warn("No repeated system events have been recorded, file not written.");
@@ -253,10 +253,10 @@ public abstract class DatabaseMonitor extends Monitor {
             if (this.conn != null) {
                 runExtraction();
             }
-            if (fileCounter % FILE_FLUSH_COUNT == 0) {
+            if (ticks % FILE_FLUSH_COUNT == 0) {
                 writeToCSV();
             }
-            fileCounter++;
+            ticks++;
         }
 
         if (this.conn != null) {
