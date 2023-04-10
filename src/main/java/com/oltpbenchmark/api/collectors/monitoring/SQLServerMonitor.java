@@ -39,14 +39,9 @@ public class SQLServerMonitor extends DatabaseMonitor {
             "FROM sys.dm_exec_query_stats st " +
             "CROSS APPLY sys.dm_exec_sql_text(st.plan_handle) q " +
             "CROSS APPLY sys.dm_exec_query_plan(st.plan_handle) pl";
-    private final String DM_OS_PERFORMANCE_STATS = "SELECT cntr_value, " +
+    private String DM_OS_PERFORMANCE_STATS = "SELECT cntr_value, " +
             "counter_name FROM sys.dm_os_performance_counters WHERE " +
-            "instance_name='default';";
-    private final String DM_LOCK_STATS = "SELECT info.ms_ticks, " +
-            "counters.cntr_value, counters.counter_name FROM (SELECT " +
-            "cntr_value, counter_name FROM sys.dm_os_performance_counters " +
-            "WHERE object_name LIKE '%Locks%' AND instance_name='_Total') " +
-            "counters, (SELECT ms_ticks FROM sys.dm_os_sys_info) info";
+            "instance_name='$DB_INSTANCE';";
     private final String CLEAN_CACHE = "DBCC FREEPROCCACHE;";
     private final List<String> singleQueryProperties;
     private final List<String> repeatedQueryProperties;
@@ -54,9 +49,20 @@ public class SQLServerMonitor extends DatabaseMonitor {
 
     private final Set<String> cached_plans;
 
-    public SQLServerMonitor(int interval, BenchmarkState testState,
+    public SQLServerMonitor(String db_instance, int interval, BenchmarkState testState,
             List<? extends Worker<? extends BenchmarkModule>> workers, WorkloadConfiguration conf) {
         super(interval, testState, workers, conf);
+
+        // Extract the database instance from url.
+        String[] params = conf.getUrl().split(";");
+        for (String param : params) {
+            String[] values = param.split("=");
+            if (values[0].equals("database")) {
+                DM_OS_PERFORMANCE_STATS = DM_OS_PERFORMANCE_STATS.replace(
+                        "$DB_INSTANCE", values[1]);
+                break;
+            }
+        }
 
         this.cached_plans = new HashSet<String>();
 
@@ -104,19 +110,11 @@ public class SQLServerMonitor extends DatabaseMonitor {
 
         this.repeatedSystemProperties = new ArrayList<String>() {
             {
-                add("Used memory (KB)");
-                add("Target memory (KB)");
-                add("CPU usage %");
-                add("CPU effective %");
-                add("CPU violated %");
-                add("CPU usage % base");
-                add("CPU effective % base");
-                add("CPU usage target %");
-                add("Disk Read IO/sec");
-                add("Disk Write IO/sec");
-                add("Average Wait Time (ms)");
-                add("Average Wait Time Base");
-                add("Lock Requests/sec");
+                add("Data File(s) Size (KB)");
+                add("Transactions/sec");
+                add("Write Transactions/sec");
+                add("Cache Hit Ratio");
+                add("Cache Entries Count");
             }
         };
     }
@@ -204,27 +202,6 @@ public class SQLServerMonitor extends DatabaseMonitor {
             }
         } catch (SQLException sqlError) {
             LOG.error("Error when extracting OS metrics from SQL Server.");
-            LOG.error(sqlError.getMessage());
-        }
-
-        // Extract lock counter events.
-        try (PreparedStatement stmt = conn.prepareStatement(DM_LOCK_STATS)) {
-            ResultSet rs = stmt.executeQuery();
-            boolean ticks_set = false;
-            while (rs.next()) {
-                // Get MS ticks value.
-                if (!ticks_set) {
-                    propertyValues.put("ms_ticks", rs.getString("ms_ticks"));
-                    ticks_set = true;
-                }
-                // Add property values.
-                String counter_name = rs.getString("counter_name").trim();
-                if (this.repeatedSystemProperties.contains(counter_name)) {
-                    propertyValues.put(counter_name, rs.getString("cntr_value"));
-                }
-            }
-        } catch (SQLException sqlError) {
-            LOG.error("Error when extracting perf OS metrics.");
             LOG.error(sqlError.getMessage());
         }
         repeatedSystemEventBuilder.propertyValues(propertyValues);
