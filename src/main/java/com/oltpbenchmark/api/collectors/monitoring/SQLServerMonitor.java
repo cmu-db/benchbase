@@ -208,7 +208,6 @@ public class SQLServerMonitor extends DatabaseMonitor {
         }
 
         // Extract lock counter events.
-        propertyValues = new HashMap<String, String>();
         try (PreparedStatement stmt = conn.prepareStatement(DM_LOCK_STATS)) {
             ResultSet rs = stmt.executeQuery();
             boolean ticks_set = false;
