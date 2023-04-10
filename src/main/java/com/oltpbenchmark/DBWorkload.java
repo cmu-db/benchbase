@@ -494,7 +494,8 @@ public class DBWorkload {
         options.addOption(null, "execute", true, "Execute the benchmark workload");
         options.addOption("h", "help", false, "Print this help");
         options.addOption("s", "sample", true, "Sampling window");
-        options.addOption("im", "interval-monitor", true, "Throughput Monitoring Interval in milliseconds");
+        options.addOption("im", "interval-monitor", true, "Monitoring Interval in milliseconds");
+        options.addOption("imt", "interval-monitor-type", true, "Type of Monitoring (throughput/advanced)");
         options.addOption("d", "directory", true, "Base directory for the result files, default is current directory");
         options.addOption(null, "dialects-export", true, "Export benchmark SQL to a dialects file");
         options.addOption("jh", "json-histograms", true, "Export histograms to JSON file");
