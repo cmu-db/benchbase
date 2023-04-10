@@ -81,13 +81,15 @@ public class DBWorkload {
         }
 
 
+        // Monitoring setup.
         ImmutableMonitorInfo.Builder builder = ImmutableMonitorInfo.builder();
         if (argsLine.hasOption("im")) {
+            LOG.info("im");
             builder.monitoringInterval(Integer.parseInt(argsLine.getOptionValue("im")));
         }
-        if (argsLine.hasOption("imt")) {
-            LOG.info("recognized imt");
-            if (argsLine.getOptionValue("imt")=="advanced") {
+        if (argsLine.hasOption("mt")) {
+            LOG.info("recognized mt");
+            if (argsLine.getOptionValue("mt")=="advanced") {
                 LOG.info("setting value to advanced");
                 builder.monitoringType(MonitorInfo.MonitoringType.ADVANCED);
             }
@@ -497,7 +499,7 @@ public class DBWorkload {
         options.addOption("h", "help", false, "Print this help");
         options.addOption("s", "sample", true, "Sampling window");
         options.addOption("im", "interval-monitor", true, "Monitoring Interval in milliseconds");
-        options.addOption("imt", "interval-monitor-type", true, "Type of Monitoring (throughput/advanced)");
+        options.addOption("mt", "monitor-type", true, "Type of Monitoring (throughput/advanced)");
         options.addOption("d", "directory", true, "Base directory for the result files, default is current directory");
         options.addOption(null, "dialects-export", true, "Export benchmark SQL to a dialects file");
         options.addOption("jh", "json-histograms", true, "Export histograms to JSON file");
