@@ -84,13 +84,10 @@ public class DBWorkload {
         // Monitoring setup.
         ImmutableMonitorInfo.Builder builder = ImmutableMonitorInfo.builder();
         if (argsLine.hasOption("im")) {
-            LOG.info("im");
             builder.monitoringInterval(Integer.parseInt(argsLine.getOptionValue("im")));
         }
         if (argsLine.hasOption("mt")) {
-            LOG.info("recognized mt");
             if (argsLine.getOptionValue("mt").equals("advanced")) {
-                LOG.info("setting value to advanced");
                 builder.monitoringType(MonitorInfo.MonitoringType.ADVANCED);
             }
         }
