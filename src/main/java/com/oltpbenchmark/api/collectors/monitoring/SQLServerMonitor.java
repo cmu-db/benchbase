@@ -49,7 +49,7 @@ public class SQLServerMonitor extends DatabaseMonitor {
 
     private final Set<String> cached_plans;
 
-    public SQLServerMonitor(String db_instance, int interval, BenchmarkState testState,
+    public SQLServerMonitor(int interval, BenchmarkState testState,
             List<? extends Worker<? extends BenchmarkModule>> workers, WorkloadConfiguration conf) {
         super(interval, testState, workers, conf);
 
