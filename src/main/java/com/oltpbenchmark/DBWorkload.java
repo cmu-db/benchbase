@@ -86,7 +86,9 @@ public class DBWorkload {
             builder.monitoringInterval(Integer.parseInt(argsLine.getOptionValue("im")));
         }
         if (argsLine.hasOption("imt")) {
+            LOG.info("recognized imt");
             if (argsLine.getOptionValue("imt")=="advanced") {
+                LOG.info("setting value to advanced");
                 builder.monitoringType(MonitorInfo.MonitoringType.ADVANCED);
             }
         }
