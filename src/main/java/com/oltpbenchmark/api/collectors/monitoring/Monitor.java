@@ -9,6 +9,10 @@ import com.oltpbenchmark.api.Worker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Generic monitoring class that reports the throughput of the executing workers
+ * while the benchmark is being executed.
+ */
 public class Monitor extends Thread {
     protected static final Logger LOG = LoggerFactory.getLogger(DatabaseMonitor.class);
 

@@ -7,8 +7,13 @@ import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Worker;
 
+/**
+ * Monitor generator that picks the appropriate monitoring implemnetation based
+ * on the database type.
+ */
 public class MonitorGen {
-    public static Monitor getMonitor(int interval, BenchmarkState testState, List<? extends Worker<? extends BenchmarkModule>> workers, WorkloadConfiguration conf) {
+    public static Monitor getMonitor(int interval, BenchmarkState testState,
+            List<? extends Worker<? extends BenchmarkModule>> workers, WorkloadConfiguration conf) {
         switch (conf.getDatabaseType()) {
             case SQLSERVER:
                 return new SQLServerMonitor(interval, testState, workers, conf);

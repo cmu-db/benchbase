@@ -1,42 +1,50 @@
 package com.oltpbenchmark.api.collectors.monitoring;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import org.immutables.value.Value;
 
 import com.oltpbenchmark.BenchmarkState;
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Worker;
-import com.oltpbenchmark.api.collectors.monitoring.proto.PerfEventLog;
-import com.oltpbenchmark.api.collectors.monitoring.proto.QueryEventLog;
-import com.oltpbenchmark.api.collectors.monitoring.proto.QueryInfoLog;
 import com.oltpbenchmark.util.FileUtil;
-import com.oltpbenchmark.util.SQLUtil;
+import com.oltpbenchmark.util.StringUtil;
 
 import org.apache.commons.lang3.StringUtils;
 
+/**
+ * Generic database monitor that consolidates functionality used across DBMS.
+ */
 public abstract class DatabaseMonitor extends Monitor {
     protected enum DatabaseState {
         READY, INVALID, TEST
     };
 
+    protected final String OUTPUT_DIR = "results/monitor";
+    protected final String CSV_DELIMITER = ",";
+    protected final String SINGLE_QUERY_EVENT_CSV = "single_query_event";
+    protected final String REP_QUERY_EVENT_CSV = "repeated_query_event";
+    protected final String REP_SYSTEM_EVENT_CSV = "system_query_event";
+    protected final int FILE_FLUSH_COUNT = 1000;
+
     protected DatabaseState currentState = DatabaseState.INVALID;
-    protected String OUTPUT_DIR = "results/monitor";
-    protected String CSV_DELIMITER = ",";
     protected int fileCounter = 1;
-    protected final int fileTimeDiff;
 
     protected WorkloadConfiguration conf;
     protected Connection conn;
-    protected final QueryEventLog.Builder queryEventLogBuilder;
-    protected final PerfEventLog.Builder perfEventLogBuilder;
-    protected final QueryInfoLog.Builder queryInfoLogBuilder;
+    protected List<SingleQueryEvent> singleQueryEvents;
+    protected List<RepeatedQueryEvent> repeatedQueryEvents;
+    protected List<RepeatedSystemEvent> repeatedSystemEvents;
 
     /**
      * Builds the connection to the DBMS using the same connection details as
@@ -57,58 +65,6 @@ public abstract class DatabaseMonitor extends Monitor {
         }
     }
 
-    /**
-     * Convenience function to try and reconnect if the connection had failed.
-     *
-     * Note: since these are read-only queries, in some clustered environments,
-     * its possible that we make a connection to stale primary if there's a race
-     * between a failover event and the connection.
-     * In that case, we may be reading the metrics from the wrong server.
-     * There isn't a great solution to this without periodically disconnecting,
-     * which can cause it's own overheads.
-     */
-    protected void checkForReconnect() {
-        try {
-            if (!this.conf.getNewConnectionPerTxn() && this.conn != null) {
-                this.conn.close();
-                this.conn = null;
-            }
-            else if (conn != null && conn.isClosed()) {
-                conn = null;
-            }
-        }
-        catch (SQLException sqlError) {
-            LOG.error(sqlError.getMessage(), sqlError);
-            conn = null;
-        }
-
-        if (conn == null) {
-            try {
-                conn = makeConnection();
-            }
-            catch (SQLException sqlError) {
-                LOG.error(sqlError.getMessage(), sqlError);
-                conn = null;
-            }
-        }
-    }
-
-    protected void handleSQLConnectionException(SQLException sqlError) {
-        if (this.conf.getReconnectOnConnectionFailure() && SQLUtil.isConnectionErrorException(sqlError)) {
-            // reset the connection to null so the checkForReconnect() call can manage it
-            this.conn = null;
-        }
-    }
-
-
-    /**
-     * Constructor, set all final parameters and initialize connection.
-     *
-     * @param interval
-     * @param testState
-     * @param workers
-     * @param workloadConf
-     */
     public DatabaseMonitor(
             int interval, BenchmarkState testState,
             List<? extends Worker<? extends BenchmarkModule>> workers, WorkloadConfiguration workloadConf) {
@@ -124,81 +80,136 @@ public abstract class DatabaseMonitor extends Monitor {
         }
 
         FileUtil.makeDirIfNotExists(OUTPUT_DIR);
-        // Write to file every ~10mins as back-up.
-        fileTimeDiff = 600000 / this.intervalMonitor;
 
         // Init output proto builders.
-        this.queryEventLogBuilder = QueryEventLog.newBuilder();
-        this.perfEventLogBuilder = PerfEventLog.newBuilder();
-        this.queryInfoLogBuilder = QueryInfoLog.newBuilder();
+        this.singleQueryEvents = new ArrayList<>();
+        this.repeatedQueryEvents = new ArrayList<>();
+        this.repeatedSystemEvents = new ArrayList<>();
 
         LOG.info("Initialized DatabaseMonitor.");
     }
 
-    /**
-     * Util to write query event log to file.
-     */
-    protected void writeQueryEventLog() {
-        String filePath = FileUtil.joinPath(
-                OUTPUT_DIR, "query_event_log_" + fileCounter + ".proto");
-
+    protected void writeSingleQueryEventsToCSV() {
+        String filePath = getFilePath(SINGLE_QUERY_EVENT_CSV, this.fileCounter);
         try {
-            if (Files.deleteIfExists(Paths.get(filePath))) {
-                LOG.warn("File at " + filePath + " deleted before writing query event log.");
+            if (this.singleQueryEvents.size() == 0) {
+                LOG.warn("No query events have been recorded, file not written.");
+                return;
             }
 
-            FileOutputStream out = new FileOutputStream(filePath);
-            queryEventLogBuilder.build().writeTo(out);
+            if (Files.deleteIfExists(Paths.get(filePath))) {
+                LOG.warn("File at " + filePath + " deleted before writing query events to file.");
+            }
+            PrintStream out = new PrintStream(filePath);
+            out.println("QueryId," + StringUtil.join(
+                    ",", this.singleQueryEvents.get(0).getPropertyValues().keySet()));
+            for (SingleQueryEvent event : this.singleQueryEvents) {
+                out.println(
+                        event.getQueryId() + "," +
+                                StringUtil.join(",", this.singleQueryEvents.get(0).getPropertyValues().values()));
+            }
             out.close();
-            LOG.info("Query event log written to " + filePath);
+            this.singleQueryEvents = new ArrayList<>();
+            LOG.info("Query events written to " + filePath);
         } catch (IOException e) {
-            LOG.error("Error when writing query event log to file.");
+            LOG.error("Error when writing query events to file.");
             LOG.error(e.getMessage());
         }
     }
 
-    /**
-     * Util to write performance event log to file.
-     */
-    protected void writePerfEventLog() {
-        String filePath = FileUtil.joinPath(
-                OUTPUT_DIR, "perf_event_log_" + fileCounter + ".proto");
-
+    protected void writeRepeatedQueryEventsToCSV() {
+        String filePath = getFilePath(REP_QUERY_EVENT_CSV, this.fileCounter);
         try {
-            if (Files.deleteIfExists(Paths.get(filePath))) {
-                LOG.warn("File at " + filePath + " deleted before writing perf event log.");
+            if (this.repeatedQueryEvents.size() == 0) {
+                LOG.warn("No repeated query events have been recorded, file not written.");
+                return;
             }
 
-            FileOutputStream out = new FileOutputStream(filePath);
-            perfEventLogBuilder.build().writeTo(out);
+            if (Files.deleteIfExists(Paths.get(filePath))) {
+                LOG.warn("File at " + filePath + " deleted before writing repeated query events to file.");
+            }
+            PrintStream out = new PrintStream(filePath);
+            out.println("QueryId,Instant," + StringUtil.join(
+                    ",", this.repeatedQueryEvents.get(0).getPropertyValues().keySet()));
+            for (RepeatedQueryEvent event : this.repeatedQueryEvents) {
+                out.println(
+                        event.getQueryId() + "," +
+                                event.getInstant().toString() + "," +
+                                StringUtil.join(",", this.repeatedQueryEvents.get(0).getPropertyValues().values()));
+            }
             out.close();
-            LOG.info("Perf event log written to " + filePath);
+            this.repeatedQueryEvents = new ArrayList<>();
+            LOG.info("Repeated query events written to " + filePath);
         } catch (IOException e) {
-            LOG.error("Error when writing perf event log to file.");
+            LOG.error("Error when writing repeated query events to file.");
             LOG.error(e.getMessage());
         }
     }
 
-    /**
-     * Util to write query info log to file.
-     */
-    protected void writeQueryInfoLog() {
-        String filePath = FileUtil.joinPath(
-                OUTPUT_DIR, "query_info_log_" + fileCounter + ".proto");
-
+    protected void writeRepeatedSystemEventsToCSV() {
+        String filePath = getFilePath(REP_SYSTEM_EVENT_CSV, this.fileCounter);
         try {
-            if (Files.deleteIfExists(Paths.get(filePath))) {
-                LOG.warn("File at " + filePath + " deleted before writing query info log.");
+            if (this.repeatedSystemEvents.size() == 0) {
+                LOG.warn("No repeated system events have been recorded, file not written.");
+                return;
             }
 
-            FileOutputStream out = new FileOutputStream(filePath);
-            queryInfoLogBuilder.build().writeTo(out);
+            if (Files.deleteIfExists(Paths.get(filePath))) {
+                LOG.warn("File at " + filePath + " deleted before writing repeated system events to file.");
+            }
+            PrintStream out = new PrintStream(filePath);
+            out.println("Instant," + StringUtil.join(
+                    ",", this.repeatedSystemEvents.get(0).getPropertyValues().keySet()));
+            for (RepeatedSystemEvent event : this.repeatedSystemEvents) {
+                out.println(
+                        event.getInstant().toString() + "," +
+                                StringUtil.join(",", this.repeatedSystemEvents.get(0).getPropertyValues().values()));
+            }
             out.close();
-            LOG.info("Query info log written to " + filePath);
+            this.repeatedSystemEvents = new ArrayList<>();
+            LOG.info("Repeated system events written to " + filePath);
         } catch (IOException e) {
-            LOG.error("Error when writing query info log to file.");
+            LOG.error("Error when writing repeated system events to file.");
             LOG.error(e.getMessage());
         }
+    }
+
+    protected String getFilePath(String filename, int fileCounter) {
+        return FileUtil.joinPath(
+                OUTPUT_DIR, filename + "_" + fileCounter + ".csv");
+    }
+
+    @Value.Immutable
+    public interface SingleQueryEvent {
+
+        /** A string that identifies the query. */
+        String getQueryId();
+
+        /** Mapping of observed properties to their corresponding values. */
+        Map<String, String> getPropertyValues();
+    }
+
+    @Value.Immutable
+    public interface RepeatedQueryEvent {
+
+        /** A string that identifies the query. */
+        String getQueryId();
+
+        /** The timestamp at which this event was observed. */
+        Instant getInstant();
+
+        /** Mapping of observed properties to their corresponding values. */
+        Map<String, String> getPropertyValues();
+    }
+
+    @Value.Immutable
+    public interface RepeatedSystemEvent {
+
+        /** The timestamp at which this event was observed. */
+        Instant getInstant();
+
+        /** Mapping of observed properties to their corresponding values. */
+        Map<String, String> getPropertyValues();
     }
 
     /**
@@ -212,19 +223,7 @@ public abstract class DatabaseMonitor extends Monitor {
     protected abstract void runExtraction();
 
     /**
-     * Write proto builders to file.
-     */
-    protected abstract void writeLogs();
-
-    /**
-     * Consolidate protos that have been written to file and currently pending.
-     * Write to a common output file.
-     */
-    protected abstract void finalizeLogs();
-
-    /**
-     * Consolidate protos that have been written to file and currently pending.
-     * Write to a common output file.
+     * Write events to csv.
      */
     protected abstract void writeToCSV();
 
@@ -254,8 +253,8 @@ public abstract class DatabaseMonitor extends Monitor {
             if (this.conn != null) {
                 runExtraction();
             }
-            if (fileCounter % fileTimeDiff == 0) {
-                writeLogs();
+            if (fileCounter % FILE_FLUSH_COUNT == 0) {
+                writeToCSV();
             }
             fileCounter++;
         }
@@ -264,7 +263,7 @@ public abstract class DatabaseMonitor extends Monitor {
             cleanupCache();
         }
 
-        finalizeLogs();
+        writeToCSV();
     }
 
     /**
@@ -276,7 +275,7 @@ public abstract class DatabaseMonitor extends Monitor {
             try {
                 conn.close();
             } catch (SQLException e) {
-                LOG.error("Connection couldn't be closed.", e);
+                LOG.error("Connection could not be closed.", e);
             }
             this.conn = null;
         }
