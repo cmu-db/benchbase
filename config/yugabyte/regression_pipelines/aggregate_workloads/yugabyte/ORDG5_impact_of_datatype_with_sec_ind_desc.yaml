@@ -1,0 +1,226 @@
+#TEST FOR YUGABYTE REGULAR TABLES
+#GOAL3 Impact of datatype on Orderby clause
+#TESTS:
+#Impact of orderby clause on SecIND(DESC) of bigint datatype
+#Impact of orderby clause on SecIND(DESC) of varchar datatype
+#Impact of orderby clause on SecIND(DESC) of uuid datatype
+#Impact of orderby clause on SecIND(DESC) of date datatype
+type: YUGABYTE
+driver: com.yugabyte.Driver
+url: jdbc:yugabytedb://{{endpoint}}:5433/yugabyte?sslmode=require&ApplicationName=featurebench&reWriteBatchedInserts=true&load-balance=false
+username: {{username}}
+password: {{password}}
+batchsize: 128
+isolation: TRANSACTION_REPEATABLE_READ
+loaderthreads: 1
+terminals: 1
+collect_pg_stat_statements: true
+yaml_version: v1.0
+use_dist_in_explain : true
+works:
+    work:
+        time_secs: 120
+        active_terminals: 1
+        rate: unlimited
+        warmup: 30
+microbenchmark:
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
+    properties:
+        setAutoCommit: true
+        create:
+            - DROP TABLE IF EXISTS indexedBigint1M_1;
+            - DROP TABLE IF EXISTS indexedVarchar1001M_1;
+            - DROP TABLE IF EXISTS indexedUuid1M_1;
+            - DROP TABLE IF EXISTS indexedDate1M_1;
+            - CREATE TABLE indexedBigint1M_1(col_bigint_id_1 bigint, col_bigint_id_2 bigint,col_bigint_1 bigint, col_bigint_2 bigint, col_bigint_3 bigint, col_bigint_4 bigint, col_float2_1 float(2), col_float2_2 float(2), col_float5_1 float(5), col_float5_2 float(5), col_boolean_1 boolean, col_varchar10_id_1 varchar(10), col_varchar100_id_1 varchar(100), col_varchar100_id_2 varchar(100), col_varchar500_id_1 varchar(500), PRIMARY KEY(col_bigint_id_1 ASC));
+            - CREATE TABLE indexedVarchar1001M_1(col_bigint_id_1 bigint, col_varchar100_pid_1 varchar(100), col_bigint_1 bigint, col_bigint_2 bigint, col_bigint_3 bigint, col_bigint_4 bigint, col_float2_1 float(2), col_float2_2 float(2), col_float5_1 float(5), col_float5_2 float(5), col_boolean_1 boolean, col_varchar10_id_1 varchar(10), col_varchar100_id_1 varchar(100), col_varchar100_id_2 varchar(100), col_varchar500_id_1 varchar(500), PRIMARY KEY(col_bigint_id_1 ASC));
+            - CREATE TABLE indexedUuid1M_1(col_bigint_id_1 bigint, col_uuid_id_1 uuid, col_bigint_1 bigint, col_bigint_2 bigint, col_bigint_3 bigint, col_bigint_4 bigint, col_float2_1 float(2), col_float2_2 float(2), col_float5_1 float(5), col_float5_2 float(5), col_boolean_1 boolean, col_varchar10_id_1 varchar(10), col_varchar100_id_1 varchar(100), col_varchar100_id_2 varchar(100), col_varchar500_id_1 varchar(500), PRIMARY KEY(col_bigint_id_1 ASC));
+            - CREATE TABLE indexedDate1M_1(col_bigint_id_1 bigint, col_date_id_1 date, col_bigint_1 bigint, col_bigint_2 bigint, col_bigint_3 bigint, col_bigint_4 bigint, col_float2_1 float(2), col_float2_2 float(2), col_float5_1 float(5), col_float5_2 float(5), col_boolean_1 boolean, col_varchar10_id_1 varchar(10), col_varchar100_id_1 varchar(100), col_varchar100_id_2 varchar(100), col_varchar500_id_1 varchar(500), PRIMARY KEY(col_bigint_id_1 ASC));
+            - CREATE INDEX ON indexedBigint1M_1(col_bigint_id_2 DESC);
+            - CREATE INDEX ON indexedVarchar1001M_1(col_varchar100_pid_1 DESC);
+            - CREATE INDEX ON indexedUuid1M_1(col_uuid_id_1 DESC);
+            - CREATE INDEX ON indexedDate1M_1(col_date_id_1 DESC);
+
+        cleanup:
+            - DROP TABLE IF EXISTS indexedBigint1M_1;
+            - DROP TABLE IF EXISTS indexedVarchar1001M_1;
+            - DROP TABLE IF EXISTS indexedUuid1M_1;
+            - DROP TABLE IF EXISTS indexedDate1M_1;
+
+        loadRules:
+            -   table: indexedBigint1M_
+                count: 1
+                rows: 1000000
+                columns:
+                    -   name: col_bigint_id_
+                        count: 2
+                        util: PrimaryIntGen
+                        params: [ 1, 1000000 ]
+                    -   name: col_bigint_
+                        count: 4
+                        util: RandomNumber
+                        params: [ 1, 1000000 ]
+                    -   name: col_float2_
+                        count: 2
+                        util: RandomNoWithDecimalPoints
+                        params: [ 1, 1000000, 2 ]
+                    -   name: col_float5_
+                        count: 2
+                        util: RandomNoWithDecimalPoints
+                        params: [ 1, 1000000, 5 ]
+                    -   name: col_boolean_
+                        count: 1
+                        util: RandomBoolean
+                    -   name: col_varchar10_id_
+                        count: 1
+                        util: PrimaryStringGen
+                        params: [ 1, 10 ]
+                    -   name: col_varchar100_id_
+                        count: 2
+                        util: PrimaryStringGen
+                        params: [ 1, 100 ]
+                    -   name: col_varchar500_id_
+                        count: 1
+                        util: PrimaryStringGen
+                        params: [ 1, 500 ]
+            -   table: indexedVarchar1001M_
+                count: 1
+                rows: 1000000
+                columns:
+                    -   name: col_bigint_id_
+                        count: 1
+                        util: PrimaryIntGen
+                        params: [ 1, 1000000 ]
+                    -   name: col_varchar100_pid_
+                        count: 1
+                        util: PrimaryStringGen
+                        params: [ 1, 100 ]
+                    -   name: col_bigint_
+                        count: 4
+                        util: RandomNumber
+                        params: [ 1, 1000000 ]
+                    -   name: col_float2_
+                        count: 2
+                        util: RandomNoWithDecimalPoints
+                        params: [ 1, 1000000, 2 ]
+                    -   name: col_float5_
+                        count: 2
+                        util: RandomNoWithDecimalPoints
+                        params: [ 1, 1000000, 5 ]
+                    -   name: col_boolean_
+                        count: 1
+                        util: RandomBoolean
+                    -   name: col_varchar10_id_
+                        count: 1
+                        util: PrimaryStringGen
+                        params: [ 1, 10 ]
+                    -   name: col_varchar100_id_
+                        count: 2
+                        util: PrimaryStringGen
+                        params: [ 1, 100 ]
+                    -   name: col_varchar500_id_
+                        count: 1
+                        util: PrimaryStringGen
+                        params: [ 1, 500 ]
+            -   table: indexedUuid1M_
+                count: 1
+                rows: 1000000
+                columns:
+                    -   name: col_bigint_id_
+                        count: 1
+                        util: PrimaryIntGen
+                        params: [ 1, 1000000 ]
+                    -   name: col_uuid_id_
+                        count: 1
+                        util: RandomUUID
+                    -   name: col_bigint_
+                        count: 4
+                        util: RandomNumber
+                        params: [ 1, 1000000 ]
+                    -   name: col_float2_
+                        count: 2
+                        util: RandomNoWithDecimalPoints
+                        params: [ 1, 1000000, 2 ]
+                    -   name: col_float5_
+                        count: 2
+                        util: RandomNoWithDecimalPoints
+                        params: [ 1, 1000000, 5 ]
+                    -   name: col_boolean_
+                        count: 1
+                        util: RandomBoolean
+                    -   name: col_varchar10_id_
+                        count: 1
+                        util: PrimaryStringGen
+                        params: [ 1, 10 ]
+                    -   name: col_varchar100_id_
+                        count: 2
+                        util: PrimaryStringGen
+                        params: [ 1, 100 ]
+                    -   name: col_varchar500_id_
+                        count: 1
+                        util: PrimaryStringGen
+                        params: [ 1, 500 ]
+            -   table: indexedDate1M_
+                count: 1
+                rows: 1000000
+                columns:
+                    -   name: col_bigint_id_
+                        count: 1
+                        util: PrimaryIntGen
+                        params: [ 1, 1000000 ]
+                    -   name: col_date_id_
+                        count: 1
+                        util: RandomDateBtwYears
+                        params: [ 1900, 2022 ]
+                    -   name: col_bigint_
+                        count: 4
+                        util: RandomNumber
+                        params: [ 1, 1000000 ]
+                    -   name: col_float2_
+                        count: 2
+                        util: RandomNoWithDecimalPoints
+                        params: [ 1, 1000000, 2 ]
+                    -   name: col_float5_
+                        count: 2
+                        util: RandomNoWithDecimalPoints
+                        params: [ 1, 1000000, 5 ]
+                    -   name: col_boolean_
+                        count: 1
+                        util: RandomBoolean
+                    -   name: col_varchar10_id_
+                        count: 1
+                        util: PrimaryStringGen
+                        params: [ 1, 10 ]
+                    -   name: col_varchar100_id_
+                        count: 2
+                        util: PrimaryStringGen
+                        params: [ 1, 100 ]
+                    -   name: col_varchar500_id_
+                        count: 1
+                        util: PrimaryStringGen
+                        params: [ 1, 500 ]
+        executeRules:
+            -   workload: ORDG5_ordby_bigint_indexed_column_desc
+                run:
+                    -   name: ordby_bigint_indexed_column_desc
+                        weight: 100
+                        queries:
+                            -   query: select col_bigint_id_2 from indexedBigint1M_1 order by col_bigint_id_2
+            -   workload: ORDG5_ordby_varchar_indexed_column_desc
+                run:
+                    -   name: ordby_varchar_indexed_column_desc
+                        weight: 100
+                        queries:
+                            -   query: select col_varchar100_pid_1 from indexedVarchar1001M_1 order by col_varchar100_pid_1
+            -   workload: ORDG5_ordby_uuid_indexed_column_desc
+                run:
+                    -   name: ordby_uuid_indexed_column_desc
+                        weight: 100
+                        queries:
+                            -   query: select col_uuid_id_1 from indexedUuid1M_1 order by col_uuid_id_1
+            -   workload: ORDG5_ordby_date_indexed_column_desc
+                run:
+                    -   name: ordby_date_indexed_column_desc
+                        weight: 100
+                        queries:
+                            -   query: select col_date_id_1 from indexedDate1M_1 order by col_date_id_1

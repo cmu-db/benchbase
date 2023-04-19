@@ -1,0 +1,172 @@
+type: YUGABYTE
+driver: com.yugabyte.Driver
+url: jdbc:yugabytedb://{{endpoint}}:5433/yugabyte?sslmode=require&ApplicationName=featurebench&reWriteBatchedInserts=true&load-balance=false
+username: {{username}}
+password: {{password}}
+batchsize: 128
+isolation: TRANSACTION_REPEATABLE_READ
+loaderthreads: 1
+terminals: 1
+collect_pg_stat_statements: true
+use_dist_in_explain : true
+yaml_version: v1.0
+works:
+    work:
+        time_secs: 180
+        active_terminals: 1
+        rate: unlimited
+        warmup: 60
+microbenchmark:
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
+    properties:
+        setAutoCommit: true
+        create:
+          - DROP TABLE IF EXISTS pkeyBigint1M_1;
+          - DROP TABLE IF EXISTS pkeyVarchar1001M_1;
+          - DROP TABLE IF EXISTS pkeyUuid1M_1;
+          - DROP TABLE IF EXISTS pkeyBigint1M_2;
+          - DROP TABLE IF EXISTS pkeyVarchar1001M_2;
+          - DROP TABLE IF EXISTS pkeyUuid1M_2;
+          - CREATE TABLE pkeyBigint1M_1(col_bigint_id_1 bigint, col_bigint_1 bigint, col_bigint_2 bigint, col_bigint_3 bigint, col_bigint_4 bigint, col_bigint_5 bigint, col_float2_1 float(2), col_float2_2 float(2), col_float5_1 float(5), col_float5_2 float(5), col_boolean_1 boolean, col_varchar10_id_1 varchar(10), col_varchar100_id_1 varchar(100), col_varchar100_id_2 varchar(100), col_varchar500_id_1 varchar(500), PRIMARY KEY(col_bigint_id_1 ASC));
+          - CREATE TABLE pkeyVarchar1001M_1(col_varchar100_pid_1 varchar(100), col_bigint_1 bigint, col_bigint_2 bigint, col_bigint_3 bigint, col_bigint_4 bigint, col_bigint_5 bigint, col_float2_1 float(2), col_float2_2 float(2), col_float5_1 float(5), col_float5_2 float(5), col_boolean_1 boolean, col_varchar10_id_1 varchar(10), col_varchar100_id_1 varchar(100), col_varchar100_id_2 varchar(100), col_varchar500_id_1 varchar(500), PRIMARY KEY(col_varchar100_pid_1 ASC));
+          - CREATE TABLE pkeyUuid1M_1(col_uuid_id_1 uuid, col_bigint_1 bigint, col_bigint_2 bigint, col_bigint_3 bigint, col_bigint_4 bigint, col_bigint_5 bigint, col_float2_1 float(2), col_float2_2 float(2), col_float5_1 float(5), col_float5_2 float(5), col_boolean_1 boolean, col_varchar10_id_1 varchar(10), col_varchar100_id_1 varchar(100), col_varchar100_id_2 varchar(100), col_varchar500_id_1 varchar(500), PRIMARY KEY(col_uuid_id_1 ASC));
+          - CREATE TABLE pkeyBigint1M_2(col_bigint_id_1 bigint, col_bigint_1 bigint, col_bigint_2 bigint, col_bigint_3 bigint, col_bigint_4 bigint, col_bigint_5 bigint, col_float2_1 float(2), col_float2_2 float(2), col_float5_1 float(5), col_float5_2 float(5), col_boolean_1 boolean, col_varchar10_id_1 varchar(10), col_varchar100_id_1 varchar(100), col_varchar100_id_2 varchar(100), col_varchar500_id_1 varchar(500), PRIMARY KEY(col_bigint_id_1 ASC));
+          - CREATE TABLE pkeyVarchar1001M_2(col_varchar100_pid_1 varchar(100), col_bigint_1 bigint, col_bigint_2 bigint, col_bigint_3 bigint, col_bigint_4 bigint, col_bigint_5 bigint, col_float2_1 float(2), col_float2_2 float(2), col_float5_1 float(5), col_float5_2 float(5), col_boolean_1 boolean, col_varchar10_id_1 varchar(10), col_varchar100_id_1 varchar(100), col_varchar100_id_2 varchar(100), col_varchar500_id_1 varchar(500), PRIMARY KEY(col_varchar100_pid_1 ASC));
+          - CREATE TABLE pkeyUuid1M_2(col_uuid_id_1 uuid, col_bigint_1 bigint, col_bigint_2 bigint, col_bigint_3 bigint, col_bigint_4 bigint, col_bigint_5 bigint, col_float2_1 float(2), col_float2_2 float(2), col_float5_1 float(5), col_float5_2 float(5), col_boolean_1 boolean, col_varchar10_id_1 varchar(10), col_varchar100_id_1 varchar(100), col_varchar100_id_2 varchar(100), col_varchar500_id_1 varchar(500), PRIMARY KEY(col_uuid_id_1 ASC));
+
+        cleanup:
+            - DROP TABLE IF EXISTS pkeyBigint1M_1;
+            - DROP TABLE IF EXISTS pkeyVarchar1001M_1;
+            - DROP TABLE IF EXISTS pkeyUuid1M_1;
+            - DROP TABLE IF EXISTS pkeyBigint1M_2;
+            - DROP TABLE IF EXISTS pkeyVarchar1001M_2;
+            - DROP TABLE IF EXISTS pkeyUuid1M_2;
+
+        loadRules:
+              - table: pkeyBigint1M_
+                count: 2
+                rows: 1000000
+                columns:
+                    - name: col_bigint_id_
+                      count: 1
+                      util: PrimaryIntGen
+                      params: [ 1, 1000000 ]
+                    - name: col_bigint_
+                      count: 5
+                      util: RandomNumber
+                      params: [ 1, 1000000 ]
+                    - name: col_float2_
+                      count: 2
+                      util: RandomNoWithDecimalPoints
+                      params: [ 1, 1000000, 2 ]
+                    - name: col_float5_
+                      count: 2
+                      util: RandomNoWithDecimalPoints
+                      params: [ 1, 1000000, 5 ]
+                    - name: col_boolean_
+                      count: 1
+                      util: RandomBoolean
+                    - name: col_varchar10_id_
+                      count: 1
+                      util: PrimaryStringGen
+                      params: [1, 10]
+                    - name: col_varchar100_id_
+                      count: 2
+                      util: PrimaryStringGen
+                      params: [1, 100]
+                    - name: col_varchar500_id_
+                      count: 1
+                      util: PrimaryStringGen
+                      params: [1, 500]
+              - table: pkeyVarchar1001M_
+                count: 2
+                rows: 1000000
+                columns:
+                    - name: col_varchar100_pid_
+                      count: 1
+                      util: PrimaryStringGen
+                      params: [1, 100]
+                    - name: col_bigint_
+                      count: 5
+                      util: RandomNumber
+                      params: [ 1, 1000000 ]
+                    - name: col_float2_
+                      count: 2
+                      util: RandomNoWithDecimalPoints
+                      params: [ 1, 1000000, 2 ]
+                    - name: col_float5_
+                      count: 2
+                      util: RandomNoWithDecimalPoints
+                      params: [ 1, 1000000, 5 ]
+                    - name: col_boolean_
+                      count: 1
+                      util: RandomBoolean
+                    - name: col_varchar10_id_
+                      count: 1
+                      util: PrimaryStringGen
+                      params: [1, 10]
+                    - name: col_varchar100_id_
+                      count: 2
+                      util: PrimaryStringGen
+                      params: [1, 100]
+                    - name: col_varchar500_id_
+                      count: 1
+                      util: PrimaryStringGen
+                      params: [1, 500]
+              - table: pkeyUuid1M_
+                count: 2
+                rows: 1000000
+                columns:
+                    - name: col_uuid_id_
+                      count: 1
+                      util: RandomUUID
+                    - name: col_bigint_
+                      count: 5
+                      util: RandomNumber
+                      params: [ 1, 1000000 ]
+                    - name: col_float2_
+                      count: 2
+                      util: RandomNoWithDecimalPoints
+                      params: [ 1, 1000000, 2 ]
+                    - name: col_float5_
+                      count: 2
+                      util: RandomNoWithDecimalPoints
+                      params: [ 1, 1000000, 5 ]
+                    - name: col_boolean_
+                      count: 1
+                      util: RandomBoolean
+                    - name: col_varchar10_id_
+                      count: 1
+                      util: PrimaryStringGen
+                      params: [1, 10]
+                    - name: col_varchar100_id_
+                      count: 2
+                      util: PrimaryStringGen
+                      params: [1, 100]
+                    - name: col_varchar500_id_
+                      count: 1
+                      util: PrimaryStringGen
+                      params: [1, 500]
+
+        executeRules:
+            - workload: JOING4_yb_1_join_on_pk_of_bigint_datatype
+              run:
+                  - name: join_on_pk_of_bigint_datatype
+                    weight: 100
+                    queries:
+                        - query: select pkeyBigint1M_1.col_bigint_id_1,pkeyBigint1M_2.col_bigint_id_1 from pkeyBigint1M_1 join pkeyBigint1M_2 on pkeyBigint1M_1.col_bigint_id_1=pkeyBigint1M_2.col_bigint_id_1
+
+
+            - workload: JOING4_yb_1_join_on_pk_of_varchar_datatype
+              run:
+                  - name: join_on_pk_of_bigint_datatype
+                    weight: 100
+                    queries:
+                        - query: select pkeyVarchar1001M_1.col_varchar100_pid_1,pkeyVarchar1001M_2.col_varchar100_pid_1 from pkeyVarchar1001M_1 join pkeyVarchar1001M_2 on pkeyVarchar1001M_1.col_varchar100_pid_1=pkeyVarchar1001M_2.col_varchar100_pid_1
+
+            -   workload: JOING4_yb_1_join_on_pk_of_uuid_datatype
+                run:
+                    -   name: join_on_pk_of_bigint_datatype
+                        weight: 100
+                        queries:
+                            -   query: select pkeyUuid1M_1.col_uuid_id_1,pkeyUuid1M_2.col_uuid_id_1 from pkeyUuid1M_1 join pkeyUuid1M_2 on pkeyUuid1M_1.col_uuid_id_1=pkeyUuid1M_2.col_uuid_id_1
