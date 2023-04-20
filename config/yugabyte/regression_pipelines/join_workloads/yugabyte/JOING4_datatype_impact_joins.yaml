@@ -149,7 +149,7 @@ microbenchmark:
                       params: [1, 500]
 
         executeRules:
-            - workload: JOING4_yb_1_join_on_pk_of_bigint_datatype
+            - workload: JOING4_1_join_on_pk_of_bigint_datatype
               run:
                   - name: join_on_pk_of_bigint_datatype
                     weight: 100
@@ -157,14 +157,14 @@ microbenchmark:
                         - query: select pkeyBigint1M_1.col_bigint_id_1,pkeyBigint1M_2.col_bigint_id_1 from pkeyBigint1M_1 join pkeyBigint1M_2 on pkeyBigint1M_1.col_bigint_id_1=pkeyBigint1M_2.col_bigint_id_1
 
 
-            - workload: JOING4_yb_1_join_on_pk_of_varchar_datatype
+            - workload: JOING4_2_join_on_pk_of_varchar_datatype
               run:
                   - name: join_on_pk_of_bigint_datatype
                     weight: 100
                     queries:
                         - query: select pkeyVarchar1001M_1.col_varchar100_pid_1,pkeyVarchar1001M_2.col_varchar100_pid_1 from pkeyVarchar1001M_1 join pkeyVarchar1001M_2 on pkeyVarchar1001M_1.col_varchar100_pid_1=pkeyVarchar1001M_2.col_varchar100_pid_1
 
-            -   workload: JOING4_yb_1_join_on_pk_of_uuid_datatype
+            -   workload: JOING4_3_join_on_pk_of_uuid_datatype
                 run:
                     -   name: join_on_pk_of_bigint_datatype
                         weight: 100

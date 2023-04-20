@@ -64,21 +64,21 @@ microbenchmark:
         executeRules:
 
 
-            - workload: INDG2_rangetbl_point_lookup_index_scan_using_comp_skey_first_part
+            - workload: INDG6_1_rangetbl_point_lookup_index_scan_using_comp_skey_first_part_range
               run:
                   - name: hashtbl_index_scan_using_sec_index
                     weight: 100
                     queries:
                         - query: select * from Rangetbl_1 where col_bigint_id_3=500009
 
-            - workload: INDG3_rangetbl_point_lookup_index_scan_using_mixed_comp_skey_sec_part
+            - workload: INDG6_2_rangetbl_point_lookup_index_scan_using_mixed_comp_skey_sec_part_range
               run:
                   - name: hashtbl_index_scan_using_sec_index
                     weight: 100
                     queries:
                         - query: select * from Rangetbl_1 where col_bigint_id_4=500009
 
-            - workload: INDG4_rangetbl_point_lookup_index_scan_using_comp_skey_two_conditions
+            - workload: INDG6_3_rangetbl_point_lookup_index_scan_using_comp_skey_two_conditions_range
               run:
                   - name: hashtbl_index_scan_using_sec_index
                     weight: 100

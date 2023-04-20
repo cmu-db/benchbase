@@ -69,35 +69,35 @@ microbenchmark:
                       params: [1, 500]
 
         executeRules:
-            - workload: JOING2_yb_1_join_on_pk_of_range_tbl
+            - workload: JOING2_1_join_on_pk_of_range_tbl
               run:
                   - name: join_on_pk_of_range_tbl
                     weight: 100
                     queries:
                         - query: select Rangetbl_1.col_bigint_id_1,Rangetbl_2.col_bigint_id_1 from Rangetbl_1 join Rangetbl_2 on Rangetbl_1.col_bigint_id_1=Rangetbl_2.col_bigint_id_1
 
-            - workload: JOING2_yb_2_join_on_pk_of_range_tbl_with_1_filter
+            - workload: JOING2_2_join_on_pk_of_range_tbl_with_1_filter
               run:
                   - name: join_on_pk_of_range_tbl
                     weight: 100
                     queries:
                         - query: select Rangetbl_1.col_bigint_id_1,Rangetbl_2.col_bigint_id_1 from Rangetbl_1 join Rangetbl_2 on Rangetbl_1.col_bigint_id_1=Rangetbl_2.col_bigint_id_1 where Rangetbl_1.col_bigint_id_1<100001
 
-            - workload: JOING2_yb_3_join_on_pk_of_range_tbl_with_2_filter
+            - workload: JOING2_3_join_on_pk_of_range_tbl_with_2_filter
               run:
                   - name: join_on_pk_of_range_tbl
                     weight: 100
                     queries:
                         - query: select Rangetbl_1.col_bigint_id_1,Rangetbl_2.col_bigint_id_1 from Rangetbl_1 join Rangetbl_2 on Rangetbl_1.col_bigint_id_1=Rangetbl_2.col_bigint_id_1 where Rangetbl_1.col_bigint_id_1<100001 and Rangetbl_2.col_bigint_id_1<100001
 
-            - workload: JOING2_yb_4_join_on_rangeidx_of_range_tbl
+            - workload: JOING2_4_join_on_rangeidx_of_range_tbl
               run:
                   - name: join_on_pk_of_range_tbl
                     weight: 100
                     queries:
                         - query: select Rangetbl_1.col_bigint_id_2,Rangetbl_2.col_bigint_id_2 from Rangetbl_1 join Rangetbl_2 on Rangetbl_1.col_bigint_id_2=Rangetbl_2.col_bigint_id_2
 
-            - workload: JOING2_yb_5_join_on_rangeidx_of_range_tbl_with_1_filter
+            - workload: JOING2_5_join_on_rangeidx_of_range_tbl_with_1_filter
               run:
                   - name: join_on_pk_of_range_tbl
                     weight: 100
@@ -105,14 +105,14 @@ microbenchmark:
                         - query: select Rangetbl_1.col_bigint_id_2,Rangetbl_2.col_bigint_id_2 from Rangetbl_1 join Rangetbl_2 on Rangetbl_1.col_bigint_id_2=Rangetbl_2.col_bigint_id_2 where Rangetbl_1.col_bigint_id_2<100001
 
 
-            -   workload: JOING2_yb_6_join_on_nonidx_of_range_tbl
+            -   workload: JOING2_6_join_on_nonidx_of_range_tbl
                 run:
                     -   name: join_on_pk_of_range_tbl
                         weight: 100
                         queries:
                             -   query: select Rangetbl_1.col_bigint_id_4,Rangetbl_2.col_bigint_id_4 from Rangetbl_1 join Rangetbl_2 on Rangetbl_1.col_bigint_id_4=Rangetbl_2.col_bigint_id_4
 
-            -   workload: JOING2_yb_7_join_on_nonidx_of_range_tbl_with_1_filter
+            -   workload: JOING2_7_join_on_nonidx_of_range_tbl_with_1_filter
                 run:
                     -   name: join_on_pk_of_range_tbl
                         weight: 100

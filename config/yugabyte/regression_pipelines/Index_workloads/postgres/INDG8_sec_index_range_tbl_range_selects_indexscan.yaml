@@ -63,30 +63,30 @@ microbenchmark:
 
         executeRules:
 
-            - workload: INDG4_1_rangetbl_range_lookup_index_scan_using_comp_skey_first_part
+            - workload: INDG8_1_rangetbl_range_lookup_index_scan_using_comp_skey_first_part_range
               run:
                   - name: hashtbl_index_scan_using_sec_index
                     weight: 100
                     queries:
                         - query: select * from Rangetbl_comp_skey_1 where col_bigint_id_3>500000
 
-            - workload: INDG4_2_rangetbl_range_lookup_index_scan_using_mixed_comp_skey_sec_part
+            - workload: INDG8_2_rangetbl_range_lookup_index_scan_using_mixed_comp_skey_sec_part_range
               run:
                   - name: hashtbl_index_scan_using_sec_index
                     weight: 100
                     queries:
                         - query: select * from Rangetbl_comp_skey_1 where col_bigint_id_4>500000
 
-            - workload: INDG4_3_rangetbl_range_lookup_index_scan_using_comp_skey_two_conditions
+            - workload: INDG8_3_rangetbl_range_lookup_index_scan_using_comp_skey_two_conditions_range
               run:
                   - name: hashtbl_index_scan_using_sec_index
                     weight: 100
                     queries:
-                        - query: select * from Rangetbl_comp_skey_1 where col_bigint_id_3>250000 and col_bigint_id_4<750000
+                        - query: select * from Rangetbl_comp_skey_1 where col_bigint_id_3<250000 and col_bigint_id_4>750000
 
-            - workload: INDG4_4_rangetbl_range_lookup_index_scan_using_skey_two_conditions
+            - workload: INDG8_4_rangetbl_range_lookup_index_scan_using_skey_two_conditions_range
               run:
                   - name: hashtbl_index_scan_pkey
                     weight: 100
                     queries:
-                        - query: select * from Rangetbl_comp_skey_1 where col_bigint_id_3>250000 and col_bigint_id_3<750000
+                        - query: select * from Rangetbl_comp_skey_1 where col_bigint_id_3<250000 and col_bigint_id_3>750000

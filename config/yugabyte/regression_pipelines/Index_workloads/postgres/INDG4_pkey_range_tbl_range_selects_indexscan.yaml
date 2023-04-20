@@ -66,28 +66,28 @@ microbenchmark:
 
         executeRules:
 
-            - workload: INDG4_1_rangetbl_range_lookup_index_scan_using_comp_pkey_first_part
+            - workload: INDG4_1_rangetbl_range_lookup_index_scan_using_comp_pkey_first_part_range
               run:
                   - name: hashtbl_index_scan_using_sec_index
                     weight: 100
                     queries:
                         - query: select * from CompositeRangetbl_1 where col_bigint_id_1>500000
 
-            - workload: INDG4_2_rangetbl_range_lookup_index_scan_using_comp_pkey_sec_part
+            - workload: INDG4_2_rangetbl_range_lookup_index_scan_using_comp_pkey_sec_part_range
               run:
                   - name: hashtbl_index_scan_using_sec_index
                     weight: 100
                     queries:
                         - query: select * from CompositeRangetbl_1 where col_bigint_id_2>500000
 
-            - workload: INDG4_3_rangetbl_range_lookup_index_scan_using_comp_pkey_using_two_conditions
+            - workload: INDG4_3_rangetbl_range_lookup_index_scan_using_comp_pkey_using_two_conditions_range
               run:
                   - name: hashtbl_index_scan_using_sec_index
                     weight: 100
                     queries:
                         - query: select * from CompositeRangetbl_1 where col_bigint_id_1>250000 and col_bigint_id_2<750000
 
-            - workload: INDG4_4_rangetbl_range_lookup_index_scan_using_pkey_two_conditions
+            - workload: INDG4_4_rangetbl_range_lookup_index_scan_using_pkey_two_conditions_range
               run:
                   - name: hashtbl_index_scan_pkey
                     weight: 100

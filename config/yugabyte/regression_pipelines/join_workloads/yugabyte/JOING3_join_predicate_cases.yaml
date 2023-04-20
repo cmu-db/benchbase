@@ -116,7 +116,7 @@ microbenchmark:
                       params: [1, 500]
 
         executeRules:
-            - workload: JOING3_yb_1_join_on_pk_of_range_and_hash_tbl
+            - workload: JOING3_1_join_on_pk_of_range_and_hash_tbl
               run:
                   - name: join_on_pk_of_range_and_hash_tbl
                     weight: 100
@@ -124,7 +124,7 @@ microbenchmark:
                         - query: select Rangetbl_1.col_bigint_id_1,Hashtbl_1.col_bigint_id_1 from Rangetbl_1 join Hashtbl_1 on Rangetbl_1.col_bigint_id_1=Hashtbl_1.col_bigint_id_1
 
 
-            -   workload: JOING3_yb_2_join_on_hashpk_IN_clause_1k
+            -   workload: JOING3_2_join_on_hashpk_IN_clause_1k
                 run:
                     -   name: join_on_pk_of_range_and_hash_tbl
                         weight: 100
@@ -135,7 +135,7 @@ microbenchmark:
                                   util: RandomNumber
                                   params: [ 1, 1000000 ]
 
-            -   workload: JOING3_yb_3_join_on_hashpk_IN_clause_10k
+            -   workload: JOING3_3_join_on_hashpk_IN_clause_10k
                 run:
                     -   name: join_on_pk_of_range_and_hash_tbl
                         weight: 100
@@ -146,7 +146,7 @@ microbenchmark:
                                     util: RandomNumber
                                     params: [ 1, 1000000 ]
 
-            -   workload: JOING3_yb_4_join_on_rangepk_IN_clause_1k
+            -   workload: JOING3_4_join_on_rangepk_IN_clause_1k
                 run:
                     -   name: join_on_pk_of_range_and_hash_tbl
                         weight: 100
@@ -157,7 +157,7 @@ microbenchmark:
                                   util: RandomNumber
                                   params: [ 1, 1000000 ]
 
-            -   workload: JOING3_yb_5_join_on_rangepk_IN_clause_10k
+            -   workload: JOING3_5_join_on_rangepk_IN_clause_10k
                 run:
                     -   name: join_on_pk_of_range_and_hash_tbl
                         weight: 100
@@ -169,7 +169,7 @@ microbenchmark:
                                     params: [ 1, 1000000 ]
 
 
-            -   workload: JOING3_yb_6_join_on_hashidx_IN_clause_10k
+            -   workload: JOING3_6_join_on_hashidx_IN_clause_10k
                 run:
                     -   name: join_on_pk_of_range_and_hash_tbl
                         weight: 100
@@ -180,7 +180,7 @@ microbenchmark:
                                     util: RandomNumber
                                     params: [ 1, 1000000 ]
 
-            -   workload: JOING3_yb_7_join_on_rangeidx_IN_clause_10k
+            -   workload: JOING3_7_join_on_rangeidx_IN_clause_10k
                 run:
                     -   name: join_on_pk_of_range_and_hash_tbl
                         weight: 100
