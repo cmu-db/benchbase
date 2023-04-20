@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<query_templates>
+   <query_template>
+      <name>GetOrder</name>
+      <query><![CDATA[SELECT NO_O_ID FROM new_order WHERE NO_D_ID = ? OR NO_D_ID = ? ORDER BY NO_O_ID ASC]]></query>
+      <parameter_types>4,4</parameter_types>
+      <parameter_values>
+         <value>3,4</value>
+         <value>5,6</value>
+      </parameter_values>
+   </query_template>
+   <query_template>
+      <name>GetCust</name>
+      <query><![CDATA[SELECT C_DISCOUNT, C_LAST, C_CREDIT FROM customer WHERE C_W_ID = ?]]></query>
+      <parameter_types>4</parameter_types>
+      <parameter_values>
+         <value>8</value>
+      </parameter_values>
+   </query_template>
+   <query_template>
+      <name>GetWarehouse</name>
+      <query><![CDATA[SELECT * FROM warehouse WHERE W_STREET_1 LIKE ?]]></query>
+      <parameter_types>12</parameter_types>
+      <parameter_values>
+         <value>Str</value>
+      </parameter_values>
+   </query_template>
+</query_templates>

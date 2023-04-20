@@ -1,0 +1,287 @@
+/*
+ * Copyright 2020 by OLTPBenchmark Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+package com.oltpbenchmark.benchmarks.templated;
+
+import java.io.FileInputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.events.EndElement;
+import javax.xml.stream.events.StartElement;
+import javax.xml.stream.events.XMLEvent;
+
+import org.apache.commons.text.StringEscapeUtils;
+import org.codehaus.commons.compiler.CompilerFactoryFactory;
+import org.codehaus.commons.compiler.ICompilerFactory;
+import org.codehaus.commons.compiler.ISimpleCompiler;
+import org.immutables.value.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.oltpbenchmark.WorkloadConfiguration;
+import com.oltpbenchmark.api.BenchmarkModule;
+import com.oltpbenchmark.api.Loader;
+import com.oltpbenchmark.api.Procedure;
+import com.oltpbenchmark.api.SQLStmt;
+import com.oltpbenchmark.api.TransactionType;
+import com.oltpbenchmark.api.Worker;
+import com.oltpbenchmark.benchmarks.templated.procedures.GenericQuery;
+import com.oltpbenchmark.benchmarks.templated.procedures.GenericQuery.QueryTemplateInfo;
+import com.oltpbenchmark.benchmarks.templated.util.GenericQueryOperation;
+import com.oltpbenchmark.benchmarks.templated.util.TraceTransactionGenerator;
+import com.opencsv.CSVParser;
+import com.opencsv.CSVParserBuilder;
+
+/**
+ * This class is used to execute templated benchmarks, i.e., benchmarks that
+ * have parameters that the user wants to set dynamically. A templated benchmark
+ * has the structure
+ * <query_templates>
+ *  <query_template>
+ *    <name>$QueryTemplateName</name>
+ *    <query><![CDATA[$SQLQuery]]></query>
+ *    <parameter_types>$ParameterType1,$ParameterType2,...</parameter_types>
+ *    <parameter_values>
+ *      <value>$ParameterValueA1, $ParameterValueA2,...</value>
+ *      <value>$ParameterValueB1, $ParameterValueB2,...</value>
+ *      ...
+ *    </parameter_values>
+ *  </query_template>
+ *  ...
+ * <query_templates>
+ * where $ParameterType is the integer java.sql.Types value (i.e., 4 for
+ * integer, 16 for boolean etc.) and each value tag within 'parameter_values'
+ * contains the values for one instantiation of the parameters set in $SQLQuery. 
+ * The SQL query string is read as a PreparedStatement, i.e., parameters are 
+ * defined in the string via a '?' placeholder. An example for a templated
+ * benchmark can be found in data/templated/example.xml. The file path for the 
+ * XML template has to be defined in the workload configuration using the
+ * 'query_templates_file' tag. An example configuration can be found in
+ * config/sqlserver/sample_template_config.xml. The example can be executed if a
+ * loaded TPC-C instance is used as JDBC endpoint.
+ * 
+ * Templated benchmarks are instantiated using 'templated' as benchmark class
+ * when running BenchBase via the command line.
+ */
+public class TemplatedBenchmark extends BenchmarkModule {
+    private static final Logger LOG = LoggerFactory.getLogger(TemplatedBenchmark.class);
+
+    public TemplatedBenchmark(WorkloadConfiguration workConf) {
+        super(workConf);
+    }
+
+    @Override
+    protected void initClassLoader() {
+        super.initClassLoader();
+
+        this.classLoader = ClassLoader.getSystemClassLoader();
+        if (workConf.getXmlConfig().containsKey("query_templates_file")) {
+            this.classLoader = this.loadQueryTemplates(
+                    workConf.getXmlConfig().getString("query_templates_file"));
+        }
+    }
+
+    @Override
+    protected Package getProcedurePackageImpl() {
+        return (GenericQuery.class.getPackage());
+    }
+
+    @Override
+    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
+        List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
+
+        try {
+            final Map<Class<? extends Procedure>, TraceTransactionGenerator> generators = new HashMap<>();
+            // Create potential parameter bindings for each template. Add those
+            // to a trace transaction generator that will determine how the
+            // parameters are used.
+            for (Entry<TransactionType, Procedure> kv : getProcedures().entrySet()) {
+                // Sanity check that the procedure has the right type.
+                if (!(kv.getValue() instanceof GenericQuery)) {
+                    continue;
+                }
+                GenericQuery proc = (GenericQuery) kv.getValue();
+                QueryTemplateInfo info = proc.getQueryTemplateInfo();
+
+                // Parse parameter values and add each combination to a generator.
+                List<GenericQueryOperation> list = new ArrayList<>();
+                int[] paramsTypes = info.getParamsTypes();
+                for (String binding : info.getParamsValues()) {
+                    CSVParser parser = new CSVParserBuilder()
+                            .withQuoteChar('\'')
+                            .build();
+                    Object[] params = parser.parseLine(binding);
+                    assert paramsTypes.length == params.length;
+                    list.add(new GenericQueryOperation(params));
+                }
+                generators.put(proc.getClass(), new TraceTransactionGenerator(list));
+            }
+
+            // Create workers.
+            int numTerminals = workConf.getTerminals();
+            LOG.info(String.format("Creating %d workers for templated benchmark", numTerminals));
+            for (int i = 0; i < numTerminals; i++) {
+                workers.add(new TemplatedWorker(this, i, generators));
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException("Unable to create workers", e);
+        }
+        return workers;
+    }
+
+    @Override
+    protected Loader<TemplatedBenchmark> makeLoaderImpl() {
+        // Loader not currently supported.
+        throw new UnsupportedOperationException();
+    }
+
+    private ClassLoader loadQueryTemplates(String file) {
+        // Instantiate Java compiler.
+        CustomClassLoader ccloader = new CustomClassLoader(this.classLoader);
+        try {
+            // Parse template file.
+            final ICompilerFactory compilerFactory = CompilerFactoryFactory.getDefaultCompilerFactory(
+                    TemplatedBenchmark.class.getClassLoader());
+
+            XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
+            XMLEventReader reader = xmlInputFactory.createXMLEventReader(
+                    new FileInputStream(file));
+            ImmutableParsedQueryTemplate.Builder b = null;
+            while (reader.hasNext()) {
+                XMLEvent nextEvent = reader.nextEvent();
+                if (nextEvent.isStartElement()) {
+                    StartElement startElement = nextEvent.asStartElement();
+                    switch (startElement.getName().getLocalPart()) {
+                        case "query_template":
+                            b = ImmutableParsedQueryTemplate.builder();
+                            break;
+                        case "name":
+                            // Extract template name.
+                            nextEvent = reader.nextEvent();
+                            b.name(nextEvent.asCharacters().getData());
+                            break;
+                        case "query":
+                            // Extract template query.
+                            nextEvent = reader.nextEvent();
+                            b.query(nextEvent.asCharacters().getData());
+                            break;
+                        case "parameter_types":
+                            // Extract template parameter types.
+                            nextEvent = reader.nextEvent();
+                            b.paramsTypes(nextEvent.asCharacters().getData());
+                            break;
+                        case "value":
+                            // Extract parameter values instantiation.
+                            nextEvent = reader.nextEvent();
+                            b.addParamsValues(nextEvent.asCharacters().getData());
+                            break;
+                    }
+                }
+
+                // Create a compiled query that contains all parsed information.
+                if (nextEvent.isEndElement()) {
+                    EndElement endElement = nextEvent.asEndElement();
+                    if (endElement.getName().getLocalPart().equals("query_template")) {
+                        ParsedQueryTemplate qt = b.build();
+                        // Create and compile class.
+                        final String s = "package " + GenericQuery.class.getPackageName() + ";\n"
+                                + "public final class " + qt.getName()
+                                + " extends " + GenericQuery.class.getCanonicalName() + " {\n"
+                                + "    @Override\n"
+                                + "    public " + QueryTemplateInfo.class.getCanonicalName()
+                                + " getQueryTemplateInfo() {\n"
+                                + "        return ImmutableQueryTemplateInfo.builder()\n"
+                                + "          .query(new " + SQLStmt.class.getCanonicalName() + "(\n"
+                                + "             \"" + StringEscapeUtils.escapeJava(qt.getQuery()) + "\"))\n"
+                                + "          .paramsTypes(new int[] {" + qt.getParamsTypes() + "})\n"
+                                + "          .paramsValues(new String[] {"
+                                + getParamsValuesString(qt.getParamsValues()) + "})\n"
+                                + "          .build();\n"
+                                + "    }\n"
+                                + "}";
+                        LOG.debug("Class definition for query template {}:\n {}", qt.getName(), s);
+                        final String qualifiedClassName = GenericQuery.class.getPackageName() + "." + qt.getName();
+                        final ISimpleCompiler compiler = compilerFactory.newSimpleCompiler();
+                        compiler.setTargetVersion(17);
+                        compiler.setParentClassLoader(this.classLoader);
+                        compiler.cook(s);
+                        ccloader.putClass(qualifiedClassName,
+                                compiler.getClassLoader().loadClass(qualifiedClassName));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException("Unable to load query templates", e);
+        }
+        return ccloader;
+    }
+
+    private String getParamsValuesString(List<String> paramsValues) {
+        String result = "";
+        for (String paramsValue : paramsValues) {
+            result += "\"" + StringEscapeUtils.escapeJava(paramsValue) + "\",";
+        }
+        return result.isEmpty() ? "" : result.substring(0, result.length() - 1);
+    }
+
+    private static class CustomClassLoader extends ClassLoader {
+
+        private final Map<String, Class<?>> classes = new HashMap<>();
+
+        private CustomClassLoader(ClassLoader parent) {
+            super(parent);
+        }
+
+        @Override
+        public Class<?> findClass(String name) throws ClassNotFoundException {
+            Class<?> clazz = classes.get(name);
+            return clazz != null ? clazz : super.findClass(name);
+        }
+
+        public void putClass(String name, Class<?> clazz) {
+            classes.put(name, clazz);
+        }
+    }
+
+    @Value.Immutable
+    public interface ParsedQueryTemplate {
+
+        /** Template name. */
+        String getName();
+
+        /** Query string for this template. */
+        String getQuery();
+
+        /** Query parameter types. */
+        @Value.Default
+        default String getParamsTypes() {
+            return "";
+        }
+
+        /** Potential query parameter values. */
+        @Value.Default
+        default List<String> getParamsValues() {
+            return List.of();
+        }
+    }
+
+}
