@@ -8,6 +8,7 @@ isolation: TRANSACTION_REPEATABLE_READ
 collect_pg_stat_statements: false
 loaderthreads: 1
 terminals: 1
+yaml_version: v1.1
 works:
     work:
         rate: unlimited
@@ -16,6 +17,7 @@ works:
 microbenchmark:
     class: com.oltpbenchmark.benchmarks.featurebench.customworkload.bulkload.Goal2
     properties:
+        setAutoCommit: true
         # Goal2 - 1 :: create table with PK -> create 1 index -> Load data (1 index)
         workload: create_1_index_then_load
         tableName: orders
