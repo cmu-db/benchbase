@@ -36,7 +36,7 @@ public abstract class DatabaseMonitor extends Monitor {
     protected final String SINGLE_QUERY_EVENT_CSV = "single_query_event";
     protected final String REP_QUERY_EVENT_CSV = "repeated_query_event";
     protected final String REP_SYSTEM_EVENT_CSV = "system_query_event";
-    protected final int FILE_FLUSH_COUNT = 1000;
+    protected final int FILE_FLUSH_COUNT = 1000;    // flush writes to the metrics files every 1000 ms
 
     protected DatabaseState currentState = DatabaseState.INVALID;
     protected int ticks = 1;
