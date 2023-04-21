@@ -26,23 +26,26 @@ public class SQLServerMonitor extends DatabaseMonitor {
     private final String MONITORING_IDENTIFIER = "/*monitor-";
     private final String MONITORING_SPLIT_MARKER = "*/";
 
-    private final String DM_EXEC_QUERY_STATS = "SELECT " +
-            "q.text AS query_text, st.plan_handle, pl.query_plan, " +
-            "st.execution_count, st.min_worker_time, st.max_worker_time, " +
-            "st.total_worker_time, st.min_physical_reads, st.max_physical_reads, " +
-            "st.total_physical_reads, st.min_elapsed_time, st.max_elapsed_time, " +
-            "st.total_elapsed_time, st.total_rows, st.min_rows, st.max_rows, " +
-            "st.min_spills, st.max_spills, st.total_spills, " +
-            "st.min_logical_writes, st.max_logical_writes, st.total_logical_writes, " +
-            "st.min_logical_reads, st.max_logical_reads, st.total_logical_reads, " +
-            "st.min_used_grant_kb, st.max_used_grant_kb, st.total_used_grant_kb, " +
-            "st.min_used_threads, st.max_used_threads, st.total_used_threads " +
-            "FROM sys.dm_exec_query_stats st " +
-            "CROSS APPLY sys.dm_exec_sql_text(st.plan_handle) q " +
-            "CROSS APPLY sys.dm_exec_query_plan(st.plan_handle) pl";
-    private String DM_OS_PERFORMANCE_STATS = "SELECT cntr_value, " +
-            "counter_name FROM sys.dm_os_performance_counters WHERE " +
-            "instance_name='$DB_INSTANCE';";
+    private final String DM_EXEC_QUERY_STATS = """
+        SELECT q.text AS query_text, st.plan_handle, pl.query_plan, 
+        q.text AS query_text, st.plan_handle, pl.query_plan, 
+        st.execution_count, st.min_worker_time, st.max_worker_time, 
+        st.total_worker_time, st.min_physical_reads, st.max_physical_reads, 
+        st.total_physical_reads, st.min_elapsed_time, st.max_elapsed_time, 
+        st.total_elapsed_time, st.total_rows, st.min_rows, st.max_rows, 
+        st.min_spills, st.max_spills, st.total_spills, 
+        st.min_logical_writes, st.max_logical_writes, st.total_logical_writes, 
+        st.min_logical_reads, st.max_logical_reads, st.total_logical_reads, 
+        st.min_used_grant_kb, st.max_used_grant_kb, st.total_used_grant_kb, 
+        st.min_used_threads, st.max_used_threads, st.total_used_threads 
+        FROM sys.dm_exec_query_stats st 
+        CROSS APPLY sys.dm_exec_sql_text(st.plan_handle) q 
+        CROSS APPLY sys.dm_exec_query_plan(st.plan_handle) pl
+        """;
+    private String DM_OS_PERFORMANCE_STATS = """
+        SELECT cntr_value, counter_name FROM sys.dm_os_performance_counters 
+        WHERE instance_name='$DB_INSTANCE';
+        """;
     private final String CLEAN_CACHE = "DBCC FREEPROCCACHE;";
     private final List<String> singleQueryProperties;
     private final List<String> repeatedQueryProperties;

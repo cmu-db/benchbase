@@ -82,7 +82,7 @@ public abstract class DatabaseMonitor extends Monitor {
 
         FileUtil.makeDirIfNotExists(OUTPUT_DIR);
 
-        // Init output proto builders.
+        // Initialize event lists.
         this.singleQueryEvents = new ArrayList<>();
         this.repeatedQueryEvents = new ArrayList<>();
         this.repeatedSystemEvents = new ArrayList<>();

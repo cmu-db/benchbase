@@ -34,6 +34,9 @@ import java.util.*;
 
 public class ThreadBench implements Thread.UncaughtExceptionHandler {
     private static final Logger LOG = LoggerFactory.getLogger(ThreadBench.class);
+    // Determines how long (in ms) to wait until monitoring thread rejoins the
+    // main thread.
+    private static final int MONITOR_REJOIN_TIME = 60000;
 
     private final BenchmarkState testState;
     private final List<? extends Worker<? extends BenchmarkModule>> workers;
@@ -307,7 +310,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         try {
             if (this.monitor != null) {
                 this.monitor.interrupt();
-                this.monitor.join(60000); // wait for 60second for monitor thread to rejoin
+                this.monitor.join(MONITOR_REJOIN_TIME);
                 this.monitor.tearDown();
             }
         }

@@ -27,12 +27,13 @@ public class PostgreSQLMonitor extends DatabaseMonitor {
     private final String MONITORING_IDENTIFIER = "/*monitor-";
     private final String MONITORING_SPLIT_MARKER = "*/";
 
-    private final String PG_STAT_STATEMENTS = "SELECT " +
-            "query AS query_text, calls as execution_count, rows, " +
-            "total_exec_time, min_exec_time, max_exec_time, " +
-            "shared_blks_read, shared_blks_written, local_blks_read, " +
-            "local_blks_written, temp_blks_read, temp_blks_written " +
-            "FROM pg_stat_statements;";
+    private final String PG_STAT_STATEMENTS = """
+        SELECT query AS query_text, calls as execution_count, rows, 
+        total_exec_time, min_exec_time, max_exec_time, 
+        shared_blks_read, shared_blks_written, local_blks_read, 
+        local_blks_written, temp_blks_read, temp_blks_written 
+        FROM pg_stat_statements;
+        """;
     private final String CLEAN_CACHE = "SELECT pg_stat_statements_reset();";
     private final List<String> singleQueryProperties;
     private final List<String> repeatedQueryProperties;
