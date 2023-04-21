@@ -14,6 +14,6 @@ Advanced monitoring collects data for a variety of events, such as one-off infor
 Which events are collected depends on the database system and is customized in corresponding drivers.
 The code for the drivers can be found in package src.main.java.com.oltpbenchmark.api.collectors.monitoring.
 
-For advanced monitoring to function with SQLServer, the user needs to have access to the system tables, for Postgres, pg_stat_statements needs to be enabled.
+For advanced monitoring to function with SQLServer, the user needs to have access to the system tables, for Postgres, `pg_stat_statements` needs to be enabled.
 Note that in either database system, frequent (additional) queries against the DBMS may distort the benchmarking results.
 That is, a high additional query load via frequent pulling of data from the DBMS will incur system load and can potentially block the execution of the actual benchmark queries.
