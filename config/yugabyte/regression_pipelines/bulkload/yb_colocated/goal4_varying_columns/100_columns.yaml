@@ -9,7 +9,7 @@ isolation: TRANSACTION_REPEATABLE_READ
 collect_pg_stat_statements: false
 loaderthreads: 1
 terminals: 1
-
+yaml_version: v1.1
 works:
     work:
         rate: unlimited
@@ -17,6 +17,7 @@ works:
 microbenchmark:
     class: com.oltpbenchmark.benchmarks.featurebench.customworkload.bulkload.Goal4
     properties:
+        setAutoCommit: true
         # Goal4 - 3 :: create table with 100 fields, 3M rows -> load data (only PK)
         workload: create_100fields_table_then_load
         tableName: orders

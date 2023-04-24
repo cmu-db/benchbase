@@ -66,12 +66,14 @@ public class Goal2 extends YBMicroBenchmark {
         if (this.create_index_before_load && (this.indexCount > 0 && this.indexCount <= this.numOfColumns)) {
             LOG.info("Creating indexes before load");
             BulkloadUtils.createIndexes(conn, this.indexCount, this.tableName);
+//            if(!conn.getAutoCommit()) conn.commit();
             LOG.info("Done creating indexes");
         }
         BulkloadUtils.runCopyCommand(conn, this.tableName, this.filePath);
+//        if(!conn.getAutoCommit()) conn.commit();
         if (this.create_index_after_load && (this.indexCount > 0 && this.indexCount <= this.numOfColumns)) {
             LOG.info("Creating indexes after load(index back-filling)");
-            BulkloadUtils.createIndexes(benchmarkModule.makeConnection(), this.indexCount, this.tableName);
+            BulkloadUtils.createIndexes(conn, this.indexCount, this.tableName);
             LOG.info("Done creating indexes(Index back-filling done)");
         }
     }
