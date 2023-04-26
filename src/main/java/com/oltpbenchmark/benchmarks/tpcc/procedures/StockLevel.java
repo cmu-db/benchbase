@@ -17,6 +17,7 @@
 
 package com.oltpbenchmark.benchmarks.tpcc.procedures;
 
+import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCConstants;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCUtil;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCWorker;
@@ -33,15 +34,15 @@ public class StockLevel extends TPCCProcedure {
 
     private static final Logger LOG = LoggerFactory.getLogger(StockLevel.class);
 
-    public String stockGetDistOrderIdSQL =
+    public SQLStmt stockGetDistOrderIdSQL = new SQLStmt(
     """
         SELECT D_NEXT_O_ID 
           FROM  %s
          WHERE D_W_ID = ? 
            AND D_ID = ?
-    """.formatted(TPCCConstants.TABLENAME_DISTRICT);
+    """.formatted(TPCCConstants.TABLENAME_DISTRICT));
 
-    public String stockGetCountStockSQL =
+    public SQLStmt stockGetCountStockSQL = new SQLStmt(
     """
         SELECT COUNT(DISTINCT (S_I_ID)) AS STOCK_COUNT 
          FROM  %s, %s
@@ -52,7 +53,7 @@ public class StockLevel extends TPCCProcedure {
          AND S_W_ID = ?
          AND S_I_ID = OL_I_ID
          AND S_QUANTITY < ?
-    """.formatted(TPCCConstants.TABLENAME_ORDERLINE, TPCCConstants.TABLENAME_STOCK);
+    """.formatted(TPCCConstants.TABLENAME_ORDERLINE, TPCCConstants.TABLENAME_STOCK));
 
     public void run(Connection conn, Random gen, int w_id, int numWarehouses, int terminalDistrictLowerID, int terminalDistrictUpperID, TPCCWorker w) throws SQLException {
 
@@ -81,7 +82,7 @@ public class StockLevel extends TPCCProcedure {
     }
 
     private int getOrderId(Connection conn, int w_id, int d_id) throws SQLException {
-        try (PreparedStatement stockGetDistOrderId = this.getPreparedStatement(conn, this.createSqlStatement(stockGetDistOrderIdSQL,"stockGetDistOrderIdSQL"))) {
+        try (PreparedStatement stockGetDistOrderId = this.getPreparedStatement(conn, this.finalizeSqlStatement(stockGetDistOrderIdSQL,"stockGetDistOrderIdSQL"))) {
             stockGetDistOrderId.setInt(1, w_id);
             stockGetDistOrderId.setInt(2, d_id);
 
@@ -97,7 +98,7 @@ public class StockLevel extends TPCCProcedure {
     }
 
     private int getStockCount(Connection conn, int w_id, int threshold, int d_id, int o_id) throws SQLException {
-        try (PreparedStatement stockGetCountStock = this.getPreparedStatement(conn, this.createSqlStatement(stockGetCountStockSQL,"stockGetCountStockSQL"))) {
+        try (PreparedStatement stockGetCountStock = this.getPreparedStatement(conn, this.finalizeSqlStatement(stockGetCountStockSQL,"stockGetCountStockSQL"))) {
             stockGetCountStock.setInt(1, w_id);
             stockGetCountStock.setInt(2, d_id);
             stockGetCountStock.setInt(3, o_id);

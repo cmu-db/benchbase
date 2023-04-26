@@ -77,16 +77,15 @@ public abstract class Procedure {
     }
 
     /**
-     * Create a SQLStmt from a query statement. If monitoring is enabled,
-     * add monitoring prefix.
+     * Finalizes a query statement. If monitoring is enabled, this method will
+     * add a monitoring prefix.
      */
-    protected SQLStmt createSqlStatement(String query, String queryId) {
-        String finalQuery = "";
+    protected SQLStmt finalizeSqlStatement(SQLStmt stmt, String queryId) {
+        SQLStmt finalStmt = stmt;
         if (this.getMonitoringEnabled()) {
-            finalQuery = MonitoringUtil.getMonitoringPrefix().replace("$queryId", queryId);
+            finalStmt.addPrefix(MonitoringUtil.getMonitoringPrefix().replace("$queryId", queryId));
         }
-        finalQuery += query;
-        return new SQLStmt(finalQuery);
+        return finalStmt;
     }
 
     /**

@@ -17,6 +17,7 @@
 
 package com.oltpbenchmark.benchmarks.tpcc.procedures;
 
+import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCConfig;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCConstants;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCUtil;
@@ -32,59 +33,59 @@ public class Delivery extends TPCCProcedure {
 
     private static final Logger LOG = LoggerFactory.getLogger(Delivery.class);
 
-    public String delivGetOrderIdSQL =
+    public SQLStmt delivGetOrderIdSQL = new SQLStmt(
         """
             SELECT NO_O_ID FROM %s
              WHERE NO_D_ID = ?
                AND NO_W_ID = ?
              ORDER BY NO_O_ID ASC
              LIMIT 1)
-        """.formatted(TPCCConstants.TABLENAME_NEWORDER);
+        """.formatted(TPCCConstants.TABLENAME_NEWORDER));
 
-    public String delivDeleteNewOrderSQL =
+    public SQLStmt delivDeleteNewOrderSQL = new SQLStmt(
         """
             DELETE FROM %s
             WHERE NO_O_ID = ?
             AND NO_D_ID = ?
             AND NO_W_ID = ?
-        """.formatted(TPCCConstants.TABLENAME_NEWORDER);
+        """.formatted(TPCCConstants.TABLENAME_NEWORDER));
 
-    public String delivGetCustIdSQL =
+    public SQLStmt delivGetCustIdSQL = new SQLStmt(
         """
             SELECT O_C_ID FROM %s
             WHERE O_ID = ?
             AND O_D_ID = ?
             AND O_W_ID = ?
-        """.formatted(TPCCConstants.TABLENAME_OPENORDER);
+        """.formatted(TPCCConstants.TABLENAME_OPENORDER));
 
-    public String delivUpdateCarrierIdSQL =
+    public SQLStmt delivUpdateCarrierIdSQL = new SQLStmt(
     """
         UPDATE %s
            SET O_CARRIER_ID = ?
          WHERE O_ID = ?
            AND O_D_ID = ?
            AND O_W_ID = ?
-    """.formatted(TPCCConstants.TABLENAME_OPENORDER);
+    """.formatted(TPCCConstants.TABLENAME_OPENORDER));
 
-    public String delivUpdateDeliveryDateSQL =
+    public SQLStmt delivUpdateDeliveryDateSQL = new SQLStmt(
     """
         UPDATE %s
            SET OL_DELIVERY_D = ?
          WHERE OL_O_ID = ?
            AND OL_D_ID = ?
            AND OL_W_ID = ?
-    """.formatted(TPCCConstants.TABLENAME_ORDERLINE);
+    """.formatted(TPCCConstants.TABLENAME_ORDERLINE));
 
-    public String delivSumOrderAmountSQL =
+    public SQLStmt delivSumOrderAmountSQL = new SQLStmt(
     """
         SELECT SUM(OL_AMOUNT) AS OL_TOTAL
           FROM %s
          WHERE OL_O_ID = ?
            AND OL_D_ID = ?
            AND OL_W_ID = ?
-    """.formatted(TPCCConstants.TABLENAME_ORDERLINE);
+    """.formatted(TPCCConstants.TABLENAME_ORDERLINE));
 
-    public String delivUpdateCustBalDelivCntSQL =
+    public SQLStmt delivUpdateCustBalDelivCntSQL = new SQLStmt(
     """
         UPDATE %s
            SET C_BALANCE = C_BALANCE + ?,
@@ -92,7 +93,7 @@ public class Delivery extends TPCCProcedure {
          WHERE C_W_ID = ?
            AND C_D_ID = ?
            AND C_ID = ?
-    """.formatted(TPCCConstants.TABLENAME_CUSTOMER);
+    """.formatted(TPCCConstants.TABLENAME_CUSTOMER));
 
     public void run(Connection conn, Random gen, int w_id, int numWarehouses, int terminalDistrictLowerID, int terminalDistrictUpperID, TPCCWorker w) throws SQLException {
 
@@ -152,7 +153,7 @@ public class Delivery extends TPCCProcedure {
 
     private Integer getOrderId(Connection conn, int w_id, int d_id) throws SQLException {
 
-        try (PreparedStatement delivGetOrderId = this.getPreparedStatement(conn, this.createSqlStatement(delivGetOrderIdSQL, "delivGetOrderIdSQL"))) {
+        try (PreparedStatement delivGetOrderId = this.getPreparedStatement(conn, this.finalizeSqlStatement(delivGetOrderIdSQL, "delivGetOrderIdSQL"))) {
             delivGetOrderId.setInt(1, d_id);
             delivGetOrderId.setInt(2, w_id);
 
@@ -173,7 +174,7 @@ public class Delivery extends TPCCProcedure {
     }
 
     private void deleteOrder(Connection conn, int w_id, int d_id, int no_o_id) throws SQLException {
-        try (PreparedStatement delivDeleteNewOrder = this.getPreparedStatement(conn, this.createSqlStatement(delivDeleteNewOrderSQL, "delivDeleteNewOrderSQL"))) {
+        try (PreparedStatement delivDeleteNewOrder = this.getPreparedStatement(conn, this.finalizeSqlStatement(delivDeleteNewOrderSQL, "delivDeleteNewOrderSQL"))) {
             delivDeleteNewOrder.setInt(1, no_o_id);
             delivDeleteNewOrder.setInt(2, d_id);
             delivDeleteNewOrder.setInt(3, w_id);
@@ -194,7 +195,7 @@ public class Delivery extends TPCCProcedure {
 
     private int getCustomerId(Connection conn, int w_id, int d_id, int no_o_id) throws SQLException {
 
-        try (PreparedStatement delivGetCustId = this.getPreparedStatement(conn, this.createSqlStatement(delivGetCustIdSQL, "delivGetCustIdSQL"))) {
+        try (PreparedStatement delivGetCustId = this.getPreparedStatement(conn, this.finalizeSqlStatement(delivGetCustIdSQL, "delivGetCustIdSQL"))) {
             delivGetCustId.setInt(1, no_o_id);
             delivGetCustId.setInt(2, d_id);
             delivGetCustId.setInt(3, w_id);
@@ -212,7 +213,7 @@ public class Delivery extends TPCCProcedure {
     }
 
     private void updateCarrierId(Connection conn, int w_id, int o_carrier_id, int d_id, int no_o_id) throws SQLException {
-        try (PreparedStatement delivUpdateCarrierId = this.getPreparedStatement(conn, this.createSqlStatement(delivUpdateCarrierIdSQL, "delivUpdateCarrierIdSQL"))) {
+        try (PreparedStatement delivUpdateCarrierId = this.getPreparedStatement(conn, this.finalizeSqlStatement(delivUpdateCarrierIdSQL, "delivUpdateCarrierIdSQL"))) {
             delivUpdateCarrierId.setInt(1, o_carrier_id);
             delivUpdateCarrierId.setInt(2, no_o_id);
             delivUpdateCarrierId.setInt(3, d_id);
@@ -230,7 +231,7 @@ public class Delivery extends TPCCProcedure {
     private void updateDeliveryDate(Connection conn, int w_id, int d_id, int no_o_id) throws SQLException {
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 
-        try (PreparedStatement delivUpdateDeliveryDate = this.getPreparedStatement(conn, this.createSqlStatement(delivUpdateDeliveryDateSQL, "delivUpdateDeliveryDateSQL"))) {
+        try (PreparedStatement delivUpdateDeliveryDate = this.getPreparedStatement(conn, this.finalizeSqlStatement(delivUpdateDeliveryDateSQL, "delivUpdateDeliveryDateSQL"))) {
             delivUpdateDeliveryDate.setTimestamp(1, timestamp);
             delivUpdateDeliveryDate.setInt(2, no_o_id);
             delivUpdateDeliveryDate.setInt(3, d_id);
@@ -246,7 +247,7 @@ public class Delivery extends TPCCProcedure {
     }
 
     private float getOrderLineTotal(Connection conn, int w_id, int d_id, int no_o_id) throws SQLException {
-        try (PreparedStatement delivSumOrderAmount = this.getPreparedStatement(conn, this.createSqlStatement(delivSumOrderAmountSQL, "delivSumOrderAmountSQL"))) {
+        try (PreparedStatement delivSumOrderAmount = this.getPreparedStatement(conn, this.finalizeSqlStatement(delivSumOrderAmountSQL, "delivSumOrderAmountSQL"))) {
             delivSumOrderAmount.setInt(1, no_o_id);
             delivSumOrderAmount.setInt(2, d_id);
             delivSumOrderAmount.setInt(3, w_id);
@@ -264,7 +265,7 @@ public class Delivery extends TPCCProcedure {
 
     private void updateBalanceAndDelivery(Connection conn, int w_id, int d_id, int c_id, float orderLineTotal) throws SQLException {
 
-        try (PreparedStatement delivUpdateCustBalDelivCnt = this.getPreparedStatement(conn, this.createSqlStatement(delivUpdateCustBalDelivCntSQL, "delivUpdateCustBalDelivCntSQL"))) {
+        try (PreparedStatement delivUpdateCustBalDelivCnt = this.getPreparedStatement(conn, this.finalizeSqlStatement(delivUpdateCustBalDelivCntSQL, "delivUpdateCustBalDelivCntSQL"))) {
             delivUpdateCustBalDelivCnt.setBigDecimal(1, BigDecimal.valueOf(orderLineTotal));
             delivUpdateCustBalDelivCnt.setInt(2, w_id);
             delivUpdateCustBalDelivCnt.setInt(3, d_id);

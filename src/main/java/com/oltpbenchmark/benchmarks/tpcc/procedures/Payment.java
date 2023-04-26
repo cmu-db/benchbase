@@ -17,6 +17,7 @@
 
 package com.oltpbenchmark.benchmarks.tpcc.procedures;
 
+import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCConfig;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCConstants;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCUtil;
@@ -36,37 +37,37 @@ public class Payment extends TPCCProcedure {
 
     private static final Logger LOG = LoggerFactory.getLogger(Payment.class);
 
-    public String payUpdateWhseSQL =
+    public SQLStmt payUpdateWhseSQL = new SQLStmt(
     """
         UPDATE %s
            SET W_YTD = W_YTD + ?
          WHERE W_ID = ? 
-    """.formatted(TPCCConstants.TABLENAME_WAREHOUSE);
+    """.formatted(TPCCConstants.TABLENAME_WAREHOUSE));
 
-    public String payGetWhseSQL =
+    public SQLStmt payGetWhseSQL = new SQLStmt(
     """
         SELECT W_STREET_1, W_STREET_2, W_CITY, W_STATE, W_ZIP, W_NAME
           FROM %s
          WHERE W_ID = ?
-    """.formatted(TPCCConstants.TABLENAME_WAREHOUSE);
+    """.formatted(TPCCConstants.TABLENAME_WAREHOUSE));
 
-    public String payUpdateDistSQL =
+    public SQLStmt payUpdateDistSQL = new SQLStmt(
     """
         UPDATE %s
            SET D_YTD = D_YTD + ?
          WHERE D_W_ID = ?
            AND D_ID = ?
-    """.formatted(TPCCConstants.TABLENAME_DISTRICT);
+    """.formatted(TPCCConstants.TABLENAME_DISTRICT));
 
-    public String payGetDistSQL =
+    public SQLStmt payGetDistSQL = new SQLStmt(
     """
         SELECT D_STREET_1, D_STREET_2, D_CITY, D_STATE, D_ZIP, D_NAME
           FROM %s
          WHERE D_W_ID = ?
            AND D_ID = ?
-    """.formatted(TPCCConstants.TABLENAME_DISTRICT);
+    """.formatted(TPCCConstants.TABLENAME_DISTRICT));
 
-    public String payGetCustSQL =
+    public SQLStmt payGetCustSQL = new SQLStmt(
     """
         SELECT C_FIRST, C_MIDDLE, C_LAST, C_STREET_1, C_STREET_2,
                C_CITY, C_STATE, C_ZIP, C_PHONE, C_CREDIT, C_CREDIT_LIM,
@@ -75,18 +76,18 @@ public class Payment extends TPCCProcedure {
          WHERE C_W_ID = ?
            AND C_D_ID = ?
            AND C_ID = ?
-    """.formatted(TPCCConstants.TABLENAME_CUSTOMER);
+    """.formatted(TPCCConstants.TABLENAME_CUSTOMER));
 
-    public String payGetCustCdataSQL =
+    public SQLStmt payGetCustCdataSQL = new SQLStmt(
     """
         SELECT C_DATA
           FROM %s
          WHERE C_W_ID = ?
            AND C_D_ID = ?
            AND C_ID = ?
-    """.formatted(TPCCConstants.TABLENAME_CUSTOMER);
+    """.formatted(TPCCConstants.TABLENAME_CUSTOMER));
 
-    public String payUpdateCustBalCdataSQL =
+    public SQLStmt payUpdateCustBalCdataSQL = new SQLStmt(
     """
         UPDATE %s
            SET C_BALANCE = ?,
@@ -96,9 +97,9 @@ public class Payment extends TPCCProcedure {
          WHERE C_W_ID = ?
            AND C_D_ID = ?
            AND C_ID = ?
-    """.formatted(TPCCConstants.TABLENAME_CUSTOMER);
+    """.formatted(TPCCConstants.TABLENAME_CUSTOMER));
 
-    public String payUpdateCustBalSQL =
+    public SQLStmt payUpdateCustBalSQL = new SQLStmt(
     """
         UPDATE %s
            SET C_BALANCE = ?,
@@ -107,16 +108,16 @@ public class Payment extends TPCCProcedure {
          WHERE C_W_ID = ?
            AND C_D_ID = ?
            AND C_ID = ?
-    """.formatted(TPCCConstants.TABLENAME_CUSTOMER);
+    """.formatted(TPCCConstants.TABLENAME_CUSTOMER));
 
-    public String payInsertHistSQL =
+    public SQLStmt payInsertHistSQL = new SQLStmt(
     """
         INSERT INTO %s +
          (H_C_D_ID, H_C_W_ID, H_C_ID, H_D_ID, H_W_ID, H_DATE, H_AMOUNT, H_DATA)
          VALUES (?,?,?,?,?,?,?,?)
-    """.formatted(TPCCConstants.TABLENAME_HISTORY);
+    """.formatted(TPCCConstants.TABLENAME_HISTORY));
 
-    public String customerByNameSQL =
+    public SQLStmt customerByNameSQL = new SQLStmt(
     """
         SELECT C_FIRST, C_MIDDLE, C_ID, C_STREET_1, C_STREET_2, C_CITY,
                C_STATE, C_ZIP, C_PHONE, C_CREDIT, C_CREDIT_LIM, C_DISCOUNT,
@@ -126,7 +127,7 @@ public class Payment extends TPCCProcedure {
            AND C_D_ID = ?
            AND C_LAST = ?
          ORDER BY C_FIRST
-    """.formatted(TPCCConstants.TABLENAME_CUSTOMER);
+    """.formatted(TPCCConstants.TABLENAME_CUSTOMER));
 
     public void run(Connection conn, Random gen, int w_id, int numWarehouses, int terminalDistrictLowerID, int terminalDistrictUpperID, TPCCWorker worker) throws SQLException {
 
@@ -271,7 +272,7 @@ public class Payment extends TPCCProcedure {
     }
 
     private void updateWarehouse(Connection conn, int w_id, float paymentAmount) throws SQLException {
-        try (PreparedStatement payUpdateWhse = this.getPreparedStatement(conn, this.createSqlStatement(payUpdateWhseSQL,"payUpdateWhseSQL"))) {
+        try (PreparedStatement payUpdateWhse = this.getPreparedStatement(conn, this.finalizeSqlStatement(payUpdateWhseSQL,"payUpdateWhseSQL"))) {
             payUpdateWhse.setBigDecimal(1, BigDecimal.valueOf(paymentAmount));
             payUpdateWhse.setInt(2, w_id);
             // MySQL reports deadlocks due to lock upgrades:
@@ -284,7 +285,7 @@ public class Payment extends TPCCProcedure {
     }
 
     private Warehouse getWarehouse(Connection conn, int w_id) throws SQLException {
-        try (PreparedStatement payGetWhse = this.getPreparedStatement(conn, this.createSqlStatement(payGetWhseSQL,"payGetWhseSQL"))) {
+        try (PreparedStatement payGetWhse = this.getPreparedStatement(conn, this.finalizeSqlStatement(payGetWhseSQL,"payGetWhseSQL"))) {
             payGetWhse.setInt(1, w_id);
 
             try (ResultSet rs = payGetWhse.executeQuery()) {
@@ -326,7 +327,7 @@ public class Payment extends TPCCProcedure {
     }
 
     private void updateDistrict(Connection conn, int w_id, int districtID, float paymentAmount) throws SQLException {
-        try (PreparedStatement payUpdateDist = this.getPreparedStatement(conn, this.createSqlStatement(payUpdateDistSQL,"payUpdateDistSQL"))) {
+        try (PreparedStatement payUpdateDist = this.getPreparedStatement(conn, this.finalizeSqlStatement(payUpdateDistSQL,"payUpdateDistSQL"))) {
             payUpdateDist.setBigDecimal(1, BigDecimal.valueOf(paymentAmount));
             payUpdateDist.setInt(2, w_id);
             payUpdateDist.setInt(3, districtID);
@@ -340,7 +341,7 @@ public class Payment extends TPCCProcedure {
     }
 
     private District getDistrict(Connection conn, int w_id, int districtID) throws SQLException {
-        try (PreparedStatement payGetDist = this.getPreparedStatement(conn, this.createSqlStatement(payGetDistSQL,"payGetDistSQL"))) {
+        try (PreparedStatement payGetDist = this.getPreparedStatement(conn, this.finalizeSqlStatement(payGetDistSQL,"payGetDistSQL"))) {
             payGetDist.setInt(1, w_id);
             payGetDist.setInt(2, districtID);
 
@@ -364,7 +365,7 @@ public class Payment extends TPCCProcedure {
 
     private String getCData(Connection conn, int w_id, int districtID, int customerDistrictID, int customerWarehouseID, float paymentAmount, Customer c) throws SQLException {
 
-        try (PreparedStatement payGetCustCdata = this.getPreparedStatement(conn, this.createSqlStatement(payGetCustCdataSQL,"payGetCustCdataSQL"))) {
+        try (PreparedStatement payGetCustCdata = this.getPreparedStatement(conn, this.finalizeSqlStatement(payGetCustCdataSQL,"payGetCustCdataSQL"))) {
             String c_data;
             payGetCustCdata.setInt(1, customerWarehouseID);
             payGetCustCdata.setInt(2, customerDistrictID);
@@ -387,7 +388,7 @@ public class Payment extends TPCCProcedure {
     }
 
     private void updateBalanceCData(Connection conn, int customerDistrictID, int customerWarehouseID, Customer c) throws SQLException {
-        try (PreparedStatement payUpdateCustBalCdata = this.getPreparedStatement(conn, this.createSqlStatement(payUpdateCustBalCdataSQL,"payUpdateCustBalCdataSQL"))) {
+        try (PreparedStatement payUpdateCustBalCdata = this.getPreparedStatement(conn, this.finalizeSqlStatement(payUpdateCustBalCdataSQL,"payUpdateCustBalCdataSQL"))) {
             payUpdateCustBalCdata.setDouble(1, c.c_balance);
             payUpdateCustBalCdata.setDouble(2, c.c_ytd_payment);
             payUpdateCustBalCdata.setInt(3, c.c_payment_cnt);
@@ -406,7 +407,7 @@ public class Payment extends TPCCProcedure {
 
     private void updateBalance(Connection conn, int customerDistrictID, int customerWarehouseID, Customer c) throws SQLException {
 
-        try (PreparedStatement payUpdateCustBal = this.getPreparedStatement(conn, this.createSqlStatement(payUpdateCustBalSQL,"payUpdateCustBalSQL"))) {
+        try (PreparedStatement payUpdateCustBal = this.getPreparedStatement(conn, this.finalizeSqlStatement(payUpdateCustBalSQL,"payUpdateCustBalSQL"))) {
             payUpdateCustBal.setDouble(1, c.c_balance);
             payUpdateCustBal.setDouble(2, c.c_ytd_payment);
             payUpdateCustBal.setInt(3, c.c_payment_cnt);
@@ -431,7 +432,7 @@ public class Payment extends TPCCProcedure {
         }
         String h_data = w_name + "    " + d_name;
 
-        try (PreparedStatement payInsertHist = this.getPreparedStatement(conn, this.createSqlStatement(payInsertHistSQL,"payInsertHistSQL"))) {
+        try (PreparedStatement payInsertHist = this.getPreparedStatement(conn, this.finalizeSqlStatement(payInsertHistSQL,"payInsertHistSQL"))) {
             payInsertHist.setInt(1, customerDistrictID);
             payInsertHist.setInt(2, customerWarehouseID);
             payInsertHist.setInt(3, c.c_id);
@@ -448,7 +449,7 @@ public class Payment extends TPCCProcedure {
     // prepared statements
     public Customer getCustomerById(int c_w_id, int c_d_id, int c_id, Connection conn) throws SQLException {
 
-        try (PreparedStatement payGetCust = this.getPreparedStatement(conn, this.createSqlStatement(payGetCustSQL,"payGetCustSQL"))) {
+        try (PreparedStatement payGetCust = this.getPreparedStatement(conn, this.finalizeSqlStatement(payGetCustSQL,"payGetCustSQL"))) {
 
             payGetCust.setInt(1, c_w_id);
             payGetCust.setInt(2, c_d_id);
@@ -472,7 +473,7 @@ public class Payment extends TPCCProcedure {
     public Customer getCustomerByName(int c_w_id, int c_d_id, String customerLastName, Connection conn) throws SQLException {
         ArrayList<Customer> customers = new ArrayList<>();
 
-        try (PreparedStatement customerByName = this.getPreparedStatement(conn, this.createSqlStatement(customerByNameSQL,"customerByNameSQL"))) {
+        try (PreparedStatement customerByName = this.getPreparedStatement(conn, this.finalizeSqlStatement(customerByNameSQL,"customerByNameSQL"))) {
 
             customerByName.setInt(1, c_w_id);
             customerByName.setInt(2, c_d_id);

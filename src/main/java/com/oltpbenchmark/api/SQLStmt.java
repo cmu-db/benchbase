@@ -55,18 +55,6 @@ public final class SQLStmt {
     }
 
     /**
-     * Constructor with monitoring prefix.
-     *
-     * @param sql
-     * @param monitoringPrefix
-     * @param substitutions
-     */
-    public SQLStmt(String sql, String monitoringPrefix, int... substitutions) {
-        this.substitutions = substitutions;
-        this.setSQL(monitoringPrefix + sql);
-    }
-
-    /**
      * Magic SQL setter!
      * Each occurrence of the pattern "??" will be replaced by a string
      * of repeated ?'s
@@ -88,6 +76,14 @@ public final class SQLStmt {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Initialized SQL:\n{}", this.sql);
         }
+    }
+
+    /**
+     * Adds a prefix to the query string.
+     * @param prefix
+     */
+    public final void addPrefix(String prefix) {
+        this.setSQL(prefix + sql);
     }
 
     public final String getSQL() {
