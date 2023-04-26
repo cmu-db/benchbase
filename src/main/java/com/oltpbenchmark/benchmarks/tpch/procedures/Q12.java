@@ -30,7 +30,6 @@ import java.sql.SQLException;
 public class Q12 extends GenericQuery {
 
     public final SQLStmt query_stmt = new SQLStmt("""
-            /*monitor-Q12*/
             SELECT
                 l_shipmode,
                 SUM(

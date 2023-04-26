@@ -153,7 +153,7 @@ public class Delivery extends TPCCProcedure {
 
     private Integer getOrderId(Connection conn, int w_id, int d_id) throws SQLException {
 
-        try (PreparedStatement delivGetOrderId = this.getPreparedStatement(conn, this.finalizeSqlStatement(delivGetOrderIdSQL, "delivGetOrderIdSQL"))) {
+        try (PreparedStatement delivGetOrderId = this.getPreparedStatement(conn, delivGetOrderIdSQL)) {
             delivGetOrderId.setInt(1, d_id);
             delivGetOrderId.setInt(2, w_id);
 
@@ -174,7 +174,7 @@ public class Delivery extends TPCCProcedure {
     }
 
     private void deleteOrder(Connection conn, int w_id, int d_id, int no_o_id) throws SQLException {
-        try (PreparedStatement delivDeleteNewOrder = this.getPreparedStatement(conn, this.finalizeSqlStatement(delivDeleteNewOrderSQL, "delivDeleteNewOrderSQL"))) {
+        try (PreparedStatement delivDeleteNewOrder = this.getPreparedStatement(conn, delivDeleteNewOrderSQL)) {
             delivDeleteNewOrder.setInt(1, no_o_id);
             delivDeleteNewOrder.setInt(2, d_id);
             delivDeleteNewOrder.setInt(3, w_id);
@@ -195,7 +195,7 @@ public class Delivery extends TPCCProcedure {
 
     private int getCustomerId(Connection conn, int w_id, int d_id, int no_o_id) throws SQLException {
 
-        try (PreparedStatement delivGetCustId = this.getPreparedStatement(conn, this.finalizeSqlStatement(delivGetCustIdSQL, "delivGetCustIdSQL"))) {
+        try (PreparedStatement delivGetCustId = this.getPreparedStatement(conn, delivGetCustIdSQL)) {
             delivGetCustId.setInt(1, no_o_id);
             delivGetCustId.setInt(2, d_id);
             delivGetCustId.setInt(3, w_id);
@@ -213,7 +213,7 @@ public class Delivery extends TPCCProcedure {
     }
 
     private void updateCarrierId(Connection conn, int w_id, int o_carrier_id, int d_id, int no_o_id) throws SQLException {
-        try (PreparedStatement delivUpdateCarrierId = this.getPreparedStatement(conn, this.finalizeSqlStatement(delivUpdateCarrierIdSQL, "delivUpdateCarrierIdSQL"))) {
+        try (PreparedStatement delivUpdateCarrierId = this.getPreparedStatement(conn, delivUpdateCarrierIdSQL)) {
             delivUpdateCarrierId.setInt(1, o_carrier_id);
             delivUpdateCarrierId.setInt(2, no_o_id);
             delivUpdateCarrierId.setInt(3, d_id);
@@ -231,7 +231,7 @@ public class Delivery extends TPCCProcedure {
     private void updateDeliveryDate(Connection conn, int w_id, int d_id, int no_o_id) throws SQLException {
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 
-        try (PreparedStatement delivUpdateDeliveryDate = this.getPreparedStatement(conn, this.finalizeSqlStatement(delivUpdateDeliveryDateSQL, "delivUpdateDeliveryDateSQL"))) {
+        try (PreparedStatement delivUpdateDeliveryDate = this.getPreparedStatement(conn, delivUpdateDeliveryDateSQL)) {
             delivUpdateDeliveryDate.setTimestamp(1, timestamp);
             delivUpdateDeliveryDate.setInt(2, no_o_id);
             delivUpdateDeliveryDate.setInt(3, d_id);
@@ -247,7 +247,7 @@ public class Delivery extends TPCCProcedure {
     }
 
     private float getOrderLineTotal(Connection conn, int w_id, int d_id, int no_o_id) throws SQLException {
-        try (PreparedStatement delivSumOrderAmount = this.getPreparedStatement(conn, this.finalizeSqlStatement(delivSumOrderAmountSQL, "delivSumOrderAmountSQL"))) {
+        try (PreparedStatement delivSumOrderAmount = this.getPreparedStatement(conn, delivSumOrderAmountSQL)) {
             delivSumOrderAmount.setInt(1, no_o_id);
             delivSumOrderAmount.setInt(2, d_id);
             delivSumOrderAmount.setInt(3, w_id);
@@ -265,7 +265,7 @@ public class Delivery extends TPCCProcedure {
 
     private void updateBalanceAndDelivery(Connection conn, int w_id, int d_id, int c_id, float orderLineTotal) throws SQLException {
 
-        try (PreparedStatement delivUpdateCustBalDelivCnt = this.getPreparedStatement(conn, this.finalizeSqlStatement(delivUpdateCustBalDelivCntSQL, "delivUpdateCustBalDelivCntSQL"))) {
+        try (PreparedStatement delivUpdateCustBalDelivCnt = this.getPreparedStatement(conn, delivUpdateCustBalDelivCntSQL)) {
             delivUpdateCustBalDelivCnt.setBigDecimal(1, BigDecimal.valueOf(orderLineTotal));
             delivUpdateCustBalDelivCnt.setInt(2, w_id);
             delivUpdateCustBalDelivCnt.setInt(3, d_id);

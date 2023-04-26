@@ -29,7 +29,6 @@ import java.sql.SQLException;
 public class Q17 extends GenericQuery {
 
     public final SQLStmt query_stmt = new SQLStmt("""
-            /*monitor-Q17*/
             SELECT
                SUM(l_extendedprice) / 7.0 AS avg_yearly
             FROM

@@ -29,19 +29,19 @@ import java.sql.SQLException;
 
 public class GetTweetsFromFollowing extends Procedure {
 
-    public final SQLStmt getFollowing = new SQLStmt("/*monitor-getTwtFolGetFollowing*/ SELECT f2 FROM " + TwitterConstants.TABLENAME_FOLLOWS + " WHERE f1 = ? LIMIT " + TwitterConstants.LIMIT_FOLLOWERS);
+    public final SQLStmt getFollowing = new SQLStmt("SELECT f2 FROM " + TwitterConstants.TABLENAME_FOLLOWS + " WHERE f1 = ? LIMIT " + TwitterConstants.LIMIT_FOLLOWERS);
 
     /**
      * NOTE: The ?? is substituted into a string of repeated ?'s
      */
-    public final SQLStmt getTweets = new SQLStmt("/*monitor-getTwtFolGetTweets*/ SELECT * FROM " + TwitterConstants.TABLENAME_TWEETS + " WHERE uid IN (??)", TwitterConstants.LIMIT_FOLLOWERS);
+    public final SQLStmt getTweets = new SQLStmt("SELECT * FROM " + TwitterConstants.TABLENAME_TWEETS + " WHERE uid IN (??)", TwitterConstants.LIMIT_FOLLOWERS);
 
     public void run(Connection conn, int uid) throws SQLException {
-        try (PreparedStatement getFollowingStatement = this.getPreparedStatement(conn, getFollowing)) {
+        try (PreparedStatement getFollowingStatement = this.getPreparedStatement(conn, getFollowing,"getFollowing")) {
             getFollowingStatement.setLong(1, uid);
             try (ResultSet followingResult = getFollowingStatement.executeQuery()) {
 
-                try (PreparedStatement stmt = this.getPreparedStatement(conn, getTweets)) {
+                try (PreparedStatement stmt = this.getPreparedStatement(conn, getTweets,"getTweets")) {
                     int ctr = 0;
                     long last = -1;
                     while (followingResult.next() && ctr++ < TwitterConstants.LIMIT_FOLLOWERS) {

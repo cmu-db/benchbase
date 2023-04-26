@@ -27,7 +27,6 @@ import java.sql.SQLException;
 public class Q18 extends GenericQuery {
 
     public final SQLStmt query_stmt = new SQLStmt("""
-            /*monitor-Q18*/
             SELECT
                c_name,
                c_custkey,

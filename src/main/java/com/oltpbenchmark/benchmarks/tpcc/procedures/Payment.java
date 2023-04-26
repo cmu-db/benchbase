@@ -272,7 +272,7 @@ public class Payment extends TPCCProcedure {
     }
 
     private void updateWarehouse(Connection conn, int w_id, float paymentAmount) throws SQLException {
-        try (PreparedStatement payUpdateWhse = this.getPreparedStatement(conn, this.finalizeSqlStatement(payUpdateWhseSQL,"payUpdateWhseSQL"))) {
+        try (PreparedStatement payUpdateWhse = this.getPreparedStatement(conn, payUpdateWhseSQL)) {
             payUpdateWhse.setBigDecimal(1, BigDecimal.valueOf(paymentAmount));
             payUpdateWhse.setInt(2, w_id);
             // MySQL reports deadlocks due to lock upgrades:
@@ -285,7 +285,7 @@ public class Payment extends TPCCProcedure {
     }
 
     private Warehouse getWarehouse(Connection conn, int w_id) throws SQLException {
-        try (PreparedStatement payGetWhse = this.getPreparedStatement(conn, this.finalizeSqlStatement(payGetWhseSQL,"payGetWhseSQL"))) {
+        try (PreparedStatement payGetWhse = this.getPreparedStatement(conn, payGetWhseSQL)) {
             payGetWhse.setInt(1, w_id);
 
             try (ResultSet rs = payGetWhse.executeQuery()) {
@@ -327,7 +327,7 @@ public class Payment extends TPCCProcedure {
     }
 
     private void updateDistrict(Connection conn, int w_id, int districtID, float paymentAmount) throws SQLException {
-        try (PreparedStatement payUpdateDist = this.getPreparedStatement(conn, this.finalizeSqlStatement(payUpdateDistSQL,"payUpdateDistSQL"))) {
+        try (PreparedStatement payUpdateDist = this.getPreparedStatement(conn, payUpdateDistSQL)) {
             payUpdateDist.setBigDecimal(1, BigDecimal.valueOf(paymentAmount));
             payUpdateDist.setInt(2, w_id);
             payUpdateDist.setInt(3, districtID);
@@ -341,7 +341,7 @@ public class Payment extends TPCCProcedure {
     }
 
     private District getDistrict(Connection conn, int w_id, int districtID) throws SQLException {
-        try (PreparedStatement payGetDist = this.getPreparedStatement(conn, this.finalizeSqlStatement(payGetDistSQL,"payGetDistSQL"))) {
+        try (PreparedStatement payGetDist = this.getPreparedStatement(conn, payGetDistSQL)) {
             payGetDist.setInt(1, w_id);
             payGetDist.setInt(2, districtID);
 
@@ -365,7 +365,7 @@ public class Payment extends TPCCProcedure {
 
     private String getCData(Connection conn, int w_id, int districtID, int customerDistrictID, int customerWarehouseID, float paymentAmount, Customer c) throws SQLException {
 
-        try (PreparedStatement payGetCustCdata = this.getPreparedStatement(conn, this.finalizeSqlStatement(payGetCustCdataSQL,"payGetCustCdataSQL"))) {
+        try (PreparedStatement payGetCustCdata = this.getPreparedStatement(conn, payGetCustCdataSQL)) {
             String c_data;
             payGetCustCdata.setInt(1, customerWarehouseID);
             payGetCustCdata.setInt(2, customerDistrictID);
@@ -388,7 +388,7 @@ public class Payment extends TPCCProcedure {
     }
 
     private void updateBalanceCData(Connection conn, int customerDistrictID, int customerWarehouseID, Customer c) throws SQLException {
-        try (PreparedStatement payUpdateCustBalCdata = this.getPreparedStatement(conn, this.finalizeSqlStatement(payUpdateCustBalCdataSQL,"payUpdateCustBalCdataSQL"))) {
+        try (PreparedStatement payUpdateCustBalCdata = this.getPreparedStatement(conn, payUpdateCustBalCdataSQL)) {
             payUpdateCustBalCdata.setDouble(1, c.c_balance);
             payUpdateCustBalCdata.setDouble(2, c.c_ytd_payment);
             payUpdateCustBalCdata.setInt(3, c.c_payment_cnt);
@@ -407,7 +407,7 @@ public class Payment extends TPCCProcedure {
 
     private void updateBalance(Connection conn, int customerDistrictID, int customerWarehouseID, Customer c) throws SQLException {
 
-        try (PreparedStatement payUpdateCustBal = this.getPreparedStatement(conn, this.finalizeSqlStatement(payUpdateCustBalSQL,"payUpdateCustBalSQL"))) {
+        try (PreparedStatement payUpdateCustBal = this.getPreparedStatement(conn, payUpdateCustBalSQL)) {
             payUpdateCustBal.setDouble(1, c.c_balance);
             payUpdateCustBal.setDouble(2, c.c_ytd_payment);
             payUpdateCustBal.setInt(3, c.c_payment_cnt);
@@ -432,7 +432,7 @@ public class Payment extends TPCCProcedure {
         }
         String h_data = w_name + "    " + d_name;
 
-        try (PreparedStatement payInsertHist = this.getPreparedStatement(conn, this.finalizeSqlStatement(payInsertHistSQL,"payInsertHistSQL"))) {
+        try (PreparedStatement payInsertHist = this.getPreparedStatement(conn, payInsertHistSQL)) {
             payInsertHist.setInt(1, customerDistrictID);
             payInsertHist.setInt(2, customerWarehouseID);
             payInsertHist.setInt(3, c.c_id);
@@ -449,7 +449,7 @@ public class Payment extends TPCCProcedure {
     // prepared statements
     public Customer getCustomerById(int c_w_id, int c_d_id, int c_id, Connection conn) throws SQLException {
 
-        try (PreparedStatement payGetCust = this.getPreparedStatement(conn, this.finalizeSqlStatement(payGetCustSQL,"payGetCustSQL"))) {
+        try (PreparedStatement payGetCust = this.getPreparedStatement(conn, payGetCustSQL)) {
 
             payGetCust.setInt(1, c_w_id);
             payGetCust.setInt(2, c_d_id);
@@ -473,7 +473,7 @@ public class Payment extends TPCCProcedure {
     public Customer getCustomerByName(int c_w_id, int c_d_id, String customerLastName, Connection conn) throws SQLException {
         ArrayList<Customer> customers = new ArrayList<>();
 
-        try (PreparedStatement customerByName = this.getPreparedStatement(conn, this.finalizeSqlStatement(customerByNameSQL,"customerByNameSQL"))) {
+        try (PreparedStatement customerByName = this.getPreparedStatement(conn, customerByNameSQL)) {
 
             customerByName.setInt(1, c_w_id);
             customerByName.setInt(2, c_d_id);

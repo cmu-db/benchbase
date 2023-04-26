@@ -29,7 +29,6 @@ import java.sql.SQLException;
 public class Q11 extends GenericQuery {
 
     public final SQLStmt query_stmt = new SQLStmt("""
-            /*monitor-Q11*/
             SELECT
                ps_partkey,
                SUM(ps_supplycost * ps_availqty) AS VALUE

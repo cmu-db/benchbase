@@ -33,6 +33,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public abstract class Procedure {
     private static final Logger LOG = LoggerFactory.getLogger(Procedure.class);
@@ -40,14 +41,12 @@ public abstract class Procedure {
     private final String procName;
     private DatabaseType dbType;
     private Map<String, SQLStmt> name_stmt_xref;
-    private boolean monitoringEnabled;
 
     /**
      * Constructor
      */
     protected Procedure() {
         this.procName = this.getClass().getSimpleName();
-        monitoringEnabled = false;
     }
 
     /**
@@ -77,29 +76,12 @@ public abstract class Procedure {
     }
 
     /**
-     * Finalizes a query statement. If monitoring is enabled, this method will
-     * add a monitoring prefix.
+     * Enable monitoring for this procedure by adding a monitoring prefix.
      */
-    protected SQLStmt finalizeSqlStatement(SQLStmt stmt, String queryId) {
-        SQLStmt finalStmt = stmt;
-        if (this.getMonitoringEnabled()) {
-            finalStmt.addPrefix(MonitoringUtil.getMonitoringMarker().replace(MonitoringUtil.getMonitoringQueryId(), queryId));
+    public void enabledAdvancedMonitoring() {
+        for (Entry<String, SQLStmt> entry : name_stmt_xref.entrySet()) {
+            entry.getValue().addPrefix(entry.getKey());
         }
-        return finalStmt;
-    }
-
-    /**
-     * Enable monitoring for this procedure.
-     */
-    public void setMonitoringEnabled(boolean monitoringEnabled) {
-        this.monitoringEnabled = monitoringEnabled;
-    }
-
-    /**
-     * Check whether monitoring is enabled for this procedure.
-     */
-    public boolean getMonitoringEnabled() {
-        return this.monitoringEnabled;
     }
 
     /**

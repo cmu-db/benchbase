@@ -20,7 +20,7 @@ package com.oltpbenchmark.util;
 public abstract class MonitoringUtil {
 
     private final static String MONITORING_MARKER = "/* MONITOR-$queryId */";
-    private final static String MONITORING_PREFIX = "/* MONITOR";
+    private final static String MONITORING_PREFIX = "/* MONITOR-";
     private final static String MONITORING_QUERYID = "$queryId";
     private final static String MONITORING_SUFFIX = " */";
 

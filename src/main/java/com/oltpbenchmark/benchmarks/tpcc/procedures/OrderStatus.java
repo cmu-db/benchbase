@@ -162,7 +162,7 @@ public class OrderStatus extends TPCCProcedure {
     }
 
     private Oorder getOrderDetails(Connection conn, int w_id, int d_id, Customer c) throws SQLException {
-        try (PreparedStatement ordStatGetNewestOrd = this.getPreparedStatement(conn, this.finalizeSqlStatement(ordStatGetNewestOrdSQL,"ordStatGetNewestOrdSQL"))) {
+        try (PreparedStatement ordStatGetNewestOrd = this.getPreparedStatement(conn, ordStatGetNewestOrdSQL)) {
 
 
             // find the newest order for the customer
@@ -191,7 +191,7 @@ public class OrderStatus extends TPCCProcedure {
     private List<String> getOrderLines(Connection conn, int w_id, int d_id, int o_id, Customer c) throws SQLException {
         List<String> orderLines = new ArrayList<>();
 
-        try (PreparedStatement ordStatGetOrderLines = this.getPreparedStatement(conn, this.finalizeSqlStatement(ordStatGetOrderLinesSQL,"ordStatGetOrderLinesSQL"))) {
+        try (PreparedStatement ordStatGetOrderLines = this.getPreparedStatement(conn, ordStatGetOrderLinesSQL)) {
             ordStatGetOrderLines.setInt(1, o_id);
             ordStatGetOrderLines.setInt(2, d_id);
             ordStatGetOrderLines.setInt(3, w_id);
@@ -233,7 +233,7 @@ public class OrderStatus extends TPCCProcedure {
     // prepared statements
     public Customer getCustomerById(int c_w_id, int c_d_id, int c_id, Connection conn) throws SQLException {
 
-        try (PreparedStatement payGetCust = this.getPreparedStatement(conn, this.finalizeSqlStatement(payGetCustSQL,"payGetCustSQL"))) {
+        try (PreparedStatement payGetCust = this.getPreparedStatement(conn, payGetCustSQL)) {
 
             payGetCust.setInt(1, c_w_id);
             payGetCust.setInt(2, c_d_id);
@@ -260,7 +260,7 @@ public class OrderStatus extends TPCCProcedure {
     public Customer getCustomerByName(int c_w_id, int c_d_id, String c_last, Connection conn) throws SQLException {
         ArrayList<Customer> customers = new ArrayList<>();
 
-        try (PreparedStatement customerByName = this.getPreparedStatement(conn, this.finalizeSqlStatement(customerByNameSQL,"customerByNameSQL"))) {
+        try (PreparedStatement customerByName = this.getPreparedStatement(conn, customerByNameSQL)) {
 
             customerByName.setInt(1, c_w_id);
             customerByName.setInt(2, c_d_id);

@@ -88,7 +88,9 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
         this.procedures.putAll(this.benchmark.getProcedures());
         for (Entry<TransactionType, Procedure> e : this.procedures.entrySet()) {
             Procedure proc = e.getValue();
-            proc.setMonitoringEnabled(configuration.getMonitoringEnabled());
+            if (configuration.getMonitoringEnabled()) {
+                proc.enabledAdvancedMonitoring();
+            }
             this.name_procedures.put(e.getKey().getName(), proc);
             this.class_procedures.put(proc.getClass(), proc);
         }

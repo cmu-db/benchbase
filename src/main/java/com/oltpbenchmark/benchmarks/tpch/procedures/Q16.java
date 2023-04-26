@@ -31,7 +31,6 @@ import java.util.Set;
 public class Q16 extends GenericQuery {
 
     public final SQLStmt query_stmt = new SQLStmt("""
-            /*monitor-Q16*/
             SELECT
                p_brand,
                p_type,

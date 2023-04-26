@@ -28,7 +28,6 @@ import java.sql.Statement;
 public class Q15 extends GenericQuery {
 
     public final SQLStmt createview_stmt = new SQLStmt("""
-            /*monitor-Q15*/
             CREATE view revenue0 (supplier_no, total_revenue) AS
             SELECT
                l_suppkey,

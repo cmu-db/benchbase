@@ -159,9 +159,10 @@ public class DBWorkload {
             }
 
             // Set monitoring enabled, if all requirements are met.
-            if (monitorInfo.getMonitoringInterval()>0 && monitorInfo.getMonitoringType()==MonitoringType.ADVANCED) {
+            if (monitorInfo.getMonitoringInterval()>0 && monitorInfo.getMonitoringType()==MonitoringType.ADVANCED
+                    && DatabaseType.get(xmlConfig.getString("type")).shouldCreateMonitoringPrefix()) {
                 LOG.info("Advanced monitoring enabled, prefix will be added to queries.");
-                wrkld.setMonitoringEnabled(true);
+                wrkld.setAdvancedMonitoringEnabled(true);
             }
 
             // ----------------------------------------------------------------

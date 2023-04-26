@@ -29,7 +29,6 @@ import java.sql.SQLException;
 public class Q9 extends GenericQuery {
 
     public final SQLStmt query_stmt = new SQLStmt("""
-            /*monitor-Q09*/
             SELECT
                nation,
                o_year,

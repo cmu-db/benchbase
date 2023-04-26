@@ -49,7 +49,7 @@ public class WorkloadConfiguration {
     private int isolationMode = Connection.TRANSACTION_SERIALIZABLE;
     private String dataDir = null;
     private String ddlPath = null;
-    private boolean monitoringEnabled = false;
+    private boolean advancedMonitoringEnabled = false;
 
     /**
      * If true, establish a new connection for each transaction, otherwise use one persistent connection per client
@@ -125,12 +125,12 @@ public class WorkloadConfiguration {
         this.maxRetries = maxRetries;
     }
 
-    public void setMonitoringEnabled(boolean monitoringEnabled) {
-        this.monitoringEnabled = true;
+    public void setAdvancedMonitoringEnabled(boolean advancedMonitoringEnabled) {
+        this.advancedMonitoringEnabled = true;
     }
 
     public boolean getMonitoringEnabled() {
-        return this.monitoringEnabled;
+        return this.advancedMonitoringEnabled;
     }
 
     /**
