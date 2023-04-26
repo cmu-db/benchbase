@@ -32,7 +32,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 public abstract class Procedure {
     private static final Logger LOG = LoggerFactory.getLogger(Procedure.class);
@@ -72,20 +71,6 @@ public abstract class Procedure {
      */
     protected final String getProcedureName() {
         return (this.procName);
-    }
-
-    /**
-     * Enable monitoring for this procedure by adding a monitoring prefix.
-     */
-    public void enabledAdvancedMonitoring() {
-        Map<String, SQLStmt> modified_name_stmt_xref = new HashMap<>();
-        for (Entry<String, SQLStmt> entry : this.getStatements().entrySet()) {
-            SQLStmt stmt = entry.getValue();
-            stmt.addPrefix(entry.getKey());
-            modified_name_stmt_xref.put(entry.getKey(), stmt);
-            LOG.info("Enabling advanced monitoring for: " + entry.getKey());
-        }
-        this.name_stmt_xref = modified_name_stmt_xref;
     }
 
     /**
@@ -169,6 +154,17 @@ public abstract class Procedure {
                 throw new RuntimeException(String.format("Dialect file contains an unknown statement: Procedure %s, Statement %s", this.procName, stmtName));
             }
             stmt.setSQL(sql);
+        }
+    }
+
+    /**
+     * Enable monitoring for this procedure by adding a monitoring prefixes.
+     */
+    protected final void enabledAdvancedMonitoring() {
+        for (String stmtName : this.getStatements().keySet()) {
+            SQLStmt stmt = this.name_stmt_xref.get(stmtName);
+            stmt.addPrefix(stmtName);
+            LOG.info("Enabling advanced monitoring for: " + stmtName);
         }
     }
 

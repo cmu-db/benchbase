@@ -363,6 +363,9 @@ public abstract class BenchmarkModule {
                 proc.initialize(this.workConf.getDatabaseType());
                 proc_xref.put(txn, proc);
                 proc.loadSQLDialect(this.dialects);
+                if (this.workConf.getMonitoringEnabled()) {
+                    proc.enabledAdvancedMonitoring();
+                }
             }
         }
         if (proc_xref.isEmpty()) {
