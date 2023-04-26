@@ -19,7 +19,6 @@ package com.oltpbenchmark.api;
 
 import com.oltpbenchmark.jdbc.AutoIncrementPreparedStatement;
 import com.oltpbenchmark.types.DatabaseType;
-import com.oltpbenchmark.util.MonitoringUtil;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,9 +78,14 @@ public abstract class Procedure {
      * Enable monitoring for this procedure by adding a monitoring prefix.
      */
     public void enabledAdvancedMonitoring() {
-        for (Entry<String, SQLStmt> entry : name_stmt_xref.entrySet()) {
-            entry.getValue().addPrefix(entry.getKey());
+        Map<String, SQLStmt> modified_name_stmt_xref = new HashMap<>();
+        for (Entry<String, SQLStmt> entry : this.getStatements().entrySet()) {
+            SQLStmt stmt = entry.getValue();
+            stmt.addPrefix(entry.getKey());
+            modified_name_stmt_xref.put(entry.getKey(), stmt);
+            LOG.info("Enabling advanced monitoring for: " + entry.getKey());
         }
+        this.name_stmt_xref = modified_name_stmt_xref;
     }
 
     /**
