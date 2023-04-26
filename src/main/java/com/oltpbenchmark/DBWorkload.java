@@ -159,7 +159,7 @@ public class DBWorkload {
             }
 
             // Set monitoring enabled, if all requirements are met.
-            if (monitorInfo.getMonitoringInterval()>0 && monitorInfo.getMonitoringType()==MonitoringType.THROUGHPUT) {
+            if (monitorInfo.getMonitoringInterval()>0 && monitorInfo.getMonitoringType()==MonitoringType.ADVANCED) {
                 wrkld.setMonitoringEnabled(true);
             }
 
