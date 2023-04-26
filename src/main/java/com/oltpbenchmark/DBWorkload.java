@@ -24,6 +24,8 @@ import com.oltpbenchmark.api.TransactionTypes;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.*;
+import com.oltpbenchmark.util.MonitorInfo.MonitoringType;
+
 import org.apache.commons.cli.*;
 import org.apache.commons.collections4.map.ListOrderedMap;
 import org.apache.commons.configuration2.HierarchicalConfiguration;
@@ -154,6 +156,11 @@ public class DBWorkload {
                 wrkld.setSelectivity(selectivity);
             } catch (NoSuchElementException nse) {
                 // Nothing to do here !
+            }
+
+            // Set monitoring enabled, if all requirements are met.
+            if (monitorInfo.getMonitoringInterval()>0 && monitorInfo.getMonitoringType()==MonitoringType.THROUGHPUT) {
+                wrkld.setMonitoringEnabled(true);
             }
 
             // ----------------------------------------------------------------

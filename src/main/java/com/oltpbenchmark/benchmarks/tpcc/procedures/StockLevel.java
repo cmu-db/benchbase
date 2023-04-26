@@ -17,7 +17,6 @@
 
 package com.oltpbenchmark.benchmarks.tpcc.procedures;
 
-import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCConstants;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCUtil;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCWorker;
@@ -34,24 +33,26 @@ public class StockLevel extends TPCCProcedure {
 
     private static final Logger LOG = LoggerFactory.getLogger(StockLevel.class);
 
-    public SQLStmt stockGetDistOrderIdSQL = new SQLStmt(
-            "/*monitor-stockGetDistOrderIdSQL*/ " +
-            "SELECT D_NEXT_O_ID " +
-            "  FROM " + TPCCConstants.TABLENAME_DISTRICT +
-            " WHERE D_W_ID = ? " +
-            "   AND D_ID = ?");
+    public String stockGetDistOrderIdSQL =
+    """
+        SELECT D_NEXT_O_ID 
+          FROM  %s
+         WHERE D_W_ID = ? 
+           AND D_ID = ?
+    """.formatted(TPCCConstants.TABLENAME_DISTRICT);
 
-    public SQLStmt stockGetCountStockSQL = new SQLStmt(
-            "/*monitor-stockGetCountStockSQL*/ " +
-            "SELECT COUNT(DISTINCT (S_I_ID)) AS STOCK_COUNT " +
-            " FROM " + TPCCConstants.TABLENAME_ORDERLINE + ", " + TPCCConstants.TABLENAME_STOCK +
-            " WHERE OL_W_ID = ?" +
-            " AND OL_D_ID = ?" +
-            " AND OL_O_ID < ?" +
-            " AND OL_O_ID >= ?" +
-            " AND S_W_ID = ?" +
-            " AND S_I_ID = OL_I_ID" +
-            " AND S_QUANTITY < ?");
+    public String stockGetCountStockSQL =
+    """
+        SELECT COUNT(DISTINCT (S_I_ID)) AS STOCK_COUNT 
+         FROM  %s, %s
+         WHERE OL_W_ID = ?
+         AND OL_D_ID = ?
+         AND OL_O_ID < ?
+         AND OL_O_ID >= ?
+         AND S_W_ID = ?
+         AND S_I_ID = OL_I_ID
+         AND S_QUANTITY < ?
+    """.formatted(TPCCConstants.TABLENAME_ORDERLINE, TPCCConstants.TABLENAME_STOCK);
 
     public void run(Connection conn, Random gen, int w_id, int numWarehouses, int terminalDistrictLowerID, int terminalDistrictUpperID, TPCCWorker w) throws SQLException {
 
@@ -80,7 +81,7 @@ public class StockLevel extends TPCCProcedure {
     }
 
     private int getOrderId(Connection conn, int w_id, int d_id) throws SQLException {
-        try (PreparedStatement stockGetDistOrderId = this.getPreparedStatement(conn, stockGetDistOrderIdSQL)) {
+        try (PreparedStatement stockGetDistOrderId = this.getPreparedStatement(conn, this.createSqlStatement(stockGetDistOrderIdSQL,"stockGetDistOrderIdSQL"))) {
             stockGetDistOrderId.setInt(1, w_id);
             stockGetDistOrderId.setInt(2, d_id);
 
@@ -96,7 +97,7 @@ public class StockLevel extends TPCCProcedure {
     }
 
     private int getStockCount(Connection conn, int w_id, int threshold, int d_id, int o_id) throws SQLException {
-        try (PreparedStatement stockGetCountStock = this.getPreparedStatement(conn, stockGetCountStockSQL)) {
+        try (PreparedStatement stockGetCountStock = this.getPreparedStatement(conn, this.createSqlStatement(stockGetCountStockSQL,"stockGetCountStockSQL"))) {
             stockGetCountStock.setInt(1, w_id);
             stockGetCountStock.setInt(2, d_id);
             stockGetCountStock.setInt(3, o_id);

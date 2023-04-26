@@ -19,6 +19,8 @@ package com.oltpbenchmark.api;
 
 import com.oltpbenchmark.jdbc.AutoIncrementPreparedStatement;
 import com.oltpbenchmark.types.DatabaseType;
+import com.oltpbenchmark.util.MonitoringUtil;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,12 +40,14 @@ public abstract class Procedure {
     private final String procName;
     private DatabaseType dbType;
     private Map<String, SQLStmt> name_stmt_xref;
+    private boolean monitoringEnabled;
 
     /**
      * Constructor
      */
     protected Procedure() {
         this.procName = this.getClass().getSimpleName();
+        monitoringEnabled = false;
     }
 
     /**
@@ -70,6 +74,33 @@ public abstract class Procedure {
      */
     protected final String getProcedureName() {
         return (this.procName);
+    }
+
+    /**
+     * Create a SQLStmt from a query statement. If monitoring is enabled,
+     * add monitoring prefix.
+     */
+    protected SQLStmt createSqlStatement(String query, String queryId) {
+        String finalQuery = "";
+        if (this.getMonitoringEnabled()) {
+            finalQuery = MonitoringUtil.getMonitoringPrefix().replace("$queryId", queryId);
+        }
+        finalQuery += query;
+        return new SQLStmt(finalQuery);
+    }
+
+    /**
+     * Enable monitoring for this procedure.
+     */
+    public void setMonitoringEnabled(boolean monitoringEnabled) {
+        this.monitoringEnabled = monitoringEnabled;
+    }
+
+    /**
+     * Check whether monitoring is enabled for this procedure.
+     */
+    public boolean getMonitoringEnabled() {
+        return this.monitoringEnabled;
     }
 
     /**
