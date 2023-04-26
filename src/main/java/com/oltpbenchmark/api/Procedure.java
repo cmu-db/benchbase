@@ -163,8 +163,11 @@ public abstract class Procedure {
     protected final void enabledAdvancedMonitoring() {
         for (String stmtName : this.getStatements().keySet()) {
             SQLStmt stmt = this.name_stmt_xref.get(stmtName);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(String.format("Enabling advanced monitoring for query %s",
+                        stmtName));
+            }
             stmt.addPrefix(stmtName);
-            LOG.info("Enabling advanced monitoring for: " + stmtName);
         }
     }
 
