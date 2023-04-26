@@ -112,7 +112,7 @@ public class Payment extends TPCCProcedure {
 
     public SQLStmt payInsertHistSQL = new SQLStmt(
     """
-        INSERT INTO %s +
+        INSERT INTO %s
          (H_C_D_ID, H_C_W_ID, H_C_ID, H_D_ID, H_W_ID, H_DATE, H_AMOUNT, H_DATA)
          VALUES (?,?,?,?,?,?,?,?)
     """.formatted(TPCCConstants.TABLENAME_HISTORY));
