@@ -19,13 +19,20 @@ package com.oltpbenchmark.util;
 
 public abstract class MonitoringUtil {
 
-    private final static String MONITORING_PREFIX = "/* MONITOR-$queryId */";
+    private final static String MONITORING_MARKER = "/* MONITOR-$queryId */";
+    private final static String MONITORING_PREFIX = "/* MONITOR";
     private final static String MONITORING_QUERYID = "$queryId";
-    private final static String MONITORING_SPLIT_PREFIX = "/* ";
-    private final static String MONITORING_SPLIT_SUFFIX = " */";
+    private final static String MONITORING_SUFFIX = " */";
 
     /**
      * Universal monitoring prefix.
+     */
+    public static String getMonitoringMarker() {
+        return MonitoringUtil.MONITORING_MARKER;
+    }
+
+    /**
+     * Get monitoring identifier.
      */
     public static String getMonitoringPrefix() {
         return MonitoringUtil.MONITORING_PREFIX;
@@ -39,16 +46,9 @@ public abstract class MonitoringUtil {
     }
 
     /**
-     * Comment split prefix.
+     * Comment suffix.
      */
-    public static String getMonitoringSplitPrefix() {
-        return MonitoringUtil.MONITORING_SPLIT_PREFIX;
-    }
-
-    /**
-     * Comment split suffix.
-     */
-    public static String getMonitoringSplitSuffix() {
-        return MonitoringUtil.MONITORING_SPLIT_SUFFIX;
+    public static String getMonitoringSuffix() {
+        return MonitoringUtil.MONITORING_SUFFIX;
     }
 }

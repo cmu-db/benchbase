@@ -17,15 +17,13 @@ import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.util.MonitorInfo;
+import com.oltpbenchmark.util.MonitoringUtil;
 
 /**
  * Implementation of a monitor specific to PostgreSQL. Uses the
  * 'pg_stat_statements' add-on to extract relevant query and system information.
  */
 public class PostgreSQLMonitor extends DatabaseMonitor {
-
-    private final String MONITORING_IDENTIFIER = "/*monitor-";
-    private final String MONITORING_SPLIT_MARKER = "*/";
 
     private final String PG_STAT_STATEMENTS = """
         SELECT query AS query_text, calls as execution_count, rows, 
@@ -83,12 +81,12 @@ public class PostgreSQLMonitor extends DatabaseMonitor {
                 // Only store those queries that have monitoring enabled via a
                 // comment in the SQL Server dialect XML.
                 String query_text = rs.getString("query_text");
-                if (!query_text.contains(MONITORING_IDENTIFIER)) {
+                if (!query_text.contains(MonitoringUtil.getMonitoringPrefix())) {
                     continue;
                 }
                 // Get identifier from commment in query text.
-                String[] split = query_text.split(Pattern.quote(MONITORING_IDENTIFIER));
-                split = split[1].split(Pattern.quote(MONITORING_SPLIT_MARKER));
+                String[] split = query_text.split(Pattern.quote(MonitoringUtil.getMonitoringPrefix()));
+                split = split[1].split(Pattern.quote(MonitoringUtil.getMonitoringSuffix()));
                 String identifier = split[0];
 
                 // Handle one-off query info, may occur when a plan gets
