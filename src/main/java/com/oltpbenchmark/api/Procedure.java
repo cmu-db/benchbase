@@ -82,7 +82,9 @@ public abstract class Procedure {
      */
     protected SQLStmt finalizeSqlStatement(SQLStmt stmt, String queryId) {
         SQLStmt finalStmt = stmt;
+        LOG.info("Finalizing statement " + queryId);
         if (this.getMonitoringEnabled()) {
+            LOG.info("Monitoring prefix: " + MonitoringUtil.getMonitoringPrefix().replace("$queryId", queryId));
             finalStmt.addPrefix(MonitoringUtil.getMonitoringPrefix().replace("$queryId", queryId));
         }
         return finalStmt;
