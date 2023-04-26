@@ -32,7 +32,7 @@ public class InsertTweet extends Procedure {
     public final SQLStmt insertTweet = new SQLStmt("INSERT INTO " + TwitterConstants.TABLENAME_ADDED_TWEETS + " (uid,text,createdate) VALUES (?, ?, ?)");
 
     public boolean run(Connection conn, long uid, String text, Time time) throws SQLException {
-        try (PreparedStatement stmt = this.getPreparedStatement(conn, insertTweet,"insertTweet")) {
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, insertTweet)) {
             stmt.setLong(1, uid);
             stmt.setString(2, text);
             stmt.setDate(3, new java.sql.Date(System.currentTimeMillis()));

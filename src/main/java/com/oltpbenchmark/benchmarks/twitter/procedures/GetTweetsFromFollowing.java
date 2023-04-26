@@ -37,11 +37,11 @@ public class GetTweetsFromFollowing extends Procedure {
     public final SQLStmt getTweets = new SQLStmt("SELECT * FROM " + TwitterConstants.TABLENAME_TWEETS + " WHERE uid IN (??)", TwitterConstants.LIMIT_FOLLOWERS);
 
     public void run(Connection conn, int uid) throws SQLException {
-        try (PreparedStatement getFollowingStatement = this.getPreparedStatement(conn, getFollowing,"getFollowing")) {
+        try (PreparedStatement getFollowingStatement = this.getPreparedStatement(conn, getFollowing)) {
             getFollowingStatement.setLong(1, uid);
             try (ResultSet followingResult = getFollowingStatement.executeQuery()) {
 
-                try (PreparedStatement stmt = this.getPreparedStatement(conn, getTweets,"getTweets")) {
+                try (PreparedStatement stmt = this.getPreparedStatement(conn, getTweets)) {
                     int ctr = 0;
                     long last = -1;
                     while (followingResult.next() && ctr++ < TwitterConstants.LIMIT_FOLLOWERS) {
