@@ -350,7 +350,6 @@ public class NewOrder extends TPCCProcedure {
 
     private void getCustomer(Connection conn, int w_id, int d_id, int c_id) throws SQLException {
         try (PreparedStatement stmtGetCust = this.getPreparedStatement(conn, stmtGetCustSQL)) {
-            LOG.info("query: " + stmtGetCustSQL.getSQL());
             stmtGetCust.setInt(1, w_id);
             stmtGetCust.setInt(2, d_id);
             stmtGetCust.setInt(3, c_id);
