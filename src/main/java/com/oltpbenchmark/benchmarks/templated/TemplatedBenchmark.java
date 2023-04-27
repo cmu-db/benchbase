@@ -53,34 +53,9 @@ import com.opencsv.CSVParserBuilder;
 
 /**
  * This class is used to execute templated benchmarks, i.e., benchmarks that
- * have parameters that the user wants to set dynamically. A templated benchmark
- * has the structure
- * <query_templates>
- *  <query_template>
- *    <name>$QueryTemplateName</name>
- *    <query><![CDATA[$SQLQuery]]></query>
- *    <parameter_types>$ParameterType1,$ParameterType2,...</parameter_types>
- *    <parameter_values>
- *      <value>$ParameterValueA1, $ParameterValueA2,...</value>
- *      <value>$ParameterValueB1, $ParameterValueB2,...</value>
- *      ...
- *    </parameter_values>
- *  </query_template>
- *  ...
- * <query_templates>
- * where $ParameterType is the integer java.sql.Types value (i.e., 4 for
- * integer, 16 for boolean etc.) and each value tag within 'parameter_values'
- * contains the values for one instantiation of the parameters set in $SQLQuery. 
- * The SQL query string is read as a PreparedStatement, i.e., parameters are 
- * defined in the string via a '?' placeholder. An example for a templated
- * benchmark can be found in data/templated/example.xml. The file path for the 
- * XML template has to be defined in the workload configuration using the
- * 'query_templates_file' tag. An example configuration can be found in
- * config/sqlserver/sample_template_config.xml. The example can be executed if a
- * loaded TPC-C instance is used as JDBC endpoint.
- * 
- * Templated benchmarks are instantiated using 'templated' as benchmark class
- * when running BenchBase via the command line.
+ * have parameters that the user wants to set dynamically. More information
+ * about the structure of the expected template can be found in the local
+ * readme file.
  */
 public class TemplatedBenchmark extends BenchmarkModule {
     private static final Logger LOG = LoggerFactory.getLogger(TemplatedBenchmark.class);
@@ -184,12 +159,12 @@ public class TemplatedBenchmark extends BenchmarkModule {
                             nextEvent = reader.nextEvent();
                             b.query(nextEvent.asCharacters().getData());
                             break;
-                        case "parameter_types":
+                        case "parameter_type":
                             // Extract template parameter types.
                             nextEvent = reader.nextEvent();
                             b.paramsTypes(nextEvent.asCharacters().getData());
                             break;
-                        case "value":
+                        case "parameter_value":
                             // Extract parameter values instantiation.
                             nextEvent = reader.nextEvent();
                             b.addParamsValues(nextEvent.asCharacters().getData());
@@ -203,21 +178,27 @@ public class TemplatedBenchmark extends BenchmarkModule {
                     if (endElement.getName().getLocalPart().equals("query_template")) {
                         ParsedQueryTemplate qt = b.build();
                         // Create and compile class.
-                        final String s = "package " + GenericQuery.class.getPackageName() + ";\n"
-                                + "public final class " + qt.getName()
-                                + " extends " + GenericQuery.class.getCanonicalName() + " {\n"
-                                + "    @Override\n"
-                                + "    public " + QueryTemplateInfo.class.getCanonicalName()
-                                + " getQueryTemplateInfo() {\n"
-                                + "        return ImmutableQueryTemplateInfo.builder()\n"
-                                + "          .query(new " + SQLStmt.class.getCanonicalName() + "(\n"
-                                + "             \"" + StringEscapeUtils.escapeJava(qt.getQuery()) + "\"))\n"
-                                + "          .paramsTypes(new int[] {" + qt.getParamsTypes() + "})\n"
-                                + "          .paramsValues(new String[] {"
-                                + getParamsValuesString(qt.getParamsValues()) + "})\n"
-                                + "          .build();\n"
-                                + "    }\n"
-                                + "}";
+                        final String s = """
+                                package %s ;
+                                public final class %s extends %s {
+                                    @Override
+                                    public %s getQueryTemplateInfo() {
+                                        return ImmutableQueryTemplateInfo.builder()
+                                                .query(new %s(\"%s\"))
+                                                .paramsTypes(new int[] {%s})
+                                                .paramsValues(new String[] {%s})
+                                                .build();
+                                    }
+                                }
+                                """.formatted(
+                                    GenericQuery.class.getPackageName(),
+                                    qt.getName(),
+                                    GenericQuery.class.getCanonicalName(),
+                                    QueryTemplateInfo.class.getCanonicalName(),
+                                    SQLStmt.class.getCanonicalName(),
+                                    StringEscapeUtils.escapeJava(qt.getQuery()),
+                                    qt.getParamsTypes(),
+                                    getParamsValuesString(qt.getParamsValues()));
                         LOG.debug("Class definition for query template {}:\n {}", qt.getName(), s);
                         final String qualifiedClassName = GenericQuery.class.getPackageName() + "." + qt.getName();
                         final ISimpleCompiler compiler = compilerFactory.newSimpleCompiler();
