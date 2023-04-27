@@ -205,7 +205,6 @@ public class TemplatedBenchmark extends BenchmarkModule {
                                     StringEscapeUtils.escapeJava(qt.getQuery()),
                                     getParamsString(qt.getParamsTypes()),
                                     getParamsString(qt.getParamsValues()));
-                        LOG.info("Parameter types: " + getParamsString(qt.getParamsTypes()) + ", parameter values: " + getParamsString(qt.getParamsValues()));
                         LOG.debug("Class definition for query template {}:\n {}", qt.getName(), s);
                         final String qualifiedClassName = GenericQuery.class.getPackageName() + "." + qt.getName();
                         final ISimpleCompiler compiler = compilerFactory.newSimpleCompiler();

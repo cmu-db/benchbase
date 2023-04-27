@@ -67,7 +67,6 @@ public abstract class GenericQuery extends Procedure {
                 break;
             } else{
                 try {
-                    LOG.info("String: " + paramsTypes[i] + ", integer: " + Integer.parseInt(Types.class.getDeclaredField(paramsTypes[i]).get(null).toString()));
                     stmt.setObject(i + 1, params.get(i), Integer.parseInt(Types.class.getDeclaredField(paramsTypes[i]).get(null).toString()));
                 } catch (Exception e) {
                     e.printStackTrace();
