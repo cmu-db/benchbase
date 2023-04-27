@@ -19,6 +19,7 @@ package com.oltpbenchmark.api;
 
 import com.oltpbenchmark.jdbc.AutoIncrementPreparedStatement;
 import com.oltpbenchmark.types.DatabaseType;
+import com.oltpbenchmark.util.MonitoringUtil;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -167,7 +168,13 @@ public abstract class Procedure {
                 LOG.debug(String.format("Enabling advanced monitoring for query %s",
                         stmtName));
             }
-            stmt.addPrefix(stmtName);
+            // Create monitoring prefix.
+            String prefix = MonitoringUtil.getMonitoringMarker();
+            prefix = prefix.replace(MonitoringUtil.getMonitoringQueryId(), stmtName);
+            // Update SQL string.
+            stmt.setSQL(prefix + stmt.getSQL());
+
+            LOG.info("Setting SQL for key " + stmtName + " to " + stmt.getSQL());
         }
     }
 

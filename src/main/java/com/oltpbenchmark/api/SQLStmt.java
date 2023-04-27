@@ -78,14 +78,6 @@ public final class SQLStmt {
         }
     }
 
-    /**
-     * Adds a prefix to the query string.
-     * @param prefix
-     */
-    public final void addPrefix(String prefix) {
-        this.setSQL(prefix + sql);
-    }
-
     public final String getSQL() {
         return (this.sql);
     }
