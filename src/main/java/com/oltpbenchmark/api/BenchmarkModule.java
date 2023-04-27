@@ -77,6 +77,7 @@ public abstract class BenchmarkModule {
     public BenchmarkModule(WorkloadConfiguration workConf) {
         this.workConf = workConf;
         this.dialects = new StatementDialects(workConf);
+        initClassLoader();
     }
 
     /**
@@ -344,7 +345,7 @@ public abstract class BenchmarkModule {
         Package pkg = this.getProcedurePackageImpl();
 
         String fullName = pkg.getName() + "." + procName;
-        Class<? extends Procedure> procClass = (Class<? extends Procedure>) ClassUtil.getClass(fullName);
+        Class<? extends Procedure> procClass = (Class<? extends Procedure>) ClassUtil.getClass(this.classLoader, fullName);
 
         return new TransactionType(procClass, id, false, preExecutionWait, postExecutionWait);
     }

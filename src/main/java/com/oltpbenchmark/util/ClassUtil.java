@@ -186,11 +186,23 @@ public abstract class ClassUtil {
      * @return
      */
     public static Class<?> getClass(String class_name) {
+        return getClass(ClassLoader.getSystemClassLoader(), class_name);
+    }
+
+    /**
+     * @param loader
+     * @param class_name
+     * @return
+     */
+    public static Class<?> getClass(ClassLoader loader, String class_name) {
+        Class<?> target_class = null;
         try {
-            return ClassUtils.getClass(class_name);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            target_class = ClassUtils.getClass(loader, class_name);
+        } catch (Exception ex) {
+            throw new RuntimeException("Failed to retrieve class for " + class_name, ex);
         }
+        return target_class;
+
     }
 
 }
