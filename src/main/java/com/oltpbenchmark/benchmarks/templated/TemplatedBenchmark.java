@@ -162,7 +162,7 @@ public class TemplatedBenchmark extends BenchmarkModule {
                         case "parameter_type":
                             // Extract template parameter types.
                             nextEvent = reader.nextEvent();
-                            b.paramsTypes(nextEvent.asCharacters().getData());
+                            b.addParamsTypes(nextEvent.asCharacters().getData());
                             break;
                         case "parameter_value":
                             // Extract parameter values instantiation.
@@ -185,7 +185,7 @@ public class TemplatedBenchmark extends BenchmarkModule {
                                     public %s getQueryTemplateInfo() {
                                         return ImmutableQueryTemplateInfo.builder()
                                                 .query(new %s(\"%s\"))
-                                                .paramsTypes(new int[] {%s})
+                                                .paramsTypes(new String[] {%s})
                                                 .paramsValues(new String[] {%s})
                                                 .build();
                                     }
@@ -197,8 +197,8 @@ public class TemplatedBenchmark extends BenchmarkModule {
                                     QueryTemplateInfo.class.getCanonicalName(),
                                     SQLStmt.class.getCanonicalName(),
                                     StringEscapeUtils.escapeJava(qt.getQuery()),
-                                    qt.getParamsTypes(),
-                                    getParamsValuesString(qt.getParamsValues()));
+                                    getParamsString(qt.getParamsTypes()),
+                                    getParamsString(qt.getParamsValues()));
                         LOG.debug("Class definition for query template {}:\n {}", qt.getName(), s);
                         final String qualifiedClassName = GenericQuery.class.getPackageName() + "." + qt.getName();
                         final ISimpleCompiler compiler = compilerFactory.newSimpleCompiler();
@@ -216,10 +216,10 @@ public class TemplatedBenchmark extends BenchmarkModule {
         return ccloader;
     }
 
-    private String getParamsValuesString(List<String> paramsValues) {
+    private String getParamsString(List<String> params) {
         String result = "";
-        for (String paramsValue : paramsValues) {
-            result += "\"" + StringEscapeUtils.escapeJava(paramsValue) + "\",";
+        for (String param : params) {
+            result += "\"" + StringEscapeUtils.escapeJava(param) + "\",";
         }
         return result.isEmpty() ? "" : result.substring(0, result.length() - 1);
     }
@@ -254,8 +254,8 @@ public class TemplatedBenchmark extends BenchmarkModule {
 
         /** Query parameter types. */
         @Value.Default
-        default String getParamsTypes() {
-            return "";
+        default List<String> getParamsTypes() {
+            return List.of();
         }
 
         /** Potential query parameter values. */

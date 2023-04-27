@@ -4,8 +4,8 @@
       <name>GetOrder</name>
       <query><![CDATA[SELECT NO_O_ID FROM new_order WHERE NO_D_ID = ? OR NO_D_ID = ? ORDER BY NO_O_ID ASC]]></query>
       <parameter_types>
-         <parameter_type>4</parameter_type>
-         <parameter_type>4</parameter_type>
+         <parameter_type>INTEGER</parameter_type>
+         <parameter_type>INTEGER</parameter_type>
       </parameter_types>
       <parameter_values>
          <parameter_value>3</parameter_value>
@@ -20,7 +20,7 @@
       <name>GetCust</name>
       <query><![CDATA[SELECT C_DISCOUNT, C_LAST, C_CREDIT FROM customer WHERE C_W_ID = ?]]></query>
       <parameter_types>
-         <parameter_type>4</parameter_type>
+         <parameter_type>INTEGER</parameter_type>
       </parameter_types>
       <parameter_values>
          <parameter_value>8</parameter_value>
@@ -30,7 +30,7 @@
       <name>GetWarehouse</name>
       <query><![CDATA[SELECT * FROM warehouse WHERE W_STREET_1 LIKE ?]]></query>
       <parameter_types>
-         <parameter_type>12</parameter_type>
+         <parameter_type>VARCHAR</parameter_type>
       </parameter_types>
       <parameter_values>
          <parameter_value>Str</parameter_value>

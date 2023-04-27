@@ -60,14 +60,20 @@ public abstract class GenericQuery extends Procedure {
         QueryTemplateInfo queryTemplateInfo = this.getQueryTemplateInfo();
 
         PreparedStatement stmt = this.getPreparedStatement(conn, queryTemplateInfo.getQuery());
-        int[] paramsTypes = queryTemplateInfo.getParamsTypes();
+        String[] paramsTypes = queryTemplateInfo.getParamsTypes();
         for (int i = 0; i < paramsTypes.length; i++) {
-            switch (paramsTypes[i]) {
-            case Types.NULL:
-                stmt.setNull(i + 1, paramsTypes[i]);
+            if (paramsTypes[i].equalsIgnoreCase("NULL")) {
+                stmt.setNull(i + 1, Types.NULL);
                 break;
-            default:
-                stmt.setObject(i + 1, params.get(i), paramsTypes[i]);
+            } else{
+                try {
+                    LOG.info("String: " + paramsTypes[i] + ", integer: " + Integer.parseInt(Types.class.getDeclaredField(paramsTypes[i]).get(null).toString()));
+                    stmt.setObject(i + 1, params.get(i), Integer.parseInt(Types.class.getDeclaredField(paramsTypes[i]).get(null).toString()));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw new RuntimeException(
+                        "Error when setting parameters. Parameter type: " + paramsTypes[i] + ", parameter value: " + params.get(i));
+                }
             }
         }
         return stmt;
@@ -82,7 +88,7 @@ public abstract class GenericQuery extends Procedure {
         SQLStmt getQuery();
 
         /** Query parameter types. */
-        int[] getParamsTypes();
+        String[] getParamsTypes();
 
         /** Potential query parameter values. */
         String[] getParamsValues();
