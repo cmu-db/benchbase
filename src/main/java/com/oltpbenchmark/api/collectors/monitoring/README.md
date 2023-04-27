@@ -14,7 +14,7 @@ We currently support two types of monitoring:
 
 The former is the default setting unless the monitoring type is explicitly set to advanced which will trigger system monitoring if the database type is supported.
 
-Throughput monitoring logs uptdated throughput values directly to the system output, while advanced monitoring creates csv files recording their findings in folder results/monitor/.
+Throughput monitoring logs updated throughput values directly to the system output, while advanced monitoring creates csv files recording their findings in folder `results/monitor/`.
 Advanced monitoring collects data for a variety of events, such as one-off information about a query (for example query plans, query text, etc.), repeated information about a query (elapsed time per query execution, worker time, execution count etc.), and repeated system information (cache hits, number of transactions etc.).
 Which events are collected depends on the database system and is customized in corresponding drivers.
 The code for the drivers can be found in package src.main.java.com.oltpbenchmark.api.collectors.monitoring.
