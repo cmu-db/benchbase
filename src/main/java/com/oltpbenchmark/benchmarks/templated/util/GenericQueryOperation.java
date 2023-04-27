@@ -32,7 +32,7 @@ public class GenericQueryOperation extends Operation {
 
     public GenericQueryOperation(Object[] params) {
         super();
-        this.params =  Collections.unmodifiableList(Arrays.asList(params));
+        this.params = Collections.unmodifiableList(Arrays.asList(params));
     }
 
     public List<Object> getParams() {
