@@ -55,7 +55,6 @@ public class TemplatedWorker extends Worker<TemplatedBenchmark> {
                 proc.run(conn);
             }
             
-            
         } catch (ClassCastException e) {
             throw new RuntimeException(e);
         }
