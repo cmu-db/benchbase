@@ -41,7 +41,7 @@ public class TraceTransactionGenerator implements TransactionGenerator<GenericQu
     }
 
     public boolean isEmpty() {
-        return transactions.size()==0;
+        return transactions.size() == 0;
     }
 
 }
