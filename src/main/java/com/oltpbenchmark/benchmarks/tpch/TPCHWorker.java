@@ -29,7 +29,6 @@ import java.sql.SQLException;
 
 
 public class TPCHWorker extends Worker<TPCHBenchmark> {
-    
     private final RandomGenerator rand;
 
     public TPCHWorker(TPCHBenchmark benchmarkModule, int id) {
