@@ -141,7 +141,7 @@ public class TemplatedBenchmark extends BenchmarkModule {
             XMLEventReader reader = xmlInputFactory.createXMLEventReader(
                     new FileInputStream(file));
             ImmutableParsedQueryTemplate.Builder b = null;
-            List<String> paramsValues;
+            List<String> paramsValues = new ArrayList<>();
             while (reader.hasNext()) {
                 XMLEvent nextEvent = reader.nextEvent();
                 if (nextEvent.isStartElement()) {
