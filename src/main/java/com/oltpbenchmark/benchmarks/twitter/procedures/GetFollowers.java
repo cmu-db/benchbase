@@ -40,7 +40,7 @@ public class GetFollowers extends Procedure {
             stmt.setLong(1, uid);
             try (ResultSet rs = stmt.executeQuery()) {
 
-                try (PreparedStatement getFollowerNamesstmt = this.getPreparedStatement(conn, getFollowerNames)) {
+                try (PreparedStatement getFollowerNamesstmt = this.getPreparedStatement(conn, getFollowers)) {
                     int ctr = 0;
                     long last = -1;
                     while (rs.next() && ctr++ < TwitterConstants.LIMIT_FOLLOWERS) {
