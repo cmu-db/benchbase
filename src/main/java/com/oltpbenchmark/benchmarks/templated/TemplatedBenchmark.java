@@ -141,6 +141,7 @@ public class TemplatedBenchmark extends BenchmarkModule {
             XMLEventReader reader = xmlInputFactory.createXMLEventReader(
                     new FileInputStream(file));
             ImmutableParsedQueryTemplate.Builder b = null;
+            List<String> paramsTypes, paramsValues;
             while (reader.hasNext()) {
                 XMLEvent nextEvent = reader.nextEvent();
                 if (nextEvent.isStartElement()) {
@@ -159,15 +160,21 @@ public class TemplatedBenchmark extends BenchmarkModule {
                             nextEvent = reader.nextEvent();
                             b.query(nextEvent.asCharacters().getData());
                             break;
+                        case "parameter_types":
+                            paramsTypes = new ArrayList<>();
+                            break;
                         case "parameter_type":
                             // Extract template parameter types.
                             nextEvent = reader.nextEvent();
-                            b.addParamsTypes(nextEvent.asCharacters().getData());
+                            paramsTypes.add(nextEvent.asCharacters().getData());
+                            break;
+                        case "parameter_values":
+                            paramsValues = new ArrayList<>();
                             break;
                         case "parameter_value":
                             // Extract parameter values instantiation.
                             nextEvent = reader.nextEvent();
-                            b.addParamsValues(nextEvent.asCharacters().getData());
+                            paramsValues.add(nextEvent.asCharacters().getData());
                             break;
                     }
                 }
@@ -175,7 +182,11 @@ public class TemplatedBenchmark extends BenchmarkModule {
                 // Create a compiled query that contains all parsed information.
                 if (nextEvent.isEndElement()) {
                     EndElement endElement = nextEvent.asEndElement();
-                    if (endElement.getName().getLocalPart().equals("query_template")) {
+                    if (endElement.getName().getLocalPart().equals("parameter_values")) {
+                        b.addParamsValues(getParamsString(paramsValues));
+                    } else if (endElement.getName().getLocalPart().equals("query_template")) {
+                        b.addParamsTypes(paramsTypes);
+
                         ParsedQueryTemplate qt = b.build();
                         // Create and compile class.
                         final String s = """
@@ -199,6 +210,7 @@ public class TemplatedBenchmark extends BenchmarkModule {
                                     StringEscapeUtils.escapeJava(qt.getQuery()),
                                     getParamsString(qt.getParamsTypes()),
                                     getParamsString(qt.getParamsValues()));
+                        LOG.info("Parameter types: " + getParamsString(qt.getParamsTypes()) + ", parameter values: " + getParamsString(qt.getParamsValues()));
                         LOG.debug("Class definition for query template {}:\n {}", qt.getName(), s);
                         final String qualifiedClassName = GenericQuery.class.getPackageName() + "." + qt.getName();
                         final ISimpleCompiler compiler = compilerFactory.newSimpleCompiler();
