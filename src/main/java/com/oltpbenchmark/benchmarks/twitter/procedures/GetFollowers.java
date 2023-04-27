@@ -36,11 +36,11 @@ public class GetFollowers extends Procedure {
     public final SQLStmt getFollowerNames = new SQLStmt("SELECT uid, name FROM " + TwitterConstants.TABLENAME_USER + " WHERE uid IN (??)", TwitterConstants.LIMIT_FOLLOWERS);
 
     public void run(Connection conn, long uid) throws SQLException {
-        try (PreparedStatement stmt = this.getPreparedStatement(conn, getFollowerNames)) {
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, getFollowers)) {
             stmt.setLong(1, uid);
             try (ResultSet rs = stmt.executeQuery()) {
 
-                try (PreparedStatement getFollowerNamesstmt = this.getPreparedStatement(conn, getFollowers)) {
+                try (PreparedStatement getFollowerNamesstmt = this.getPreparedStatement(conn, getFollowerNames)) {
                     int ctr = 0;
                     long last = -1;
                     while (rs.next() && ctr++ < TwitterConstants.LIMIT_FOLLOWERS) {
@@ -57,7 +57,7 @@ public class GetFollowers extends Procedure {
                 }
             }
         }
-        // LOG.warn("No followers for user : "+uid); //... so what ?
+        // LOG.warn("No followers for user : "+uid); //... so what ?    
     }
 
 }
