@@ -180,7 +180,7 @@ public class TemplatedBenchmark extends BenchmarkModule {
                 if (nextEvent.isEndElement()) {
                     EndElement endElement = nextEvent.asEndElement();
                     if (endElement.getName().getLocalPart().equals("parameter_values")) {
-                        b.addParamsValues(getParamsString(paramsValues));
+                        b.addParamsValues(String.join(", ", paramsValues));
                     } else if (endElement.getName().getLocalPart().equals("query_template")) {
                         ParsedQueryTemplate qt = b.build();
                         // Create and compile class.
