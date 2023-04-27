@@ -6,7 +6,12 @@ Monitoring in BenchBase can be enabled using the
  -mt,--monitor-type <arg>       Type of Monitoring (throughput/advanced)
 ```
 command line option when executing BenchBase, where the monitoring interval describes the sleeping period of the thread between recording monitoring information.
-We currently support two types of monitoring: 1) Basic throughput monitoring to track the progress while executing a benchmark (mt=throughput) and 2) monitoring of query and system properties via system tables for both SQLServer and Postgres (mt=advanced).
+We currently support two types of monitoring:
+
+1. Basic throughput monitoring to track the progress while executing a benchmark (`-mt=throughput`), and
+2. monitoring of query and system properties via system tables for both SQLServer and Postgres (`-mt=advanced`).
+    Support for other engines can also be added.
+
 The former is the default setting unless the monitoring type is explicitly set to advanced which will trigger system monitoring if the database type is supported.
 
 Throughput monitoring logs uptdated throughput values directly to the system output, while advanced monitoring creates csv files recording their findings in folder results/monitor/.
