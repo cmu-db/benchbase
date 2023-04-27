@@ -17,7 +17,7 @@ The former is the default setting unless the monitoring type is explicitly set t
 Throughput monitoring logs updated throughput values directly to the system output, while advanced monitoring creates csv files recording their findings in folder `results/monitor/`.
 Advanced monitoring collects data for a variety of events, such as one-off information about a query (for example query plans, query text, etc.), repeated information about a query (elapsed time per query execution, worker time, execution count etc.), and repeated system information (cache hits, number of transactions etc.).
 Which events are collected depends on the database system and is customized in corresponding drivers.
-The code for the drivers can be found in package src.main.java.com.oltpbenchmark.api.collectors.monitoring.
+The code for the drivers can be found in package [`src.main.java.com.oltpbenchmark.api.collectors.monitoring`](./../monitoring/).
 
 For advanced monitoring to function with SQLServer, the user needs to have access to the system tables, for Postgres, `pg_stat_statements` needs to be enabled.
 Note that in either database system, frequent (additional) queries against the DBMS may distort the benchmarking results.
