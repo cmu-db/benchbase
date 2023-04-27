@@ -173,8 +173,6 @@ public abstract class Procedure {
             prefix = prefix.replace(MonitoringUtil.getMonitoringQueryId(), stmtName);
             // Update SQL string.
             stmt.setSQL(prefix + stmt.getSQL());
-
-            LOG.info("Setting SQL for key " + stmtName + " to " + stmt.getSQL());
         }
     }
 
