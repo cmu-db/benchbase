@@ -57,7 +57,7 @@ public class GetFollowers extends Procedure {
                 }
             }
         }
-        // LOG.warn("No followers for user : "+uid); //... so what ?    
+        // LOG.warn("No followers for user : "+uid); //... so what ? 
     }
 
 }
