@@ -12,7 +12,7 @@ use_dist_in_explain : true
 yaml_version: v1.0
 works:
     work:
-        time_secs: 180
+        time_secs: 600
         active_terminals: 1
         rate: unlimited
         warmup: 60
