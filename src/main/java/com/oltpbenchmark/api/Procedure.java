@@ -161,7 +161,7 @@ public abstract class Procedure {
     /**
      * Enable monitoring for this procedure by adding a monitoring prefixes.
      */
-    protected final void enabledAdvancedMonitoring() {
+    protected final void enableAdvancedMonitoring() {
         for (String stmtName : this.getStatements().keySet()) {
             SQLStmt stmt = this.name_stmt_xref.get(stmtName);
             if (LOG.isDebugEnabled()) {

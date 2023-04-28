@@ -129,7 +129,7 @@ public class WorkloadConfiguration {
         this.advancedMonitoringEnabled = true;
     }
 
-    public boolean getMonitoringEnabled() {
+    public boolean getAdvancedMonitoringEnabled() {
         return this.advancedMonitoringEnabled;
     }
 
