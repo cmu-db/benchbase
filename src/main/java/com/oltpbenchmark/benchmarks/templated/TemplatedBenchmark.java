@@ -153,7 +153,9 @@ public class TemplatedBenchmark extends BenchmarkModule {
             Unmarshaller unmarshaller = jc.createUnmarshaller();
             unmarshaller.setSchema(schema);
 
-            StreamSource streamSource = new StreamSource(this.getClass().getResourceAsStream(file));
+            StreamSource streamSource = new StreamSource(new FileInputStream(file));
+            LOG.info("Path: " + file);
+            LOG.info(streamSource.toString());
             JAXBElement<TemplatesType> result = unmarshaller.unmarshal(streamSource, TemplatesType.class);
             TemplatesType templates = result.getValue();
 
