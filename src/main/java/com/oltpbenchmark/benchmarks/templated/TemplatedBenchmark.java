@@ -28,6 +28,9 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
 
 import org.apache.commons.text.StringEscapeUtils;
 import org.codehaus.commons.compiler.CompilerFactoryFactory;
@@ -44,12 +47,19 @@ import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
+import com.oltpbenchmark.api.templates.ParameterValuesType;
+import com.oltpbenchmark.api.templates.TemplateType;
+import com.oltpbenchmark.api.templates.TemplatesType;
 import com.oltpbenchmark.benchmarks.templated.procedures.GenericQuery;
 import com.oltpbenchmark.benchmarks.templated.procedures.GenericQuery.QueryTemplateInfo;
 import com.oltpbenchmark.benchmarks.templated.util.GenericQueryOperation;
 import com.oltpbenchmark.benchmarks.templated.util.TraceTransactionGenerator;
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
+
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.Unmarshaller;
 
 /**
  * This class is used to execute templated benchmarks, i.e., benchmarks that
@@ -137,84 +147,56 @@ public class TemplatedBenchmark extends BenchmarkModule {
             final ICompilerFactory compilerFactory = CompilerFactoryFactory.getDefaultCompilerFactory(
                     TemplatedBenchmark.class.getClassLoader());
 
-            XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
-            XMLEventReader reader = xmlInputFactory.createXMLEventReader(
-                    new FileInputStream(file));
-            ImmutableParsedQueryTemplate.Builder b = null;
-            List<String> paramsValues = new ArrayList<>();
-            while (reader.hasNext()) {
-                XMLEvent nextEvent = reader.nextEvent();
-                if (nextEvent.isStartElement()) {
-                    StartElement startElement = nextEvent.asStartElement();
-                    switch (startElement.getName().getLocalPart()) {
-                        case "query_template":
-                            b = ImmutableParsedQueryTemplate.builder();
-                            break;
-                        case "name":
-                            // Extract template name.
-                            nextEvent = reader.nextEvent();
-                            b.name(nextEvent.asCharacters().getData());
-                            break;
-                        case "query":
-                            // Extract template query.
-                            nextEvent = reader.nextEvent();
-                            b.query(nextEvent.asCharacters().getData());
-                            break;
-                        case "parameter_type":
-                            // Extract template parameter types.
-                            nextEvent = reader.nextEvent();
-                            b.addParamsTypes(nextEvent.asCharacters().getData());
-                            break;
-                        case "parameter_values":
-                            paramsValues = new ArrayList<>();
-                            break;
-                        case "parameter_value":
-                            // Extract parameter values instantiation.
-                            nextEvent = reader.nextEvent();
-                            paramsValues.add(nextEvent.asCharacters().getData());
-                            break;
-                    }
+            JAXBContext jc = JAXBContext.newInstance("com.oltpbenchmark.api.templates");
+            SchemaFactory sf = SchemaFactory.newInstance(javax.xml.XMLConstants.W3C_XML_SCHEMA_NS_URI);
+            Schema schema = sf.newSchema(new StreamSource(this.getClass().getResourceAsStream("/templates.xsd")));
+            Unmarshaller unmarshaller = jc.createUnmarshaller();
+            unmarshaller.setSchema(schema);
+
+            StreamSource streamSource = new StreamSource(this.getClass().getResourceAsStream(file));
+            JAXBElement<TemplatesType> result = unmarshaller.unmarshal(streamSource, TemplatesType.class);
+            TemplatesType templates = result.getValue();
+
+            for (TemplateType template : templates.getTemplateList()) {
+                ImmutableParsedQueryTemplate.Builder b = ImmutableParsedQueryTemplate.builder();
+                b.name(template.getName());
+                b.query(template.getQuery());
+                b.paramsTypes(String.join(",", template.getParameterTypes().getParameterTypeList()));
+                for (ParameterValuesType paramValue : template.getParameterValues()) {
+                    b.addParamsValues(String.join(", ", paramValue.getParameterValueList()));
                 }
 
-                // Create a compiled query that contains all parsed information.
-                if (nextEvent.isEndElement()) {
-                    EndElement endElement = nextEvent.asEndElement();
-                    if (endElement.getName().getLocalPart().equals("parameter_values")) {
-                        b.addParamsValues(String.join(", ", paramsValues));
-                    } else if (endElement.getName().getLocalPart().equals("query_template")) {
-                        ParsedQueryTemplate qt = b.build();
-                        // Create and compile class.
-                        final String s = """
-                                package %s ;
-                                public final class %s extends %s {
-                                    @Override
-                                    public %s getQueryTemplateInfo() {
-                                        return ImmutableQueryTemplateInfo.builder()
-                                                .query(new %s(\"%s\"))
-                                                .paramsTypes(new String[] {%s})
-                                                .paramsValues(new String[] {%s})
-                                                .build();
-                                    }
-                                }
-                                """.formatted(
-                                    GenericQuery.class.getPackageName(),
-                                    qt.getName(),
-                                    GenericQuery.class.getCanonicalName(),
-                                    QueryTemplateInfo.class.getCanonicalName(),
-                                    SQLStmt.class.getCanonicalName(),
-                                    StringEscapeUtils.escapeJava(qt.getQuery()),
-                                    getParamsString(qt.getParamsTypes()),
-                                    getParamsString(qt.getParamsValues()));
-                        LOG.debug("Class definition for query template {}:\n {}", qt.getName(), s);
-                        final String qualifiedClassName = GenericQuery.class.getPackageName() + "." + qt.getName();
-                        final ISimpleCompiler compiler = compilerFactory.newSimpleCompiler();
-                        compiler.setTargetVersion(17);
-                        compiler.setParentClassLoader(this.classLoader);
-                        compiler.cook(s);
-                        ccloader.putClass(qualifiedClassName,
-                                compiler.getClassLoader().loadClass(qualifiedClassName));
-                    }
-                }
+                ParsedQueryTemplate qt = b.build();
+                // Create and compile class.
+                final String s = """
+                        package %s ;
+                        public final class %s extends %s {
+                            @Override
+                            public %s getQueryTemplateInfo() {
+                                return ImmutableQueryTemplateInfo.builder()
+                                        .query(new %s(\"%s\"))
+                                        .paramsTypes(new String[] {%s})
+                                        .paramsValues(new String[] {%s})
+                                        .build();
+                            }
+                        }
+                        """.formatted(
+                            GenericQuery.class.getPackageName(),
+                            qt.getName(),
+                            GenericQuery.class.getCanonicalName(),
+                            QueryTemplateInfo.class.getCanonicalName(),
+                            SQLStmt.class.getCanonicalName(),
+                            StringEscapeUtils.escapeJava(qt.getQuery()),
+                            qt.getParamsTypes(),
+                            getParamsString(qt.getParamsValues()));
+                LOG.debug("Class definition for query template {}:\n {}", qt.getName(), s);
+                final String qualifiedClassName = GenericQuery.class.getPackageName() + "." + qt.getName();
+                final ISimpleCompiler compiler = compilerFactory.newSimpleCompiler();
+                compiler.setTargetVersion(17);
+                compiler.setParentClassLoader(this.classLoader);
+                compiler.cook(s);
+                ccloader.putClass(qualifiedClassName,
+                        compiler.getClassLoader().loadClass(qualifiedClassName));
             }
         } catch (Exception e) {
             throw new IllegalStateException("Unable to load query templates", e);
@@ -259,10 +241,7 @@ public class TemplatedBenchmark extends BenchmarkModule {
         String getQuery();
 
         /** Query parameter types. */
-        @Value.Default
-        default List<String> getParamsTypes() {
-            return List.of();
-        }
+        String getParamsTypes();
 
         /** Potential query parameter values. */
         @Value.Default

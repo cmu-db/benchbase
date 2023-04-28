@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<query_templates>
-   <query_template>
-      <name>GetOrder</name>
+<templates>
+   <template name="GetOrder">
       <query><![CDATA[SELECT NO_O_ID FROM new_order WHERE NO_D_ID = ? OR NO_D_ID = ? ORDER BY NO_O_ID ASC]]></query>
       <parameter_types>
          <parameter_type>INTEGER</parameter_type>
@@ -15,8 +14,8 @@
          <parameter_value>5</parameter_value>
          <parameter_value>6</parameter_value>
       </parameter_values>
-   </query_template>
-   <query_template>
+   </template>
+   <template>
       <name>GetCust</name>
       <query><![CDATA[SELECT C_DISCOUNT, C_LAST, C_CREDIT FROM customer WHERE C_W_ID = ?]]></query>
       <parameter_types>
@@ -25,8 +24,8 @@
       <parameter_values>
          <parameter_value>8</parameter_value>
       </parameter_values>
-   </query_template>
-   <query_template>
+   </template>
+   <template>
       <name>GetWarehouse</name>
       <query><![CDATA[SELECT * FROM warehouse WHERE W_STREET_1 LIKE ?]]></query>
       <parameter_types>
@@ -35,5 +34,5 @@
       <parameter_values>
          <parameter_value>Str</parameter_value>
       </parameter_values>
-   </query_template>
-</query_templates>
+   </template>
+</templates>
