@@ -160,14 +160,10 @@ public class TemplatedBenchmark extends BenchmarkModule {
             for (TemplateType template : templates.getTemplateList()) {
                 ImmutableParsedQueryTemplate.Builder b = ImmutableParsedQueryTemplate.builder();
                 b.name(template.getName());
-                LOG.info(template.getName());
                 b.query(template.getQuery());
-                LOG.info(template.getQuery());
                 b.paramsTypes(template.getTypes().getTypeList());
-                LOG.info(template.getTypes().getTypeList().toString());
                 for (ValuesType paramValue : template.getValues()) {
                     b.addParamsValues(String.join(", ", paramValue.getValueList()));
-                    LOG.info(String.join(", ", paramValue.getValueList()));
                 }
 
                 ParsedQueryTemplate qt = b.build();
@@ -194,7 +190,6 @@ public class TemplatedBenchmark extends BenchmarkModule {
                             getParamsString(qt.getParamsTypes()),
                             getParamsString(qt.getParamsValues()));
                 LOG.debug("Class definition for query template {}:\n {}", qt.getName(), s);
-                LOG.info(s);
                 final String qualifiedClassName = GenericQuery.class.getPackageName() + "." + qt.getName();
                 final ISimpleCompiler compiler = compilerFactory.newSimpleCompiler();
                 compiler.setTargetVersion(17);
