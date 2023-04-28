@@ -37,14 +37,14 @@
     </xsd:complexType>
 
     <!-- <types> -->
-    <xsd:complexType name="types">
+    <xsd:complexType name="typesType">
         <xsd:sequence>
             <xsd:element name="type" type="xsd:string" minOccurs="1" maxOccurs="unbounded"/>
         </xsd:sequence>
     </xsd:complexType>
 
     <!-- <values> -->
-    <xsd:complexType name="values">
+    <xsd:complexType name="valuesType">
         <xsd:sequence>
             <xsd:element name="value" type="xsd:string" minOccurs="1" maxOccurs="unbounded"/>
         </xsd:sequence>
