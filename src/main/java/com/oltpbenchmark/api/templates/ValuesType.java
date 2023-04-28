@@ -48,23 +48,23 @@ import java.util.List;
  * </pre>
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "parameterValuesType", propOrder = {"parameter_value"})
-public class ParameterValuesType {
+@XmlType(name = "valuesType", propOrder = {"value"})
+public class ValuesType {
 
     @XmlElement(required = true)
-    protected List<String> parameterValue;
+    protected List<String> value;
     
 
     /**
-     * Gets the value of the parameterValue property.
+     * Gets the value of the value property.
      * 
      * Objects of the following type(s) are allowed in the list {@link String }
      */
-    public List<String> getParameterValueList() {
-        if (this.parameterValue == null) {
-            this.parameterValue = new ArrayList<>();
+    public List<String> getValueList() {
+        if (this.value == null) {
+            this.value = new ArrayList<>();
         }
-        return this.parameterValue;
+        return this.value;
     }
     
 }

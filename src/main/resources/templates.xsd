@@ -30,23 +30,23 @@
     <xsd:complexType name="templateType">
         <xsd:sequence>
             <xsd:element name="query" type="xsd:string" minOccurs="1" maxOccurs="1"/>
-            <xsd:element name="parameterTypes" type="parameterTypesType" minOccurs="1" maxOccurs="1"/>
-            <xsd:element name="parameterValues" type="parameterValuesType" minOccurs="1" maxOccurs="unbounded"/>
+            <xsd:element name="types" type="typesType" minOccurs="1" maxOccurs="1"/>
+            <xsd:element name="values" type="valuesType" minOccurs="1" maxOccurs="unbounded"/>
         </xsd:sequence>
         <xsd:attribute name="name" type="xsd:string" use="required"/>
     </xsd:complexType>
 
-    <!-- <parameterTypes> -->
-    <xsd:complexType name="parameterTypes">
+    <!-- <types> -->
+    <xsd:complexType name="types">
         <xsd:sequence>
-            <xsd:element name="parameterType" type="xsd:string" minOccurs="1" maxOccurs="unbounded"/>
+            <xsd:element name="type" type="xsd:string" minOccurs="1" maxOccurs="unbounded"/>
         </xsd:sequence>
     </xsd:complexType>
 
-    <!-- <parameterValues> -->
-    <xsd:complexType name="parameterValues">
+    <!-- <values> -->
+    <xsd:complexType name="values">
         <xsd:sequence>
-            <xsd:element name="parameterValue" type="xsd:string" minOccurs="1" maxOccurs="unbounded"/>
+            <xsd:element name="value" type="xsd:string" minOccurs="1" maxOccurs="unbounded"/>
         </xsd:sequence>
     </xsd:complexType>
 

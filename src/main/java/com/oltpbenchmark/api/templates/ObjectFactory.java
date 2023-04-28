@@ -64,17 +64,17 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link ParameterTypesType }
+     * Create an instance of {@link TypesType }
      */
-    public ParameterTypesType createParameterTypesType() {
-        return new ParameterTypesType();
+    public TypesType createTypesType() {
+        return new TypesType();
     }
 
     /**
-     * Create an instance of {@link ParameterValuesType }
+     * Create an instance of {@link ValuesType }
      */
-    public ParameterValuesType createParameterValuesType() {
-        return new ParameterValuesType();
+    public ValuesType createValuesType() {
+        return new ValuesType();
     }
 
     /**

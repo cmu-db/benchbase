@@ -47,7 +47,7 @@ import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
-import com.oltpbenchmark.api.templates.ParameterValuesType;
+import com.oltpbenchmark.api.templates.ValuesType;
 import com.oltpbenchmark.api.templates.TemplateType;
 import com.oltpbenchmark.api.templates.TemplatesType;
 import com.oltpbenchmark.benchmarks.templated.procedures.GenericQuery;
@@ -161,9 +161,9 @@ public class TemplatedBenchmark extends BenchmarkModule {
                 ImmutableParsedQueryTemplate.Builder b = ImmutableParsedQueryTemplate.builder();
                 b.name(template.getName());
                 b.query(template.getQuery());
-                b.paramsTypes(String.join(",", template.getParameterTypes().getParameterTypeList()));
-                for (ParameterValuesType paramValue : template.getParameterValues()) {
-                    b.addParamsValues(String.join(", ", paramValue.getParameterValueList()));
+                b.paramsTypes(String.join(",", template.getTypes().getTypeList()));
+                for (ValuesType paramValue : template.getValues()) {
+                    b.addParamsValues(String.join(", ", paramValue.getValueList()));
                 }
 
                 ParsedQueryTemplate qt = b.build();

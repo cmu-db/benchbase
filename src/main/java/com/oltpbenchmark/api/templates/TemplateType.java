@@ -50,7 +50,7 @@ import java.util.List;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "templateType", propOrder = {
-    "query", "parameter_types", "parameter_values"
+    "query", "types", "values"
 })
 public class TemplateType {
 
@@ -59,9 +59,9 @@ public class TemplateType {
     @XmlElement(required = true)
     protected String query;
     @XmlElement(required = true)
-    protected ParameterTypesType parameterTypes;
+    protected TypesType types;
     @XmlElement(required = true)
-    protected List<ParameterValuesType> parameterValues;
+    protected List<ValuesType> values;
 
     /**
      * Gets the value of the query property.
@@ -72,22 +72,22 @@ public class TemplateType {
     
 
     /**
-     * Gets the value of the parameterTypes property.
+     * Gets the value of the types property.
      */
-    public ParameterTypesType getParameterTypes() {
-        return this.parameterTypes;
+    public TypesType getTypes() {
+        return this.types;
     }
 
     /**
-     * Gets the value of the parameterTypes property.
+     * Gets the value of the types property.
      * 
-     * Objects of the following type(s) are allowed in the list {@link ParameterValuesType }
+     * Objects of the following type(s) are allowed in the list {@link ValuesType }
      */
-    public List<ParameterValuesType> getParameterValues() {
-        if (this.parameterValues == null) {
-            this.parameterValues = new ArrayList<>();
+    public List<ValuesType> getValues() {
+        if (this.values == null) {
+            this.values = new ArrayList<>();
         }
-        return this.parameterValues;
+        return this.values;
     }
 
     /**
