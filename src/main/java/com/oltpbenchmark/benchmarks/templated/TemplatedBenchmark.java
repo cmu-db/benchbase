@@ -154,18 +154,20 @@ public class TemplatedBenchmark extends BenchmarkModule {
             unmarshaller.setSchema(schema);
 
             StreamSource streamSource = new StreamSource(new FileInputStream(file));
-            LOG.info("Path: " + file);
-            LOG.info(streamSource.toString());
             JAXBElement<TemplatesType> result = unmarshaller.unmarshal(streamSource, TemplatesType.class);
             TemplatesType templates = result.getValue();
 
             for (TemplateType template : templates.getTemplateList()) {
                 ImmutableParsedQueryTemplate.Builder b = ImmutableParsedQueryTemplate.builder();
                 b.name(template.getName());
+                LOG.info(template.getName());
                 b.query(template.getQuery());
+                LOG.info(template.getQuery());
                 b.paramsTypes(String.join(",", template.getTypes().getTypeList()));
+                LOG.info(String.join(",", template.getTypes().getTypeList()));
                 for (ValuesType paramValue : template.getValues()) {
                     b.addParamsValues(String.join(", ", paramValue.getValueList()));
+                    LOG.info(String.join(", ", paramValue.getValueList()));
                 }
 
                 ParsedQueryTemplate qt = b.build();
