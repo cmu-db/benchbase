@@ -163,8 +163,8 @@ public class TemplatedBenchmark extends BenchmarkModule {
                 LOG.info(template.getName());
                 b.query(template.getQuery());
                 LOG.info(template.getQuery());
-                b.paramsTypes(String.join(",", template.getTypes().getTypeList()));
-                LOG.info(String.join(", ", template.getTypes().getTypeList()));
+                b.paramsTypes(template.getTypes().getTypeList());
+                LOG.info(template.getTypes().getTypeList().toString());
                 for (ValuesType paramValue : template.getValues()) {
                     b.addParamsValues(String.join(", ", paramValue.getValueList()));
                     LOG.info(String.join(", ", paramValue.getValueList()));
@@ -191,7 +191,7 @@ public class TemplatedBenchmark extends BenchmarkModule {
                             QueryTemplateInfo.class.getCanonicalName(),
                             SQLStmt.class.getCanonicalName(),
                             StringEscapeUtils.escapeJava(qt.getQuery()),
-                            qt.getParamsTypes(),
+                            getParamsString(qt.getParamsTypes()),
                             getParamsString(qt.getParamsValues()));
                 LOG.debug("Class definition for query template {}:\n {}", qt.getName(), s);
                 LOG.info(s);
@@ -245,8 +245,11 @@ public class TemplatedBenchmark extends BenchmarkModule {
         /** Query string for this template. */
         String getQuery();
 
-        /** Query parameter types. */
-        String getParamsTypes();
+        /** Potential query parameter types. */
+        @Value.Default
+        default List<String> getParamsTypes() {
+            return List.of();
+        }
 
         /** Potential query parameter values. */
         @Value.Default
