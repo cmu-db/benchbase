@@ -80,7 +80,6 @@ public class TemplateType {
 
     /**
      * Gets the value of the parameterTypes property.
-     * Add new items to list via getParameterValues().add(newItem).
      * 
      * Objects of the following type(s) are allowed in the list {@link ParameterValuesType }
      */

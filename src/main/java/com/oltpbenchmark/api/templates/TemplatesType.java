@@ -61,7 +61,6 @@ public class TemplatesType {
 
     /**
      * Gets the value of the dialect property.
-     * Add new items to list via getTemplateList().add(newItem).
      * 
      * Objects of the following type(s) are allowed in the list {@link TemplateType }
      */

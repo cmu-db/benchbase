@@ -15,8 +15,7 @@
          <parameter_value>6</parameter_value>
       </parameter_values>
    </template>
-   <template>
-      <name>GetCust</name>
+   <template name="GetCust">
       <query><![CDATA[SELECT C_DISCOUNT, C_LAST, C_CREDIT FROM customer WHERE C_W_ID = ?]]></query>
       <parameter_types>
          <parameter_type>INTEGER</parameter_type>
@@ -25,8 +24,7 @@
          <parameter_value>8</parameter_value>
       </parameter_values>
    </template>
-   <template>
-      <name>GetWarehouse</name>
+   <template name="GetWarehouse">
       <query><![CDATA[SELECT * FROM warehouse WHERE W_STREET_1 LIKE ?]]></query>
       <parameter_types>
          <parameter_type>VARCHAR</parameter_type>

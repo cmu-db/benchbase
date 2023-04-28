@@ -57,7 +57,6 @@ public class ParameterTypesType {
 
     /**
      * Gets the value of the parameterType property.
-     * Add new items to list via getParameterTypeList().add(newItem).
      * 
      * Objects of the following type(s) are allowed in the list {@link String }
      */
