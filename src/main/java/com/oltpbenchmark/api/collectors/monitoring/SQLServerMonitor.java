@@ -27,26 +27,29 @@ import com.oltpbenchmark.util.MonitoringUtil;
 public class SQLServerMonitor extends DatabaseMonitor {
 
     private final String DM_EXEC_QUERY_STATS = """
-        SELECT q.text AS query_text, st.plan_handle, pl.query_plan, 
-        q.text AS query_text, st.plan_handle, pl.query_plan, 
-        st.execution_count, st.min_worker_time, st.max_worker_time, 
-        st.total_worker_time, st.min_physical_reads, st.max_physical_reads, 
-        st.total_physical_reads, st.min_elapsed_time, st.max_elapsed_time, 
-        st.total_elapsed_time, st.total_rows, st.min_rows, st.max_rows, 
-        st.min_spills, st.max_spills, st.total_spills, 
-        st.min_logical_writes, st.max_logical_writes, st.total_logical_writes, 
-        st.min_logical_reads, st.max_logical_reads, st.total_logical_reads, 
-        st.min_used_grant_kb, st.max_used_grant_kb, st.total_used_grant_kb, 
-        st.min_used_threads, st.max_used_threads, st.total_used_threads 
-        FROM sys.dm_exec_query_stats st 
-        CROSS APPLY sys.dm_exec_sql_text(st.plan_handle) q 
-        CROSS APPLY sys.dm_exec_query_plan(st.plan_handle) pl
+            SELECT q.text AS query_text, st.plan_handle, pl.query_plan, 
+            q.text AS query_text, st.plan_handle, pl.query_plan, 
+            st.execution_count, st.min_worker_time, st.max_worker_time, 
+            st.total_worker_time, st.min_physical_reads, st.max_physical_reads, 
+            st.total_physical_reads, st.min_elapsed_time, st.max_elapsed_time, 
+            st.total_elapsed_time, st.total_rows, st.min_rows, st.max_rows, 
+            st.min_spills, st.max_spills, st.total_spills, 
+            st.min_logical_writes, st.max_logical_writes, st.total_logical_writes, 
+            st.min_logical_reads, st.max_logical_reads, st.total_logical_reads, 
+            st.min_used_grant_kb, st.max_used_grant_kb, st.total_used_grant_kb, 
+            st.min_used_threads, st.max_used_threads, st.total_used_threads 
+            FROM sys.dm_exec_query_stats st 
+            CROSS APPLY sys.dm_exec_sql_text(st.plan_handle) q 
+            CROSS APPLY sys.dm_exec_query_plan(st.plan_handle) pl
         """;
     private String DM_OS_PERFORMANCE_STATS = """
-        SELECT cntr_value, counter_name FROM sys.dm_os_performance_counters 
-        WHERE instance_name='$DB_INSTANCE';
+            SELECT cntr_value, counter_name
+            FROM sys.dm_os_performance_counters 
+            WHERE instance_name='%s';
         """;
     private final String CLEAN_CACHE = "DBCC FREEPROCCACHE;";
+    private final Pattern DATABASE_URL_PATTERN = Pattern.compile("database=(?<instanceName>\\S+);");
+
     private final List<String> singleQueryProperties;
     private final List<String> repeatedQueryProperties;
     private final List<String> repeatedSystemProperties;
@@ -58,14 +61,9 @@ public class SQLServerMonitor extends DatabaseMonitor {
         super(monitorInfo, testState, workers, conf);
 
         // Extract the database instance from url.
-        String[] params = conf.getUrl().split(";");
-        for (String param : params) {
-            String[] values = param.split("=");
-            if (values[0].equals("database")) {
-                DM_OS_PERFORMANCE_STATS = DM_OS_PERFORMANCE_STATS.replace(
-                        "$DB_INSTANCE", values[1]);
-                break;
-            }
+        Matcher m = DATABASE_URL_PATTERN.matcher(conf.getUrl());
+        if (m.find()) {
+            DM_OS_PERFORMANCE_STATS = DM_OS_PERFORMANCE_STATS.formatted(m.group("instanceName"));
         }
 
         this.cached_plans = new HashSet<String>();
@@ -145,8 +143,6 @@ public class SQLServerMonitor extends DatabaseMonitor {
                 if (m.find()) {
                     String identifier = m.group("queryId");
                     query_text = m.replaceAll("");
-                    LOG.info("identifier: " + identifier);
-                    LOG.info("query text: " + query_text);
                     // Get plan_handle for plan identification.
                     String plan_handle = rs.getString("plan_handle");
     
