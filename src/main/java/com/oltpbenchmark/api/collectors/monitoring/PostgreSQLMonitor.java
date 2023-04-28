@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.oltpbenchmark.BenchmarkState;
@@ -33,7 +34,6 @@ public class PostgreSQLMonitor extends DatabaseMonitor {
         FROM pg_stat_statements;
         """;
     private final String CLEAN_CACHE = "SELECT pg_stat_statements_reset();";
-    private final List<String> singleQueryProperties;
     private final List<String> repeatedQueryProperties;
 
     private final Set<String> stored_queries;
@@ -43,12 +43,6 @@ public class PostgreSQLMonitor extends DatabaseMonitor {
         super(monitorInfo, testState, workers, conf);
 
         this.stored_queries = new HashSet<String>();
-
-        this.singleQueryProperties = new ArrayList<String>() {
-            {
-                add("query_text");
-            }
-        };
 
         this.repeatedQueryProperties = new ArrayList<String>() {
             {
@@ -85,40 +79,36 @@ public class PostgreSQLMonitor extends DatabaseMonitor {
                     continue;
                 }
                 // Get identifier from commment in query text.
-                String[] split = query_text.split(Pattern.quote(MonitoringUtil.getMonitoringPrefix()));
-                split = split[1].split(Pattern.quote(MonitoringUtil.getMonitoringSuffix()));
-                String identifier = split[0];
+                Matcher m = MonitoringUtil.getMonitoringPattern().matcher(query_text);
+                if (m.find()) {
+                    String identifier = m.group("queryId");
+                    query_text = m.replaceAll("");
 
-                // Handle one-off query info, may occur when a plan gets
-                // executed for the first time.
-                Map<String, String> propertyValues;
-                if (!stored_queries.contains(identifier)) {
-                    stored_queries.add(identifier);
+                    // Handle one-off query info, may occur when a plan gets
+                    // executed for the first time.
+                    Map<String, String> propertyValues;
+                    if (!stored_queries.contains(identifier)) {
+                        stored_queries.add(identifier);
 
-                    singleQueryEventBuilder.queryId(identifier);
+                        singleQueryEventBuilder.queryId(identifier);
+                        propertyValues = new HashMap<String, String>();
+                        propertyValues.put("query_text", query_text);
+                        singleQueryEventBuilder.propertyValues(propertyValues);
+                        this.singleQueryEvents.add(singleQueryEventBuilder.build());
+                    }
+
+                    // Handle repeated query events.
+                    repeatedQueryEventBuilder.queryId(identifier).instant(instant);
                     propertyValues = new HashMap<String, String>();
-                    // Add single events.
-                    for (String property : this.singleQueryProperties) {
+                    for (String property : this.repeatedQueryProperties) {
                         String value = rs.getString(property);
                         if (value != null) {
                             propertyValues.put(property, value);
                         }
                     }
-                    singleQueryEventBuilder.propertyValues(propertyValues);
-                    this.singleQueryEvents.add(singleQueryEventBuilder.build());
+                    repeatedQueryEventBuilder.propertyValues(propertyValues);
+                    this.repeatedQueryEvents.add(repeatedQueryEventBuilder.build());
                 }
-
-                // Handle repeated query events.
-                repeatedQueryEventBuilder.queryId(identifier).instant(instant);
-                propertyValues = new HashMap<String, String>();
-                for (String property : this.repeatedQueryProperties) {
-                    String value = rs.getString(property);
-                    if (value != null) {
-                        propertyValues.put(property, value);
-                    }
-                }
-                repeatedQueryEventBuilder.propertyValues(propertyValues);
-                this.repeatedQueryEvents.add(repeatedQueryEventBuilder.build());
             }
         } catch (SQLException sqlError) {
             LOG.error("Error when extracting per query metrics.");

@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.oltpbenchmark.BenchmarkState;
@@ -72,7 +73,6 @@ public class SQLServerMonitor extends DatabaseMonitor {
         this.singleQueryProperties = new ArrayList<String>() {
             {
                 add("query_plan");
-                add("query_text");
                 add("plan_handle");
             }
         };
@@ -141,42 +141,47 @@ public class SQLServerMonitor extends DatabaseMonitor {
                 }
 
                 // Get identifier from commment in query text.
-                String[] split = query_text.split(Pattern.quote(MonitoringUtil.getMonitoringPrefix()));
-                split = split[1].split(Pattern.quote(MonitoringUtil.getMonitoringSuffix()));
-                String identifier = split[0];
-                // Get plan_handle for plan identification.
-                String plan_handle = rs.getString("plan_handle");
-
-                // Handle one-off query information, may occur when a plan gets
-                // executed for the first time.
-                Map<String, String> propertyValues;
-                if (!cached_plans.contains(plan_handle)) {
-                    cached_plans.add(plan_handle);
-
-                    singleQueryEventBuilder.queryId(identifier);
+                Matcher m = MonitoringUtil.getMonitoringPattern().matcher(query_text);
+                if (m.find()) {
+                    String identifier = m.group("queryId");
+                    query_text = m.replaceAll("");
+                    LOG.info("identifier: " + identifier);
+                    LOG.info("query text: " + query_text);
+                    // Get plan_handle for plan identification.
+                    String plan_handle = rs.getString("plan_handle");
+    
+                    // Handle one-off query information, may occur when a plan gets
+                    // executed for the first time.
+                    Map<String, String> propertyValues;
+                    if (!cached_plans.contains(plan_handle)) {
+                        cached_plans.add(plan_handle);
+    
+                        singleQueryEventBuilder.queryId(identifier);
+                        propertyValues = new HashMap<String, String>();
+                        propertyValues.put("query_text", query_text);
+                        // Add single events.
+                        for (String property : this.singleQueryProperties) {
+                            String value = rs.getString(property);
+                            if (value != null) {
+                                propertyValues.put(property, value);
+                            }
+                        }
+                        singleQueryEventBuilder.propertyValues(propertyValues);
+                        this.singleQueryEvents.add(singleQueryEventBuilder.build());
+                    }
+    
+                    // Handle repeated query events.
+                    repeatedQueryEventBuilder.queryId(identifier).instant(instant);
                     propertyValues = new HashMap<String, String>();
-                    // Add single events.
-                    for (String property : this.singleQueryProperties) {
+                    for (String property : this.repeatedQueryProperties) {
                         String value = rs.getString(property);
                         if (value != null) {
                             propertyValues.put(property, value);
                         }
                     }
-                    singleQueryEventBuilder.propertyValues(propertyValues);
-                    this.singleQueryEvents.add(singleQueryEventBuilder.build());
+                    repeatedQueryEventBuilder.propertyValues(propertyValues);
+                    this.repeatedQueryEvents.add(repeatedQueryEventBuilder.build());
                 }
-
-                // Handle repeated query events.
-                repeatedQueryEventBuilder.queryId(identifier).instant(instant);
-                propertyValues = new HashMap<String, String>();
-                for (String property : this.repeatedQueryProperties) {
-                    String value = rs.getString(property);
-                    if (value != null) {
-                        propertyValues.put(property, value);
-                    }
-                }
-                repeatedQueryEventBuilder.propertyValues(propertyValues);
-                this.repeatedQueryEvents.add(repeatedQueryEventBuilder.build());
             }
         } catch (SQLException sqlError) {
             LOG.error("Error when extracting per query measurements.");
