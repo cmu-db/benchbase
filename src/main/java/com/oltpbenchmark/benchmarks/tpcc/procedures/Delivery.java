@@ -34,66 +34,53 @@ public class Delivery extends TPCCProcedure {
     private static final Logger LOG = LoggerFactory.getLogger(Delivery.class);
 
     public SQLStmt delivGetOrderIdSQL = new SQLStmt(
-        """
-            SELECT NO_O_ID FROM %s
-             WHERE NO_D_ID = ?
-               AND NO_W_ID = ?
-             ORDER BY NO_O_ID ASC
-             LIMIT 1
-        """.formatted(TPCCConstants.TABLENAME_NEWORDER));
+            "SELECT NO_O_ID FROM " + TPCCConstants.TABLENAME_NEWORDER +
+            " WHERE NO_D_ID = ? " +
+            "   AND NO_W_ID = ? " +
+            " ORDER BY NO_O_ID ASC " +
+            " LIMIT 1");
 
     public SQLStmt delivDeleteNewOrderSQL = new SQLStmt(
-        """
-            DELETE FROM %s
-            WHERE NO_O_ID = ?
-            AND NO_D_ID = ?
-            AND NO_W_ID = ?
-        """.formatted(TPCCConstants.TABLENAME_NEWORDER));
+            "DELETE FROM " + TPCCConstants.TABLENAME_NEWORDER +
+            " WHERE NO_O_ID = ? " +
+            "   AND NO_D_ID = ?" +
+            "   AND NO_W_ID = ?");
 
     public SQLStmt delivGetCustIdSQL = new SQLStmt(
-        """
-            SELECT O_C_ID FROM %s
-            WHERE O_ID = ?
-            AND O_D_ID = ?
-            AND O_W_ID = ?
-        """.formatted(TPCCConstants.TABLENAME_OPENORDER));
+            "SELECT O_C_ID FROM " + TPCCConstants.TABLENAME_OPENORDER +
+            " WHERE O_ID = ? " +
+            "   AND O_D_ID = ? " +
+            "   AND O_W_ID = ?");
 
     public SQLStmt delivUpdateCarrierIdSQL = new SQLStmt(
-    """
-        UPDATE %s
-           SET O_CARRIER_ID = ?
-         WHERE O_ID = ?
-           AND O_D_ID = ?
-           AND O_W_ID = ?
-    """.formatted(TPCCConstants.TABLENAME_OPENORDER));
+            "UPDATE " + TPCCConstants.TABLENAME_OPENORDER +
+            "   SET O_CARRIER_ID = ? " +
+            " WHERE O_ID = ? " +
+            "   AND O_D_ID = ?" +
+            "   AND O_W_ID = ?");
 
     public SQLStmt delivUpdateDeliveryDateSQL = new SQLStmt(
-    """
-        UPDATE %s
-           SET OL_DELIVERY_D = ?
-         WHERE OL_O_ID = ?
-           AND OL_D_ID = ?
-           AND OL_W_ID = ?
-    """.formatted(TPCCConstants.TABLENAME_ORDERLINE));
+            "UPDATE " + TPCCConstants.TABLENAME_ORDERLINE +
+            "   SET OL_DELIVERY_D = ? " +
+            " WHERE OL_O_ID = ? " +
+            "   AND OL_D_ID = ? " +
+            "   AND OL_W_ID = ? ");
 
     public SQLStmt delivSumOrderAmountSQL = new SQLStmt(
-    """
-        SELECT SUM(OL_AMOUNT) AS OL_TOTAL
-          FROM %s
-         WHERE OL_O_ID = ?
-           AND OL_D_ID = ?
-           AND OL_W_ID = ?
-    """.formatted(TPCCConstants.TABLENAME_ORDERLINE));
+            "SELECT SUM(OL_AMOUNT) AS OL_TOTAL " +
+            "  FROM " + TPCCConstants.TABLENAME_ORDERLINE +
+            " WHERE OL_O_ID = ? " +
+            "   AND OL_D_ID = ? " +
+            "   AND OL_W_ID = ?");
 
     public SQLStmt delivUpdateCustBalDelivCntSQL = new SQLStmt(
-    """
-        UPDATE %s
-           SET C_BALANCE = C_BALANCE + ?,
-               C_DELIVERY_CNT = C_DELIVERY_CNT + 1
-         WHERE C_W_ID = ?
-           AND C_D_ID = ?
-           AND C_ID = ?
-    """.formatted(TPCCConstants.TABLENAME_CUSTOMER));
+            "UPDATE " + TPCCConstants.TABLENAME_CUSTOMER +
+            "   SET C_BALANCE = C_BALANCE + ?," +
+            "       C_DELIVERY_CNT = C_DELIVERY_CNT + 1 " +
+            " WHERE C_W_ID = ? " +
+            "   AND C_D_ID = ? " +
+            "   AND C_ID = ? ");
+
 
     public void run(Connection conn, Random gen, int w_id, int numWarehouses, int terminalDistrictLowerID, int terminalDistrictUpperID, TPCCWorker w) throws SQLException {
 

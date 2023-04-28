@@ -34,83 +34,63 @@ public class NewOrder extends TPCCProcedure {
     private static final Logger LOG = LoggerFactory.getLogger(NewOrder.class);
 
     public final SQLStmt stmtGetCustSQL = new SQLStmt(
-    """
-        SELECT C_DISCOUNT, C_LAST, C_CREDIT
-          FROM %s
-         WHERE C_W_ID = ?
-           AND C_D_ID = ?
-           AND C_ID = ?
-    """.formatted(TPCCConstants.TABLENAME_CUSTOMER));
+            "SELECT C_DISCOUNT, C_LAST, C_CREDIT" +
+            "  FROM " + TPCCConstants.TABLENAME_CUSTOMER +
+            " WHERE C_W_ID = ? " +
+            "   AND C_D_ID = ? " +
+            "   AND C_ID = ?");
 
     public final SQLStmt stmtGetWhseSQL = new SQLStmt(
-    """
-        SELECT W_TAX
-          FROM %s
-         WHERE W_ID = ?
-    """.formatted(TPCCConstants.TABLENAME_WAREHOUSE));
+            "SELECT W_TAX " +
+            "  FROM " + TPCCConstants.TABLENAME_WAREHOUSE +
+            " WHERE W_ID = ?");
 
     public final SQLStmt stmtGetDistSQL = new SQLStmt(
-    """
-        SELECT D_NEXT_O_ID, D_TAX
-          FROM %s
-         WHERE D_W_ID = ? AND D_ID = ? FOR UPDATE
-    """.formatted(TPCCConstants.TABLENAME_DISTRICT));
+            "SELECT D_NEXT_O_ID, D_TAX " +
+            "  FROM " + TPCCConstants.TABLENAME_DISTRICT +
+            " WHERE D_W_ID = ? AND D_ID = ? FOR UPDATE");
 
     public final SQLStmt stmtInsertNewOrderSQL = new SQLStmt(
-    """
-        INSERT INTO %s
-         (NO_O_ID, NO_D_ID, NO_W_ID)
-         VALUES ( ?, ?, ?)
-    """.formatted(TPCCConstants.TABLENAME_NEWORDER));
+            "INSERT INTO " + TPCCConstants.TABLENAME_NEWORDER +
+            " (NO_O_ID, NO_D_ID, NO_W_ID) " +
+            " VALUES ( ?, ?, ?)");
 
     public final SQLStmt stmtUpdateDistSQL = new SQLStmt(
-    """
-        UPDATE %s
-           SET D_NEXT_O_ID = D_NEXT_O_ID + 1
-         WHERE D_W_ID = ?
-           AND D_ID = ?
-    """.formatted(TPCCConstants.TABLENAME_DISTRICT));
+            "UPDATE " + TPCCConstants.TABLENAME_DISTRICT +
+            "   SET D_NEXT_O_ID = D_NEXT_O_ID + 1 " +
+            " WHERE D_W_ID = ? " +
+            "   AND D_ID = ?");
 
     public final SQLStmt stmtInsertOOrderSQL = new SQLStmt(
-    """
-        INSERT INTO %s
-         (O_ID, O_D_ID, O_W_ID, O_C_ID, O_ENTRY_D, O_OL_CNT, O_ALL_LOCAL)
-         VALUES (?, ?, ?, ?, ?, ?, ?)
-    """.formatted(TPCCConstants.TABLENAME_OPENORDER));
+            "INSERT INTO " + TPCCConstants.TABLENAME_OPENORDER +
+            " (O_ID, O_D_ID, O_W_ID, O_C_ID, O_ENTRY_D, O_OL_CNT, O_ALL_LOCAL)" +
+            " VALUES (?, ?, ?, ?, ?, ?, ?)");
 
     public final SQLStmt stmtGetItemSQL = new SQLStmt(
-    """
-        SELECT I_PRICE, I_NAME , I_DATA
-          FROM %s
-         WHERE I_ID = ?
-    """.formatted(TPCCConstants.TABLENAME_ITEM));
+            "SELECT I_PRICE, I_NAME , I_DATA " +
+            "  FROM " + TPCCConstants.TABLENAME_ITEM +
+            " WHERE I_ID = ?");
 
     public final SQLStmt stmtGetStockSQL = new SQLStmt(
-    """
-        SELECT S_QUANTITY, S_DATA, S_DIST_01, S_DIST_02, S_DIST_03, S_DIST_04, S_DIST_05,
-               S_DIST_06, S_DIST_07, S_DIST_08, S_DIST_09, S_DIST_10
-          FROM %s
-         WHERE S_I_ID = ?
-           AND S_W_ID = ? FOR UPDATE
-    """.formatted(TPCCConstants.TABLENAME_STOCK));
+            "SELECT S_QUANTITY, S_DATA, S_DIST_01, S_DIST_02, S_DIST_03, S_DIST_04, S_DIST_05, " +
+            "       S_DIST_06, S_DIST_07, S_DIST_08, S_DIST_09, S_DIST_10" +
+            "  FROM " + TPCCConstants.TABLENAME_STOCK +
+            " WHERE S_I_ID = ? " +
+            "   AND S_W_ID = ? FOR UPDATE");
 
     public final SQLStmt stmtUpdateStockSQL = new SQLStmt(
-    """
-        UPDATE %s
-           SET S_QUANTITY = ? ,
-               S_YTD = S_YTD + ?,
-               S_ORDER_CNT = S_ORDER_CNT + 1,
-               S_REMOTE_CNT = S_REMOTE_CNT + ?
-         WHERE S_I_ID = ?
-           AND S_W_ID = ?
-    """.formatted(TPCCConstants.TABLENAME_STOCK));
+            "UPDATE " + TPCCConstants.TABLENAME_STOCK +
+            "   SET S_QUANTITY = ? , " +
+            "       S_YTD = S_YTD + ?, " +
+            "       S_ORDER_CNT = S_ORDER_CNT + 1, " +
+            "       S_REMOTE_CNT = S_REMOTE_CNT + ? " +
+            " WHERE S_I_ID = ? " +
+            "   AND S_W_ID = ?");
 
     public final SQLStmt stmtInsertOrderLineSQL = new SQLStmt(
-    """
-        INSERT INTO %s
-         (OL_O_ID, OL_D_ID, OL_W_ID, OL_NUMBER, OL_I_ID, OL_SUPPLY_W_ID, OL_QUANTITY, OL_AMOUNT, OL_DIST_INFO)
-         VALUES (?,?,?,?,?,?,?,?,?)
-    """.formatted(TPCCConstants.TABLENAME_ORDERLINE));
+            "INSERT INTO " + TPCCConstants.TABLENAME_ORDERLINE +
+            " (OL_O_ID, OL_D_ID, OL_W_ID, OL_NUMBER, OL_I_ID, OL_SUPPLY_W_ID, OL_QUANTITY, OL_AMOUNT, OL_DIST_INFO) " +
+            " VALUES (?,?,?,?,?,?,?,?,?)");
 
 
     public void run(Connection conn, Random gen, int terminalWarehouseID, int numWarehouses, int terminalDistrictLowerID, int terminalDistrictUpperID, TPCCWorker w) throws SQLException {
