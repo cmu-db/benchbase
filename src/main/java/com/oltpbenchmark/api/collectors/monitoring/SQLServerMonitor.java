@@ -213,6 +213,11 @@ public class SQLServerMonitor extends DatabaseMonitor {
     }
 
     @Override
+    protected String getCleanupStmt() {
+        return CLEAN_CACHE;
+    }
+
+    @Override
     protected void runExtraction() {
         Instant time = Instant.now();
 
@@ -221,19 +226,7 @@ public class SQLServerMonitor extends DatabaseMonitor {
     }
 
     @Override
-    protected void cleanupCache() {
-        try (PreparedStatement stmt = conn.prepareStatement(CLEAN_CACHE)) {
-            stmt.execute();
-        } catch (SQLException sqlError) {
-            LOG.error("Error when cleaning up cached plans.");
-            LOG.error(sqlError.getMessage());
-        }
-    }
-
-    @Override
-    protected void writeToCSV() {
-        this.writeSingleQueryEventsToCSV();
-        this.writeRepeatedQueryEventsToCSV();
+    protected void writeSystemMetrics() {
         this.writeRepeatedSystemEventsToCSV();
     }
 

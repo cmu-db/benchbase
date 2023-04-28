@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -180,6 +181,25 @@ public abstract class DatabaseMonitor extends Monitor {
                 OUTPUT_DIR, filename + "_" + fileCounter + ".csv");
     }
 
+    protected void cleanupCache() {
+        try (PreparedStatement stmt = conn.prepareStatement(this.getCleanupStmt())) {
+            stmt.execute();
+        } catch (SQLException sqlError) {
+            LOG.error("Error when cleaning up cached plans.");
+            LOG.error(sqlError.getMessage());
+        }
+    }
+
+    protected void writeQueryMetrics() {
+        this.writeSingleQueryEventsToCSV();
+        this.writeRepeatedQueryEventsToCSV();
+    }
+
+    protected void writeToCSV() {
+        this.writeQueryMetrics();
+        this.writeSystemMetrics();
+    }
+
     @Value.Immutable
     public interface SingleQueryEvent {
 
@@ -213,20 +233,14 @@ public abstract class DatabaseMonitor extends Monitor {
         Map<String, String> getPropertyValues();
     }
 
-    /**
-     * DBMS-specific cache cleaning process.
-     */
-    protected abstract void cleanupCache();
+    protected abstract String getCleanupStmt();
 
     /**
      * Execute the extraction of desired query and performance metrics.
      */
     protected abstract void runExtraction();
 
-    /**
-     * Write events to csv.
-     */
-    protected abstract void writeToCSV();
+    protected abstract void writeSystemMetrics();
 
     /**
      * Run monitor. Clean up cache first and do initial extraction, then sleep
