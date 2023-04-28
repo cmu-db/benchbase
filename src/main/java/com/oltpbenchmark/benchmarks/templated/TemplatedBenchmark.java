@@ -164,7 +164,7 @@ public class TemplatedBenchmark extends BenchmarkModule {
                 b.query(template.getQuery());
                 LOG.info(template.getQuery());
                 b.paramsTypes(String.join(",", template.getTypes().getTypeList()));
-                LOG.info(String.join(",", template.getTypes().getTypeList()));
+                LOG.info(String.join(", ", template.getTypes().getTypeList()));
                 for (ValuesType paramValue : template.getValues()) {
                     b.addParamsValues(String.join(", ", paramValue.getValueList()));
                     LOG.info(String.join(", ", paramValue.getValueList()));
@@ -194,6 +194,7 @@ public class TemplatedBenchmark extends BenchmarkModule {
                             qt.getParamsTypes(),
                             getParamsString(qt.getParamsValues()));
                 LOG.debug("Class definition for query template {}:\n {}", qt.getName(), s);
+                LOG.info(s);
                 final String qualifiedClassName = GenericQuery.class.getPackageName() + "." + qt.getName();
                 final ISimpleCompiler compiler = compilerFactory.newSimpleCompiler();
                 compiler.setTargetVersion(17);
