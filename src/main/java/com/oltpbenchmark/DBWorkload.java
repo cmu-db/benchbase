@@ -89,8 +89,15 @@ public class DBWorkload {
             builder.monitoringInterval(Integer.parseInt(argsLine.getOptionValue("im")));
         }
         if (argsLine.hasOption("mt")) {
-            if (argsLine.getOptionValue("mt").equals("advanced")) {
-                builder.monitoringType(MonitorInfo.MonitoringType.ADVANCED);
+            switch (argsLine.getOptionValue("mt")) {
+                case "advanced":
+                    builder.monitoringType(MonitorInfo.MonitoringType.ADVANCED);
+                    break;
+                case "throughput":
+                    builder.monitoringType(MonitorInfo.MonitoringType.THROUGHPUT);
+                    break;
+                default:
+                    throw new ParseException("Monitoring type '" + argsLine.getOptionValue("mt") + "' is undefined, allowed values are: advanced/throughput");
             }
         }
         MonitorInfo monitorInfo = builder.build();
