@@ -16,23 +16,26 @@
 
 package com.oltpbenchmark.benchmarks.seats.util;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+
 import com.oltpbenchmark.util.Histogram;
-import junit.framework.TestCase;
 
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
+import org.junit.Before;
+import org.junit.Test;
 
-public class TestCustomerIdIterable extends TestCase {
+public class TestCustomerIdIterable {
 
     final Random rand = new Random();
     final Histogram<Long> airport_max_customer_id = new Histogram<Long>();
     CustomerIdIterable customer_id_iterable;
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-
+    @Before
+    public void setUp() throws Exception {
         for (long airport = 0; airport <= 285; airport++) {
             this.airport_max_customer_id.put(airport, rand.nextInt(100));
         } // FOR
@@ -43,6 +46,7 @@ public class TestCustomerIdIterable extends TestCase {
     /**
      * testIterator
      */
+    @Test
     public void testIterator() throws Exception {
         Set<String> seen_ids = new HashSet<>();
         Histogram<Long> airport_ids = new Histogram<>();

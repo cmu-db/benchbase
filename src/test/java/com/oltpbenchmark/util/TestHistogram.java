@@ -17,8 +17,14 @@
 
 package com.oltpbenchmark.util;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import org.json.JSONObject;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.lang.reflect.Field;
@@ -27,7 +33,7 @@ import java.util.*;
 /**
  * @author pavlo
  */
-public class TestHistogram extends TestCase {
+public class TestHistogram {
 
     public static final int NUM_PARTITIONS = 100;
     public static final int NUM_SAMPLES = 100;
@@ -37,7 +43,8 @@ public class TestHistogram extends TestCase {
     private final Histogram<Integer> h = new Histogram<Integer>();
     private final Random rand = new Random(1);
 
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         // Cluster a bunch in the center
         int min = RANGE / 3;
         for (int i = 0; i < NUM_SAMPLES; i++) {
@@ -51,6 +58,7 @@ public class TestHistogram extends TestCase {
     /**
      * testMinMaxCount
      */
+    @Test
     public void testMinMaxCount() throws Exception {
         Histogram<Integer> h = new Histogram<Integer>();
         int expected = 10;
@@ -76,6 +84,7 @@ public class TestHistogram extends TestCase {
     /**
      * testMinCountValues
      */
+    @Test
     public void testMinCountValues() throws Exception {
         Histogram<Long> h = new Histogram<Long>();
         long expected = -1981;
@@ -105,6 +114,7 @@ public class TestHistogram extends TestCase {
     /**
      * testMaxCountValues
      */
+    @Test
     public void testMaxCountValues() throws Exception {
         int expected = -1981;
         int count = 1000;
@@ -232,6 +242,7 @@ public class TestHistogram extends TestCase {
     /**
      * testToJSONString
      */
+    @Test
     public void testToJSONString() throws Exception {
         String json = h.toJSONString();
         assertNotNull(json);
@@ -244,6 +255,7 @@ public class TestHistogram extends TestCase {
     /**
      * testFromJSON
      */
+    @Test
     public void testFromJSON() throws Exception {
         String json = h.toJSONString();
         assertNotNull(json);
