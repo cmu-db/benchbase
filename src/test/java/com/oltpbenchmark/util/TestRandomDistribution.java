@@ -20,8 +20,6 @@ package com.oltpbenchmark.util;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import junit.framework.TestCase;
-
 import java.util.Random;
 import org.junit.Test;
 
