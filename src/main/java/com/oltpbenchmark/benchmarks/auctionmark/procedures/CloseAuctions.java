@@ -47,7 +47,7 @@ public class CloseAuctions extends Procedure {
             "SELECT " + AuctionMarkConstants.ITEM_COLUMNS_STR +
                     " FROM " + AuctionMarkConstants.TABLENAME_ITEM + " " +
                     "WHERE (i_start_date BETWEEN ? AND ?) " +
-                    "AND ? " +
+                    "AND i_status = ? " +
                     "ORDER BY i_id ASC " +
                     "LIMIT " + AuctionMarkConstants.CLOSE_AUCTIONS_ITEMS_PER_ROUND
     );
