@@ -145,6 +145,3 @@ CREATE TABLE order_line (
     FOREIGN KEY (ol_supply_w_id, ol_i_id) REFERENCES stock (s_w_id, s_i_id) ON DELETE CASCADE, */
     PRIMARY KEY (ol_w_id, ol_d_id, ol_o_id, ol_number)
 );
-
-CREATE INDEX idx_customer_name ON customer (c_w_id, c_d_id, c_last);
-CREATE INDEX idx_order ON oorder (o_w_id, o_d_id, o_c_id, o_id);
