@@ -1,10 +1,9 @@
 #Table1	1*1M	1000*1k	    10000*100
 #Table2	1*1L	1000*100	10000*10
 #Table3	1*10k	1000*10	    10000*1
-type: YUGABYTE
-driver: com.yugabyte.Driver
-url: jdbc:yugabytedb://{{endpoint}}:5433/yugabyte?sslmode=require&ApplicationName=featurebench&reWriteBatchedInserts=true&load-balance=false
-createdb: drop database if exists yb_colocated; create database yb_colocated with colocated=true
+type: POSTGRES
+driver: org.postgresql.Driver
+url: jdbc:postgresql://{{endpoint}}:5432/postgres?sslmode=require
 username: {{username}}
 password: {{password}}
 batchsize: 128
@@ -12,7 +11,6 @@ isolation: TRANSACTION_REPEATABLE_READ
 loaderthreads: 1
 terminals: 1
 collect_pg_stat_statements: true
-use_dist_in_explain : true
 yaml_version: v1.0
 works:
     work:
@@ -26,7 +24,7 @@ microbenchmark:
         setAutoCommit: true
         create:
           - DROP TABLE IF EXISTS pkeyVarchar10_1;
-          - CREATE TABLE pkeyVarchar10_1(col_varchar_card1_1 varchar(15), col_varchar_card2_1 varchar(15), col_varchar_card3_1 varchar(15), col_bigint_id_1 bigint, col_bigint_id_2 bigint, col_bigint_id_3 bigint, col_float2_1 float(2), col_float2_2 float(2), col_float5_1 float(5), col_float5_2 float(5), col_boolean_1 boolean, col_varchar10_id_1 varchar(10), col_varchar100_id_1 varchar(100), col_varchar100_id_2 varchar(100), col_varchar500_id_1 varchar(500), PRIMARY KEY(col_varchar_card1_1 ASC, col_varchar_card2_1 ASC, col_varchar_card3_1 ASC, col_bigint_id_1 ASC));
+          - CREATE TABLE pkeyVarchar10_1(col_varchar_card1_1 varchar(15), col_varchar_card2_1 varchar(15), col_varchar_card3_1 varchar(15), col_bigint_id_1 bigint, col_bigint_id_2 bigint, col_bigint_id_3 bigint, col_float2_1 float(2), col_float2_2 float(2), col_float5_1 float(5), col_float5_2 float(5), col_boolean_1 boolean, col_varchar10_id_1 varchar(10), col_varchar100_id_1 varchar(100), col_varchar100_id_2 varchar(100), col_varchar500_id_1 varchar(500), PRIMARY KEY(col_varchar_card1_1, col_varchar_card2_1, col_varchar_card3_1, col_bigint_id_1));
 
         cleanup:
             - DROP TABLE IF EXISTS pkeyVarchar10_;
@@ -78,14 +76,14 @@ microbenchmark:
 
         executeRules:
 
-            - workload: INDG10_1_data_cardinality_hashtbl_point_lookup_index_scan_using_comp_skey_first_part_hash_1M
+            - workload: INDG11_1_data_cardinality_hashtbl_point_lookup_index_scan_using_comp_skey_first_part_hash_1M
               run:
                   - name: hashtbl_index_scan_using_sec_index
                     weight: 100
                     queries:
                         - query: select * from pkeyVarchar10_1 where col_varchar_card1_1='id-1000000'
 
-            - workload: INDG10_2_data_cardinality_hashtbl_point_lookup_index_scan_using_comp_skey_sec_part_hash_1k
+            - workload: INDG11_2_data_cardinality_hashtbl_point_lookup_index_scan_using_comp_skey_sec_part_hash_1k
               run:
                   - name: hashtbl_index_scan_using_sec_index
                     weight: 100
@@ -93,21 +91,21 @@ microbenchmark:
                         - query: select * from pkeyVarchar10_1 where col_varchar_card2_1='id-1000498'
 
 
-            - workload: INDG10_2_data_cardinality_hashtbl_point_lookup_index_scan_using_comp_skey_sec_part_hash_1k_two_conditions
+            - workload: INDG11_2_data_cardinality_hashtbl_point_lookup_index_scan_using_comp_skey_sec_part_hash_1k_two_conditions
               run:
                   - name: hashtbl_index_scan_using_sec_index
                     weight: 100
                     queries:
                         - query: select * from pkeyVarchar10_1 where col_varchar_card1_1='id-1000000' and col_varchar_card2_1='id-1000898'
 
-            - workload: INDG10_2_data_cardinality_hashtbl_point_lookup_index_scan_using_comp_skey_third_part_hash_100_two_conditions
+            - workload: INDG11_2_data_cardinality_hashtbl_point_lookup_index_scan_using_comp_skey_third_part_hash_100_two_conditions
               run:
                   - name: hashtbl_index_scan_using_sec_index
                     weight: 100
                     queries:
                         - query: select * from pkeyVarchar10_1 where col_varchar_card1_1='id-1000000' and col_varchar_card3_1='id-7000999'
 
-            - workload: INDG10_2_data_cardinality_hashtbl_point_lookup_index_scan_using_comp_skey_third_part_hash_100_two_conditions
+            - workload: INDG11_2_data_cardinality_hashtbl_point_lookup_index_scan_using_comp_skey_third_part_hash_100_two_conditions
               run:
                   - name: hashtbl_index_scan_using_sec_index
                     weight: 100
