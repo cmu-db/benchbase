@@ -12,6 +12,9 @@
 
     <!-- Scalefactor in YCSB is *1000 the number of rows in the USERTABLE-->
     <scalefactor>1</scalefactor>
+    
+    <!-- Optional: Override the zipfian constant to modify the skew -->
+    <!-- <zipfianConstant>0.99</zipfianConstant> -->
 
     <!-- The workload -->
     <terminals>1</terminals>
