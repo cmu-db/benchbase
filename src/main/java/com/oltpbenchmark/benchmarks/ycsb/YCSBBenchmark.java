@@ -43,6 +43,11 @@ public class YCSBBenchmark extends BenchmarkModule {
      */
     protected final int fieldSize;
 
+    /**
+     * The constant used in the zipfian distribution (to modify the skew)
+     */
+    protected final double zipfianConstant;
+
     public YCSBBenchmark(WorkloadConfiguration workConf) {
         super(workConf);
 
@@ -54,6 +59,15 @@ public class YCSBBenchmark extends BenchmarkModule {
         if (this.fieldSize <= 0) {
             throw new RuntimeException("Invalid YCSB fieldSize '" + this.fieldSize + "'");
         }
+
+        double zipfianConstant = 0.99;
+        if (workConf.getXmlConfig() != null && workConf.getXmlConfig().containsKey("zipfianConstant")) {
+            zipfianConstant = workConf.getXmlConfig().getDouble("zipfianConstant");
+            if (zipfianConstant == 1) {
+                throw new RuntimeException("Invalid YCSB zipfianConstant '" + zipfianConstant + "'");
+            }
+        }
+        this.zipfianConstant = zipfianConstant;
     }
 
     @Override
