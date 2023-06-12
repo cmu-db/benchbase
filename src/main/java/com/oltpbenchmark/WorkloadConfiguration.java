@@ -305,6 +305,8 @@ public class WorkloadConfiguration {
             case "TRANSACTION_READ_UNCOMMITTED":
                 this.isolationMode = Connection.TRANSACTION_READ_UNCOMMITTED;
                 break;
+            case "TRANSACTION_NONE":
+                this.isolationMode = Connection.TRANSACTION_NONE;
         }
     }
 
@@ -317,6 +319,8 @@ public class WorkloadConfiguration {
             return "TRANSACTION_REPEATABLE_READ";
         } else if (this.isolationMode == Connection.TRANSACTION_READ_UNCOMMITTED) {
             return "TRANSACTION_READ_UNCOMMITTED";
+        } else if (this.isolationMode == Connection.TRANSACTION_NONE) {
+            return "TRANSACTION_NONE";
         } else {
             return "TRANSACTION_SERIALIZABLE";
         }
