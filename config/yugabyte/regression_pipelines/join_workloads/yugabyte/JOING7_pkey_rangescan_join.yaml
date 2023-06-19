@@ -1,4 +1,4 @@
-#TEST FOR YUGABYTE COLOCATED TABLES
+#TEST FOR YUGABYTE REGULAR TABLES
 #GOAL11 from tab Scan queries of doc https://docs.google.com/spreadsheets/d/1-M1i5tWJQJdbmtv7mz_20MZsT2Oqh_T3-6m12qKAMcA/edit#gid=796784261:
 # Join + Primary Key: Range + Join condition: Range Primary key. + Filter: range scan
 #TESTS:
@@ -9,7 +9,6 @@
 type: YUGABYTE
 driver: com.yugabyte.Driver
 url: jdbc:yugabytedb://{{endpoint}}:5433/yugabyte?sslmode=require&ApplicationName=featurebench&reWriteBatchedInserts=true&load-balance=false
-createdb: drop database if exists yb_colocated; create database yb_colocated with colocated=true
 username: {{username}}
 password: {{password}}
 batchsize: 128
@@ -73,25 +72,25 @@ microbenchmark:
                     util: RandomAString
                     params: [500, 500]
         executeRules:
-            - workload: scanG11_pkey_rangescan_join_fetch_1row
+            - workload: JoinG7_pkey_rangescan_join_fetch_1row
               run:
                   - name: pkey_rangescan_join_fetch_1row_test
                     weight: 100
                     queries:
                         - query: select pkey_rangescan_join_1.col_bigint_id_1 from pkey_rangescan_join_1 JOIN pkey_rangescan_join_2 on pkey_rangescan_join_1.col_bigint_id_1=pkey_rangescan_join_2.col_bigint_id_1 and pkey_rangescan_join_1.col_bigint_id_1<2;
-            - workload: scanG11_pkey_rangescan_join_fetch_10row
+            - workload: JoinG7_pkey_rangescan_join_fetch_10row
               run:
                   - name: pkey_rangescan_join_fetch_10row_test
                     weight: 100
                     queries:
                         - query: select pkey_rangescan_join_1.col_bigint_id_1 from pkey_rangescan_join_1 JOIN pkey_rangescan_join_2 on pkey_rangescan_join_1.col_bigint_id_1=pkey_rangescan_join_2.col_bigint_id_1 and pkey_rangescan_join_1.col_bigint_id_1<11;
-            - workload: scanG11_pkey_rangescan_join_fetch_1000row
+            - workload: JoinG7_pkey_rangescan_join_fetch_1000row
               run:
                   - name: pkey_rangescan_join_fetch_1000row_test
                     weight: 100
                     queries:
                         - query: select pkey_rangescan_join_1.col_bigint_id_1 from pkey_rangescan_join_1 JOIN pkey_rangescan_join_2 on pkey_rangescan_join_1.col_bigint_id_1=pkey_rangescan_join_2.col_bigint_id_1 and pkey_rangescan_join_1.col_bigint_id_1<1001;
-            - workload: scanG11_pkey_rangescan_join_fetch_100000row
+            - workload: JoinG7_pkey_rangescan_join_fetch_100000row
               run:
                   - name: pkey_rangescan_join_fetch_100000row_test
                     weight: 100

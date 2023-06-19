@@ -5,7 +5,6 @@
 type: YUGABYTE
 driver: com.yugabyte.Driver
 url: jdbc:yugabytedb://{{endpoint}}:5433/yugabyte?sslmode=require&ApplicationName=featurebench&reWriteBatchedInserts=true&load-balance=false
-createdb: drop database if exists yb_colocated; create database yb_colocated with colocated=true
 username: {{ username }}
 password: {{ password }}
 isolation: TRANSACTION_REPEATABLE_READ
@@ -68,21 +67,21 @@ microbenchmark:
                     util: RandomAString
                     params: [500, 500]
         executeRules:
-            - workload: scanG12_hash_join_fetch_1row
+            - workload: JoinG8_hash_join_fetch_1row
               run:
                   - name: hash_join_fetch_1row
                     weight: 100
                     queries:
                         - query: select pkey_rangescan_join_1.col_bigint_id_1 from pkey_rangescan_join_1 JOIN pkey_rangescan_join_2 on pkey_rangescan_join_1.col_bigint_2=pkey_rangescan_join_2.col_bigint_2 and pkey_rangescan_join_1.col_bigint_id_1 = 2 and pkey_rangescan_join_2.col_bigint_id_1 = 2 ;
 
-            - workload: scanG12_hash_join_fetch_1000row
+            - workload: JoinG8_hash_join_fetch_1000row
               run:
                   - name: hash_join_fetch_1000row
                     weight: 100
                     queries:
                         - query: select pkey_rangescan_join_1.col_bigint_id_1 from pkey_rangescan_join_1 JOIN pkey_rangescan_join_2 on pkey_rangescan_join_1.col_bigint_2=pkey_rangescan_join_2.col_bigint_2 and pkey_rangescan_join_1.col_bigint_id_1 < 1001 and pkey_rangescan_join_2.col_bigint_id_1 < 1001 ;
 
-            - workload: scanG12_merge_join_fetch_1row
+            - workload: JoinG8_merge_join_fetch_1row
               run:
                   - name: merge_join_fetch_1row
                     weight: 100
@@ -90,7 +89,7 @@ microbenchmark:
                         - query: select pkey_rangescan_join_1.col_bigint_id_1 from pkey_rangescan_join_1 JOIN pkey_rangescan_join_2 on pkey_rangescan_join_1.col_bigint_id_1=pkey_rangescan_join_2.col_bigint_id_1 and pkey_rangescan_join_1.col_bigint_id_1 < 2  and pkey_rangescan_join_2.col_bigint_id_1 < 2;
 
 
-            - workload: scanG12_merge_join_fetch_1000row
+            - workload: JoinG8_merge_join_fetch_1000row
               run:
                   - name: merge_join_fetch_1000row
                     weight: 100

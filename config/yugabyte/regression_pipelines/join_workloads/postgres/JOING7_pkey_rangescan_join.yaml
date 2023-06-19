@@ -71,25 +71,25 @@ microbenchmark:
                     util: RandomAString
                     params: [500, 500]
         executeRules:
-            - workload: scanG11_pkey_rangescan_join_fetch_1row
+            - workload: JoinG7_pkey_rangescan_join_fetch_1row
               run:
                   - name: pkey_rangescan_join_fetch_1row_test
                     weight: 100
                     queries:
                         - query: select pkey_rangescan_join_1.col_bigint_id_1 from pkey_rangescan_join_1 JOIN pkey_rangescan_join_2 on pkey_rangescan_join_1.col_bigint_id_1=pkey_rangescan_join_2.col_bigint_id_1 and pkey_rangescan_join_1.col_bigint_id_1<2;
-            - workload: scanG11_pkey_rangescan_join_fetch_10row
+            - workload: JoinG7_pkey_rangescan_join_fetch_10row
               run:
                   - name: pkey_rangescan_join_fetch_10row_test
                     weight: 100
                     queries:
                         - query: select pkey_rangescan_join_1.col_bigint_id_1 from pkey_rangescan_join_1 JOIN pkey_rangescan_join_2 on pkey_rangescan_join_1.col_bigint_id_1=pkey_rangescan_join_2.col_bigint_id_1 and pkey_rangescan_join_1.col_bigint_id_1<11;
-            - workload: scanG11_pkey_rangescan_join_fetch_1000row
+            - workload: JoinG7_pkey_rangescan_join_fetch_1000row
               run:
                   - name: pkey_rangescan_join_fetch_1000row_test
                     weight: 100
                     queries:
                         - query: select pkey_rangescan_join_1.col_bigint_id_1 from pkey_rangescan_join_1 JOIN pkey_rangescan_join_2 on pkey_rangescan_join_1.col_bigint_id_1=pkey_rangescan_join_2.col_bigint_id_1 and pkey_rangescan_join_1.col_bigint_id_1<1001;
-            - workload: scanG11_pkey_rangescan_join_fetch_100000row
+            - workload: JoinG7_pkey_rangescan_join_fetch_100000row
               run:
                   - name: pkey_rangescan_join_fetch_100000row_test
                     weight: 100
