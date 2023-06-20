@@ -49,5 +49,10 @@ public enum TransactionStatus {
     /**
      * Transaction encountered an error and was not retried
      */
-    ERROR
+    ERROR,
+
+    /**
+     *  Query returned zero number of rows
+     */
+    ZERO_ROWS
 }

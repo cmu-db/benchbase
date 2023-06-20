@@ -253,6 +253,14 @@ public class ResultWriter {
         Map<String, Object> detailedSummaryMap = new TreeMap<>();
         Map<String, Object> metadata = new TreeMap<>();
         metadata.put("yaml_version", expConf.getString("yaml_version", "v1.0"));
+        metadata.put("Completed Transactions", results.getSuccess().getSampleCount());
+        metadata.put("Aborted Transactions", results.getAbort().getSampleCount());
+        metadata.put("Rejected Transactions (Server Retry)", results.getRetry().getSampleCount());
+        metadata.put("Rejected Transactions (Retry Different)", results.getRetryDifferent().getSampleCount());
+        metadata.put("Unexpected SQL Errors", results.getError().getSampleCount());
+        metadata.put("Unknown Status Transactions", results.getUnknown().getSampleCount());
+        metadata.put("Zero Rows Returned", results.getZeroRows().getSampleCount());
+        metadata.put("Total measured requests", results.getMeasuredRequests());
         detailedSummaryMap.put("metadata", metadata);
         detailedSummaryMap.put("Summary", summaryMap);
         detailedSummaryMap.put("queries", results.getFeaturebenchAdditionalResults().getJsonResultsList());

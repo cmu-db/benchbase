@@ -40,6 +40,7 @@ public final class Results {
     private final Histogram<TransactionType> error = new Histogram<>(false);
     private final Histogram<TransactionType> retryDifferent = new Histogram<>(false);
     private final Map<TransactionType, Histogram<String>> abortMessages = new HashMap<>();
+    private final Histogram<TransactionType> zeroRows = new Histogram<>(true);
     private final FeaturebenchAdditionalResults featurebenchAdditionalResults = new FeaturebenchAdditionalResults();
 
     public Results(long nanoseconds, int measuredRequests, DistributionStatistics distributionStatistics, final List<LatencyRecord.Sample> latencySamples) {
@@ -87,6 +88,8 @@ public final class Results {
     public FeaturebenchAdditionalResults getFeaturebenchAdditionalResults() {
         return featurebenchAdditionalResults;
     }
+
+    public Histogram<TransactionType> getZeroRows() { return zeroRows; }
 
     public Map<TransactionType, Histogram<String>> getAbortMessages() {
         return abortMessages;

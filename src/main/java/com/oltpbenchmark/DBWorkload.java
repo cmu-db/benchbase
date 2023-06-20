@@ -782,6 +782,7 @@ public class DBWorkload {
 
         sb.append(StringUtil.bold("Unknown Status Transactions:")).append("\n").append(r.getUnknown()).append("\n\n");
 
+        sb.append(StringUtil.bold("Zero Rows Transactions:")).append("\n").append(r.getZeroRows()).append("\n\n");
         if (!r.getAbortMessages().isEmpty()) {
             sb.append("\n\n").append(StringUtil.bold("User Aborts:")).append("\n").append(r.getAbortMessages());
         }

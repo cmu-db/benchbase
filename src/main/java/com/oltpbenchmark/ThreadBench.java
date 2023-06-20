@@ -328,6 +328,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
             results.getAbort().putAll(txnTypes, 0);
             results.getError().putAll(txnTypes, 0);
             results.getRetryDifferent().putAll(txnTypes, 0);
+            results.getZeroRows().putAll(txnTypes, 0);
 
             for (Worker<?> w : workers) {
                 results.getUnknown().putHistogram(w.getTransactionUnknownHistogram());
@@ -336,6 +337,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                 results.getAbort().putHistogram(w.getTransactionAbortHistogram());
                 results.getError().putHistogram(w.getTransactionErrorHistogram());
                 results.getRetryDifferent().putHistogram(w.getTransactionRetryDifferentHistogram());
+                results.getZeroRows().putHistogram(w.getTransactionZeroRowsHistogram());
                 results.getFeaturebenchAdditionalResults().setJsonResultsList(w.featurebenchAdditionalResults.getJsonResultsList());
             }
 

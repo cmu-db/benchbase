@@ -239,35 +239,28 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
 
             int executeRuleIndex = txnType.getId() - 1;
             ExecuteRule executeRule = executeRules.get(executeRuleIndex);
-            boolean isRetry = false;
+            boolean zeroRowsTransaction = false;
             for (Query query : executeRule.getQueries()) {
                 String queryStmt = query.getQuery();
                 PreparedStatement stmt = this.preparedStatementsPerQuery.get(queryStmt);
                 List<UtilToMethod> baseUtils = query.getBaseUtils();
                 int count = query.getCount();
                 for (int i = 0; i < count; i++) {
-                    for (int j = 0; j < baseUtils.size(); j++) {
+                    for (int j = 0; j < baseUtils.size(); j++)
                         stmt.setObject(j + 1, baseUtils.get(j).get());
-                    }
                     if (query.isSelectQuery()) {
                         ResultSet rs = stmt.executeQuery();
                         int countSet = 0;
-                        while (rs.next()) {
-                            countSet++;
-                        }
-                        if (countSet == 0) {
-                            isRetry = true;
-                        }
+                        while (rs.next()) countSet++;
+                        if (countSet == 0) zeroRowsTransaction = true;
                     } else {
                         int updatedRows = stmt.executeUpdate();
-                        if (updatedRows == 0) {
-                            isRetry = true;
-                        }
+                        if (updatedRows == 0) zeroRowsTransaction = true;
                     }
                 }
             }
-            if (isRetry)
-                return TransactionStatus.RETRY;
+            if (zeroRowsTransaction)
+                return TransactionStatus.ZERO_ROWS;
 
         } catch (ClassNotFoundException | InvocationTargetException
                  | InstantiationException | IllegalAccessException |
