@@ -237,6 +237,16 @@ public class ResultWriter {
     }
 
     public Map<String, Object> writeDetailedSummary(PrintStream os) {
+        Map<String, Object> transactionsMap = new TreeMap<>();
+        transactionsMap.put("Completed Transactions", results.getSuccess().getSampleCount());
+        transactionsMap.put("Aborted Transactions", results.getAbort().getSampleCount());
+        transactionsMap.put("Rejected Transactions (Server Retry)", results.getRetry().getSampleCount());
+        transactionsMap.put("Rejected Transactions (Retry Different)", results.getRetryDifferent().getSampleCount());
+        transactionsMap.put("Unexpected SQL Errors", results.getError().getSampleCount());
+        transactionsMap.put("Unknown Status Transactions", results.getUnknown().getSampleCount());
+        transactionsMap.put("Zero Rows Returned", results.getZeroRows().getSampleCount());
+        transactionsMap.put("Total measured requests", results.getMeasuredRequests());
+
         Map<String, Object> summaryMap = new TreeMap<>();
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         Date now = new Date();
@@ -247,20 +257,14 @@ public class ResultWriter {
         summaryMap.put("Latency Distribution", results.getDistributionStatistics().toMap());
         summaryMap.put("Throughput (requests/second)", results.requestsPerSecondThroughput());
         summaryMap.put("Goodput (requests/second)", results.requestsPerSecondGoodput());
+        summaryMap.put("Transaction Distribution", transactionsMap);
+
         for (String field : BENCHMARK_KEY_FIELD) {
             summaryMap.put(field, expConf.getString(field));
         }
         Map<String, Object> detailedSummaryMap = new TreeMap<>();
         Map<String, Object> metadata = new TreeMap<>();
         metadata.put("yaml_version", expConf.getString("yaml_version", "v1.0"));
-        metadata.put("Completed Transactions", results.getSuccess().getSampleCount());
-        metadata.put("Aborted Transactions", results.getAbort().getSampleCount());
-        metadata.put("Rejected Transactions (Server Retry)", results.getRetry().getSampleCount());
-        metadata.put("Rejected Transactions (Retry Different)", results.getRetryDifferent().getSampleCount());
-        metadata.put("Unexpected SQL Errors", results.getError().getSampleCount());
-        metadata.put("Unknown Status Transactions", results.getUnknown().getSampleCount());
-        metadata.put("Zero Rows Returned", results.getZeroRows().getSampleCount());
-        metadata.put("Total measured requests", results.getMeasuredRequests());
         detailedSummaryMap.put("metadata", metadata);
         detailedSummaryMap.put("Summary", summaryMap);
         detailedSummaryMap.put("queries", results.getFeaturebenchAdditionalResults().getJsonResultsList());
