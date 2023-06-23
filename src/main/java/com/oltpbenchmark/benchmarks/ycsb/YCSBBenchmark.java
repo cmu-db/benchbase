@@ -63,7 +63,7 @@ public class YCSBBenchmark extends BenchmarkModule {
         double skewFactor = 0.99;
         if (workConf.getXmlConfig() != null && workConf.getXmlConfig().containsKey("skewFactor")) {
             skewFactor = workConf.getXmlConfig().getDouble("skewFactor");
-            if (skewFactor == 1) {
+            if (skewFactor <= 0 || skewFactor >= 1) {
                 throw new RuntimeException("Invalid YCSB skewFactor '" + skewFactor + "'");
             }
         }
