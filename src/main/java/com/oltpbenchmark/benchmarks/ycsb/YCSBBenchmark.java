@@ -46,7 +46,7 @@ public class YCSBBenchmark extends BenchmarkModule {
     /**
      * The constant used in the zipfian distribution (to modify the skew)
      */
-    protected final double zipfianConstant;
+    protected final double skewFactor;
 
     public YCSBBenchmark(WorkloadConfiguration workConf) {
         super(workConf);
@@ -67,7 +67,7 @@ public class YCSBBenchmark extends BenchmarkModule {
                 throw new RuntimeException("Invalid YCSB skewFactor '" + skewFactor + "'");
             }
         }
-        this.zipfianConstant = skewFactor;
+        this.skewFactor = skewFactor;
     }
 
     @Override
