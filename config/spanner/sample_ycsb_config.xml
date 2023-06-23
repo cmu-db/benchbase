@@ -15,7 +15,7 @@
     <!-- <fieldSize>8</fieldSize> -->
 
     <!-- Optional: Override the zipfian constant to modify the skew -->
-    <!-- <zipfianConstant>0.99</zipfianConstant> -->
+    <!-- <skewFactor>0.99</skewFactor> -->
 
     <!-- The workload -->
     <terminals>1</terminals>

@@ -60,14 +60,14 @@ public class YCSBBenchmark extends BenchmarkModule {
             throw new RuntimeException("Invalid YCSB fieldSize '" + this.fieldSize + "'");
         }
 
-        double zipfianConstant = 0.99;
-        if (workConf.getXmlConfig() != null && workConf.getXmlConfig().containsKey("zipfianConstant")) {
-            zipfianConstant = workConf.getXmlConfig().getDouble("zipfianConstant");
-            if (zipfianConstant == 1) {
-                throw new RuntimeException("Invalid YCSB zipfianConstant '" + zipfianConstant + "'");
+        double skewFactor = 0.99;
+        if (workConf.getXmlConfig() != null && workConf.getXmlConfig().containsKey("skewFactor")) {
+            skewFactor = workConf.getXmlConfig().getDouble("skewFactor");
+            if (skewFactor == 1) {
+                throw new RuntimeException("Invalid YCSB skewFactor '" + skewFactor + "'");
             }
         }
-        this.zipfianConstant = zipfianConstant;
+        this.zipfianConstant = skewFactor;
     }
 
     @Override

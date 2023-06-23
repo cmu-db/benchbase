@@ -12,7 +12,7 @@
     <scalefactor>1</scalefactor>
 
     <!-- Optional: Override the zipfian constant to modify the skew -->
-    <!-- <zipfianConstant>0.99</zipfianConstant> -->
+    <!-- <skewFactor>0.99</skewFactor> -->
     
     <!-- SQLITE only supports one writer thread -->
     <loaderThreads>1</loaderThreads>
