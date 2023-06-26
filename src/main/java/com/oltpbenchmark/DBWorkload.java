@@ -571,11 +571,23 @@ public class DBWorkload {
                     try {
                         for (BenchmarkModule benchmark : benchList) {
                             LOG.info("Creating new {} database...", benchmark.getBenchmarkName().toUpperCase());
-                            if (benchmark.getBenchmarkName().equalsIgnoreCase("featurebench") && benchmark.getWorkloadConfiguration().getXmlConfig().containsKey("createdb")) {
-                                String newUrl = runCreatorDB(benchmark, benchmark.getWorkloadConfiguration().getXmlConfig().getString("createdb"));
-                                LOG.info("New JDBC URL : " + newUrl);
-                                benchmark.getWorkloadConfiguration().setUrl(newUrl);
-                                benchmark.getWorkloadConfiguration().getXmlConfig().setProperty("url", newUrl);
+
+                            boolean analyze_on_all_tables = benchmark.getWorkloadConfiguration().getXmlConfig()
+                                .getBoolean("analyze_on_all_tables", false);
+
+                            if (benchmark.getBenchmarkName().equalsIgnoreCase("featurebench"))
+                            {
+                                if (benchmark.getWorkloadConfiguration().getXmlConfig().containsKey("createdb")) {
+                                    String createDbDDL =
+                                        benchmark.getWorkloadConfiguration().getXmlConfig().getString("createdb");
+                                    String newUrl = runCreatorDB(benchmark, createDbDDL, analyze_on_all_tables);
+                                    LOG.info("New JDBC URL : " + newUrl);
+                                    benchmark.getWorkloadConfiguration().setUrl(newUrl);
+                                    benchmark.getWorkloadConfiguration().getXmlConfig().setProperty("url", newUrl);
+                                }
+                                else if(analyze_on_all_tables) {
+                                    enableOptimizerStatistics(benchmark);
+                                }
                             }
                             runCreator(benchmark);
                             LOG.info("Finished creating new {} database...", benchmark.getBenchmarkName().toUpperCase());
@@ -929,7 +941,8 @@ public class DBWorkload {
         bench.createDatabase();
     }
 
-    private static String runCreatorDB(BenchmarkModule benchmark, String totalDDL) throws SQLException {
+    private static String runCreatorDB(BenchmarkModule benchmark, String totalDDL,
+                                       boolean analyze_on_all_tables) throws SQLException {
         Statement stmtObj = benchmark.makeConnection().createStatement();
         stmtObj.execute(totalDDL);
         Pattern patternCreateDB = Pattern.compile("create database (.+?) ", Pattern.CASE_INSENSITIVE);
@@ -955,6 +968,9 @@ public class DBWorkload {
         } else {
             LOG.info("No match!");
         }
+        if (analyze_on_all_tables) {
+            stmtObj.execute(String.format("ALTER DATABASE %s SET yb_enable_optimizer_statistics to true;", dbName));
+        }
         int index = url.indexOf(matcher.group(0), url.indexOf(matcher.group(0)) + 1);
         String newUrl = url.substring(0, index) + dbName + url.substring(index + matcher.group(0).length());
         stmtObj.close();
@@ -977,7 +993,7 @@ public class DBWorkload {
         }
         String url = benchmark.getWorkloadConfiguration().getUrl();
         String[] pieces = url.split("\\?", 10);
-        Pattern p = Pattern.compile("[a-zA-Z_]+$", Pattern.CASE_INSENSITIVE);
+        Pattern p = Pattern.compile("[a-zA-Z0-9]+$", Pattern.CASE_INSENSITIVE);
         Matcher matcher = p.matcher(pieces[0]);
         boolean matchFound = matcher.find();
         if (matchFound) {
@@ -1079,5 +1095,21 @@ public class DBWorkload {
                 .map(Object::toString)
                 .collect(Collectors.joining(",")));
         }
+    }
+
+    public static void enableOptimizerStatistics(BenchmarkModule benchmark) throws SQLException {
+        String url = benchmark.getWorkloadConfiguration().getUrl();
+        String[] pieces = url.split("\\?", 10);
+        Pattern p = Pattern.compile("[a-zA-Z0-9]+$", Pattern.CASE_INSENSITIVE);
+        Matcher matcher = p.matcher(pieces[0]);
+        boolean matchFound = matcher.find();
+        if (matchFound) {
+            String databaseName = matcher.group(0);
+            Statement stmtObj = benchmark.makeConnection().createStatement();
+            stmtObj.execute(String.format("ALTER DATABASE %s SET yb_enable_optimizer_statistics to true;", databaseName));
+        } else {
+            LOG.info("No match!");
+        }
+
     }
 }
