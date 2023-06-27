@@ -148,7 +148,7 @@ public class WorkloadConfiguration {
         this.workloadState = new WorkloadState(benchmarkState, phases, terminals);
     }
 
-    public void addPhase(int id, int time, int warmup, int rate, List<Double> weights, boolean rateLimited, boolean disabled, boolean serial, boolean timed, int active_terminals, Phase.Arrival arrival) {
+    public void addPhase(int id, int time, int warmup, double rate, List<Double> weights, boolean rateLimited, boolean disabled, boolean serial, boolean timed, int active_terminals, Phase.Arrival arrival) {
         phases.add(new Phase(benchmarkName, id, time, warmup, rate, weights, rateLimited, disabled, serial, timed, active_terminals, arrival));
     }
 
@@ -305,6 +305,8 @@ public class WorkloadConfiguration {
             case "TRANSACTION_READ_UNCOMMITTED":
                 this.isolationMode = Connection.TRANSACTION_READ_UNCOMMITTED;
                 break;
+            case "TRANSACTION_NONE":
+                this.isolationMode = Connection.TRANSACTION_NONE;
         }
     }
 
@@ -317,6 +319,8 @@ public class WorkloadConfiguration {
             return "TRANSACTION_REPEATABLE_READ";
         } else if (this.isolationMode == Connection.TRANSACTION_READ_UNCOMMITTED) {
             return "TRANSACTION_READ_UNCOMMITTED";
+        } else if (this.isolationMode == Connection.TRANSACTION_NONE) {
+            return "TRANSACTION_NONE";
         } else {
             return "TRANSACTION_SERIALIZABLE";
         }
