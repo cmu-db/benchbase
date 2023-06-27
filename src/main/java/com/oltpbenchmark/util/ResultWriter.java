@@ -237,16 +237,6 @@ public class ResultWriter {
     }
 
     public Map<String, Object> writeDetailedSummary(PrintStream os) {
-        Map<String, Object> transactionsMap = new TreeMap<>();
-        transactionsMap.put("Completed Transactions", results.getSuccess().getSampleCount());
-        transactionsMap.put("Aborted Transactions", results.getAbort().getSampleCount());
-        transactionsMap.put("Rejected Transactions (Server Retry)", results.getRetry().getSampleCount());
-        transactionsMap.put("Rejected Transactions (Retry Different)", results.getRetryDifferent().getSampleCount());
-        transactionsMap.put("Unexpected SQL Errors", results.getError().getSampleCount());
-        transactionsMap.put("Unknown Status Transactions", results.getUnknown().getSampleCount());
-        transactionsMap.put("Zero Rows Returned", results.getZeroRows().getSampleCount());
-        transactionsMap.put("Total measured requests", results.getMeasuredRequests());
-
         Map<String, Object> summaryMap = new TreeMap<>();
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         Date now = new Date();
@@ -257,7 +247,8 @@ public class ResultWriter {
         summaryMap.put("Latency Distribution", results.getDistributionStatistics().toMap());
         summaryMap.put("Throughput (requests/second)", results.requestsPerSecondThroughput());
         summaryMap.put("Goodput (requests/second)", results.requestsPerSecondGoodput());
-        summaryMap.put("Transaction Distribution", transactionsMap);
+        summaryMap.put("Transaction Distribution", transactionsMap(results));
+        summaryMap.put("Help", help());
 
         for (String field : BENCHMARK_KEY_FIELD) {
             summaryMap.put(field, expConf.getString(field));
@@ -270,5 +261,35 @@ public class ResultWriter {
         detailedSummaryMap.put("queries", results.getFeaturebenchAdditionalResults().getJsonResultsList());
         os.println(JSONUtil.format(JSONUtil.toJSONString(detailedSummaryMap)));
         return detailedSummaryMap;
+    }
+
+    public static Map<String, Object> transactionsMap(Results results) {
+        Map<String, Object> transactionsMap = new TreeMap<>();
+        transactionsMap.put("Completed Transactions", results.getSuccess().getSampleCount());
+        transactionsMap.put("Aborted Transactions", results.getAbort().getSampleCount());
+        transactionsMap.put("Rejected Transactions (Server Retry)", results.getRetry().getSampleCount());
+        transactionsMap.put("Rejected Transactions (Retry Different)", results.getRetryDifferent().getSampleCount());
+        transactionsMap.put("Unexpected SQL Errors", results.getError().getSampleCount());
+        transactionsMap.put("Unknown Status Transactions", results.getUnknown().getSampleCount());
+        transactionsMap.put("Zero Rows Returned", results.getZeroRows().getSampleCount());
+        transactionsMap.put("Total measured requests", results.getMeasuredRequests());
+        return transactionsMap;
+    }
+
+    public static Map<String, Object> help() {
+        Map<String, Object> help = new TreeMap<>();
+        help.put("Various Latencies", "Latency of transactions during the measure phase. Includes the time taken for retries.");
+        help.put("Completed Transactions", "Success transactions both in warmup, measure and cool-down phases.");
+        help.put("Aborted Transactions", "Total aborted transactions in warmup, measure and cool-down phases");
+        help.put("Rejected Transactions (Server Retry)", "Total retries in warmup, measure and cool-down phases. The retries are done with different bind variables as of now.");
+        help.put("Rejected Transactions (Retry Different)", "Not applicable for featurebench.");
+        help.put("Unexpected SQL Errors", "Total transactions with unknown SQL error in warmup, measure and cool-down phases");
+        help.put("Unknown Status Transactions", "Total transactions with unknown status in warmup, measure and cool-down phases");
+        help.put("Zero Rows Returned", "Total transactions in warmup, measure and cool-down phases which returned/updated 0 rows.");
+        help.put("Total measured requests", "Total transactions during the measure phase (multiple retries are counted as 1)");
+        help.put("Throughput (requests/second)", "(Total measured requests/Measure(Execute) phase time)");
+        help.put("Goodput (requests/second)", "(Completed Transactions / Measure(Execute) phase time). Don't refer. Derived from benchbase.");
+
+        return help;
     }
 }
