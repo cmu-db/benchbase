@@ -16,7 +16,8 @@
 
 package com.oltpbenchmark.util;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,7 +26,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class TestFileUtil extends TestCase {
+public class TestFileUtil {
 
     @Before
     public void setUp() throws Exception {
