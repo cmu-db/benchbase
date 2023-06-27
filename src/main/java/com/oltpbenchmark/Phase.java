@@ -33,7 +33,7 @@ public class Phase {
     private final int id;
     private final int time;
     private final int warmupTime;
-    private final int rate;
+    private final double rate;
     private final Arrival arrival;
 
 
@@ -47,7 +47,7 @@ public class Phase {
     private int nextSerial;
 
 
-    Phase(String benchmarkName, int id, int t, int wt, int r, List<Double> weights, boolean rateLimited, boolean disabled, boolean serial, boolean timed, int activeTerminals, Arrival a) {
+    Phase(String benchmarkName, int id, int t, int wt, double r, List<Double> weights, boolean rateLimited, boolean disabled, boolean serial, boolean timed, int activeTerminals, Arrival a) {
         this.benchmarkName = benchmarkName;
         this.id = id;
         this.time = t;
@@ -114,7 +114,7 @@ public class Phase {
         return warmupTime;
     }
 
-    public int getRate() {
+    public double getRate() {
         return rate;
     }
 
