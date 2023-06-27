@@ -143,8 +143,9 @@ jobs:
           MARIADB_DATABASE: benchbase
           MARIADB_USER: admin
           MARIADB_PASSWORD: password
+        # Use status instead of ping due to exit code issues: https://jira.mariadb.org/browse/MDEV-31550
         options: >-
-          --health-cmd "mysqladmin ping"
+          --health-cmd "mariadb-admin status -uroot -prootyMcRooty"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5

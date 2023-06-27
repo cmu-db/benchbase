@@ -17,6 +17,11 @@
 
 package com.oltpbenchmark.api;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import com.oltpbenchmark.catalog.AbstractCatalog;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.types.DatabaseType;
@@ -29,6 +34,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.junit.Test;
 
 public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> extends AbstractTestCase<T> {
 
@@ -45,6 +51,7 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
     /**
      * testGetDatabaseDDLPath
      */
+    @Test
     public void testGetDatabaseDDLPath() throws Exception {
         String ddlPath = this.benchmark.getDatabaseDDLPath(this.workConf.getDatabaseType());
         assertNotNull(ddlPath);
@@ -56,6 +63,7 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
     /**
      * testCreateDatabase
      */
+    @Test
     public void testCreateDatabase() throws Exception {
         this.benchmark.createDatabase();
 
@@ -74,6 +82,7 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
     /**
      * testGetTransactionType
      */
+    @Test
     public void testGetTransactionType() {
         int id = 1;
         for (Class<? extends Procedure> procClass : procedures()) {
@@ -89,6 +98,7 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
     /**
      * testGetSQLDialectPath
      */
+    @Test
     public void testGetSQLDialectPath() throws Exception {
         for (DatabaseType dbType : DatabaseType.values()) {
             String xmlFilePath = this.benchmark.getStatementDialects().getSQLDialectPath(dbType);
@@ -104,6 +114,7 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
     /**
      * testLoadSQLDialect
      */
+    @Test
     public void testLoadSQLDialect() throws Exception {
         for (DatabaseType dbType : DatabaseType.values()) {
             this.workConf.setDatabaseType(dbType);
@@ -128,6 +139,7 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
     /**
      * testDumpSQLDialect
      */
+    @Test
     public void testDumpSQLDialect() throws Exception {
         for (DatabaseType dbType : DatabaseType.values()) {
             this.workConf.setDatabaseType(dbType);
@@ -157,6 +169,7 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
     /**
      * testSetSQLDialect
      */
+    @Test
     public void testSetSQLDialect() throws Exception {
         for (DatabaseType dbType : DatabaseType.values()) {
             this.workConf.setDatabaseType(dbType);

@@ -17,19 +17,24 @@
 
 package com.oltpbenchmark.benchmarks.auctionmark.util;
 
+import static junit.framework.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import com.oltpbenchmark.util.Histogram;
-import junit.framework.TestCase;
 import org.junit.Test;
 
 import java.util.*;
 
-public class TestUserId extends TestCase {
+public class TestUserId {
 
     private static final Random rand = new Random(1);
 
     /**
      * testUserId
      */
+    @Test
     public void testUserId() {
         for (int i = 0; i < 100; i++) {
             int size = rand.nextInt(10000);
@@ -45,6 +50,7 @@ public class TestUserId extends TestCase {
     /**
      * testEquals
      */
+//    @Test
 //    public void testEquals() {
 //        UserId user_id = new UserId(rand.nextLong());
 //        assert (user_id.getItemCount() > 0);
@@ -59,6 +65,7 @@ public class TestUserId extends TestCase {
     /**
      * testCompareTo
      */
+    @Test
     public void testCompareTo() throws Throwable {
         Histogram<UserId> h = new Histogram<UserId>();
         List<UserId> orig = new ArrayList<UserId>();
@@ -134,6 +141,7 @@ public class TestUserId extends TestCase {
     /**
      * testUserIdEncode
      */
+    @Test
     public void testUserIdEncode() {
         for (int i = 0; i < 100; i++) {
             int size = rand.nextInt(10000);
@@ -151,6 +159,7 @@ public class TestUserId extends TestCase {
     /**
      * testUserIdDecode
      */
+    @Test
     public void testUserIdDecode() {
         for (int i = 0; i < 100; i++) {
             int size = rand.nextInt(10000);
