@@ -1,0 +1,133 @@
+type: YUGABYTE
+driver: com.yugabyte.Driver
+url: jdbc:yugabytedb://{{endpoint}}:5433/yugabyte?ApplicationName=featurebench&reWriteBatchedInserts=true&load-balance=false
+createdb: drop database if exists yb_colocated; create database yb_colocated with colocated=true
+username: {{username}}
+password: {{password}}
+
+batchsize: 128
+isolation: TRANSACTION_REPEATABLE_READ
+loaderthreads: 1
+terminals: 24
+collect_pg_stat_statements: true
+use_dist_in_explain : true
+works:
+    work:
+        time_secs: 120
+        rate: unlimited
+        warmup: 30
+microbenchmark:
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
+    properties:
+        setAutoCommit: false
+        create:
+            - drop table if exists update_test_table1;
+            - create table update_test_table1 (id bigint, col_int_1 int, col_int_2 int, col_int_3 int, col_int_4 int, col_int_5 int, col_int_6 int, col_int_7 int, col_int_8 int, col_int_9 int, col_int_10 int, col_varchar_1 varchar(20), col_varchar_2 varchar(20), col_varchar_3 varchar(20), col_date text, col_boolean boolean, primary key (id asc))
+        cleanup:
+            - drop table if exists update_test_table1;
+        loadRules:
+            - table: update_test_table1
+              rows: 1000000
+              columns:
+                  - name: id
+                    util: PrimaryIntGen
+                    params: [1, 1000000]
+                  - name: col_int_
+                    count: 10
+                    util: RandomNumber
+                    params: [1, 1000000]
+                  - name: col_varchar_
+                    count: 3
+                    util: RandomAString
+                    params: [20, 20]
+                  - name: col_date
+                    util: RandomAString
+                    params: [20, 20]
+                  - name: col_boolean
+                    util: RandomBoolean
+        executeRules:
+            - workload: update_key_from_multiple_threads_with_weights_100
+              run:
+                  - name: update_same_key
+                    weight: 100
+                    queries:
+                        - query: update update_test_table1 set col_varchar_3 = ? where id = 1
+                          bindings:
+                              - util: RandomAString
+                                params: [20, 20]
+
+            - workload: update_key_from_multiple_threads_with_weights_80
+              run:
+                  - name: update_same_key
+                    weight: 80
+                    queries:
+                        - query: update update_test_table1 set col_varchar_3 = ? where id = 1
+                          bindings:
+                              - util: RandomAString
+                                params: [20, 20]
+                  - name: update_diff_key
+                    weight: 20
+                    queries:
+                        - query: update update_test_table1 set col_varchar_3 = ? where id = ?
+                          bindings:
+                              - util: RandomAString
+                                params: [20, 20]
+                              - util: RandomInt
+                                params: [100, 10000]
+
+            - workload: update_key_from_multiple_threads_with_weights_60
+              run:
+                  - name: update_same_key
+                    weight: 60
+                    queries:
+                        - query: update update_test_table1 set col_varchar_3 = ? where id = 1
+                          bindings:
+                              - util: RandomAString
+                                params: [20, 20]
+                  - name: update_diff_key
+                    weight: 40
+                    queries:
+                        - query: update update_test_table1 set col_varchar_3 = ? where id = ?
+                          bindings:
+                              - util: RandomAString
+                                params: [20, 20]
+                              - util: RandomInt
+                                params: [100, 10000]
+
+            - workload: update_key_from_multiple_threads_with_weights_40
+              run:
+                  - name: update_same_key
+                    weight: 40
+                    queries:
+                        - query: update update_test_table1 set col_varchar_3 = ? where id = 1
+                          bindings:
+                              - util: RandomAString
+                                params: [20, 20]
+                  - name: update_diff_key
+                    weight: 60
+                    queries:
+                        - query: update update_test_table1 set col_varchar_3 = ? where id = ?
+                          bindings:
+                              - util: RandomAString
+                                params: [20, 20]
+                              - util: RandomInt
+                                params: [100, 10000]
+
+            - workload: update_key_from_multiple_threads_with_weights_20
+              run:
+                  - name: update_same_key
+                    weight: 20
+                    queries:
+                        - query: update update_test_table1 set col_varchar_3 = ? where id = 1
+                          bindings:
+                              - util: RandomAString
+                                params: [20, 20]
+                  - name: update_diff_key
+                    weight: 80
+                    queries:
+                        - query: update update_test_table1 set col_varchar_3 = ? where id = ?
+                          bindings:
+                              - util: RandomAString
+                                params: [20, 20]
+                              - util: RandomInt
+                                params: [100, 10000]
