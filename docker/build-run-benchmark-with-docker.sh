@@ -17,11 +17,12 @@ scriptdir=$(dirname "$(readlink -f "$0")")
 rootdir=$(readlink -f "$scriptdir/..")
 cd "$rootdir"
 
+EXTRA_DOCKER_ARGS=''
 if [ "$BENCHBASE_PROFILE" == 'sqlite' ]; then
     # Map the sqlite db back to the host.
     touch $PWD/$benchmark.db
     SRC_DIR="$PWD"
-    if [ -n "$LOCAL_WORKSPACE_FOLDER" ]; then
+    if [ -n "${LOCAL_WORKSPACE_FOLDER:-}" ]; then
         SRC_DIR="$LOCAL_WORKSPACE_FOLDER"
     fi
     EXTRA_DOCKER_ARGS="-v $SRC_DIR/$benchmark.db:/benchbase/profiles/sqlite/$benchmark.db"

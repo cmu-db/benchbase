@@ -24,7 +24,7 @@ if [ "$imagename" != 'benchbase' ]; then
 fi
 
 SRC_DIR="$PWD"
-if [ -n "$LOCAL_WORKSPACE_FOLDER" ]; then
+if [ -n "${LOCAL_WORKSPACE_FOLDER:-}" ]; then
     SRC_DIR="$LOCAL_WORKSPACE_FOLDER"
 fi
 
