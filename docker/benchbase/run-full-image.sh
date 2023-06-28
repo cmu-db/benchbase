@@ -23,7 +23,7 @@ if [ "$imagename" != 'benchbase' ]; then
     echo "ERROR: Unexpected imagename: $imagename" >&2
 fi
 
-SRC_DIR="$PWD"
+SRC_DIR="$rootdir"
 if [ -n "${LOCAL_WORKSPACE_FOLDER:-}" ]; then
     SRC_DIR="$LOCAL_WORKSPACE_FOLDER"
 fi
