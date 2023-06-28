@@ -388,7 +388,6 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
 
     /*TODO: remove collectPgPreparedStatements*/
     private JSONObject collectPgPreparedStatements() throws SQLException{
-        LOG.info("********COLLECTING PG PREPARED STATEMENTS*********");
         String pgPreparedStatements = "select * from pg_prepared_statements;";
         Statement stmt = this.conn.createStatement();
         ResultSet resultSet = stmt.executeQuery(pgPreparedStatements);
@@ -405,7 +404,6 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
             pgPreparedStatementOutputs.put("Record_" + resultSetCount, pgPreparedStatementOutputPerRecord);
             resultSetCount++;
         }
-        System.out.println(pgPreparedStatementOutputs.toString());
         return pgPreparedStatementOutputs;
     }
 }
