@@ -8,6 +8,7 @@ benchmark="${1:-noop}"
 # Let these pass through from the .env file from the devcontainer.
 export BENCHBASE_PROFILE="${BENCHBASE_PROFILE:-postgres}"
 export BENCHBASE_PROFILES="$BENCHBASE_PROFILE"
+PROFILE_VERSION=${PROFILE_VERSION:-latest}
 
 # When we are running the full image we don't generally want to have to rebuild it repeatedly.
 export CLEAN_BUILD="${CLEAN_BUILD:-false}"
@@ -27,11 +28,11 @@ if [ "$BENCHBASE_PROFILE" == 'sqlite' ]; then
     fi
     EXTRA_DOCKER_ARGS="-v $SRC_DIR/$benchmark.db:/benchbase/profiles/sqlite/$benchmark.db"
 else
-    if [ ! -x "docker/${BENCHBASE_PROFILE}-latest/up.sh" ]; then
+    if [ ! -x "docker/${BENCHBASE_PROFILE}-${PROFILE_VERSION}/up.sh" ]; then
         echo "ERROR: No docker up.sh script available for '$BENCHBASE_PROFILE'"
     fi
 
-    "./docker/${BENCHBASE_PROFILE}-latest/up.sh"
+    "./docker/${BENCHBASE_PROFILE}-${PROFILE_VERSION}/up.sh"
 fi
 
 CREATE_DB_ARGS='--create=true --load=true'
