@@ -46,4 +46,4 @@ SKIP_TESTS=${SKIP_TESTS:-true} EXTRA_DOCKER_ARGS="--network=host $EXTRA_DOCKER_A
     $CREATE_DB_ARGS --execute=true \
     --sample 1 --interval-monitor 1000 \
     --json-histograms results/histograms.json
-./scripts/check_histogram_results.sh results/historgrams.json
+./scripts/check_histogram_results.sh results/histograms.json
