@@ -33,7 +33,7 @@ mkdir -p results/
 set -x
 docker run -it --rm \
     ${EXTRA_DOCKER_ARGS:-} \
-    --env=http_proxy="${http_proxy:-}" --env=https_proxy="${https_proxy:-}" \
+    --env=http_proxy="${http_proxy:-}" --env=https_proxy="${https_proxy:-}" --env=no_proxy="${no_proxy:-}" \
     --env BENCHBASE_PROFILE="$BENCHBASE_PROFILE" \
     --user "$CONTAINERUSER_UID:$CONTAINERUSER_GID" \
     -v "$SRC_DIR/results:/benchbase/results" benchbase-$BENCHBASE_PROFILE:latest $*
