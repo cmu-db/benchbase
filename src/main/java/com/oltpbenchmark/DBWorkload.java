@@ -277,7 +277,7 @@ public class DBWorkload {
                     weight_strings = Arrays.asList(work.getString("weights[not(@bench)]").split("\\s*,\\s*"));
                 }
 
-                int rate = 1;
+                double rate = 1;
                 boolean rateLimited = true;
                 boolean disabled = false;
                 boolean timed;
@@ -295,9 +295,9 @@ public class DBWorkload {
                     System.exit(-1);
                 } else {
                     try {
-                        rate = Integer.parseInt(rate_string);
-                        if (rate < 1) {
-                            LOG.error("Rate limit must be at least 1. Use unlimited or disabled values instead.");
+                        rate = Double.parseDouble(rate_string);
+                        if (rate <= 0) {
+                            LOG.error("Rate limit must be at least 0. Use unlimited or disabled values instead.");
                             System.exit(-1);
                         }
                     } catch (NumberFormatException e) {

@@ -16,6 +16,11 @@
 
 package com.oltpbenchmark.benchmarks.auctionmark;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import com.oltpbenchmark.api.AbstractTestLoader;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.Worker;
@@ -27,6 +32,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import org.junit.Test;
 
 public class TestAuctionMarkLoader extends AbstractTestLoader<AuctionMarkBenchmark> {
 
@@ -43,6 +49,7 @@ public class TestAuctionMarkLoader extends AbstractTestLoader<AuctionMarkBenchma
     /**
      * testSaveLoadProfile
      */
+    @Test
     public void testSaveLoadProfile() throws Exception {
         AuctionMarkProfile.clearCachedProfile();
         AuctionMarkLoader loader = (AuctionMarkLoader) super.testLoadWithReturn();
@@ -58,7 +65,7 @@ public class TestAuctionMarkLoader extends AbstractTestLoader<AuctionMarkBenchma
         AuctionMarkWorker worker = (AuctionMarkWorker) workers.get(0);
         copy.loadProfile(worker);
 
-        assertEquals(orig.scale_factor, copy.scale_factor);
+        assertEquals(orig.scale_factor, copy.scale_factor, 0.001f);
         assertEquals(orig.getLoaderStartTime().toString(), copy.getLoaderStartTime().toString());
         assertEquals(orig.getLoaderStopTime().toString(), copy.getLoaderStopTime().toString());
         assertEquals(orig.users_per_itemCount, copy.users_per_itemCount);
@@ -67,6 +74,7 @@ public class TestAuctionMarkLoader extends AbstractTestLoader<AuctionMarkBenchma
     /**
      * testLoadProfilePerClient
      */
+    @Test
     public void testLoadProfilePerClient() throws Exception {
         // We don't have to reload our cached profile here
         // We just want to make sure that each client's profile contains a unique

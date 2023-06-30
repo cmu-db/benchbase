@@ -17,9 +17,11 @@
 
 package com.oltpbenchmark.benchmarks.auctionmark.util;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -29,9 +31,8 @@ import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
 
-import junit.framework.TestCase;
-
 import org.junit.Before;
+import org.junit.Test;
 
 import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkConstants;
 import com.oltpbenchmark.util.CollectionUtil;
@@ -42,7 +43,7 @@ import com.oltpbenchmark.util.RandomGenerator;
 /**
  * @author pavlo
  */
-public class TestUserIdGenerator extends TestCase {
+public class TestUserIdGenerator {
 
     private static final int NUM_CLIENTS = 10;
     private static final int NUM_USERS = 1000;
@@ -67,6 +68,7 @@ public class TestUserIdGenerator extends TestCase {
     /**
      * testCheckClient
      */
+    @Test
     public void testCheckClient() throws Exception {
         int num_clients = 10;
         UserIdGenerator generator;
@@ -104,6 +106,7 @@ public class TestUserIdGenerator extends TestCase {
     /**
      * testSeekToPosition
      */
+    @Test
     public void testSeekToPosition() throws Exception {
         UserIdGenerator generator = new UserIdGenerator(users_per_item_count, 1);
         final int num_users = (int) (generator.getTotalUsers() - 1);
@@ -135,6 +138,7 @@ public class TestUserIdGenerator extends TestCase {
     /**
      * testSeekToPositionSameUserId
      */
+    @Test
     public void testSeekToPositionClientId() throws Exception {
         int num_clients = 10;
         UserIdGenerator generator = new UserIdGenerator(users_per_item_count, num_clients);
@@ -175,6 +179,7 @@ public class TestUserIdGenerator extends TestCase {
     /**
      * testAllUsers
      */
+    @Test
     public void testAllUsers() throws Exception {
         UserIdGenerator generator = new UserIdGenerator(users_per_item_count, NUM_CLIENTS);
         Set<UserId> seen = new HashSet<UserId>();
@@ -191,6 +196,7 @@ public class TestUserIdGenerator extends TestCase {
     /**
      * testPerClient
      */
+    @Test
     public void testPerClient() throws Exception {
         Histogram<Integer> clients_h = new Histogram<Integer>();
         Set<UserId> all_seen = new HashSet<UserId>();
@@ -225,6 +231,7 @@ public class TestUserIdGenerator extends TestCase {
     /**
      * testSingleClient
      */
+    @Test
     public void testSingleClient() throws Exception {
         // First create a UserIdGenerator for all clients and get
         // the set of all the UserIds that we expect
@@ -252,6 +259,7 @@ public class TestUserIdGenerator extends TestCase {
     /**
      * testSetCurrentSize
      */
+    @Test
     public void testSetCurrentSize() throws Exception {
         // First create a UserIdGenerator for a random ClientId and populate
         // the set of all the UserIds that we expect for this client
