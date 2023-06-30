@@ -17,13 +17,17 @@
 
 package com.oltpbenchmark.api;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
-public class TestSQLStmt extends TestCase {
+import org.junit.Test;
+
+public class TestSQLStmt {
 
     /**
      * testSubstitution
      */
+    @Test
     public void testSubstitution() throws Exception {
         int ctr = 25;
         SQLStmt stmt = new SQLStmt(
@@ -38,6 +42,7 @@ public class TestSQLStmt extends TestCase {
     /**
      * testSetSQL
      */
+    @Test
     public void testSetSQL() throws Exception {
         int expected = 99;
         SQLStmt stmt = new SQLStmt("SELECT * FROM tweets", expected);

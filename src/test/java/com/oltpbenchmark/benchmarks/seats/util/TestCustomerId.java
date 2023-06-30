@@ -17,9 +17,12 @@
 
 package com.oltpbenchmark.benchmarks.seats.util;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
-public class TestCustomerId extends TestCase {
+import org.junit.Test;
+
+public class TestCustomerId {
 
     private final long[] base_ids = {66666, 77777, 88888};
     private final long[] airport_ids = {123, 1234, 12345};
@@ -27,6 +30,7 @@ public class TestCustomerId extends TestCase {
     /**
      * testCustomerId
      */
+    @Test
     public void testCustomerId() {
         for (long base_id : this.base_ids) {
             for (long airport_id : this.airport_ids) {
@@ -41,6 +45,7 @@ public class TestCustomerId extends TestCase {
     /**
      * testCustomerIdEncode
      */
+    @Test
     public void testCustomerIdEncode() {
         for (long base_id : this.base_ids) {
             for (long airport_id : this.airport_ids) {
@@ -61,6 +66,7 @@ public class TestCustomerId extends TestCase {
     /**
      * testCustomerIdDecode
      */
+    @Test
     public void testCustomerIdDecode() {
         for (long base_id : this.base_ids) {
             for (long airport_id : this.airport_ids) {

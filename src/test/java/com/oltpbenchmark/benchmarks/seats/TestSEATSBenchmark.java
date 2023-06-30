@@ -17,6 +17,8 @@
 
 package com.oltpbenchmark.benchmarks.seats;
 
+import static org.junit.Assert.assertNotNull;
+
 import com.oltpbenchmark.api.AbstractTestBenchmarkModule;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.benchmarks.seats.procedures.*;
@@ -24,6 +26,7 @@ import com.oltpbenchmark.catalog.Table;
 
 import java.io.InputStream;
 import java.util.List;
+import org.junit.Test;
 
 public class TestSEATSBenchmark extends AbstractTestBenchmarkModule<SEATSBenchmark> {
 
@@ -50,6 +53,7 @@ public class TestSEATSBenchmark extends AbstractTestBenchmarkModule<SEATSBenchma
     /**
      * testGetDataDir
      */
+    @Test
     public void testGetDataDir() throws Exception {
         // Test by reading the country table.
         Table countryTable = this.benchmark.getCatalog().getTable(SEATSConstants.TABLENAME_COUNTRY);

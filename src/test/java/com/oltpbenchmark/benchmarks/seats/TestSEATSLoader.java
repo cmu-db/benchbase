@@ -16,12 +16,17 @@
 
 package com.oltpbenchmark.benchmarks.seats;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+
 import com.oltpbenchmark.api.AbstractTestLoader;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.Worker;
 
 import java.io.IOException;
 import java.util.List;
+import org.junit.Test;
 
 public class TestSEATSLoader extends AbstractTestLoader<SEATSBenchmark> {
 
@@ -44,6 +49,7 @@ public class TestSEATSLoader extends AbstractTestLoader<SEATSBenchmark> {
     /**
      * testSaveLoadProfile
      */
+    @Test
     public void testSaveLoadProfile() throws Exception {
         this.benchmark.createDatabase();
         SEATSLoader loader = (SEATSLoader) this.benchmark.loadDatabase();
@@ -62,7 +68,7 @@ public class TestSEATSLoader extends AbstractTestLoader<SEATSBenchmark> {
         SEATSWorker worker = (SEATSWorker) workers.get(0);
         copy.loadProfile(worker);
 
-        assertEquals(orig.scale_factor, copy.scale_factor);
+        assertEquals(orig.scale_factor, copy.scale_factor, 0.001f);
         assertEquals(orig.airport_max_customer_id, copy.airport_max_customer_id);
         assertEquals(orig.flight_start_date.toString(), copy.flight_start_date.toString());
         assertEquals(orig.flight_upcoming_date.toString(), copy.flight_upcoming_date.toString());

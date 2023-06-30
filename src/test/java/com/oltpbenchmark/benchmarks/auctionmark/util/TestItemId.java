@@ -17,12 +17,14 @@
 
 package com.oltpbenchmark.benchmarks.auctionmark.util;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import org.junit.Test;
 
 import java.util.Random;
 
-public class TestItemId extends TestCase {
+public class TestItemId {
 
     private static final Random rand = new Random(1);
 
@@ -33,6 +35,7 @@ public class TestItemId extends TestCase {
     /**
      * testItemId
      */
+    @Test
     public void testItemId() {
         for (int i = 0; i < num_users; i++) {
             UserId user_id = new UserId(rand.nextInt(Integer.MAX_VALUE), rand.nextInt(Integer.MAX_VALUE));
@@ -48,6 +51,7 @@ public class TestItemId extends TestCase {
     /**
      * testItemIdEncode
      */
+    @Test
     public void testItemIdEncode() {
         for (int i = 0; i < num_users; i++) {
             UserId user_id = new UserId(rand.nextInt(Integer.MAX_VALUE), rand.nextInt(Integer.MAX_VALUE));

@@ -1,5 +1,5 @@
 -- TODO: C_SINCE ON UPDATE CURRENT_TIMESTAMP,
--- Copied from mysql , except that MyRocks does not support foreign keys 
+-- Copied from mysql , except that MyRocks does not support foreign keys
 
 -- woonhak, turn off foreign key check, reference tpcc-mysql and tpcc specification
 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
@@ -160,7 +160,7 @@ CREATE INDEX IDX_CUSTOMER_NAME ON CUSTOMER (C_W_ID,C_D_ID,C_LAST,C_FIRST);
 
 -- already created
 -- CREATE INDEX IDX_CUSTOMER ON CUSTOMER (C_W_ID,C_D_ID,C_LAST,C_FIRST);
-CREATE INDEX IDX_ORDER ON OORDER (O_W_ID,O_D_ID,O_C_ID,O_ID);
+-- CREATE INDEX IDX_ORDER ON OORDER (O_W_ID,O_D_ID,O_C_ID,O_ID);
 -- tpcc-mysql create two indexes for the foreign key constraints, Is it really necessary?
 -- CREATE INDEX FKEY_STOCK_2 ON STOCK (S_I_ID);
 -- CREATE INDEX FKEY_ORDER_LINE_2 ON ORDER_LINE (OL_SUPPLY_W_ID,OL_I_ID);

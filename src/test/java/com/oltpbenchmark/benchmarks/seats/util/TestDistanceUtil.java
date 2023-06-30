@@ -17,13 +17,16 @@
 
 package com.oltpbenchmark.benchmarks.seats.util;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
 
-public class TestDistanceUtil extends TestCase {
+import org.junit.Test;
+
+public class TestDistanceUtil {
 
     /**
      * testDistance
      */
+    @Test
     public void testDistance() throws Exception {
         // { latitude, longitude }
         double[][] locations = {
@@ -48,7 +51,7 @@ public class TestDistanceUtil extends TestCase {
             for (int j = i + 1; j < locations.length; j++) {
                 double[] loc1 = locations[j];
                 double distance = Math.round(DistanceUtil.distance(loc0[0], loc0[1], loc1[0], loc1[1]));
-                assertEquals(expected[e++], distance);
+                assertEquals(expected[e++], distance, 0.0001f);
             } // FOR
         } // FOR
     }
