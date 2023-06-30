@@ -1,3 +1,5 @@
+# TODO: Use a multi-stage build to build the fullimage from the devcontainer.
+
 # Use a smaller base image that only has the jre, not the full jdk.
 #FROM --platform=linux eclipse-temurin:17-jre AS fullimage
 FROM eclipse-temurin:17-jre AS fullimage
