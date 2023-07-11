@@ -4,6 +4,14 @@ import json
 import sys
 import yaml
 from jinja2 import Environment, FileSystemLoader
+from functools import reduce
+from operator import getitem
+
+
+def set_nested_item(dataDict, mapList, val):
+    """Set item in nested dictionary"""
+    reduce(getitem, mapList[:-1], dataDict)[mapList[-1]] = val
+    return dataDict
 
 
 def jinja2_modification(context, input_yaml):
@@ -15,9 +23,8 @@ def jinja2_modification(context, input_yaml):
 def main():
     context = sys.argv[1]
     yaml_file = sys.argv[2]
-    data = json.loads(context)
+    data = json.loads(context, strict=False)
     jinja2_modification(data, yaml_file)
-    data = json.loads(context)
     with open(yaml_file) as f:
         doc = yaml.load(f, Loader=yaml.FullLoader)
         for key, value in data.items():
@@ -33,8 +40,8 @@ def main():
             elif key == "setAutoCommit":
                 doc["microbenchmark"]["properties"]["setAutoCommit"] = value
             else:
-                doc[key] = value
-            print(key, value)
+                nested_key = key.split('.')
+                set_nested_item(doc, nested_key, value)
 
         with open(yaml_file, 'w') as fnew:
             yaml.safe_dump(doc, fnew, encoding='utf-8', allow_unicode=True)
