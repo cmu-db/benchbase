@@ -16,12 +16,15 @@
 
 package com.oltpbenchmark.util;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.Random;
+import org.junit.Test;
 
-public class TestTextGenerator extends TestCase {
+public class TestTextGenerator {
 
     final Random rng = new Random();
     final int MAX_SIZE = 2048;
@@ -30,6 +33,7 @@ public class TestTextGenerator extends TestCase {
     /**
      * testRandomChars
      */
+    @Test
     public void testRandomChars() throws Exception {
         int strLen = rng.nextInt(MAX_SIZE) + 10;
         for (int i = 0; i < NUM_ROUNDS; i++) {
@@ -44,6 +48,7 @@ public class TestTextGenerator extends TestCase {
     /**
      * testRandomCharsPrealloc
      */
+    @Test
     public void testRandomCharsPrealloc() throws Exception {
         int strLen = rng.nextInt(MAX_SIZE);
         char[] text = new char[strLen];
@@ -57,6 +62,7 @@ public class TestTextGenerator extends TestCase {
     /**
      * testFastRandomChars
      */
+    @Test
     public void testFastRandomChars() throws Exception {
         for (int i = 0; i < NUM_ROUNDS; i++) {
             int strLen = rng.nextInt(MAX_SIZE) + 10;
@@ -70,6 +76,7 @@ public class TestTextGenerator extends TestCase {
     /**
      * testIncreaseText
      */
+    @Test
     public void testIncreaseText() throws Exception {
         int strLen = rng.nextInt(2048);
         char[] text = TextGenerator.randomChars(rng, strLen);
@@ -88,6 +95,7 @@ public class TestTextGenerator extends TestCase {
     /**
      * testDecreaseText
      */
+    @Test
     public void testDecreaseText() throws Exception {
         // Make sure that the original length is always greater than the delta size
         int strLen = rng.nextInt(2048) + 200;
@@ -102,6 +110,7 @@ public class TestTextGenerator extends TestCase {
     /**
      * testPermuteText
      */
+    @Test
     public void testPermuteText() throws Exception {
         int strLen = 64; // rng.nextInt(64);
         char[] orig = TextGenerator.randomChars(rng, strLen);

@@ -16,22 +16,27 @@
 
 package com.oltpbenchmark.api;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import com.oltpbenchmark.benchmarks.tatp.procedures.DeleteCallForwarding;
 import com.oltpbenchmark.types.DatabaseType;
-import junit.framework.TestCase;
 
 import java.util.Map;
+import org.junit.Before;
+import org.junit.Test;
 
-public class TestProcedure extends TestCase {
+public class TestProcedure {
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
 
     }
 
     /**
      * testGetProcedureName
      */
+    @Test
     public void testGetProcedureName() throws Exception {
         DeleteCallForwarding proc = new DeleteCallForwarding();
         assertEquals(DeleteCallForwarding.class.getSimpleName(), proc.getProcedureName());
@@ -40,6 +45,7 @@ public class TestProcedure extends TestCase {
     /**
      * testGetStatements
      */
+    @Test
     public void testGetStatements() throws Exception {
         Map<String, SQLStmt> stmts = Procedure.getStatements(new DeleteCallForwarding());
         assertNotNull(stmts);
@@ -50,6 +56,7 @@ public class TestProcedure extends TestCase {
     /**
      * testGetStatementsConstructor
      */
+    @Test
     public void testGetStatementsConstructor() throws Exception {
         Procedure proc = new DeleteCallForwarding();
         proc.initialize(DatabaseType.POSTGRES);

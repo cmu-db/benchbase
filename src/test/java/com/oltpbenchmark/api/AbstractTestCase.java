@@ -16,15 +16,21 @@
 
 package com.oltpbenchmark.api;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.catalog.AbstractCatalog;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.ClassUtil;
-import junit.framework.TestCase;
 import org.hsqldb.Database;
 import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.server.Server;
 import org.hsqldb.server.ServerConstants;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.rules.TestName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCase {
+public abstract class AbstractTestCase<T extends BenchmarkModule> {
 
     protected final Logger LOG = LoggerFactory.getLogger(getClass());
 
@@ -83,14 +89,17 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
 
     public abstract List<String> ignorableTables();
 
-    @Override
-    protected final void setUp() throws Exception {
+    @Rule
+    public TestName name = new TestName();
+
+    @Before
+    public final void setUp() throws Exception {
         HsqlProperties props = new HsqlProperties();
         //props.setProperty("server.remote_open", true);
 
         int port = portCounter.incrementAndGet();
 
-        LOG.info("starting HSQLDB server for test [{}] on port [{}]", this.getName(), port);
+        LOG.info("starting HSQLDB server for test [{}] on port [{}]", name.getMethodName(), port);
 
         server = new Server();
         server.setProperties(props);
@@ -174,8 +183,8 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
     }
 
 
-    @Override
-    protected final void tearDown() throws Exception {
+    @After
+    public final void tearDown() throws Exception {
 
         if (this.conn != null) {
             this.conn.close();

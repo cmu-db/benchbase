@@ -10,6 +10,8 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_ROOT_HOST: "%"
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: password
       MYSQL_DATABASE: benchbase
     ports:
       - "3306:3306"
