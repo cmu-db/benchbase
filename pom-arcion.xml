@@ -108,6 +108,12 @@
                     <artifactId>bson</artifactId>
                     <version>3.8.0</version>
                 </dependency>  
+                <!-- https://mvnrepository.com/artifact/jdbc.sybase/jconn4 -->
+                <dependency>
+                    <groupId>jdbc.sybase</groupId>
+                    <artifactId>jconn4</artifactId>
+                    <version>16.0</version>
+                </dependency>
             </dependencies>
         </profile>
 
