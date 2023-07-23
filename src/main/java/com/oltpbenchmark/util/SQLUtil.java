@@ -452,7 +452,14 @@ public abstract class SQLUtil {
 
         String separator = md.getIdentifierQuoteString();
         String catalog = connection.getCatalog();
-        String schema = connection.getSchema();
+        String schema;
+        try {
+            schema = connection.getSchema();
+        } catch (java.lang.AbstractMethodError e) {
+            // Sybase ASE JDBC does not implement getSchema
+            LOG.warn("Abstract method getSchema() not implemented", e);
+            schema = null;
+        }
 
         Map<String, Table> tables = new HashMap<>();
 
