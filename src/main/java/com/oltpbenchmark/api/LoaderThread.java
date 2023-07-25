@@ -20,6 +20,8 @@ package com.oltpbenchmark.api;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.oltpbenchmark.types.DatabaseType;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -44,7 +46,16 @@ public abstract class LoaderThread implements Runnable {
     @Override
     public final void run() {
         beforeLoad();
-        try (Connection conn = benchmarkModule.makeConnection()) {
+        try (Connection conn = benchmarkModule.makeConnection()) { 
+            DatabaseType databaseType = benchmarkModule.getWorkloadConfiguration().getDatabaseType();
+            if ( databaseType == DatabaseType.SYBASEASE ) {
+                LOG.info("Sybase ASE: Running set arithabort numeric_truncation off");
+                try (Statement stmt = conn.createStatement()) {
+                    int result = stmt.executeUpdate("set arithabort numeric_truncation off");    
+                } catch (SQLException e) {
+                    LOG.info(e.getMessage());            
+                }
+            }            
             load(conn);
         } catch (SQLException ex) {
             SQLException next_ex = ex.getNextException();
