@@ -457,7 +457,7 @@ public abstract class SQLUtil {
             schema = connection.getSchema();
         } catch (java.lang.AbstractMethodError e) {
             // Sybase ASE JDBC does not implement getSchema
-            LOG.warn("Abstract method getSchema() not implemented", e);
+            LOG.info("Abstract method getSchema() not implemented and will not use schema name.");
             schema = null;
         }
 

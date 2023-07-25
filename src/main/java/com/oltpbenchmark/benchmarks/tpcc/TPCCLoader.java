@@ -22,6 +22,7 @@ import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.LoaderThread;
 import com.oltpbenchmark.benchmarks.tpcc.pojo.*;
 import com.oltpbenchmark.catalog.Table;
+import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.SQLUtil;
 
 import java.sql.*;
@@ -49,11 +50,21 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
         List<LoaderThread> threads = new ArrayList<>();
         final CountDownLatch itemLatch = new CountDownLatch(1);
 
+        DatabaseType databaseType = this.getDatabaseType();
+        
         // ITEM
         // This will be invoked first and executed in a single thread.
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) {
+                if ( databaseType == DatabaseType.SYBASEASE ) {
+                    LOG.info("Running set arithabort numeric_truncation off");
+                    try (Statement stmt = conn.createStatement()) {
+                        int result = stmt.executeUpdate("set arithabort numeric_truncation off");    
+                    } catch (SQLException e) {
+                        LOG.info(e.getMessage());            
+                    }
+                }
                 loadItems(conn, TPCCConfig.configItemCount);
             }
 
@@ -213,6 +224,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
 
             // random within [0.0000 .. 0.2000]
             warehouse.w_tax = (TPCCUtil.randomNumber(0, 2000, benchmark.rng())) / 10000.0;
+
             warehouse.w_name = TPCCUtil.randomStr(TPCCUtil.randomNumber(6, 10, benchmark.rng()));
             warehouse.w_street_1 = TPCCUtil.randomStr(TPCCUtil.randomNumber(10, 20, benchmark.rng()));
             warehouse.w_street_2 = TPCCUtil.randomStr(TPCCUtil.randomNumber(10, 20, benchmark.rng()));

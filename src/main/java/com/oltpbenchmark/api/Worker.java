@@ -79,6 +79,15 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                 this.conn = this.benchmark.makeConnection();
                 this.conn.setAutoCommit(false);
                 this.conn.setTransactionIsolation(this.configuration.getIsolationMode());
+                DatabaseType databaseType = this.configuration.getDatabaseType();
+                if ( databaseType == DatabaseType.SYBASEASE ) {
+                    LOG.info("Running set arithabort numeric_truncation off.");
+                    try (Statement stmt = conn.createStatement()) {
+                        int result = stmt.executeUpdate("set arithabort numeric_truncation off");    
+                    } catch (SQLException e) {
+                        LOG.info(e.getMessage());            
+                    }
+                }
             } catch (SQLException ex) {
                 throw new RuntimeException("Failed to connect to database", ex);
             }
