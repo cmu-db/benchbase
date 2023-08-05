@@ -21,6 +21,7 @@ import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.otmetrics.procedures.GetSessionRange;
+import com.oltpbenchmark.benchmarks.otmetrics.procedures.NewObservation;
 import com.oltpbenchmark.types.TransactionStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,12 +45,15 @@ public class OTMetricsWorker extends Worker<OTMetricsBenchmark> {
 
     @Override
     protected TransactionStatus executeWork(Connection conn, TransactionType nextTrans) throws UserAbortException, SQLException {
+        // first we need to get the session list so that we will not violate session foreign key
         if (nextTrans.getProcedureClass().equals(GetSessionRange.class)) {
             execGetSessionRange(conn);
+        } else if (nextTrans.getProcedureClass().equals(NewObservation.class)) {
+            execNewObservation(conn, 0);
         }
         return (TransactionStatus.SUCCESS);
     }
-
+    
     public void execGetSessionRange(Connection conn) throws SQLException {
         int session_low = rng().nextInt(this.getBenchmark().num_sessions);
         int session_high =  session_low + rng().nextInt(5) * this.getBenchmark().num_sources;
@@ -75,6 +79,30 @@ public class OTMetricsWorker extends Worker<OTMetricsBenchmark> {
             sb.append(" -> ").append(result.size()).append(" results");
             LOG.debug(sb.toString());
         }
+    }
+
+    public void execNewObservation(Connection conn, int timetick) throws SQLException {
+        // for new observation, we get a new observation for each session 
+        int session_id = rng().nextInt(this.getBenchmark().num_sessions);
+        int source_id = session_id % this.getBenchmark().num_sources;
+
+        int type_category = (int)Math.floor(source_id / OTMetricsConstants.NUM_TYPES);
+        int type_id = (rng().nextInt(OTMetricsConstants.NUM_TYPES) % OTMetricsConstants.NUM_TYPES);
+
+        float value = rng().nextFloat();
+
+        NewObservation proc = this.getProcedure(NewObservation.class);
+        proc.run(conn, source_id, session_id, type_category + type_id, value);
+
+        /*if (LOG.isDebugEnabled()) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("source_id=").append(source_id).append(" ");
+            sb.append("session_low=").append(session_low).append(" ");
+            sb.append("session_high=").append(session_high).append(" ");
+            sb.append("type_id=").append(Arrays.toString(types)).append(" ");
+            sb.append(" -> ").append(result.size()).append(" results");
+            LOG.debug(sb.toString());
+        }*/
     }
 
 
