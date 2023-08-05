@@ -41,6 +41,9 @@ public class WorkloadConfiguration {
     private int randomSeed = -1;
     private double scaleFactor = 1.0;
     private double selectivity = -1.0;
+    private double querySleepTime = 0.5;
+    private double sleepBetweenQueries = 0;
+    private int sleepsPerTxn = 1;
     private int terminals;
     private int loaderThreads = ThreadUtil.availableProcessors();
     private XMLConfiguration xmlConfig = null;
@@ -174,6 +177,30 @@ public class WorkloadConfiguration {
 
     public void setSelectivity(double selectivity) {
         this.selectivity = selectivity;
+    }
+
+    public double getQuerySleepTime() {
+        return this.querySleepTime;
+    }
+
+    public void setQuerySleepTime(double query_sleep_time) {
+        this.querySleepTime = query_sleep_time;
+    }
+
+    public double getSleepBetweenQueries() {
+        return this.sleepBetweenQueries;
+    }
+
+    public void setSleepBetweenQueries(double sleep_between_queries) {
+        this.sleepBetweenQueries = sleep_between_queries;
+    }
+
+    public int getSleepsPerTxn() {
+        return this.sleepsPerTxn;
+    }
+
+    public void setSleepsPerTxn(int sleepsPerTxn) {
+        this.sleepsPerTxn = sleepsPerTxn;
     }
 
     /**
