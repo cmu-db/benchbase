@@ -41,6 +41,8 @@ public class WorkloadConfiguration {
     private int randomSeed = -1;
     private double scaleFactor = 1.0;
     private double selectivity = -1.0;
+    private int egressTupleBytes = 10;
+    private int egressNumTuples = 10;
     private int terminals;
     private int loaderThreads = ThreadUtil.availableProcessors();
     private XMLConfiguration xmlConfig = null;
@@ -152,8 +154,33 @@ public class WorkloadConfiguration {
         phases.add(new Phase(benchmarkName, id, time, warmup, rate, weights, rateLimited, disabled, serial, timed, active_terminals, arrival));
     }
 
+    /**
+     * @return egressTupleBytes length of text field for Egress benchmark.
+     */
+    public int getEgressTupleBytes() {
+        return egressTupleBytes;
+    }
 
+    /**
+     * @param egressTupleBytes length of text field for Egress benchmark.
+     */
+    public void setEgressTupleBytes(int egressTupleBytes) {
+        this.egressTupleBytes = egressTupleBytes;
+    }
 
+    /**
+     * @return egressNumTuples Number of tuples returned for Egress benchmark.
+     */
+    public int getEgressNumTuples() {
+        return egressNumTuples;
+    }
+
+    /**
+     * @param egressNumTuples Number of tuples returned for Egress benchmark.
+     */
+    public void setEgressNumTuples(int egressNumTuples) {
+        this.egressNumTuples = egressNumTuples;
+    }
 
     /**
      * The number of loader threads that the framework is allowed to use.
