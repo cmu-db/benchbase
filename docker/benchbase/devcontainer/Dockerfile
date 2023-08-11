@@ -1,6 +1,6 @@
 # For the devcontainer we need a full JDK.
 #FROM --platform=linux maven:3.8.5-eclipse-temurin-17 AS devcontainer
-FROM maven:3.9.3-eclipse-temurin-17 AS devcontainer
+FROM maven:3-eclipse-temurin-20 AS devcontainer
 
 LABEL org.opencontainers.image.source = "https://github.com/cmu-db/benchbase/"
 
