@@ -59,7 +59,7 @@ public class FeatureBenchBenchmark extends BenchmarkModule {
             FeatureBenchWorker worker = new FeatureBenchWorker(this, i,
                 conf.getString("class"),
                 conf.configurationAt("properties"),
-                configToExecuteRues(confExecuteRules, i, workConf.getTerminals()),
+                configToExecuteRules(confExecuteRules, i, workConf.getTerminals()),
                 workloadName);
             workers.add(worker);
         }
@@ -85,7 +85,7 @@ public class FeatureBenchBenchmark extends BenchmarkModule {
         return FeatureBench.class.getPackage();
     }
 
-    private List<ExecuteRule> configToExecuteRues(List<HierarchicalConfiguration<ImmutableNode>> confExecuteRules, int workerId, int totalWorker) {
+    private List<ExecuteRule> configToExecuteRules(List<HierarchicalConfiguration<ImmutableNode>> confExecuteRules, int workerId, int totalWorker) {
         List<ExecuteRule> executeRules = new ArrayList<>();
         for (HierarchicalConfiguration<ImmutableNode> confExecuteRule : confExecuteRules) {
 

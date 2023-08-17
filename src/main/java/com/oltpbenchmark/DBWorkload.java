@@ -660,7 +660,9 @@ public class DBWorkload {
                         LOG.info("Starting Workload " + (workloads.get(workCount - 1).containsKey("workload") ? workloads.get(workCount - 1).getString("workload") : workCount));
                         try {
                             Results r = runWorkload(benchList, intervalMonitor, workCount);
-                            writeOutputs(r, activeTXTypes, argsLine, xmlConfig, executeRules == null ? null : workloads.get(workCount - 1).getString("workload"));
+                            writeOutputs(r, activeTXTypes, argsLine, xmlConfig,
+                                executeRules == null ? null : workloads.get(workCount - 1).getString("workload"),
+                                executeRules == null ? null : workloads.get(workCount - 1).getString("customTags", null));
                             writeHistograms(r);
 
                             if (argsLine.hasOption("json-histograms")) {
@@ -689,10 +691,13 @@ public class DBWorkload {
                         Results r = runWorkload(benchList, intervalMonitor, workCount);
                         // if block currently only valid for bulkload experiments
                         if(xmlConfig.containsKey("microbenchmark/properties/workload")) {
-                            writeOutputs(r, activeTXTypes, argsLine, xmlConfig, xmlConfig.getString("microbenchmark/properties/workload"));
+                            writeOutputs(r, activeTXTypes, argsLine, xmlConfig,
+                                xmlConfig.getString("microbenchmark/properties/workload"), null);
                         }
                         else {
-                            writeOutputs(r, activeTXTypes, argsLine, xmlConfig, executeRules == null ? null : workloads.get(workCount - 1).getString("workload"));
+                            writeOutputs(r, activeTXTypes, argsLine, xmlConfig,
+                                executeRules == null ? null : workloads.get(workCount - 1).getString("workload"),
+                                executeRules == null ? null : workloads.get(workCount - 1).getString("customTags", null));
                         }
                         writeHistograms(r);
 
@@ -822,7 +827,9 @@ public class DBWorkload {
      * @param xmlConfig
      * @throws Exception
      */
-    private static void writeOutputs(Results r, List<TransactionType> activeTXTypes, CommandLine argsLine, XMLConfiguration xmlConfig, String workload_name) throws Exception {
+    private static void writeOutputs(Results r, List<TransactionType> activeTXTypes, CommandLine argsLine,
+                                     XMLConfiguration xmlConfig, String workload_name,
+                                     String customTags) throws Exception {
 
         // If an output directory is used, store the information
         String outputDirectory = "results";
@@ -894,7 +901,7 @@ public class DBWorkload {
                 }
                 if(workload_name == null || workload_name.isEmpty())
                     workload_name = baseFileName;
-                workloadToSummaryMap.put(workload_name, rw.writeDetailedSummary(ps));
+                workloadToSummaryMap.put(workload_name, rw.writeDetailedSummary(ps, customTags));
 
                 try {
                     FileWriter writer = new FileWriter(filePathForOutputJson);

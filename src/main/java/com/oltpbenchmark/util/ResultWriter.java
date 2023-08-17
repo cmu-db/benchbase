@@ -108,16 +108,7 @@ public class ResultWriter {
     }
 
     public void writeSummary(PrintStream os) {
-        Map<String, Object> summaryMap = new TreeMap<>();
-        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-        Date now = new Date();
-        summaryMap.put("Current Timestamp (milliseconds)", now.getTime());
-        summaryMap.put("DBMS Type", dbType);
-        summaryMap.put("DBMS Version", collector.collectVersion());
-        summaryMap.put("Benchmark Type", benchType);
-        summaryMap.put("Latency Distribution", results.getDistributionStatistics().toMap());
-        summaryMap.put("Throughput (requests/second)", results.requestsPerSecondThroughput());
-        summaryMap.put("Goodput (requests/second)", results.requestsPerSecondGoodput());
+        Map<String, Object> summaryMap = buildSummaryMap(dbType, collector, benchType, results);
         for (String field : BENCHMARK_KEY_FIELD) {
             summaryMap.put(field, expConf.getString(field));
         }
@@ -236,26 +227,17 @@ public class ResultWriter {
         }
     }
 
-    public Map<String, Object> writeDetailedSummary(PrintStream os) {
-        Map<String, Object> summaryMap = new TreeMap<>();
-        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-        Date now = new Date();
-        summaryMap.put("Current Timestamp (milliseconds)", now.getTime());
-        summaryMap.put("DBMS Type", dbType);
-        summaryMap.put("DBMS Version", collector.collectVersion());
-        summaryMap.put("Benchmark Type", benchType);
-        summaryMap.put("Latency Distribution", results.getDistributionStatistics().toMap());
-        summaryMap.put("Throughput (requests/second)", results.requestsPerSecondThroughput());
-        summaryMap.put("Goodput (requests/second)", results.requestsPerSecondGoodput());
+    public Map<String, Object> writeDetailedSummary(PrintStream os, String customTags) {
+        Map<String, Object> summaryMap = buildSummaryMap(dbType, collector, benchType, results);
         summaryMap.put("Transaction Distribution", transactionsMap(results));
         summaryMap.put("Help", help());
-
         for (String field : BENCHMARK_KEY_FIELD) {
             summaryMap.put(field, expConf.getString(field));
         }
         Map<String, Object> detailedSummaryMap = new TreeMap<>();
         Map<String, Object> metadata = new TreeMap<>();
         metadata.put("yaml_version", expConf.getString("yaml_version", "v1.0"));
+        metadata.put("customTags", formatCustomTags(customTags));
         detailedSummaryMap.put("metadata", metadata);
         detailedSummaryMap.put("Summary", summaryMap);
         detailedSummaryMap.put("queries", results.getFeaturebenchAdditionalResults().getJsonResultsList());
@@ -291,5 +273,34 @@ public class ResultWriter {
         help.put("Goodput (requests/second)", "(Completed Transactions / Measure(Execute) phase time). Don't refer. Derived from benchbase.");
 
         return help;
+    }
+
+    private static Map<String, Object>  buildSummaryMap(DatabaseType dbType, DBParameterCollector collector, String benchType, Results results) {
+        Map<String, Object> summaryMap = new TreeMap<>();
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+        Date now = new Date();
+        summaryMap.put("Current Timestamp (milliseconds)", now.getTime());
+        summaryMap.put("DBMS Type", dbType);
+        summaryMap.put("DBMS Version", collector.collectVersion());
+        summaryMap.put("Benchmark Type", benchType);
+        summaryMap.put("Latency Distribution", results.getDistributionStatistics().toMap());
+        summaryMap.put("Throughput (requests/second)", results.requestsPerSecondThroughput());
+        summaryMap.put("Goodput (requests/second)", results.requestsPerSecondGoodput());
+        return summaryMap;
+    }
+
+    public static Map<String, String> formatCustomTags(String customTags) {
+        Map<String, String> resultTags = new HashMap<>();
+
+        if (customTags == null) return resultTags;
+        for(String tag: customTags.split(",")) {
+            String[] keyValue = tag.split("=");
+            if (keyValue.length == 2)
+                resultTags.put(keyValue[0], keyValue[1]);
+            else
+                resultTags.put(keyValue[0], "");
+        }
+
+        return resultTags;
     }
 }
