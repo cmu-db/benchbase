@@ -429,8 +429,10 @@ jobs:
               ERRORS_THRESHOLD=0.05
           fi
           ./scripts/check_histogram_results.sh results/histograms.json $ERRORS_THRESHOLD
-          if ![ -d "./results/monitor" ]; then
-            echo "ERROR: Advanced monitoring unsuccessful, file directory not created." >&2
+
+          # Running the monitor should create at least three files in the 'monitor' directory.
+          if ![(find "./results/monitor" -maxdepth 1 -mindepth 1 | wc -l) > 2]
+            echo "ERROR: Advanced monitoring unsuccessful, file directory and/or appropriate files not created." >&2
             exit 1
           fi
 
