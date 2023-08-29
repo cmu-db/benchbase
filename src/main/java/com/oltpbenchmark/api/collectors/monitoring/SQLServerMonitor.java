@@ -187,7 +187,7 @@ public class SQLServerMonitor extends DatabaseMonitor {
 
     /**
      * Extract system events using the extraction query and properties defined
-     * above.
+     * above, will fail gracefully to not interrupt benchmarking.
      */
     private void extractPerformanceMetrics(Instant instant) {
         ImmutableRepeatedSystemEvent.Builder repeatedSystemEventBuilder = ImmutableRepeatedSystemEvent.builder();
