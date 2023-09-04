@@ -77,42 +77,49 @@ microbenchmark:
             - workload: AGGRG9_count_bigint_non_indexed_column
               run:
                   - name: count_bigint_non_indexed_column
+                    customTags: schematype=regular,partition=hash,aggregate=count,cardinality=single,projection=aggregate,aggregateon=nonindexed
                     weight: 100
                     queries:
                         - query: select count(col_bigint_id_3) from Indexed1M_1
             - workload: AGGRG9_count_bigint_hash_pkey_column
               run:
                   - name: count_bigint_non_indexed_column
+                    customTags: schematype=regular,partition=hash,aggregate=count,cardinality=single,projection=aggregate,aggregateon=hashpkey
                     weight: 100
                     queries:
                         - query: select count(col_bigint_id_1) from Indexed1M_1
             - workload: AGGRG9_count_bigint_hash_pkey_column_with_filter
               run:
                   - name: count_bigint_non_indexed_column
+                    customTags: schematype=regular,partition=hash,aggregate=count,cardinality=single,projection=aggregate,filtercount=one,aggregateon=hashpkey,filteron=hashpkey,filtertype=comparision
                     weight: 100
                     queries:
                         - query: select count(col_bigint_id_1) from Indexed1M_1 where col_bigint_id_1>1
             - workload: AGGRG9_count_bigint_hash_secondary_indexed_column
               run:
                   - name: count_bigint_non_indexed_column
+                    customTags: schematype=regular,partition=hash,aggregate=count,cardinality=single,projection=aggregate,aggregateon=hashskey
                     weight: 100
                     queries:
                         - query: select count(col_bigint_id_2) from Indexed1M_1
             - workload: AGGRG9_count_bigint_hash_secondary_indexed_column_with_filter
               run:
                   - name: count_bigint_non_indexed_column
+                    customTags: schematype=regular,partition=hash,aggregate=count,cardinality=single,projection=aggregate,filtercount=one,aggregateon=hashskey,filteron=hashskey,filtertype=comparision
                     weight: 100
                     queries:
                         - query: select count(col_bigint_id_2) from Indexed1M_1 where col_bigint_id_2>1
             -   workload: AGGRG9_count_bigint_range_secondary_indexed_column
                 run:
                     -   name: count_bigint_non_indexed_column
+                        customTags: customer=1,schematype=regular,partition=hash,aggregate=count,cardinality=single,projection=aggregate,aggregateon=rangeskey
                         weight: 100
                         queries:
                             -   query: select count(col_bigint_id_4) from Indexed1M_1
             -   workload: AGGRG9_count_bigint_range_secondary_indexed_column_with_filter
                 run:
                     -   name: count_bigint_non_indexed_column
+                        customTags: customer=1,schematype=regular,partition=hash,aggregate=count,cardinality=single,projection=aggregate,filtercount=one,aggregateon=rangeskey,filteron=rangeskey,filtertype=comparision
                         weight: 100
                         queries:
                             -   query: select count(col_bigint_id_4) from Indexed1M_1 where col_bigint_id_4>1

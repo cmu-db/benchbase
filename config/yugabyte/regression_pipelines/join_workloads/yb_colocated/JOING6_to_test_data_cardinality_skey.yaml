@@ -135,6 +135,7 @@ microbenchmark:
             - workload: JoinG6_1_1Mtbl_join_1Mtbl_two_conditions_indexscan_two_filters
               run:
                   - name: hashtbl_index_scan_using_sec_index
+                    customTags: customer=3,schematype=colocated,partition=range,skey=composite,cardinality=multiple,projection=all,filtercount=two,filteron=mixedskey,filtertype=pointselect,filterother=IN,queryshape=join,joinon=mixedskey,joinconditions=two
                     weight: 100
                     queries:
                         - query: select * from pkeyBigint1M_1 as a join pkeyBigint1M_2 as b on a.col_bigint_card1_1=b.col_bigint_card1_1 and a.col_bigint_card3_1=b.col_bigint_card3_1 where b.col_bigint_card1_1=1000000 and  b.col_bigint_card2_1 in (1000058);
@@ -142,6 +143,7 @@ microbenchmark:
             - workload: JoinG6_2_1Mtbl_join_1Mtbl_two_conditions_indexscan_two_filters
               run:
                   - name: hashtbl_index_scan_using_sec_index
+                    customTags: schematype=colocated,partition=range,skey=composite,cardinality=multiple,projection=all,filtercount=two,filteron=mixedskey,filtertype=pointselect,filterother=IN,queryshape=join,joinon=mixedskey,joinconditions=two
                     weight: 100
                     queries:
                         - query: select * from pkeyBigint1M_1 as a join pkeyBigint1M_2 as b on a.col_bigint_card1_1=b.col_bigint_card1_1 and a.col_bigint_card2_1=b.col_bigint_card2_1 where b.col_bigint_card1_1=1000000 and  b.col_bigint_card3_1 in (1000058);
@@ -149,6 +151,7 @@ microbenchmark:
             - workload: JoinG6_3_1Mtbl_join_1Mtbl_two_conditions_indexscan_two_filters
               run:
                   - name: hashtbl_index_scan_using_sec_index
+                    customTags: customer=3,schematype=colocated,partition=range,skey=composite,cardinality=multiple,projection=all,filtercount=two,filteron=mixedskey,filtertype=pointselect,filterother=IN,queryshape=join,joinon=mixedskey,joinconditions=two
                     weight: 100
                     queries:
                         - query: select * from pkeyBigint1M_1 as a join pkeyBigint1M_2 as b on a.col_bigint_card1_1=b.col_bigint_card1_1 and a.col_bigint_card2_1=b.col_bigint_card2_1 where b.col_bigint_card1_1=1000000 and  b.col_bigint_card2_1 in (1000058);
@@ -157,6 +160,7 @@ microbenchmark:
             - workload: JoinG6_4_1Mtbl_join_1Mtbl_two_conditions_seqscan_two_filters
               run:
                   - name: hashtbl_index_scan_using_sec_index
+                    customTags: schematype=colocated,partition=range,skey=asc,cardinality=multiple,projection=all,filtercount=two,filteron=rangeskey,filtertype=pointselect,filterother=IN,queryshape=join,joinon=rangeskey,joinconditions=two
                     weight: 100
                     queries:
                         - query: select * from pkeyBigint1M_1 as a join pkeyBigint1M_2 as b on a.col_bigint_card2_1=b.col_bigint_card2_1 and a.col_bigint_card3_1=b.col_bigint_card3_1 where b.col_bigint_card2_1 in (1000058);
@@ -165,6 +169,7 @@ microbenchmark:
             -   workload: JoinG6_5_1Mtbl_join_10ktbl_two_conditions_indexscan_two_filters
                 run:
                     -   name: hashtbl_index_scan_using_sec_index
+                        customTags: customer=3,schematype=colocated,partition=range,skey=composite,cardinality=multiple,projection=all,filtercount=two,filteron=mixedskey,filtertype=pointselect,filterother=IN,queryshape=join,joinon=mixedskey,joinconditions=two
                         weight: 100
                         queries:
                             -   query: select * from pkeyBigint1M_1 as a join pkeyBigint10k_1 as b on a.col_bigint_card1_1=b.col_bigint_card1_1 and a.col_bigint_card3_1=b.col_bigint_card3_1 where b.col_bigint_card1_1=1000000 and  b.col_bigint_card2_1 in (1000058);
@@ -172,6 +177,7 @@ microbenchmark:
             -   workload: JoinG6_6_1Mtbl_join_10ktbl_two_conditions_indexscan_two_filters
                 run:
                     -   name: hashtbl_index_scan_using_sec_index
+                        customTags: schematype=colocated,partition=range,skey=composite,cardinality=multiple,projection=all,filtercount=two,filteron=mixedskey,filtertype=pointselect,filterother=IN,queryshape=join,joinon=mixedskey,joinconditions=two
                         weight: 100
                         queries:
                             -   query: select * from pkeyBigint1M_1 as a join pkeyBigint10k_1 as b on a.col_bigint_card1_1=b.col_bigint_card1_1 and a.col_bigint_card2_1=b.col_bigint_card2_1 where b.col_bigint_card1_1=1000000 and  b.col_bigint_card3_1 in (1000058);
@@ -179,6 +185,7 @@ microbenchmark:
             -   workload: JoinG6_7_1Mtbl_join_10ktbl_two_conditions_indexscan_two_filters
                 run:
                     -   name: hashtbl_index_scan_using_sec_index
+                        customTags: customer=3,schematype=colocated,partition=range,skey=composite,cardinality=multiple,projection=all,filtercount=two,filteron=mixedskey,filtertype=pointselect,filterother=IN,queryshape=join,joinon=mixedskey,joinconditions=two
                         weight: 100
                         queries:
                             -   query: select * from pkeyBigint1M_1 as a join pkeyBigint10k_1 as b on a.col_bigint_card1_1=b.col_bigint_card1_1 and a.col_bigint_card2_1=b.col_bigint_card2_1 where b.col_bigint_card1_1=1000000 and  b.col_bigint_card2_1 in (1000058);
@@ -187,6 +194,7 @@ microbenchmark:
             -   workload: JoinG6_8_1Mtbl_join_10ktbl_two_conditions_seqscan_two_filters
                 run:
                     -   name: hashtbl_index_scan_using_sec_index
+                        customTags: schematype=colocated,partition=range,skey=asc,cardinality=multiple,projection=all,filtercount=two,filteron=rangeskey,filtertype=pointselect,filterother=IN,queryshape=join,joinon=rangeskey,joinconditions=two
                         weight: 100
                         queries:
                             -   query: select * from pkeyBigint1M_1 as a join pkeyBigint10k_1 as b on a.col_bigint_card2_1=b.col_bigint_card2_1 and a.col_bigint_card3_1=b.col_bigint_card3_1 where b.col_bigint_card2_1 in (1000058);

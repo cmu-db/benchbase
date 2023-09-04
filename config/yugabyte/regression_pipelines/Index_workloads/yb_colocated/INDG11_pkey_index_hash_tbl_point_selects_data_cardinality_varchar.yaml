@@ -81,6 +81,7 @@ microbenchmark:
             - workload: INDG11_1_data_cardinality_hashtbl_point_lookup_index_scan_using_comp_skey_first_part_hash_1M
               run:
                   - name: hashtbl_index_scan_using_sec_index
+                    customTags: schematype=colocated,partition=hash,pkey=composite,cardinality=multiple,projection=all,filtercount=one,filteron=rangepkey,filtertype=pointselect,filterdatatype=varchar,queryshape=scan
                     weight: 100
                     queries:
                         - query: select * from pkeyVarchar10_1 where col_varchar_card1_1='id-1000000'
@@ -88,6 +89,7 @@ microbenchmark:
             - workload: INDG11_2_data_cardinality_hashtbl_point_lookup_index_scan_using_comp_skey_sec_part_hash_1k
               run:
                   - name: hashtbl_index_scan_using_sec_index
+                    customTags: schematype=colocated,partition=hash,pkey=composite,cardinality=multiple,projection=all,filtercount=one,filteron=rangepkey,filtertype=pointselect,filterdatatype=varchar,queryshape=scan
                     weight: 100
                     queries:
                         - query: select * from pkeyVarchar10_1 where col_varchar_card2_1='id-1000498'
@@ -96,6 +98,7 @@ microbenchmark:
             - workload: INDG11_2_data_cardinality_hashtbl_point_lookup_index_scan_using_comp_skey_sec_part_hash_1k_two_conditions
               run:
                   - name: hashtbl_index_scan_using_sec_index
+                    customTags: customer=1,schematype=colocated,partition=hash,pkey=composite,cardinality=multiple,projection=all,filtercount=one,filteron=rangepkey,filtertype=pointselect,filterdatatype=varchar,queryshape=scan
                     weight: 100
                     queries:
                         - query: select * from pkeyVarchar10_1 where col_varchar_card1_1='id-1000000' and col_varchar_card2_1='id-1000898'
@@ -103,6 +106,7 @@ microbenchmark:
             - workload: INDG11_2_data_cardinality_hashtbl_point_lookup_index_scan_using_comp_skey_third_part_hash_100_two_conditions
               run:
                   - name: hashtbl_index_scan_using_sec_index
+                    customTags: schematype=colocated,partition=hash,pkey=composite,cardinality=multiple,projection=all,filtercount=one,filteron=rangepkey,filtertype=pointselect,filterdatatype=varchar,queryshape=scan
                     weight: 100
                     queries:
                         - query: select * from pkeyVarchar10_1 where col_varchar_card1_1='id-1000000' and col_varchar_card3_1='id-7000999'
@@ -110,6 +114,7 @@ microbenchmark:
             - workload: INDG11_2_data_cardinality_hashtbl_point_lookup_index_scan_using_comp_skey_third_part_hash_100_two_conditions
               run:
                   - name: hashtbl_index_scan_using_sec_index
+                    customTags: schematype=colocated,partition=hash,pkey=composite,cardinality=multiple,projection=all,filtercount=one,filteron=rangepkey,filtertype=pointselect,filterdatatype=varchar,queryshape=scan
                     weight: 100
                     queries:
                         - query: select * from pkeyVarchar10_1 where col_varchar_card1_1='id-1000000' and col_varchar_card3_1='id-7000999'
