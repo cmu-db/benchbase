@@ -1,10 +1,13 @@
 package com.oltpbenchmark.benchmarks.featurebench.utils;
 
+import com.oltpbenchmark.benchmarks.featurebench.helpers.MD5hash;
+import org.apache.commons.lang3.StringUtils;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Random;
 
-public class RandomString extends Random implements BaseUtil {
+public class HashedRandomString extends Random implements BaseUtil {
 
 
     /*
@@ -19,7 +22,7 @@ public class RandomString extends Random implements BaseUtil {
     private int maximumNumber;
     private int length;
 
-    public RandomString(List<Object> values) {
+    public HashedRandomString(List<Object> values) {
         super((int) System.nanoTime());
         if (values.size() != 3) {
             throw new RuntimeException("Incorrect number of parameters for util function "
@@ -32,7 +35,7 @@ public class RandomString extends Random implements BaseUtil {
             throw new RuntimeException("Please enter correct min, max and no. of characters for random string");
     }
 
-    public RandomString(List<Object> values, int workerId, int totalWorkers) {
+    public HashedRandomString(List<Object> values, int workerId, int totalWorkers) {
         super((int) System.nanoTime());
         if (values.size() != 3) {
             throw new RuntimeException("Incorrect number of parameters for util function "
@@ -57,10 +60,11 @@ public class RandomString extends Random implements BaseUtil {
     @Override
     public Object run() throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException,
         InstantiationException, IllegalAccessException {
-        StringBuilder baseNumberStr = new StringBuilder(String.valueOf(number(minimumNumber, maximumNumber)));
-        while (baseNumberStr.length() < length) {
-            baseNumberStr.append('a');
-        }
-        return baseNumberStr.toString();
+
+        int curr = number(minimumNumber, maximumNumber);
+        String md5HASHString= MD5hash.getMd5(String.valueOf(curr));
+        int repeatCount = (int) Math.ceil((double) length /32);
+        String baseNumberStr = StringUtils.repeat(md5HASHString, repeatCount);
+        return baseNumberStr.length() == length ? baseNumberStr : baseNumberStr.substring(0,length);
     }
 }
