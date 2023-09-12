@@ -14,6 +14,7 @@
  * limitations under the License.
  *
  */
+/** Copyright (c) 2023, Oracle and/or its affiliates. */
 
 package com.oltpbenchmark.benchmarks.wikipedia;
 
@@ -108,16 +109,17 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                 // load anonymous user
                 try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                     int param = 1;
+                    String defaultString = getDatabaseType() == DatabaseType.ORACLE ? " " : "";
                     stmt.setInt(param++, WikipediaConstants.ANONYMOUS_USER_ID); // user_id
                     stmt.setString(param++, "Anonymous"); // user_name
-                    stmt.setString(param++, ""); // user_real_name
-                    stmt.setString(param++, ""); // user_password
-                    stmt.setString(param++, ""); // user_newpassword
+                    stmt.setString(param++, defaultString); // user_real_name
+                    stmt.setString(param++, defaultString); // user_password
+                    stmt.setString(param++, defaultString); // user_newpassword
                     stmt.setNull(param++, JDBCType.VARCHAR.getVendorTypeNumber()); // user_newpass_time
-                    stmt.setString(param++, ""); // user_email
-                    stmt.setString(param++, ""); // user_options
-                    stmt.setString(param++, ""); // user_touched
-                    stmt.setString(param++, ""); // user_token
+                    stmt.setString(param++, defaultString); // user_email
+                    stmt.setString(param++, defaultString); // user_options
+                    stmt.setString(param++, defaultString); // user_touched
+                    stmt.setString(param++, defaultString); // user_token
                     stmt.setNull(param++, JDBCType.VARCHAR.getVendorTypeNumber()); // user_email_authenticated
                     stmt.setNull(param++, JDBCType.VARCHAR.getVendorTypeNumber()); // user_email_token
                     stmt.setNull(param++, JDBCType.VARCHAR.getVendorTypeNumber()); // user_email_token_expires

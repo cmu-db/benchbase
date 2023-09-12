@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (c) 2023, Oracle and/or its affiliates.-->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -85,6 +86,21 @@
                     <groupId>mysql</groupId>
                     <artifactId>mysql-connector-java</artifactId>
                     <version>8.0.30</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>oracle</id>
+            <properties>
+                <classifier>oracle</classifier>
+            </properties>
+            <dependencies>
+                <!-- https://mvnrepository.com/artifact/com.oracle.database.jdbc/ojdbc11 -->
+                <dependency>
+                    <groupId>com.oracle.database.jdbc</groupId>
+                    <artifactId>ojdbc11</artifactId>
+                    <version>23.2.0.0</version>
+                    <scope>runtime</scope>
                 </dependency>
             </dependencies>
         </profile>
