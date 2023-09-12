@@ -447,8 +447,24 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
         Timestamp startTime = profile.getLastCloseAuctionsTime();
         Timestamp endTime = profile.updateAndGetLastCloseAuctionsTime();
 
-        List<Object[]> results = proc.run(conn, benchmarkTimes, startTime, endTime);
-
+        List<Object[]> results = null;
+        boolean done = false;
+        // Retry here the close auction procedure if it fails due to a transactional conflict, since
+        // the original submitted procedured has a different type.
+        while (!done) {
+            try {
+                results = proc.run(conn, benchmarkTimes, startTime, endTime);
+                done = true;
+            }
+            catch (SQLException e)  {
+                if (e.getSQLState().startsWith("40")) {
+                    conn.rollback();
+                }
+                else {
+                    throw e;
+                }
+            }
+        }
 
         for (Object[] row : results) {
             ItemId itemId = this.processItemRecord(row);
