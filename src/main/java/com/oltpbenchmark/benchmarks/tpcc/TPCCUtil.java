@@ -19,7 +19,7 @@
 package com.oltpbenchmark.benchmarks.tpcc;
 
 import com.oltpbenchmark.benchmarks.tpcc.pojo.Customer;
-import com.oltpbenchmark.util.RandomGenerator;
+import com.oltpbenchmark.util.ThreadLocalRandomGenerator;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -59,7 +59,7 @@ public class TPCCUtil {
         return c;
     }
 
-    private static final RandomGenerator ran = new RandomGenerator(0);
+    private static final ThreadLocalRandomGenerator ran = new ThreadLocalRandomGenerator();
 
     public static String randomStr(int strLen) {
         if (strLen > 1) {
