@@ -47,7 +47,7 @@ public class TestUserIdGenerator {
 
     private static final int NUM_CLIENTS = 10;
     private static final int NUM_USERS = 1000;
-    private static final RandomGenerator rand = new RandomGenerator(0); // (int)System.currentTimeMillis());
+    private static final RandomGenerator rand = new RandomGenerator();
 
     private static final Zipf randomNumItems = new Zipf(rand,
             AuctionMarkConstants.ITEM_ITEMS_PER_SELLER_MIN,

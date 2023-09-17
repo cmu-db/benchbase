@@ -58,7 +58,7 @@ public class TestAuctionMarkLoader extends AbstractTestLoader<AuctionMarkBenchma
         assertNotNull(orig);
         assertFalse(orig.users_per_itemCount.isEmpty());
 
-        AuctionMarkProfile copy = new AuctionMarkProfile(this.benchmark, new RandomGenerator(0));
+        AuctionMarkProfile copy = new AuctionMarkProfile(this.benchmark, new RandomGenerator());
         assertTrue(copy.users_per_itemCount.isEmpty());
 
         List<Worker<?>> workers = this.benchmark.makeWorkers();

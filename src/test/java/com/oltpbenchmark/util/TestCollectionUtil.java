@@ -117,7 +117,7 @@ public class TestCollectionUtil {
     @Test
     public void testPop() {
         String[] expected = new String[11];
-        RandomGenerator rng = new RandomGenerator(0);
+        RandomGenerator rng = new RandomGenerator();
         for (int i = 0; i < expected.length; i++) {
             expected[i] = rng.astring(1, 32);
         } // FOR
