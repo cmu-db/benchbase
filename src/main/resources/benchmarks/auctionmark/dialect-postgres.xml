@@ -3,7 +3,7 @@
     <dialect type="POSTGRES">
         <procedure name="CloseAuctions">
             <statement name="updateItemStatus">UPDATE item SET i_status = ?, i_updated = ? WHERE i_id = ? AND i_u_id = ?</statement>
-            <statement name="getDueItems">SELECT i_id, i_u_id, i_name, i_current_price, i_num_bids, i_end_date, i_status FROM item WHERE (i_start_date BETWEEN ? AND ?) AND i_status = 0 ORDER BY i_id ASC LIMIT 100</statement>
+            <statement name="getDueItems">SELECT i_id, i_u_id, i_name, i_current_price, i_num_bids, i_end_date, i_status FROM item WHERE (i_start_date BETWEEN ? AND ?) AND i_status = ? ORDER BY i_id ASC LIMIT 100</statement>
             <statement name="getMaxBid">SELECT imb_ib_id, ib_buyer_id FROM item_max_bid, item_bid WHERE imb_i_id = ? AND imb_u_id = ? AND ib_id = imb_ib_id AND ib_i_id = imb_i_id AND ib_u_id = imb_u_id</statement>
             <statement name="insertUserItem">INSERT INTO useracct_item(ui_u_id, ui_i_id, ui_i_u_id, ui_created) VALUES(?, ?, ?, ?)</statement>
         </procedure>
