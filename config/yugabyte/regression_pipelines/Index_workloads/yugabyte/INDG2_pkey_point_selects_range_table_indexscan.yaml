@@ -70,17 +70,17 @@ microbenchmark:
 
 
             - workload: INDG2_1_rangetbl_point_lookup_index_scan_using_comp_pkey_first_part_range
+              customTags: customer=7,schematype=regular,partition=range,pkey=composite,cardinality=single,projection=all,filtercount=one,filteron=rangepkey,filtertype=pointselect,queryshape=scan
               run:
                   - name: hashtbl_index_scan_using_sec_index
-                    customTags: customer=7,schematype=regular,partition=range,pkey=composite,cardinality=single,projection=all,filtercount=one,filteron=rangepkey,filtertype=pointselect,queryshape=scan
                     weight: 100
                     queries:
                         - query: select * from CompositeRangetbl_1 where col_bigint_id_1=500009
 
             - workload: INDG2_2_rangetbl_point_lookup_index_scan_using_comp_pkey_sec_part_range
+              customTags: schematype=regular,partition=range,pkey=composite,cardinality=single,projection=all,filtercount=one,filteron=rangepkey,filtertype=pointselect,queryshape=scan
               run:
                   - name: hashtbl_index_scan_using_sec_index
-                    customTags: schematype=regular,partition=range,pkey=composite,cardinality=single,projection=all,filtercount=one,filteron=rangepkey,filtertype=pointselect,queryshape=scan
                     weight: 100
                     queries:
                         - query: select * from CompositeRangetbl_1 where col_bigint_id_2=500009

@@ -145,23 +145,23 @@ microbenchmark:
                       params: [1, 500]
         executeRules:
             - workload: AGGRG5_max_bigint_1L_table_rows
+              customTags: customer=2,schematype=colocated,partition=range,pkey=asc,aggregate=max,cardinality=single,projection=aggregate,aggregateon=rangepkey
               run:
                   - name: ybc_distinct_bigint_non_indexed_column
-                    customTags: customer=2,schematype=colocated,partition=range,pkey=asc,aggregate=max,cardinality=single,projection=aggregate,aggregateon=rangepkey
                     weight: 100
                     queries:
                         - query: select max(col_bigint_id_1) from pkeyBigint1L_1
             - workload: AGGRG5_max_bigint_1M_table_rows
+              customTags: schematype=colocated,partition=range,pkey=asc,aggregate=max,cardinality=single,projection=aggregate,aggregateon=rangepkey
               run:
                   - name: ybc_distinct_bigint_1M_table_rows
-                    customTags: schematype=colocated,partition=range,pkey=asc,aggregate=max,cardinality=single,projection=aggregate,aggregateon=rangepkey
                     weight: 100
                     queries:
                         - query: select max(col_bigint_id_1) from pkeyBigint1M_1
             - workload: AGGRG5_max_bigint_10M_table_rows
+              customTags: schematype=colocated,partition=range,pkey=asc,aggregate=max,cardinality=single,projection=aggregate,aggregateon=rangepkey
               run:
                   - name: ybc_distinct_bigint_10M_table_rows
-                    customTags: schematype=colocated,partition=range,pkey=asc,aggregate=max,cardinality=single,projection=aggregate,aggregateon=rangepkey
                     weight: 100
                     queries:
                         - query: select max(col_bigint_id_1) from pkeyBigint10M_1

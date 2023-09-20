@@ -74,30 +74,30 @@ microbenchmark:
                     params: [500, 500]
         executeRules:
             - workload: JoinG7_pkey_rangescan_join_fetch_1row
+              customTags: schematype=colocated,partition=range,pkey=asc,cardinality=single,projection=indexed,filtercount=one,filteron=rangepkey,filtertype=comparision,queryshape=join,joinon=rangepkey
               run:
                   - name: pkey_rangescan_join_fetch_1row_test
-                    customTags: schematype=colocated,partition=range,pkey=asc,cardinality=single,projection=indexed,filtercount=one,filteron=rangepkey,filtertype=comparision,queryshape=join,joinon=rangepkey
                     weight: 100
                     queries:
                         - query: select pkey_rangescan_join_1.col_bigint_id_1 from pkey_rangescan_join_1 JOIN pkey_rangescan_join_2 on pkey_rangescan_join_1.col_bigint_id_1=pkey_rangescan_join_2.col_bigint_id_1 and pkey_rangescan_join_1.col_bigint_id_1<2;
             - workload: JoinG7_pkey_rangescan_join_fetch_10row
+              customTags: customer=4,schematype=colocated,partition=range,pkey=asc,cardinality=single,projection=indexed,filtercount=one,filteron=rangepkey,filtertype=comparision,queryshape=join,joinon=rangepkey
               run:
                   - name: pkey_rangescan_join_fetch_10row_test
-                    customTags: customer=4,schematype=colocated,partition=range,pkey=asc,cardinality=single,projection=indexed,filtercount=one,filteron=rangepkey,filtertype=comparision,queryshape=join,joinon=rangepkey
                     weight: 100
                     queries:
                         - query: select pkey_rangescan_join_1.col_bigint_id_1 from pkey_rangescan_join_1 JOIN pkey_rangescan_join_2 on pkey_rangescan_join_1.col_bigint_id_1=pkey_rangescan_join_2.col_bigint_id_1 and pkey_rangescan_join_1.col_bigint_id_1<11;
             - workload: JoinG7_pkey_rangescan_join_fetch_1000row
+              customTags: customer=6,schematype=colocated,partition=range,pkey=asc,cardinality=single,projection=indexed,filtercount=one,filteron=rangepkey,filtertype=comparision,queryshape=join,joinon=rangepkey
               run:
                   - name: pkey_rangescan_join_fetch_1000row_test
-                    customTags: customer=6,schematype=colocated,partition=range,pkey=asc,cardinality=single,projection=indexed,filtercount=one,filteron=rangepkey,filtertype=comparision,queryshape=join,joinon=rangepkey
                     weight: 100
                     queries:
                         - query: select pkey_rangescan_join_1.col_bigint_id_1 from pkey_rangescan_join_1 JOIN pkey_rangescan_join_2 on pkey_rangescan_join_1.col_bigint_id_1=pkey_rangescan_join_2.col_bigint_id_1 and pkey_rangescan_join_1.col_bigint_id_1<1001;
             - workload: JoinG7_pkey_rangescan_join_fetch_100000row
+              customTags: customer=1,schematype=colocated,partition=range,pkey=asc,cardinality=single,projection=indexed,filtercount=one,filteron=rangepkey,filtertype=comparision,queryshape=join,joinon=rangepkey
               run:
                   - name: pkey_rangescan_join_fetch_100000row_test
-                    customTags: customer=1,schematype=colocated,partition=range,pkey=asc,cardinality=single,projection=indexed,filtercount=one,filteron=rangepkey,filtertype=comparision,queryshape=join,joinon=rangepkey
                     weight: 100
                     queries:
                         - query: select pkey_rangescan_join_1.col_bigint_id_1 from pkey_rangescan_join_1 JOIN pkey_rangescan_join_2 on pkey_rangescan_join_1.col_bigint_id_1=pkey_rangescan_join_2.col_bigint_id_1 and pkey_rangescan_join_1.col_bigint_id_1<100001;

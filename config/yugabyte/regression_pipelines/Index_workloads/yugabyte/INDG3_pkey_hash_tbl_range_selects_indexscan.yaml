@@ -68,33 +68,33 @@ microbenchmark:
         executeRules:
 
             - workload: INDG3_1_hashtbl_range_lookup_index_scan_using_comp_pkey_first_part_hash
+              customTags: schematype=regular,partition=hash,pkey=composite,cardinality=single,projection=all,filtercount=one,filteron=hashpkey,filtertype=comparision,queryshape=scan
               run:
                   - name: hashtbl_index_scan_using_sec_index
-                    customTags: schematype=regular,partition=hash,pkey=composite,cardinality=single,projection=all,filtercount=one,filteron=hashpkey,filtertype=comparision,queryshape=scan
                     weight: 100
                     queries:
                         - query: select * from CompositeHashtbl_1 where col_bigint_id_1>500000
 
             - workload: INDG3_2_hashtbl_range_lookup_index_scan_using_comp_pkey_sec_part_range
+              customTags: schematype=regular,partition=hash,pkey=composite,cardinality=single,projection=all,filtercount=one,filteron=rangepkey,filtertype=comparision,queryshape=scan
               run:
                   - name: hashtbl_index_scan_using_sec_index
-                    customTags: schematype=regular,partition=hash,pkey=composite,cardinality=single,projection=all,filtercount=one,filteron=rangepkey,filtertype=comparision,queryshape=scan
                     weight: 100
                     queries:
                         - query: select * from CompositeHashtbl_1 where col_bigint_id_2>500000
 
             - workload: INDG3_3_hashtbl_range_lookup_index_scan_using_comp_pkey_using_two_conditions_hash_range
+              customTags: schematype=regular,partition=hash,pkey=composite,cardinality=single,projection=all,filtercount=two,filteron=mixedpkey,filtertype=comparision,queryshape=scan
               run:
                   - name: hashtbl_index_scan_using_sec_index
-                    customTags: schematype=regular,partition=hash,pkey=composite,cardinality=single,projection=all,filtercount=two,filteron=mixedpkey,filtertype=comparision,queryshape=scan
                     weight: 100
                     queries:
                         - query: select * from CompositeHashtbl_1 where col_bigint_id_1>250000 and col_bigint_id_2<750000
 
             - workload: INDG3_4_hashtbl_range_lookup_index_scan_using_pkey_two_conditions_both_hash
+              customTags: schematype=regular,partition=hash,pkey=composite,cardinality=single,projection=all,filtercount=two,filteron=hashpkey,filtertype=comparision,queryshape=scan
               run:
                   - name: hashtbl_index_scan_pkey
                     weight: 100
-                    customTags: schematype=regular,partition=hash,pkey=composite,cardinality=single,projection=all,filtercount=two,filteron=hashpkey,filtertype=comparision,queryshape=scan
                     queries:
                         - query: select * from CompositeHashtbl_1 where col_bigint_id_1>250000 and col_bigint_id_1<750000

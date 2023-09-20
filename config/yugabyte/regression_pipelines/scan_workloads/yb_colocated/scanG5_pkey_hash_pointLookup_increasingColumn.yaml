@@ -74,9 +74,9 @@ microbenchmark:
                     params: [1, 1000000]
         executeRules:
             - workload: scanG5_pkey_hash_pointLookup_table1column_fetch1column
+              customTags: schematype=colocated,partition=range,pkey=asc,cardinality=single,projection=all,filtercount=one,filteron=rangepkey,filtertype=pointselect,queryshape=scan
               run:
                   - name: pkey_hash_pointLookup_table1column_fetch1column_test
-                    customTags: schematype=colocated,partition=range,pkey=asc,cardinality=single,projection=all,filtercount=one,filteron=rangepkey,filtertype=pointselect,queryshape=scan
                     weight: 100
                     queries:
                         - query: select * from pkey_hash_pointLookup_1column_1 where col_bigint_id_1=(?)
@@ -85,9 +85,9 @@ microbenchmark:
                               util: RandomNumber
                               params: [ 1, 1000000 ]
             - workload: scanG5_pkey_hash_pointLookup_table10column_fetch10column
+              customTags: schematype=colocated,partition=range,pkey=asc,cardinality=single,projection=all,filtercount=one,filteron=rangepkey,filtertype=pointselect,queryshape=scan
               run:
                   - name: pkey_hash_pointLookup_table10column_fetch10column_test
-                    customTags: schematype=colocated,partition=range,pkey=asc,cardinality=single,projection=all,filtercount=one,filteron=rangepkey,filtertype=pointselect,queryshape=scan
                     weight: 100
                     queries:
                         - query: select * from pkey_hash_pointLookup_10column_1 where col_bigint_id_1=(?)
@@ -96,9 +96,9 @@ microbenchmark:
                               util: RandomNumber
                               params: [ 1, 1000000 ]
             - workload: scanG5_pkey_hash_pointLookup_table100column_fetch100column
+              customTags: schematype=colocated,partition=range,pkey=asc,cardinality=single,projection=all,filtercount=one,filteron=rangepkey,filtertype=pointselect,queryshape=scan
               run:
                   - name: pkey_hash_pointLookup_table100column_fetch100column_test
-                    customTags: schematype=colocated,partition=range,pkey=asc,cardinality=single,projection=all,filtercount=one,filteron=rangepkey,filtertype=pointselect,queryshape=scan
                     weight: 100
                     queries:
                         - query: select * from pkey_hash_pointLookup_100column_1 where col_bigint_id_1=(?)

@@ -146,23 +146,23 @@ microbenchmark:
                     params: [500, 500]
         executeRules:
             - workload: scanG8_noIndex_fullTable_seqScan_1M_rows
+              customTags: schematype=colocated,partition=range,pkey=asc,cardinality=single,projection=nonindexed,filtercount=one,filteron=nonindexed,filtertype=comparision,queryshape=scan
               run:
                   -   name: noIndex_fullTable_seqScan_1M_rows_test
-                      customTags: schematype=colocated,partition=range,pkey=asc,cardinality=single,projection=nonindexed,filtercount=one,filteron=nonindexed,filtertype=comparision,queryshape=scan
                       weight: 100
                       queries:
                           -   query: select col_bigint_id_1 from noIndex_fullTable_seqScan_1M_rows_1 where col_bigint_id_1>1000001
             -   workload: scanG8_noIndex_fullTable_seqScan_5M_rows
+                customTags: schematype=colocated,partition=range,pkey=asc,cardinality=single,projection=nonindexed,filtercount=one,filteron=nonindexed,filtertype=comparision,queryshape=scan
                 run:
                     -   name: noIndex_fullTable_seqScan_1M_rows_test
-                        customTags: schematype=colocated,partition=range,pkey=asc,cardinality=single,projection=nonindexed,filtercount=one,filteron=nonindexed,filtertype=comparision,queryshape=scan
                         weight: 100
                         queries:
                             -   query: select col_bigint_id_1 from noIndex_fullTable_seqScan_5M_rows_1 where col_bigint_id_1>5000001
             -   workload: scanG8_noIndex_fullTable_seqScan_10M_rows
+                customTags: schematype=colocated,partition=range,pkey=asc,cardinality=single,projection=nonindexed,filtercount=one,filteron=nonindexed,filtertype=comparision,queryshape=scan
                 run:
                     -   name: noIndex_fullTable_seqScan_1M_rows_test
-                        customTags: schematype=colocated,partition=range,pkey=asc,cardinality=single,projection=nonindexed,filtercount=one,filteron=nonindexed,filtertype=comparision,queryshape=scan
                         weight: 100
                         queries:
                             -   query: select col_bigint_id_1 from noIndex_fullTable_seqScan_10M_rows_1 where col_bigint_id_1>10000001

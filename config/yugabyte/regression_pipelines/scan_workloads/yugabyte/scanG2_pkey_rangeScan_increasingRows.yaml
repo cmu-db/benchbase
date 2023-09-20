@@ -70,30 +70,30 @@ microbenchmark:
                     params: [500, 500]
         executeRules:
             - workload: scanG2_pkey_rangescan_varying_rows_1row
+              customTags: schematype=regular,partition=range,pkey=asc,cardinality=single,projection=indexed,filtercount=one,filteron=rangepkey,filtertype=comparision,queryshape=scan
               run:
                   - name: pkey_rangescan_1row_test
-                    customTags: schematype=regular,partition=range,pkey=asc,cardinality=single,projection=indexed,filtercount=one,filteron=rangepkey,filtertype=comparision,queryshape=scan
                     weight: 100
                     queries:
                         - query: select col_bigint_id_1 from pkey_rangescan_tbl_1 where col_bigint_id_1>999999
             - workload: scanG2_pkey_rangescan_varying_rows_100Krows
+              customTags: schematype=regular,partition=range,pkey=asc,cardinality=single,projection=indexed,filtercount=one,filteron=rangepkey,filtertype=comparision,queryshape=scan
               run:
                   - name: pkey_rangescan_100krow_test
-                    customTags: schematype=regular,partition=range,pkey=asc,cardinality=single,projection=indexed,filtercount=one,filteron=rangepkey,filtertype=comparision,queryshape=scan
                     weight: 100
                     queries:
                         - query: select col_bigint_id_1 from pkey_rangescan_tbl_1 where col_bigint_id_1>900000
             - workload: scanG2_pkey_rangescan_varying_rows_500Krows
+              customTags: schematype=regular,partition=range,pkey=asc,cardinality=single,projection=indexed,filtercount=one,filteron=rangepkey,filtertype=comparision,queryshape=scan
               run:
                   - name: pkey_rangescan_500krow_test
-                    customTags: schematype=regular,partition=range,pkey=asc,cardinality=single,projection=indexed,filtercount=one,filteron=rangepkey,filtertype=comparision,queryshape=scan
                     weight: 100
                     queries:
                         - query: select col_bigint_id_1 from pkey_rangescan_tbl_1 where col_bigint_id_1>500000
             - workload: scanG2_pkey_rangescan_varying_rows_1Mrows
+              customTags: schematype=regular,partition=range,pkey=asc,cardinality=single,projection=indexed,filtercount=one,filteron=rangepkey,filtertype=comparision,queryshape=scan
               run:
                   - name: pkey_rangescan_1Mrow_test
-                    customTags: schematype=regular,partition=range,pkey=asc,cardinality=single,projection=indexed,filtercount=one,filteron=rangepkey,filtertype=comparision,queryshape=scan
                     weight: 100
                     queries:
                         - query: select col_bigint_id_1 from pkey_rangescan_tbl_1 where col_bigint_id_1>1

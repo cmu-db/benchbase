@@ -66,33 +66,33 @@ microbenchmark:
         executeRules:
 
             - workload: INDG5_1_hashtbl_point_lookup_index_scan_using_comp_skey_first_part_hash
+              customTags: customer=9,schematype=regular,partition=hash,skey=composite,cardinality=single,projection=all,filtercount=one,filteron=hashskey,filtertype=pointselect,queryshape=scan
               run:
                   - name: hashtbl_index_scan_using_sec_index
-                    customTags: customer=9,schematype=regular,partition=hash,skey=composite,cardinality=single,projection=all,filtercount=one,filteron=hashskey,filtertype=pointselect,queryshape=scan
                     weight: 100
                     queries:
                         - query: select * from Hashtbl_comp_skey_1 where col_bigint_id_2=500009
 
             - workload: INDG5_2_hashtbl_point_lookup_index_scan_using_comp_skey_sec_part_hash
+              customTags: schematype=regular,partition=hash,skey=composite,cardinality=single,projection=all,filtercount=one,filteron=rangeskey,filtertype=pointselect,queryshape=scan
               run:
                   - name: hashtbl_index_scan_using_sec_index
-                    customTags: schematype=regular,partition=hash,skey=composite,cardinality=single,projection=all,filtercount=one,filteron=rangeskey,filtertype=pointselect,queryshape=scan
                     weight: 100
                     queries:
                         - query: select * from Hashtbl_comp_skey_1 where col_bigint_id_3=500009
 
             - workload: INDG5_3_hashtbl_point_lookup_index_scan_using_mixed_comp_skey_first_part_hash
+              customTags: customer=1,schematype=regular,partition=hash,skey=composite,cardinality=single,projection=all,filtercount=one,filteron=hashskey,filtertype=pointselect,queryshape=scan
               run:
                   - name: hashtbl_index_scan_using_sec_index
-                    customTags: customer=1,schematype=regular,partition=hash,skey=composite,cardinality=single,projection=all,filtercount=one,filteron=hashskey,filtertype=pointselect,queryshape=scan
                     weight: 100
                     queries:
                         - query: select * from Hashtbl_comp_skey_1 where col_bigint_id_4=500009
 
             - workload: INDG5_4_hashtbl_point_lookup_index_scan_using_mixed_comp_skey_sec_part_range
+              customTags: schematype=regular,partition=hash,skey=composite,cardinality=single,projection=all,filtercount=one,filteron=rangeskey,filtertype=pointselect,queryshape=scan
               run:
                   - name: hashtbl_index_scan_using_sec_index
-                    customTags: schematype=regular,partition=hash,skey=composite,cardinality=single,projection=all,filtercount=one,filteron=rangeskey,filtertype=pointselect,queryshape=scan
                     weight: 100
                     queries:
                         - query: select * from Hashtbl_comp_skey_1 where col_bigint_id_5=500009

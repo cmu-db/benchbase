@@ -144,23 +144,23 @@ microbenchmark:
 
         executeRules:
             - workload: ORDG3_ordby_bigint_pkey_column
+              customTags: schematype=regular,partition=range,pkey=asc,columndatatype=bigint,cardinality=single,projection=indexed,queryshape=orderby,orderbyon=rangepkey
               run:
                   - name: yb_ordby_bigint_pkey_column
-                    customTags: schematype=regular,partition=range,pkey=asc,columndatatype=bigint,cardinality=single,projection=indexed,queryshape=orderby,orderbyon=rangepkey
                     weight: 100
                     queries:
                         - query: select col_bigint_id_1 from pkeyBigint1M_1 order by col_bigint_id_1
             - workload: ORDG3_ordby_varchar_pkey_column
+              customTags: schematype=regular,partition=range,pkey=asc,columndatatype=varchar,cardinality=single,projection=indexed,queryshape=orderby,orderbyon=rangepkey
               run:
                   - name: yb_ordby_varchar_pkey_column
-                    customTags: schematype=regular,partition=range,pkey=asc,columndatatype=varchar,cardinality=single,projection=indexed,queryshape=orderby,orderbyon=rangepkey
                     weight: 100
                     queries:
                         - query: select col_varchar100_pid_1 from pkeyVarchar1001M_1 order by col_varchar100_pid_1
             - workload: ORDG3_ordby_uuid_pkey_column
+              customTags: schematype=regular,partition=range,pkey=asc,columndatatype=uuid,cardinality=single,projection=indexed,queryshape=orderby,orderbyon=rangepkey
               run:
                   - name: yb_ordby_uuid_pkey_column
-                    customTags: schematype=regular,partition=range,pkey=asc,columndatatype=uuid,cardinality=single,projection=indexed,queryshape=orderby,orderbyon=rangepkey
                     weight: 100
                     queries:
                         - query: select col_uuid_id_1 from pkeyUuid1M_1 order by col_uuid_id_1

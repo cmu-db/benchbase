@@ -75,51 +75,59 @@ microbenchmark:
 
         executeRules:
             - workload: ORDG7_ordby_bigint_non_indexed_column
+              customTags: customer=2,schematype=regular,partition=hash,cardinality=single,projection=nonindexed,queryshape=orderby,orderbyon=nonindexed
               run:
                   - name: ordby_bigint_non_indexed_column
-                    customTags: customer=2,schematype=regular,partition=hash,cardinality=single,projection=nonindexed,queryshape=orderby,orderbyon=nonindexed
                     weight: 100
                     queries:
                         - query: select col_bigint_id_3 from Indexed1M_1 order by col_bigint_id_3
             - workload: ORDG7_ordby_bigint_hash_pkey_column
+              customTags: customer=2,schematype=regular,partition=hash,pkey=hash,cardinality=single,projection=hashpkey,queryshape=orderby,orderbyon=hashpkey
               run:
                   - name: ordby_bigint_non_indexed_column
-                    customTags: customer=2,schematype=regular,partition=hash,pkey=hash,cardinality=single,projection=hashpkey,queryshape=orderby,orderbyon=hashpkey
                     weight: 100
                     queries:
                         - query: select col_bigint_id_1 from Indexed1M_1 order by col_bigint_id_1
             - workload: ORDG7_ordby_bigint_hash_pkey_with_filter_column
+              customTags: customer=1,schematype=regular,partition=hash,pkey=hash,cardinality=single,projection=hashpkey,filtercount=one,filteron=hashpkey,filtertype=comparision,queryshape=orderby,orderbyon=hashpkey
               run:
                   - name: yb_ordby_bigint_non_indexed_column
-                    customTags: customer=1,schematype=regular,partition=hash,pkey=hash,cardinality=single,projection=hashpkey,filtercount=one,filteron=hashpkey,filtertype=comparision,queryshape=orderby,orderbyon=hashpkey
                     weight: 100
                     queries:
                         - query: select col_bigint_id_1 from Indexed1M_1 where col_bigint_id_1>1 order by col_bigint_id_1
             - workload: ORDG7_ordby_bigint_hash_secondary_indexed_column
+              customTags: schematype=regular,partition=hash,skey=hash,cardinality=single,projection=hashskey,queryshape=orderby,orderbyon=hashskey
               run:
                   - name: ordby_bigint_secondary_indexed_column
-                    customTags: schematype=regular,partition=hash,skey=hash,cardinality=single,projection=hashskey,queryshape=orderby,orderbyon=hashskey
                     weight: 100
                     queries:
                         - query: select col_bigint_id_2 from Indexed1M_1 order by col_bigint_id_2
             - workload: ORDG7_ordby_bigint_hash_secondary_indexed_with_filter_column
+              customTags: customer=1,schematype=regular,partition=hash,skey=hash,cardinality=single,projection=hashskey,filtercount=one,filteron=hashskey,filtertype=comparision,queryshape=orderby,orderbyon=hashskey
               run:
                   - name: yb_ordby_bigint_secondary_indexed_column
-                    customTags: customer=1,schematype=regular,partition=hash,skey=hash,cardinality=single,projection=hashskey,filtercount=one,filteron=hashskey,filtertype=comparision,queryshape=orderby,orderbyon=hashskey
                     weight: 100
                     queries:
                         - query: select col_bigint_id_2 from Indexed1M_1 where col_bigint_id_2>1 order by col_bigint_id_2
             - workload: ORDG7_ordby_bigint_range_secondary_indexed_column
+              customTags: schematype=regular,partition=hash,skey=asc,cardinality=single,projection=indexed,queryshape=orderby,orderbyon=rangeskey
               run:
                   - name: ordby_bigint_secondary_indexed_column
-                    customTags: schematype=regular,partition=hash,skey=asc,cardinality=single,projection=indexed,queryshape=orderby,orderbyon=rangeskey
                     weight: 100
                     queries:
                         - query: select col_bigint_id_4 from Indexed1M_1 order by col_bigint_id_4
             - workload: ORDG7_ordby_bigint_range_secondary_indexed_with_filter_column
+              customTags: customer=1,schematype=regular,partition=hash,skey=asc,cardinality=single,projection=indexed,filtercount=one,filteron=rangeskey,filtertype=comparision,queryshape=orderby,orderbyon=rangeskey
               run:
                   - name: yb_ordby_bigint_secondary_indexed_column
-                    customTags: customer=1,schematype=regular,partition=hash,skey=asc,cardinality=single,projection=indexed,filtercount=one,filteron=rangeskey,filtertype=comparision,queryshape=orderby,orderbyon=rangeskey
                     weight: 100
                     queries:
                         - query: select col_bigint_id_4 from Indexed1M_1 where col_bigint_id_4>1 order by col_bigint_id_4
+
+            - workload: ORDG7_ordby_bigint_hash_pkey_with_filter_column_desc
+              customTags: customer=1,schematype=regular,partition=hash,pkey=hash,cardinality=single,projection=hashpkey,filtercount=one,filteron=hashpkey,filtertype=comparision,queryshape=orderby,orderbyon=hashpkeydesc
+              run:
+                  - name: yb_ordby_bigint_non_indexed_column
+                    weight: 100
+                    queries:
+                        - query: select col_bigint_id_1 from Indexed1M_1 where col_bigint_id_1>1 order by col_bigint_id_1 DESC

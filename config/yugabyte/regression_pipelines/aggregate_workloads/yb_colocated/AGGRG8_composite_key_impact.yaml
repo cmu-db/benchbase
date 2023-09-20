@@ -114,88 +114,88 @@ microbenchmark:
 
         executeRules:
             - workload: AGGRG8_count_bigint_comp_pkey_first_ele
+              customTags: schematype=colocated,partition=range,pkey=composite,aggregate=count,cardinality=single,projection=aggregate,aggregateon=rangepkey
               run:
                   - name: ybc_count_bigint_comp_pkey_first_ele
-                    customTags: schematype=colocated,partition=range,pkey=composite,aggregate=count,cardinality=single,projection=aggregate,aggregateon=rangepkey
                     weight: 100
                     queries:
                         - query: select count(col_bigint_id_1) from pkeyBigint1M_comp2keys_1
             - workload: AGGRG8_count_bigint_comp_pkey_second_ele
+              customTags: schematype=colocated,partition=range,pkey=composite,aggregate=count,cardinality=single,projection=aggregate,aggregateon=rangepkey
               run:
                   - name: ybc_count_bigint_comp_pkey_first_ele
-                    customTags: schematype=colocated,partition=range,pkey=composite,aggregate=count,cardinality=single,projection=aggregate,aggregateon=rangepkey
                     weight: 100
                     queries:
                         - query: select count(col_bigint_id_2) from pkeyBigint1M_comp2keys_1
             - workload: AGGRG8_count_bigint_comp_pkey_withfilter_first_ele
+              customTags: schematype=colocated,partition=range,pkey=composite,aggregate=count,cardinality=single,projection=aggregate,filtercount=one,aggregateon=rangepkey,filteron=rangepkey,filtertype=comparision
               run:
                   - name: ybc_count_bigint_comp_pkey_withfilter_first_ele
-                    customTags: schematype=colocated,partition=range,pkey=composite,aggregate=count,cardinality=single,projection=aggregate,filtercount=one,aggregateon=rangepkey,filteron=rangepkey,filtertype=comparision
                     weight: 100
                     queries:
                         - query: select count(col_bigint_id_1) from pkeyBigint1M_comp2keys_1 where col_bigint_id_1>1
             - workload: AGGRG8_count_bigint_comp_pkey_withfilter_second_ele
+              customTags: schematype=colocated,partition=range,pkey=composite,aggregate=count,cardinality=single,projection=aggregate,filtercount=one,aggregateon=rangepkey,filteron=rangepkey,filtertype=comparision
               run:
                   - name: ybc_count_bigint_comp_pkey_withfilter_second_ele
-                    customTags: schematype=colocated,partition=range,pkey=composite,aggregate=count,cardinality=single,projection=aggregate,filtercount=one,aggregateon=rangepkey,filteron=rangepkey,filtertype=comparision
                     weight: 100
                     queries:
                         - query: select count(col_bigint_id_2) from pkeyBigint1M_comp2keys_1 where col_bigint_id_2>1
             - workload: AGGRG8_count_bigint_comp_pkey_project_first_ele_withfilter_sec_ele
+              customTags: schematype=colocated,partition=range,pkey=composite,aggregate=count,cardinality=single,projection=aggregate,filtercount=one,aggregateon=rangepkey,filteron=rangepkey,filtertype=comparision
               run:
                   - name: ybc_count_bigint_comp_pkey_project_first_ele_withfilter_sec_ele
-                    customTags: schematype=colocated,partition=range,pkey=composite,aggregate=count,cardinality=single,projection=aggregate,filtercount=one,aggregateon=rangepkey,filteron=rangepkey,filtertype=comparision
                     weight: 100
                     queries:
                         - query: select count(col_bigint_id_1) from pkeyBigint1M_comp2keys_1 where col_bigint_id_2>1
             - workload: AGGRG8_count_bigint_comp_pkey_project_sec_ele_withfilter_first_ele
+              customTags: schematype=colocated,partition=range,pkey=composite,aggregate=count,cardinality=single,projection=aggregate,filtercount=one,aggregateon=rangepkey,filteron=rangepkey,filtertype=comparision
               run:
                   - name: ybc_count_bigint_comp_pkey_project_sec_ele_withfilter_first_ele
-                    customTags: schematype=colocated,partition=range,pkey=composite,aggregate=count,cardinality=single,projection=aggregate,filtercount=one,aggregateon=rangepkey,filteron=rangepkey,filtertype=comparision
                     weight: 100
                     queries:
                         - query: select count(col_bigint_id_2) from pkeyBigint1M_comp2keys_1 where col_bigint_id_1>1
 
 
             - workload: AGGRG8_count_bigint_comp_index_first_ele
+              customTags: schematype=colocated,partition=range,skey=composite,aggregate=count,cardinality=single,projection=aggregate,aggregateon=rangeskey
               run:
                   - name: ybc_count_bigint_comp_index_first_ele
-                    customTags: schematype=colocated,partition=range,skey=composite,aggregate=count,cardinality=single,projection=aggregate,aggregateon=rangeskey
                     weight: 100
                     queries:
                         - query: select count(col_bigint_id_2) from Indexed1M_comp2keys_1
             - workload: AGGRG8_count_bigint_comp_index_second_ele
+              customTags: schematype=colocated,partition=range,skey=composite,aggregate=count,cardinality=single,projection=aggregate,aggregateon=rangeskey
               run:
                   - name: ybc_count_bigint_comp_index_first_ele
-                    customTags: schematype=colocated,partition=range,skey=composite,aggregate=count,cardinality=single,projection=aggregate,aggregateon=rangeskey
                     weight: 100
                     queries:
                         - query: select count(col_bigint_id_3) from Indexed1M_comp2keys_1
             - workload: AGGRG8_count_bigint_comp_index_withfilter_first_ele
+              customTags: schematype=colocated,partition=range,skey=composite,aggregate=count,cardinality=single,projection=aggregate,filtercount=one,aggregateon=rangeskey,filteron=rangeskey,filtertype=comparision
               run:
                   - name: ybc_count_bigint_comp_index_withfilter_first_ele
-                    customTags: schematype=colocated,partition=range,skey=composite,aggregate=count,cardinality=single,projection=aggregate,filtercount=one,aggregateon=rangeskey,filteron=rangeskey,filtertype=comparision
                     weight: 100
                     queries:
                         - query: select count(col_bigint_id_2) from Indexed1M_comp2keys_1 where col_bigint_id_2>1
             - workload: AGGRG8_count_bigint_comp_index_withfilter_second_ele
+              customTags: schematype=colocated,partition=range,skey=composite,aggregate=count,cardinality=single,projection=aggregate,filtercount=one,aggregateon=rangeskey,filteron=rangeskey,filtertype=comparision
               run:
                   - name: ybc_count_bigint_comp_index_withfilter_second_ele
-                    customTags: schematype=colocated,partition=range,skey=composite,aggregate=count,cardinality=single,projection=aggregate,filtercount=one,aggregateon=rangeskey,filteron=rangeskey,filtertype=comparision
                     weight: 100
                     queries:
                         - query: select count(col_bigint_id_3) from Indexed1M_comp2keys_1 where col_bigint_id_3>1
             - workload: AGGRG8_count_bigint_comp_index_project_first_ele_withfilter_sec_ele
+              customTags: schematype=colocated,partition=range,skey=composite,aggregate=count,cardinality=single,projection=aggregate,filtercount=one,aggregateon=rangeskey,filteron=rangeskey,filtertype=comparision
               run:
                   - name: ybc_count_bigint_comp_index_project_first_ele_withfilter_sec_ele
-                    customTags: schematype=colocated,partition=range,skey=composite,aggregate=count,cardinality=single,projection=aggregate,filtercount=one,aggregateon=rangeskey,filteron=rangeskey,filtertype=comparision
                     weight: 100
                     queries:
                         - query: select count(col_bigint_id_2) from Indexed1M_comp2keys_1 where col_bigint_id_3>1
             - workload: AGGRG8_count_bigint_comp_index_project_sec_ele_withfilter_first_ele
+              customTags: schematype=colocated,partition=range,skey=composite,aggregate=count,cardinality=single,projection=aggregate,filtercount=one,aggregateon=rangeskey,filteron=rangeskey,filtertype=comparision
               run:
                   - name: ybc_count_bigint_comp_index_project_sec_ele_withfilter_first_ele
-                    customTags: schematype=colocated,partition=range,skey=composite,aggregate=count,cardinality=single,projection=aggregate,filtercount=one,aggregateon=rangeskey,filteron=rangeskey,filtertype=comparision
                     weight: 100
                     queries:
                         - query: select count(col_bigint_id_3) from Indexed1M_comp2keys_1 where col_bigint_id_2>1

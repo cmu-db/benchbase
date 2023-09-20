@@ -75,37 +75,37 @@ microbenchmark:
                       params: [1, 500]
         executeRules:
             - workload: AGGRG3_count_on_all_tupples_columns
+              customTags: schematype=regular,partition=range,pkey=asc,aggregate=count,cardinality=single,projection=aggregate,aggregateon=rangeskey
               run:
                   - name: yb_count_bigint_on_all_tupples_columns
-                    customTags: schematype=regular,partition=range,pkey=asc,aggregate=count,cardinality=single,projection=aggregate,aggregateon=rangeskey
                     weight: 100
                     queries:
                         - query: select count(*) from Indexed1M_1
             - workload: AGGRG3_count_bigint_on_indexed
+              customTags: schematype=regular,partition=range,pkey=asc,columndatatype=bigint,aggregate=count,cardinality=single,projection=aggregate,aggregateon=rangeskey
               run:
                   - name: yb_count_on_indexed_bigint
-                    customTags: schematype=regular,partition=range,pkey=asc,columndatatype=bigint,aggregate=count,cardinality=single,projection=aggregate,aggregateon=rangeskey
                     weight: 100
                     queries:
                         - query: select count(col_bigint_id_2) from Indexed1M_1
             - workload: AGGRG3_count_on_indexed_float
+              customTags: customer=1,schematype=regular,partition=range,pkey=asc,columndatatype=float,aggregate=count,cardinality=single,projection=aggregate,aggregateon=rangeskey
               run:
                   - name: yb_count_on_indexed_varchar10
-                    customTags: customer=1,schematype=regular,partition=range,pkey=asc,columndatatype=float,aggregate=count,cardinality=single,projection=aggregate,aggregateon=rangeskey
                     weight: 100
                     queries:
                         - query: select count(col_float5_1) from Indexed1M_1
             - workload: AGGRG3_count_on_indexed_varchar10
+              customTags: customer=1,schematype=regular,partition=range,pkey=asc,columndatatype=varchar,aggregate=count,cardinality=single,projection=aggregate,aggregateon=rangeskey
               run:
                   - name: yb_count_on_indexed_varchar10
-                    customTags: customer=1,schematype=regular,partition=range,pkey=asc,columndatatype=varchar,aggregate=count,cardinality=single,projection=aggregate,aggregateon=rangeskey
                     weight: 100
                     queries:
                         - query: select count(col_varchar10_id_1) from Indexed1M_1
             - workload: AGGRG3_count_on_indexed_varchar500
+              customTags: schematype=regular,partition=range,pkey=asc,columndatatype=varchar,aggregate=count,cardinality=single,projection=aggregate,aggregateon=rangeskey
               run:
                   - name: yb_count_on_indexed_varchar500
-                    customTags: schematype=regular,partition=range,pkey=asc,columndatatype=varchar,aggregate=count,cardinality=single,projection=aggregate,aggregateon=rangeskey
                     weight: 100
                     queries:
                         - query: select count(col_varchar500_id_1) from Indexed1M_1

@@ -73,30 +73,30 @@ microbenchmark:
 
         executeRules:
             - workload: scanG3_indx_rangescan_varying_rows_1row
+              customTags: schematype=colocated,partition=range,skey=asc,cardinality=single,projection=indexed,filtercount=one,filteron=rangeskey,filtertype=comparision,queryshape=scan
               run:
                   - name: indx_rangescan_1row_test
-                    customTags: schematype=colocated,partition=range,skey=asc,cardinality=single,projection=indexed,filtercount=one,filteron=rangeskey,filtertype=comparision,queryshape=scan
                     weight: 100
                     queries:
                         - query: select col_bigint_id_1 from indx_rangescan_tbl_1 where col_bigint_id_1>999999
             - workload: scanG3_indx_rangescan_varying_rows_100Krows
+              customTags: schematype=colocated,partition=range,skey=asc,cardinality=single,projection=indexed,filtercount=one,filteron=rangeskey,filtertype=comparision,queryshape=scan
               run:
                   - name: indx_rangescan_100krow_test
-                    customTags: schematype=colocated,partition=range,skey=asc,cardinality=single,projection=indexed,filtercount=one,filteron=rangeskey,filtertype=comparision,queryshape=scan
                     weight: 100
                     queries:
                         - query: select col_bigint_id_1 from indx_rangescan_tbl_1 where col_bigint_id_1>900000
             - workload: scanG3_indx_rangescan_varying_rows_500Krows
+              customTags: schematype=colocated,partition=range,skey=asc,cardinality=single,projection=indexed,filtercount=one,filteron=rangeskey,filtertype=comparision,queryshape=scan
               run:
                   - name: indx_rangescan_500krow_test
-                    customTags: schematype=colocated,partition=range,skey=asc,cardinality=single,projection=indexed,filtercount=one,filteron=rangeskey,filtertype=comparision,queryshape=scan
                     weight: 100
                     queries:
                         - query: select col_bigint_id_1 from indx_rangescan_tbl_1 where col_bigint_id_1>500000
             - workload: scanG3_indx_rangescan_varying_rows_1Mrows
+              customTags: schematype=colocated,partition=range,skey=asc,cardinality=single,projection=indexed,filtercount=one,filteron=rangeskey,filtertype=comparision,queryshape=scan
               run:
                   - name: indx_rangescan_1Mrow_test
-                    customTags: schematype=colocated,partition=range,skey=asc,cardinality=single,projection=indexed,filtercount=one,filteron=rangeskey,filtertype=comparision,queryshape=scan
                     weight: 100
                     queries:
                         - query: select col_bigint_id_1 from indx_rangescan_tbl_1 where col_bigint_id_1>1

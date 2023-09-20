@@ -69,65 +69,65 @@ microbenchmark:
         executeRules:
 
             - workload: INDG9_1_rangetbl_range_lookup_pkey_select_1m_rows_pkey_scan
+              customTags: schematype=regular,partition=range,pkey=asc,cardinality=single,projection=all,filtercount=one,filteron=rangepkey,filtertype=comparision,queryshape=scan
               run:
                   - name: hashtbl_index_scan_using_sec_index
-                    customTags: schematype=regular,partition=range,pkey=asc,cardinality=single,projection=all,filtercount=one,filteron=rangepkey,filtertype=comparision,queryshape=scan
                     weight: 100
                     queries:
                         - query: select * from Rangetbl_comp_skey_1 where col_bigint_id_1>1
 
             - workload: INDG9_2_rangetbl_range_lookup_pkey_select_10k_rows_pkey_scan
+              customTags: schematype=regular,partition=range,pkey=asc,cardinality=single,projection=all,filtercount=one,filteron=rangepkey,filtertype=comparision,queryshape=scan
               run:
                   - name: hashtbl_index_scan_using_sec_index
-                    customTags: schematype=regular,partition=range,pkey=asc,cardinality=single,projection=all,filtercount=one,filteron=rangepkey,filtertype=comparision,queryshape=scan
                     weight: 100
                     queries:
                         - query: select * from Rangetbl_comp_skey_1 where col_bigint_id_1>990000
 
             - workload: INDG9_3_rangetbl_range_lookup_skey_select_1m_rows_index_scan
+              customTags: schematype=regular,partition=range,skey=asc,cardinality=single,projection=all,filtercount=one,filteron=rangeskey,filtertype=comparision,queryshape=scan
               run:
                   - name: hashtbl_index_scan_using_sec_index
-                    customTags: schematype=regular,partition=range,skey=asc,cardinality=single,projection=all,filtercount=one,filteron=rangeskey,filtertype=comparision,queryshape=scan
                     weight: 100
                     queries:
                         - query: select * from Rangetbl_comp_skey_1 where col_bigint_id_2>1
 
             - workload: INDG9_4_rangetbl_range_lookup_skey_select_10k_rows_index_scan
+              customTags: schematype=regular,partition=range,skey=asc,cardinality=single,projection=all,filtercount=one,filteron=rangeskey,filtertype=comparision,queryshape=scan
               run:
                   - name: hashtbl_index_scan_using_sec_index
-                    customTags: schematype=regular,partition=range,skey=asc,cardinality=single,projection=all,filtercount=one,filteron=rangeskey,filtertype=comparision,queryshape=scan
                     weight: 100
                     queries:
                         - query: select * from Rangetbl_comp_skey_1 where col_bigint_id_2>990000
 
             - workload: INDG9_5_rangetbl_range_lookup_nonidx_select_1m_rows_seq_scan
+              customTags: schematype=regular,partition=range,cardinality=single,projection=all,filtercount=one,filteron=nonindexed,filtertype=comparision,queryshape=scan
               run:
                   - name: hashtbl_index_scan_using_sec_index
-                    customTags: schematype=regular,partition=range,cardinality=single,projection=all,filtercount=one,filteron=nonindexed,filtertype=comparision,queryshape=scan
                     weight: 100
                     queries:
                         - query: select * from Rangetbl_comp_skey_1 where col_bigint_id_3>1
 
             - workload: INDG9_6_rangetbl_range_lookup_nonidx_select_10k_rows_seq_scan
+              customTags: schematype=regular,partition=range,cardinality=single,projection=all,filtercount=one,filteron=nonindexed,filtertype=comparision,queryshape=scan
               run:
                   - name: hashtbl_index_scan_using_sec_index
-                    customTags: schematype=regular,partition=range,cardinality=single,projection=all,filtercount=one,filteron=nonindexed,filtertype=comparision,queryshape=scan
                     weight: 100
                     queries:
                         - query: select * from Rangetbl_comp_skey_1 where col_bigint_id_3>990000
 
             - workload: INDG9_7_rangetbl_range_lookup_col_with_pkey_skey_declared_select_1m
+              customTags: schematype=regular,partition=range,pkey=asc,cardinality=single,projection=all,filtercount=one,filteron=rangepkey,filtertype=comparision,queryshape=scan
               run:
                   - name: hashtbl_index_scan_using_sec_index
-                    customTags: schematype=regular,partition=range,pkey=asc,cardinality=single,projection=all,filtercount=one,filteron=rangepkey,filtertype=comparision,queryshape=scan
                     weight: 100
                     queries:
                         - query: select * from Rangetbl_comp_skey_2 where col_bigint_id_1>1
 
             - workload: INDG9_8_rangetbl_range_lookup_col_with_pkey_skey_declared_select_10k
+              customTags: schematype=regular,partition=range,skey=asc,cardinality=single,projection=all,filtercount=one,filteron=rangeskey,filtertype=comparision,queryshape=scan
               run:
                   - name: hashtbl_index_scan_using_sec_index
-                    customTags: schematype=regular,partition=range,skey=asc,cardinality=single,projection=all,filtercount=one,filteron=rangeskey,filtertype=comparision,queryshape=scan
                     weight: 100
                     queries:
                         - query: select * from Rangetbl_comp_skey_2 where col_bigint_id_1>990000

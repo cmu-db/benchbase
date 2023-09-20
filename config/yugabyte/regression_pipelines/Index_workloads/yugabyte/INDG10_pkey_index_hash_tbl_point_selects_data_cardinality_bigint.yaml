@@ -80,33 +80,33 @@ microbenchmark:
         executeRules:
 
             - workload: INDG10_1_data_cardinality_hashtbl_point_lookup_index_scan_using_comp_skey_first_part_hash_1M
+              customTags: customer=2,schematype=regular,partition=hash,pkey=composite,cardinality=multiple,projection=all,filtercount=one,filteron=hashpkey,filtertype=pointselect,queryshape=scan
               run:
                   - name: hashtbl_index_scan_using_sec_index
-                    customTags: customer=2,schematype=regular,partition=hash,pkey=composite,cardinality=multiple,projection=all,filtercount=one,filteron=hashpkey,filtertype=pointselect,queryshape=scan
                     weight: 100
                     queries:
                         - query: select * from pkeyBigint1M_1 where col_bigint_card1_1=1000000
 
             - workload: INDG10_2_data_cardinality_hashtbl_point_lookup_index_scan_using_comp_skey_sec_part_hash_1k
+              customTags: schematype=regular,partition=hash,pkey=composite,cardinality=multiple,projection=all,filtercount=one,filteron=rangepkey,filtertype=pointselect,queryshape=scan
               run:
                   - name: hashtbl_index_scan_using_sec_index
-                    customTags: schematype=regular,partition=hash,pkey=composite,cardinality=multiple,projection=all,filtercount=one,filteron=rangepkey,filtertype=pointselect,queryshape=scan
                     weight: 100
                     queries:
                         - query: select * from pkeyBigint1M_1 where col_bigint_card2_1=1000498
 
             - workload: INDG10_4_data_cardinality_hashtbl_point_lookup_index_scan_using_comp_skey_sec_part_hash_1k_two_conditions
+              customTags: customer=1,schematype=regular,partition=hash,pkey=composite,cardinality=multiple,projection=all,filtercount=two,filteron=mixedpkey,filtertype=pointselect,queryshape=scan
               run:
                   - name: hashtbl_index_scan_using_sec_index
-                    customTags: customer=1,schematype=regular,partition=hash,pkey=composite,cardinality=multiple,projection=all,filtercount=two,filteron=mixedpkey,filtertype=pointselect,queryshape=scan
                     weight: 100
                     queries:
                         - query: select * from pkeyBigint1M_1 where col_bigint_card1_1=1000000 and col_bigint_card2_1=1000498
 
             - workload: INDG10_5_data_cardinality_hashtbl_point_lookup_index_scan_using_comp_skey_third_part_hash_100_two_conditions
+              customTags: customer=2,schematype=regular,partition=hash,pkey=composite,cardinality=multiple,projection=all,filtercount=two,filteron=mixedpkey,filtertype=pointselect,queryshape=scan
               run:
                   - name: hashtbl_index_scan_using_sec_index
-                    customTags: customer=2,schematype=regular,partition=hash,pkey=composite,cardinality=multiple,projection=all,filtercount=two,filteron=mixedpkey,filtertype=pointselect,queryshape=scan
                     weight: 100
                     queries:
                         - query: select * from pkeyBigint1M_1 where col_bigint_card1_1=1000000 and col_bigint_card3_1=5000999

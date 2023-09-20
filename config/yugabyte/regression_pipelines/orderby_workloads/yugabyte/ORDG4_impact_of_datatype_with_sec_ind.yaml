@@ -202,30 +202,30 @@ microbenchmark:
 
         executeRules:
             - workload: ORDG4_ordby_bigint_indexed_column
+              customTags: schematype=regular,partition=range,skey=asc,columndatatype=bigint,cardinality=single,projection=indexed,queryshape=orderby,orderbyon=rangeskey
               run:
                   - name: yb_ordby_bigint_indexed_column
-                    customTags: schematype=regular,partition=range,skey=asc,columndatatype=bigint,cardinality=single,projection=indexed,queryshape=orderby,orderbyon=rangeskey
                     weight: 100
                     queries:
                         - query: select col_bigint_id_2 from indexedBigint1M_1 order by col_bigint_id_2
             - workload: ORDG4_ordby_varchar_indexed_column
+              customTags: schematype=regular,partition=range,skey=asc,columndatatype=varchar,cardinality=single,projection=indexed,queryshape=orderby,orderbyon=rangeskey
               run:
                   - name: yb_ordby_varchar_indexed_column
-                    customTags: schematype=regular,partition=range,skey=asc,columndatatype=varchar,cardinality=single,projection=indexed,queryshape=orderby,orderbyon=rangeskey
                     weight: 100
                     queries:
                         - query: select col_varchar100_pid_1 from indexedVarchar1001M_1 order by col_varchar100_pid_1
             - workload: ORDG4_ordby_uuid_indexed_column
+              customTags: schematype=regular,partition=range,skey=asc,columndatatype=uuid,cardinality=single,projection=indexed,queryshape=orderby,orderbyon=rangeskey
               run:
                   - name: yb_ordby_uuid_indexed_column
-                    customTags: schematype=regular,partition=range,skey=asc,columndatatype=uuid,cardinality=single,projection=indexed,queryshape=orderby,orderbyon=rangeskey
                     weight: 100
                     queries:
                         - query: select col_uuid_id_1 from indexedUuid1M_1 order by col_uuid_id_1
             - workload: ORDG4_ordby_date_indexed_column
+              customTags: schematype=regular,partition=range,skey=asc,columndatatype=date,cardinality=single,projection=indexed,queryshape=orderby,orderbyon=rangeskey
               run:
                   - name: yb_ordby_date_indexed_column
-                    customTags: schematype=regular,partition=range,skey=asc,columndatatype=date,cardinality=single,projection=indexed,queryshape=orderby,orderbyon=rangeskey
                     weight: 100
                     queries:
                         - query: select col_date_id_1 from indexedDate1M_1 order by col_date_id_1

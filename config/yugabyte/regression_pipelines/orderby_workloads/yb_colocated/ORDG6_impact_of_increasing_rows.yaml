@@ -150,23 +150,23 @@ microbenchmark:
 
         executeRules:
             - workload: ORDG6_increasing_rows_1L
+              customTags: schematype=colocated,partition=range,pkey=asc,cardinality=single,projection=indexed,queryshape=orderby,orderbyon=rangepkey
               run:
                   - name: increasing_rows_1L
-                    customTags: schematype=colocated,partition=range,pkey=asc,cardinality=single,projection=indexed,queryshape=orderby,orderbyon=rangepkey
                     weight: 100
                     queries:
                         - query: select col_bigint_id_1 from pkeyBigint1L_1 order by col_bigint_id_1
             - workload: ORDG6_increasing_rows_1M
+              customTags: schematype=colocated,partition=range,pkey=asc,cardinality=single,projection=indexed,queryshape=orderby,orderbyon=rangepkey
               run:
                   - name: increasing_rows_1M
-                    customTags: schematype=colocated,partition=range,pkey=asc,cardinality=single,projection=indexed,queryshape=orderby,orderbyon=rangepkey
                     weight: 100
                     queries:
                         - query: select col_bigint_id_1 from pkeyBigint1M_1 order by col_bigint_id_1
             - workload: ORDG6_increasing_rows_10M
+              customTags: schematype=colocated,partition=range,pkey=asc,cardinality=single,projection=indexed,queryshape=orderby,orderbyon=rangepkey
               run:
                   - name: increasing_rows_10M
-                    customTags: schematype=colocated,partition=range,pkey=asc,cardinality=single,projection=indexed,queryshape=orderby,orderbyon=rangepkey
                     weight: 100
                     queries:
                         - query: select col_bigint_id_1 from pkeyBigint10M_1 order by col_bigint_id_1

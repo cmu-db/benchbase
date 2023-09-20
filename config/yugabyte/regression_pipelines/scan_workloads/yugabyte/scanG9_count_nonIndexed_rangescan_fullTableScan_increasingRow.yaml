@@ -145,23 +145,23 @@ microbenchmark:
                     params: [500, 500]
         executeRules:
             - workload: scanG9_count_noIndex_fullTable_seqScan_1M_rows
+              customTags: schematype=regular,partition=hash,pkey=hash,cardinality=single,projection=aggregate,filtercount=one,queryshape=scan
               run:
                   -   name: count_noIndex_fullTable_seqScan_1M_rows_test
-                      customTags: schematype=regular,partition=hash,pkey=hash,cardinality=single,projection=aggregate,filtercount=one,queryshape=scan
                       weight: 100
                       queries:
                           -   query: select count(col_bigint_id_1) from count_noIndex_fullTable_seqScan_1M_rows_1
             - workload: scanG9_count_noIndex_fullTable_seqScan_5M_rows
+              customTags: schematype=regular,partition=hash,pkey=hash,cardinality=single,projection=aggregate,filtercount=one,queryshape=scan
               run:
                   -   name: count_noIndex_fullTable_seqScan_5M_rows_test
-                      customTags: schematype=regular,partition=hash,pkey=hash,cardinality=single,projection=aggregate,filtercount=one,queryshape=scan
                       weight: 100
                       queries:
                           -   query: select count(col_bigint_id_1) from count_noIndex_fullTable_seqScan_5M_rows_1
             - workload: scanG9_count_noIndex_fullTable_seqScan_10M_rows
+              customTags: schematype=regular,partition=hash,pkey=hash,cardinality=single,projection=aggregate,filtercount=one,queryshape=scan
               run:
                   -   name: count_noIndex_fullTable_seqScan_10M_rows_test
-                      customTags: schematype=regular,partition=hash,pkey=hash,cardinality=single,projection=aggregate,filtercount=one,queryshape=scan
                       weight: 100
                       queries:
                           -   query: select count(col_bigint_id_1) from count_noIndex_fullTable_seqScan_10M_rows_1

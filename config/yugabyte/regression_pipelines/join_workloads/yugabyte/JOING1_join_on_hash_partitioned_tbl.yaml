@@ -72,73 +72,73 @@ microbenchmark:
 
         executeRules:
             - workload: JOING1_1_join_on_pk_of_hash_tbl
+              customTags: customer=2,partition=hash,pkey=hash,cardinality=single,projection=indexed,queryshape=join,joinon=hashpkey
               run:
                   - name: join_on_pk_of_hash_tbl
-                    customTags: customer=2,partition=hash,pkey=hash,cardinality=single,projection=indexed,queryshape=join,joinon=hashpkey
                     weight: 100
                     queries:
                         - query: select Hashtbl_1.col_bigint_id_1,Hashtbl_2.col_bigint_id_1 from Hashtbl_1 join Hashtbl_2 on Hashtbl_1.col_bigint_id_1=Hashtbl_2.col_bigint_id_1
 
             - workload: JOING1_2_join_on_pk_of_hash_tbl_with_1_filter
+              customTags: partition=hash,pkey=hash,cardinality=single,projection=indexed,filteron=hashpkey,filtercount=one,filtertype=comparision,queryshape=join,joinon=hashpkey
               run:
                   - name: join_on_pk_of_hash_tbl
-                    customTags: partition=hash,pkey=hash,cardinality=single,projection=indexed,filteron=hashpkey,filtercount=one,filtertype=comparision,queryshape=join,joinon=hashpkey
                     weight: 100
                     queries:
                         - query: select Hashtbl_1.col_bigint_id_1,Hashtbl_2.col_bigint_id_1 from Hashtbl_1 join Hashtbl_2 on Hashtbl_1.col_bigint_id_1=Hashtbl_2.col_bigint_id_1 where Hashtbl_1.col_bigint_id_1<100001
 
             - workload: JOING1_3_join_on_pk_of_hash_tbl_with_2_filter
+              customTags: customer=1,partition=hash,pkey=hash,cardinality=single,projection=indexed,filteron=hashpkey,filtercount=two,filtertype=comparision,queryshape=join,joinon=hashpkey
               run:
                   - name: join_on_pk_of_hash_tbl
-                    customTags: customer=1,partition=hash,pkey=hash,cardinality=single,projection=indexed,filteron=hashpkey,filtercount=two,filtertype=comparision,queryshape=join,joinon=hashpkey
                     weight: 100
                     queries:
                         - query: select Hashtbl_1.col_bigint_id_1,Hashtbl_2.col_bigint_id_1 from Hashtbl_1 join Hashtbl_2 on Hashtbl_1.col_bigint_id_1=Hashtbl_2.col_bigint_id_1 where Hashtbl_1.col_bigint_id_1<100001 and Hashtbl_2.col_bigint_id_1<100001
 
             - workload: JOING1_4_join_on_hashidx_of_hash_tbl
+              customTags: partition=hash,skey=hash,cardinality=single,projection=indexed,queryshape=join,joinon=hashskey
               run:
                   - name: join_on_pk_of_hash_tbl
-                    customTags: partition=hash,skey=hash,cardinality=single,projection=indexed,queryshape=join,joinon=hashskey
                     weight: 100
                     queries:
                         - query: select Hashtbl_1.col_bigint_id_2,Hashtbl_2.col_bigint_id_2 from Hashtbl_1 join Hashtbl_2 on Hashtbl_1.col_bigint_id_2=Hashtbl_2.col_bigint_id_2
 
             - workload: JOING1_5_join_on_hashidx_of_hash_tbl_with_1_filter
+              customTags: partition=hash,skey=hash,cardinality=single,projection=indexed,filteron=hashskey,filtercount=one,filtertype=comparision,queryshape=join,joinon=hashskey
               run:
                   - name: join_on_pk_of_hash_tbl
-                    customTags: partition=hash,skey=hash,cardinality=single,projection=indexed,filteron=hashskey,filtercount=one,filtertype=comparision,queryshape=join,joinon=hashskey
                     weight: 100
                     queries:
                         - query: select Hashtbl_1.col_bigint_id_2,Hashtbl_2.col_bigint_id_2 from Hashtbl_1 join Hashtbl_2 on Hashtbl_1.col_bigint_id_2=Hashtbl_2.col_bigint_id_2 where Hashtbl_1.col_bigint_id_2<100001
 
             -   workload: JOING1_6_join_on_rangeidx_of_hash_tbl
+                customTags: partition=hash,skey=asc,cardinality=single,projection=indexed,queryshape=join,joinon=rangeskey
                 run:
                     -   name: join_on_pk_of_hash_tbl
-                        customTags: partition=hash,skey=asc,cardinality=single,projection=indexed,queryshape=join,joinon=rangeskey
                         weight: 100
                         queries:
                             -   query: select Hashtbl_1.col_bigint_id_3,Hashtbl_2.col_bigint_id_3 from Hashtbl_1 join Hashtbl_2 on Hashtbl_1.col_bigint_id_3=Hashtbl_2.col_bigint_id_3
 
             -   workload: JOING1_7_join_on_rangeidx_of_hash_tbl_with_1_filter
+                customTags: customer=3,partition=hash,skey=asc,cardinality=single,projection=indexed,filtercount=one,filteron=rangeskey,filtertype=comparision,queryshape=join,joinon=rangeskey
                 run:
                     -   name: join_on_pk_of_hash_tbl
-                        customTags: customer=3,partition=hash,skey=asc,cardinality=single,projection=indexed,filtercount=one,filteron=rangeskey,filtertype=comparision,queryshape=join,joinon=rangeskey
                         weight: 100
                         queries:
                             -   query: select Hashtbl_1.col_bigint_id_3,Hashtbl_2.col_bigint_id_3 from Hashtbl_1 join Hashtbl_2 on Hashtbl_1.col_bigint_id_3=Hashtbl_2.col_bigint_id_3 where Hashtbl_1.col_bigint_id_3<100001
 
             -   workload: JOING1_8_join_on_nonidx_of_hash_tbl
+                customTags: partition=hash,cardinality=single,projection=nonindexed,queryshape=join,joinon=nonindexed
                 run:
                     -   name: join_on_pk_of_hash_tbl
-                        customTags: partition=hash,cardinality=single,projection=nonindexed,queryshape=join,joinon=nonindexed
                         weight: 100
                         queries:
                             -   query: select Hashtbl_1.col_bigint_id_4,Hashtbl_2.col_bigint_id_4 from Hashtbl_1 join Hashtbl_2 on Hashtbl_1.col_bigint_id_4=Hashtbl_2.col_bigint_id_4
 
             -   workload: JOING1_9_join_on_nonidx_of_hash_tbl_with_1_filter
+                customTags: partition=hash,cardinality=single,projection=nonindexed,filtercount=one,filteron=nonindexed,filtertype=comparision,queryshape=join,joinon=nonindexed
                 run:
                     -   name: join_on_pk_of_hash_tbl
-                        customTags: partition=hash,cardinality=single,projection=nonindexed,filtercount=one,filteron=nonindexed,filtertype=comparision,queryshape=join,joinon=nonindexed
                         weight: 100
                         queries:
                             -   query: select Hashtbl_1.col_bigint_id_4,Hashtbl_2.col_bigint_id_4 from Hashtbl_1 join Hashtbl_2 on Hashtbl_1.col_bigint_id_4=Hashtbl_2.col_bigint_id_4 where Hashtbl_1.col_bigint_id_4<100001
