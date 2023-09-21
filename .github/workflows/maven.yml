@@ -423,7 +423,8 @@ jobs:
       - name: Run benchmark
         # Note: user/pass should match those used in sample configs.
         run: |
-          # For templated benchmarks, we need to preload tpcc data for the test since by design, templated benchmarks do not support the 'load' operation
+          # For templated benchmarks, we need to preload some data for the test since by design, templated benchmarks do not support the 'load' operation
+          # In this case, we load the tpcc data.
           if [[ ${{matrix.benchmark}} == templated ]]; then
             java -jar benchbase.jar -b tpcc -c config/sqlserver/sample_tpcc_config.xml --create=true --load=true --execute=false --json-histograms results/histograms.json
             java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/sqlserver/sample_${{matrix.benchmark}}_config.xml --create=false --load=false --execute=true --json-histograms results/histograms.json
