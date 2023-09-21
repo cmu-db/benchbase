@@ -3,7 +3,7 @@ package com.oltpbenchmark.benchmarks.featurebench.utils;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
-public class RandomStringTextArrayGen implements BaseUtil {
+public class RandomTextArrayGen implements BaseUtil {
 
     private String[] textArray;
 
@@ -13,7 +13,7 @@ public class RandomStringTextArrayGen implements BaseUtil {
     private int arraySize;
 
 
-    public RandomStringTextArrayGen(List<Object> values) {
+    public RandomTextArrayGen(List<Object> values) {
         if (values.size() != 3) {
             throw new RuntimeException("Incorrect number of parameters for util function "
                 + this.getClass());
@@ -30,7 +30,7 @@ public class RandomStringTextArrayGen implements BaseUtil {
 
     }
 
-    public RandomStringTextArrayGen(List<Object> values, int workerId, int totalWorkers) {
+    public RandomTextArrayGen(List<Object> values, int workerId, int totalWorkers) {
         if (values.size() != 3) {
             throw new RuntimeException("Incorrect number of parameters for util function "
                 + this.getClass());
