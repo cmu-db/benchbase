@@ -253,7 +253,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
+        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'templated', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
     services:
       postgres: # https://hub.docker.com/_/postgres
         image: postgres:latest
