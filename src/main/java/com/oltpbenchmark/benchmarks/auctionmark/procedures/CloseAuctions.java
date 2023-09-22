@@ -116,15 +116,15 @@ public class CloseAuctions extends Procedure {
                     output_rows.clear();
                     while (dueItemsTable.next()) {
                         col = 1;
-                        long itemId = dueItemsTable.getLong(col++);
-                        long sellerId = dueItemsTable.getLong(col++);
+                        String itemId = dueItemsTable.getString(col++);
+                        String sellerId = dueItemsTable.getString(col++);
                         String i_name = dueItemsTable.getString(col++);
                         double currentPrice = dueItemsTable.getDouble(col++);
                         long numBids = dueItemsTable.getLong(col++);
                         Timestamp endDate = dueItemsTable.getTimestamp(col++);
                         ItemStatus itemStatus = ItemStatus.get(dueItemsTable.getLong(col++));
                         Long bidId = null;
-                        Long buyerId = null;
+                        String buyerId = null;
 
                         if (debug) {
                             LOG.debug(String.format("Getting max bid for itemId=%d / sellerId=%d", itemId, sellerId));
@@ -139,15 +139,15 @@ public class CloseAuctions extends Procedure {
                             waiting_ctr++;
 
                             param = 1;
-                            maxBidStmt.setLong(param++, itemId);
-                            maxBidStmt.setLong(param++, sellerId);
+                            maxBidStmt.setString(param++, itemId);
+                            maxBidStmt.setString(param++, sellerId);
                             try (ResultSet maxBidResults = maxBidStmt.executeQuery()) {
                                 adv = maxBidResults.next();
 
 
                                 col = 1;
                                 bidId = maxBidResults.getLong(col++);
-                                buyerId = maxBidResults.getLong(col++);
+                                buyerId = maxBidResults.getString(col++);
                                 try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, insertUserItem, buyerId, itemId, sellerId, currentTime)) {
                                     preparedStatement.executeUpdate();
                                 }
