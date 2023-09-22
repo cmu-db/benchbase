@@ -698,9 +698,9 @@ public class AuctionMarkProfile {
         Integer cnt = this.seller_item_cnt.get(seller_id);
         if (cnt == null || cnt == 0) {
             cnt = seller_id.getItemCount();
-            //this.seller_item_cnt.put(seller_id, cnt);
+            this.seller_item_cnt.put(seller_id, cnt);
         }
-        this.seller_item_cnt.put(seller_id, cnt);
+        this.seller_item_cnt.put(seller_id, 1);
         return (new ItemId(seller_id, cnt));
     }
 

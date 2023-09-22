@@ -10,6 +10,9 @@
 
     <!-- Scalefactor in YCSB is *1000 the number of rows in the USERTABLE-->
     <scalefactor>1</scalefactor>
+
+    <!-- Optional: Override the zipfian constant to modify the skew -->
+    <!-- <skewFactor>0.99</skewFactor> -->
     
     <!-- SQLITE only supports one writer thread -->
     <loaderThreads>1</loaderThreads>

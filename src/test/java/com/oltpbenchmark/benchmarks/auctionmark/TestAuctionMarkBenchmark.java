@@ -17,6 +17,9 @@
 
 package com.oltpbenchmark.benchmarks.auctionmark;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import com.oltpbenchmark.api.AbstractTestBenchmarkModule;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.TransactionType;
@@ -26,6 +29,7 @@ import com.oltpbenchmark.benchmarks.auctionmark.util.CategoryParser;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import org.junit.Test;
 
 public class TestAuctionMarkBenchmark extends AbstractTestBenchmarkModule<AuctionMarkBenchmark> {
 
@@ -58,6 +62,7 @@ public class TestAuctionMarkBenchmark extends AbstractTestBenchmarkModule<Auctio
     /**
      * testCategoryParser
      */
+    @Test
     public void testCategoryParser() throws Exception {
         CategoryParser categoryParser = new CategoryParser();
         assertNotNull(categoryParser.getCategoryMap());
@@ -67,6 +72,7 @@ public class TestAuctionMarkBenchmark extends AbstractTestBenchmarkModule<Auctio
     /**
      * testSupplementalClasses
      */
+    @Test
     public void testSupplementalClasses() throws Exception {
         // Check to make sure that we have something...
         Map<TransactionType, Procedure> procs = this.benchmark.getProcedures();

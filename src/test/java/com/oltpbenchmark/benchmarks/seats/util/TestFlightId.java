@@ -17,13 +17,17 @@
 
 package com.oltpbenchmark.benchmarks.seats.util;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import com.oltpbenchmark.benchmarks.seats.SEATSConstants;
-import junit.framework.TestCase;
 
 import java.sql.Timestamp;
 import java.util.Calendar;
+import org.junit.Before;
+import org.junit.Test;
 
-public class TestFlightId extends TestCase {
+public class TestFlightId {
 
     private final long[] base_ids = {111, 222, 333};
     private final long[] depart_airport_ids = {444, 555, 666};
@@ -32,9 +36,8 @@ public class TestFlightId extends TestCase {
     private final Timestamp[] flight_dates = new Timestamp[this.flight_offset_days.length];
     private Timestamp start_date;
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Before
+    public void setUp() throws Exception {
         this.start_date = new Timestamp(Calendar.getInstance().getTime().getTime());
         for (int i = 0; i < this.flight_dates.length; i++) {
             int day = this.flight_offset_days[i];
@@ -45,6 +48,7 @@ public class TestFlightId extends TestCase {
     /**
      * testFlightId
      */
+    @Test
     public void testFlightId() {
         for (long base_id : this.base_ids) {
             for (long depart_airport_id : this.depart_airport_ids) {
@@ -65,6 +69,7 @@ public class TestFlightId extends TestCase {
     /**
      * testFlightIdEncode
      */
+    @Test
     public void testFlightIdEncode() {
         for (long base_id : this.base_ids) {
             for (long depart_airport_id : this.depart_airport_ids) {
@@ -87,6 +92,7 @@ public class TestFlightId extends TestCase {
     /**
      * testFlightIdDecode
      */
+    @Test
     public void testFlightIdDecode() {
         for (long base_id : this.base_ids) {
             for (long depart_airport_id : this.depart_airport_ids) {

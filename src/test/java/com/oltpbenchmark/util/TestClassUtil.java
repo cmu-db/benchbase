@@ -17,16 +17,18 @@
 
 package com.oltpbenchmark.util;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.util.*;
+import org.junit.Test;
 
 /**
  * @author pavlo
  */
-public class TestClassUtil extends TestCase {
+public class TestClassUtil {
 
     private final Class<?> target_class = ArrayList.class;
 
@@ -51,6 +53,7 @@ public class TestClassUtil extends TestCase {
     /**
      * testGetConstructor
      */
+    @Test
     public void testGetConstructor() throws Exception {
         Class<?>[] targets = {
                 MockObject1.class,
@@ -70,6 +73,7 @@ public class TestClassUtil extends TestCase {
     /**
      * testGetSuperClasses
      */
+    @Test
     public void testGetSuperClasses() {
         Class<?>[] expected = {
                 target_class,
@@ -91,6 +95,7 @@ public class TestClassUtil extends TestCase {
     /**
      * testGetSuperClassesCatalogType
      */
+    @Test
     public void testGetSuperClassesCatalogType() {
         Class<?>[] expected = {
                 MockObject3.class,
@@ -109,6 +114,7 @@ public class TestClassUtil extends TestCase {
     /**
      * GetInterfaces
      */
+    @Test
     public void testGetInterfaces() {
         Class<?>[] expected = {
                 Serializable.class,

@@ -16,6 +16,11 @@
 
 package com.oltpbenchmark.benchmarks.auctionmark;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import com.oltpbenchmark.api.AbstractTestWorker;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.Worker;
@@ -26,6 +31,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import org.junit.Test;
 
 public class TestAuctionMarkWorker extends AbstractTestWorker<AuctionMarkBenchmark> {
 
@@ -49,6 +55,7 @@ public class TestAuctionMarkWorker extends AbstractTestWorker<AuctionMarkBenchma
     /**
      * testUniqueSellers
      */
+    @Test
     public void testUniqueSellers() throws Exception {
 
         Set<UserId> all_users = new HashSet<UserId>();

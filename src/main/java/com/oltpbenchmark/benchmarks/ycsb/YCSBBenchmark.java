@@ -43,6 +43,11 @@ public class YCSBBenchmark extends BenchmarkModule {
      */
     protected final int fieldSize;
 
+    /**
+     * The constant used in the zipfian distribution (to modify the skew)
+     */
+    protected final double skewFactor;
+
     public YCSBBenchmark(WorkloadConfiguration workConf) {
         super(workConf);
 
@@ -54,6 +59,15 @@ public class YCSBBenchmark extends BenchmarkModule {
         if (this.fieldSize <= 0) {
             throw new RuntimeException("Invalid YCSB fieldSize '" + this.fieldSize + "'");
         }
+
+        double skewFactor = 0.99;
+        if (workConf.getXmlConfig() != null && workConf.getXmlConfig().containsKey("skewFactor")) {
+            skewFactor = workConf.getXmlConfig().getDouble("skewFactor");
+            if (skewFactor <= 0 || skewFactor >= 1) {
+                throw new RuntimeException("Invalid YCSB skewFactor '" + skewFactor + "'");
+            }
+        }
+        this.skewFactor = skewFactor;
     }
 
     @Override
