@@ -102,7 +102,7 @@ microbenchmark:
                     weight: 100
                     queries:
                         - query: select col_bigint_id_1 from Indexed1M_1 where col_bigint_id_1>1 order by col_bigint_id_1 DESC
-            - workload: ORDG2_ordby_bigint_pkey_column
+            - workload: ORDG2_ordby_bigint_pkey_column_projectall
               customTags: schematype=regular,partition=hash,cardinality=single,projection=all,filtercount=one,filteron=rangepkey,filtertype=comparision,queryshape=orderby,orderbyon=rangepkey
               run:
                   - name: yb_ordby_bigint_non_indexed_column
