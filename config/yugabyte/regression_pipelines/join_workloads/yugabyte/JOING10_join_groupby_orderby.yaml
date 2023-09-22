@@ -65,7 +65,7 @@ microbenchmark:
                     - name: col_boolean_
                       count: 1
                       util: RandomBoolean
-                - name: col_varchar10_id_
+                    - name: col_varchar10_id_
                       count: 1
                       util: PrimaryStringGen
                       params: [1, 10]
