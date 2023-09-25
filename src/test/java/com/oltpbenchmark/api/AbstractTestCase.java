@@ -72,12 +72,14 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> {
 
 
     public AbstractTestCase(boolean createDatabase, boolean loadDatabase) {
+        this.benchmark = null;
         this.createDatabase = createDatabase;
         this.loadDatabase = loadDatabase;
         this.ddlOverridePath = null;
     }
 
     public AbstractTestCase(boolean createDatabase, boolean loadDatabase, String ddlOverridePath) {
+        this.benchmark = null;
         this.createDatabase = createDatabase;
         this.loadDatabase = loadDatabase;
         this.ddlOverridePath = ddlOverridePath;
@@ -112,17 +114,10 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> {
         server.start();
 
         this.workConf = new WorkloadConfiguration();
-        TransactionTypes txnTypes = new TransactionTypes(new ArrayList<>());
-
-        int id = 0;
-        for (Class<? extends Procedure> procedureClass : procedures()) {
-            TransactionType tt = new TransactionType(procedureClass, id++, false, 0, 0);
-            txnTypes.add(tt);
-        }
 
         String DB_CONNECTION = String.format("jdbc:hsqldb:hsql://localhost:%d/benchbase", server.getPort());
 
-        this.workConf.setTransTypes(txnTypes);
+        this.workConf.setTransTypes(proceduresToTransactionTypes(procedures()));
         this.workConf.setDatabaseType(DB_TYPE);
         this.workConf.setUrl(DB_CONNECTION);
         this.workConf.setScaleFactor(DB_SCALE_FACTOR);
@@ -160,6 +155,18 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> {
             cleanupServer();
             fail("postCreateDatabaseSetup() failed");
         }
+    }
+
+    protected TransactionTypes proceduresToTransactionTypes(List<Class<? extends Procedure>> procedures) {
+        TransactionTypes txnTypes = new TransactionTypes(new ArrayList<>());
+
+        int id = 0;
+        for (Class<? extends Procedure> procedureClass : procedures) {
+            TransactionType tt = new TransactionType(procedureClass, id++, false, 0, 0);
+            txnTypes.add(tt);
+        }
+
+        return txnTypes;
     }
 
     protected void createDatabase() {

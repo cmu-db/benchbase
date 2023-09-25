@@ -65,6 +65,8 @@ import jakarta.xml.bind.Unmarshaller;
 public class TemplatedBenchmark extends BenchmarkModule {
     private static final Logger LOG = LoggerFactory.getLogger(TemplatedBenchmark.class);
 
+    protected CustomClassLoader classLoader;
+
     public TemplatedBenchmark(WorkloadConfiguration workConf) {
         super(workConf);
     }
@@ -73,7 +75,6 @@ public class TemplatedBenchmark extends BenchmarkModule {
     protected void initClassLoader() {
         super.initClassLoader();
 
-        this.classLoader = ClassLoader.getSystemClassLoader();
         if (workConf != null && workConf.getXmlConfig().containsKey("query_templates_file")) {
             this.classLoader = this.loadQueryTemplates(
                     workConf.getXmlConfig().getString("query_templates_file"));
@@ -85,6 +86,10 @@ public class TemplatedBenchmark extends BenchmarkModule {
     @Override
     protected Package getProcedurePackageImpl() {
         return (GenericQuery.class.getPackage());
+    }
+
+    public List<Class<? extends Procedure>> getProcedureClasses() {
+        return this.classLoader.getProcedureClasses();
     }
 
     @Override
@@ -136,7 +141,7 @@ public class TemplatedBenchmark extends BenchmarkModule {
         throw new UnsupportedOperationException("Templated benchmarks do not currently support loading directly.");
     }
 
-    private ClassLoader loadQueryTemplates(String file) {
+    private CustomClassLoader loadQueryTemplates(String file) {
         // Instantiate Java compiler.
         CustomClassLoader ccloader = new CustomClassLoader(this.classLoader);
         try {
@@ -225,6 +230,17 @@ public class TemplatedBenchmark extends BenchmarkModule {
 
         public void putClass(String name, Class<?> clazz) {
             classes.put(name, clazz);
+        }
+
+        @SuppressWarnings("unchecked")
+        public List<Class<? extends Procedure>> getProcedureClasses() {
+            List<Class<? extends Procedure>> result = new ArrayList<>();
+            for (Class<?> clz : classes.values()) {
+                if (Procedure.class.isAssignableFrom(clz)) {
+                    result.add((Class<? extends Procedure>) clz);
+                }
+            }
+            return result;
         }
     }
 

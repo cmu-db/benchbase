@@ -11,6 +11,7 @@ import com.oltpbenchmark.benchmarks.tpcc.TPCCBenchmark;
 
 import java.nio.file.Paths;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.configuration2.XMLConfiguration;
@@ -34,10 +35,14 @@ public class TestTemplatedWorker extends AbstractTestWorker<TemplatedBenchmark> 
     TPCCBenchmark tpccBenchmark = null;
 
     public TestTemplatedWorker() {
+        // Technically we aren't creating this schema with the
+        // TemplatedBenchmark, but specifying the DDL that we are using (see
+        // below) allows some other checks to pass.
         super(DDL_OVERRIDE_PATH);
     }
 
     public static void setWorkloadConfigXml(WorkloadConfiguration workConf) {
+        // Load the configuration file so we can parse the query_template_file value.
         try {
             XMLConfiguration xmlConf = DBWorkload.buildConfiguration(SAMPLE_TEMPLATED_CONFIG);
             workConf.setXmlConfig(xmlConf);
@@ -52,13 +57,19 @@ public class TestTemplatedWorker extends AbstractTestWorker<TemplatedBenchmark> 
         setWorkloadConfigXml(workConf);
     }
 
-    public static final List<Class<? extends Procedure>> PROCEDURE_CLASSES = List.of(
-            GenericQuery.class
-    );
-
     @Override
     public List<Class<? extends Procedure>> procedures() {
-        return PROCEDURE_CLASSES;
+        // Note: the first time this is called is before the benchmark is
+        // initialized, so it should return nothing.
+        // It's only populated after the config is loaded for the benchmark.
+        List<Class<? extends Procedure>> procedures = new ArrayList<>();
+        if (this.benchmark != null) {
+            procedures = this.benchmark.getProcedureClasses();
+            if (!procedures.isEmpty() && this.workConf.getTransTypes().isEmpty()) {
+                workConf.setTransTypes(proceduresToTransactionTypes(procedures));
+            }
+        }
+        return procedures;
     }
 
     @Override
@@ -71,6 +82,7 @@ public class TestTemplatedWorker extends AbstractTestWorker<TemplatedBenchmark> 
             return;
         }
 
+        // Create a second benchmark to re/ab/use for loading the database (tpcc in this case).
         WorkloadConfiguration tpccWorkConf = new WorkloadConfiguration();
         tpccWorkConf.setDatabaseType(this.workConf.getDatabaseType());
         tpccWorkConf.setUrl(this.workConf.getUrl());
