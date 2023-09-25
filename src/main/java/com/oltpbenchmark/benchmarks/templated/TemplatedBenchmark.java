@@ -160,7 +160,7 @@ public class TemplatedBenchmark extends BenchmarkModule {
                 b.query(template.getQuery());
                 b.paramsTypes(template.getTypes().getTypeList());
                 for (ValuesType paramValue : template.getValues()) {
-                    b.addParamsValues(String.join(", ", paramValue.getValueList()));
+                    b.addParamsValues(String.join(",", paramValue.getValueList()));
                 }
 
                 ParsedQueryTemplate qt = b.build();
