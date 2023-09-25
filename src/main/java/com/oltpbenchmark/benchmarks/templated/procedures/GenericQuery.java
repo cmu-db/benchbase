@@ -63,11 +63,16 @@ public abstract class GenericQuery extends Procedure {
         String[] paramsTypes = queryTemplateInfo.getParamsTypes();
         for (int i = 0; i < paramsTypes.length; i++) {
             if (paramsTypes[i].equalsIgnoreCase("NULL")) {
-                stmt.setNull(i + 1, Types.NULL);
+                stmt.setNull(i + 1, Types.NULL);    // TODO: Add test case for this
                 break;
-            } else{
+            } else {
                 try {
-                    stmt.setObject(i + 1, params.get(i), Integer.parseInt(Types.class.getDeclaredField(paramsTypes[i]).get(null).toString()));
+                    // TODO: add support for nullable other types
+                    Object param = params.get(i);
+                    if (param instanceof String) {
+                        param = ((String)param).strip();
+                    }
+                    stmt.setObject(i + 1, param, Integer.parseInt(Types.class.getDeclaredField(paramsTypes[i]).get(null).toString()));
                 } catch (Exception e) {
                     e.printStackTrace();
                     throw new RuntimeException(
