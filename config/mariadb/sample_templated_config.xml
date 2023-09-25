@@ -27,12 +27,15 @@
         <work>
             <time>10</time>
             <rate>100</rate>
-            <weights>60,40</weights>
+            <weights>30,30,40</weights>
         </work>
     </works>
 
     <!-- Select all templates that are executed. -->
     <transactiontypes>
+        <transactiontype>
+            <name>GetOrder</name>
+        </transactiontype>
         <transactiontype>
             <name>GetCust</name>
         </transactiontype>
