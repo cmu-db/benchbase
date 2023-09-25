@@ -27,6 +27,11 @@ if [ "$BENCHBASE_PROFILE" == 'sqlite' ]; then
         SRC_DIR="$LOCAL_WORKSPACE_FOLDER"
     fi
     EXTRA_DOCKER_ARGS="-v $SRC_DIR/$benchmark.db:/benchbase/profiles/sqlite/$benchmark.db"
+
+    if [ "$benchmark" == 'templated' ]; then
+        # See notes below:
+        EXTRA_DOCKER_ARGS+=" -v $SRC_DIR/$benchmark.db:/benchbase/profiles/sqlite/tpcc.db"
+    fi
 else
     if [ ! -x "docker/${BENCHBASE_PROFILE}-${PROFILE_VERSION}/up.sh" ]; then
         echo "ERROR: No docker up.sh script available for '$BENCHBASE_PROFILE'"

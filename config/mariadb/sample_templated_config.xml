@@ -19,7 +19,7 @@
       query will fail.
     -->
 
-    <query_templates_file>data/templated/example_mariadb.xml</query_templates_file>
+    <query_templates_file>data/templated/example.xml</query_templates_file>
 
     <!-- The workload -->
     <terminals>1</terminals>
