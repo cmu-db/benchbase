@@ -146,23 +146,11 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> {
         assertNotNull(this.catalog);
 
         if (createDatabase) {
-            try {
-                this.benchmark.createDatabase();
-            } catch (Exception e) {
-                LOG.error(e.getMessage(), e);
-                cleanupServer();
-                fail("createDatabase() failed");
-            }
+            this.createDatabase();
         }
 
         if (loadDatabase) {
-            try {
-                this.benchmark.loadDatabase();
-            } catch (Exception e) {
-                LOG.error(e.getMessage(), e);
-                cleanupServer();
-                fail("loadDatabase() failed");
-            }
+            this.loadDatabase();
         }
 
         try {
@@ -171,6 +159,26 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> {
             LOG.error(e.getMessage(), e);
             cleanupServer();
             fail("postCreateDatabaseSetup() failed");
+        }
+    }
+
+    protected void createDatabase() {
+        try {
+            this.benchmark.createDatabase();
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            cleanupServer();
+            fail("createDatabase() failed");
+        }
+    }
+
+    protected void loadDatabase() {
+        try {
+            this.benchmark.loadDatabase();
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            cleanupServer();
+            fail("loadDatabase() failed");
         }
     }
 
@@ -193,7 +201,7 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> {
         cleanupServer();
     }
 
-    private void cleanupServer() {
+    protected void cleanupServer() {
         if (server != null) {
 
             LOG.trace("shutting down catalogs...");

@@ -74,9 +74,11 @@ public class TemplatedBenchmark extends BenchmarkModule {
         super.initClassLoader();
 
         this.classLoader = ClassLoader.getSystemClassLoader();
-        if (workConf.getXmlConfig().containsKey("query_templates_file")) {
+        if (workConf != null && workConf.getXmlConfig().containsKey("query_templates_file")) {
             this.classLoader = this.loadQueryTemplates(
                     workConf.getXmlConfig().getString("query_templates_file"));
+        } else {
+            LOG.error("No query_templates_file specified in xml config.");
         }
     }
 
@@ -131,8 +133,7 @@ public class TemplatedBenchmark extends BenchmarkModule {
 
     @Override
     protected Loader<TemplatedBenchmark> makeLoaderImpl() {
-        // Loader not currently supported.
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("Templated benchmarks do not currently support loading directly.");
     }
 
     private ClassLoader loadQueryTemplates(String file) {

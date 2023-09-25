@@ -39,6 +39,10 @@ public abstract class AbstractTestWorker<T extends BenchmarkModule> extends Abst
         super(true, true);
     }
 
+    public AbstractTestWorker(String ddlOverridePath) {
+        super(true, true, ddlOverridePath);
+    }
+
     @Override
     public List<String> ignorableTables() {
         return null;

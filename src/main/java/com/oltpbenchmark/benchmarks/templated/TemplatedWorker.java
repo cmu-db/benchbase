@@ -54,7 +54,7 @@ public class TemplatedWorker extends Worker<TemplatedBenchmark> {
                 // If the generator has no transactions, there are no parameters.
                 proc.run(conn);
             }
-            
+
         } catch (ClassCastException e) {
             throw new RuntimeException(e);
         }
