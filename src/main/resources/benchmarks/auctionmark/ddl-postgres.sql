@@ -319,6 +319,7 @@ CREATE TABLE item_bid (
     FOREIGN KEY (ib_buyer_id) REFERENCES useracct (u_id) ON DELETE CASCADE,
     PRIMARY KEY (ib_id, ib_i_id, ib_u_id)
 );
+create index range_idx on item_bid(ib_i_id, ib_u_id) include (ib_id);
 
 -- ================================================================
 -- ITEM_MAX_BID

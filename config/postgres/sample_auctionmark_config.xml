@@ -4,21 +4,22 @@
     <!-- Connection details -->
     <type>POSTGRES</type>
     <driver>org.postgresql.Driver</driver>
-    <url>jdbc:postgresql://localhost:5432/benchbase?sslmode=disable&amp;ApplicationName=auctionmark&amp;reWriteBatchedInserts=true</url>
-    <username>admin</username>
-    <password>password</password>
-    <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    <url>jdbc:postgresql://localhost:5432/benchbase?sslmode=require&amp;ApplicationName=auctionmark&amp;reWriteBatchedInserts=true</url>
+    <username>postgres</username>
+    <password></password>
+    <isolation>TRANSACTION_REPEATABLE_READ</isolation>
     <batchsize>128</batchsize>
-
+    <retries>10</retries>
     <!-- Scalefactor in AuctionMark scales by *1000 the number of customers-->
-    <scalefactor>1</scalefactor>
+    <scalefactor>100</scalefactor>
 
     <!-- The workload -->
-    <terminals>1</terminals>
+    <terminals>5</terminals>
     <works>
         <work>
-            <time>60</time>
-            <rate>10000</rate>
+            <warmup>300</warmup>
+            <time>600</time>
+            <rate>unlimited</rate>
             <weights>45, 10, 20, 2, 1, 4, 10, 5, 3</weights>
         </work>
     </works>

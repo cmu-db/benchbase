@@ -289,6 +289,8 @@ CREATE TABLE item_bid (
     PRIMARY KEY (ib_id, ib_i_id, ib_u_id)
 );
 
+CREATE INDEX range_idx on item_bid(ib_i_id ASC, ib_u_id ASC) include (ib_id);
+
 -- ================================================================
 -- ITEM_MAX_BID
 -- Cross-reference table to the current max bid for an auction
