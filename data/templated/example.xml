@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Note: these example templates reuse TPC-C queries and data as a demonstration, but others are possible. -->
+<!-- TODO: Add additional parameter data types to increase test coverage. -->
 <templates>
    <template name="GetOrder">
       <query><![CDATA[SELECT NO_O_ID FROM new_order WHERE NO_D_ID = ? OR NO_D_ID = ? ORDER BY NO_O_ID ASC]]></query>
