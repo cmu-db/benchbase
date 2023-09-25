@@ -16,7 +16,7 @@
       Other templated benchmarks need to ensure that the data is loaded manually prior to running the benchmark.
     -->
 
-    <query_templates_file>data/templated/example.xml</query_templates_file>
+    <query_templates_file>data/templated/example_mariadb.xml</query_templates_file>
 
     <!-- The workload -->
     <terminals>1</terminals>
@@ -30,9 +30,6 @@
 
     <!-- Select all templates that are executed. -->
     <transactiontypes>
-        <transactiontype>
-            <name>GetOrder</name>
-        </transactiontype>
         <transactiontype>
             <name>GetCust</name>
         </transactiontype>
