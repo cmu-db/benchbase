@@ -113,10 +113,10 @@ public class TemplatedBenchmark extends BenchmarkModule {
                 // Parse parameter values and add each combination to a generator.
                 List<GenericQueryOperation> list = new ArrayList<>();
                 String[] paramsTypes = info.getParamsTypes();
+                CSVParser parser = new CSVParserBuilder()
+                        .withQuoteChar('\'')
+                        .build();
                 for (String binding : info.getParamsValues()) {
-                    CSVParser parser = new CSVParserBuilder()
-                            .withQuoteChar('\'')
-                            .build();
                     Object[] params = parser.parseLine(binding);
                     assert paramsTypes.length == params.length;
                     list.add(new GenericQueryOperation(params));

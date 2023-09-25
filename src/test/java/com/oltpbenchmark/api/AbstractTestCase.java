@@ -133,6 +133,8 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> {
                 new Class<?>[]{WorkloadConfiguration.class});
         assertNotNull(this.benchmark);
 
+        assertNotNull(this.procedures());
+
         this.conn = this.benchmark.makeConnection();
         assertNotNull(this.conn);
 

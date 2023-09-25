@@ -97,6 +97,7 @@ public class TestTemplatedWorker extends AbstractTestWorker<TemplatedBenchmark> 
         assertNotNull(conn);
         this.tpccBenchmark.refreshCatalog();
         catalog = this.tpccBenchmark.getCatalog();
+        assertNotNull(catalog);
     }
 
     protected void createDatabase() {
