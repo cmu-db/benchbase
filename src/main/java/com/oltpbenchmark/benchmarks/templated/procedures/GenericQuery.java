@@ -63,8 +63,7 @@ public abstract class GenericQuery extends Procedure {
         String[] paramsTypes = queryTemplateInfo.getParamsTypes();
         for (int i = 0; i < paramsTypes.length; i++) {
             if (paramsTypes[i].equalsIgnoreCase("NULL")) {
-                stmt.setNull(i + 1, Types.NULL);    // TODO: Add test case for this
-                break;
+                stmt.setNull(i + 1, Types.NULL);
             } else {
                 try {
                     // TODO: add support for nullable other types

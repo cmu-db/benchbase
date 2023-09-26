@@ -26,6 +26,17 @@
          <value>8</value>
       </values>
    </template>
+   <template name="GetCustNull">
+      <query><![CDATA[SELECT C_DISCOUNT, C_LAST, C_CREDIT FROM customer WHERE C_W_ID = ? OR C_W_ID = ?]]></query>
+      <types>
+         <type>NULL</type>
+         <type>INTEGER</type>
+      </types>
+      <values>
+        <value />
+        <value>8</value>
+      </values>
+   </template>
    <template name="GetWarehouse">
       <query><![CDATA[SELECT * FROM warehouse WHERE W_STREET_1 LIKE ?]]></query>
       <types>
