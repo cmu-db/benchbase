@@ -14,9 +14,6 @@
       To test this sample as is, you must first run benchbase with parameters `load=true` and
       `config=sample_tpcc_config.xml` to load the TPC-C data to the target database.
       Other templated benchmarks need to ensure that the data is loaded manually prior to running the benchmark.
-
-      For MariaDB specifically, templates cannot contain more than one wildcard ('?') parameter, otherwise the
-      query will fail.
     -->
 
     <query_templates_file>data/templated/example.xml</query_templates_file>
