@@ -70,9 +70,6 @@ public abstract class GenericQuery extends Procedure {
                     // For instance, can we provide a <value /> tag in the XML file to represent a NULL value?
                     // Or does it need a special marker like "$null" to signify a NULL value?
                     Object param = params.get(i);
-                    if (param instanceof String) {
-                        param = ((String)param).strip();
-                    }
                     stmt.setObject(i + 1, param, Integer.parseInt(Types.class.getDeclaredField(paramsTypes[i]).get(null).toString()));
                 } catch (Exception e) {
                     e.printStackTrace();
