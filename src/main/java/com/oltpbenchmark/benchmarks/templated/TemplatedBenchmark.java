@@ -111,6 +111,12 @@ public class TemplatedBenchmark extends BenchmarkModule {
                 QueryTemplateInfo info = proc.getQueryTemplateInfo();
 
                 // Parse parameter values and add each combination to a generator.
+                // FIXME: This method does not currently support NULLable
+                // parameters since they will be parsed as an empty string.
+                // See Also: comments in GenericQuery.getStatement()
+                // Additionally, it's somewhat unnecessarily expensive, since
+                // we convert from XML represented values back to CSV separated
+                // list of params.
                 List<GenericQueryOperation> list = new ArrayList<>();
                 String[] paramsTypes = info.getParamsTypes();
                 CSVParser parser = new CSVParserBuilder()

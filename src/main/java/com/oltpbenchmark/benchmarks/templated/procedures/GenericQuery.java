@@ -67,6 +67,8 @@ public abstract class GenericQuery extends Procedure {
             } else {
                 try {
                     // TODO: add support for nullable other types
+                    // For instance, can we provide a <value /> tag in the XML file to represent a NULL value?
+                    // Or does it need a special marker like "$null" to signify a NULL value?
                     Object param = params.get(i);
                     if (param instanceof String) {
                         param = ((String)param).strip();
