@@ -1,144 +1,144 @@
---  drop existing tables
-if object_id('warehouse') is not null drop table warehouse;
-if object_id('stock') is not null drop table stock;
-if object_id('order_line') is not null drop table order_line;
-if object_id('oorder') is not null drop table oorder;
-if object_id('new_order') is not null drop table new_order;
-if object_id('item') is not null drop table item;
-if object_id('history') is not null drop table history;
-if object_id('district') is not null drop table district;
-if object_id('customer') is not null drop table customer;
+--  DROP EXISTING TABLES
+IF OBJECT_ID('WAREHOUSE') IS NOT NULL DROP TABLE WAREHOUSE;
+IF OBJECT_ID('STOCK') IS NOT NULL DROP TABLE STOCK;
+IF OBJECT_ID('ORDER_LINE') IS NOT NULL DROP TABLE ORDER_LINE;
+IF OBJECT_ID('OORDER') IS NOT NULL DROP TABLE OORDER;
+IF OBJECT_ID('NEW_ORDER') IS NOT NULL DROP TABLE NEW_ORDER;
+IF OBJECT_ID('ITEM') IS NOT NULL DROP TABLE ITEM;
+IF OBJECT_ID('HISTORY') IS NOT NULL DROP TABLE HISTORY;
+IF OBJECT_ID('DISTRICT') IS NOT NULL DROP TABLE DISTRICT;
+IF OBJECT_ID('CUSTOMER') IS NOT NULL DROP TABLE CUSTOMER;
 
--- create tables
+-- CREATE TABLES
 
-create table [dbo].[warehouse](
-	[w_id] [int] not null,
-	[w_ytd] [decimal](12, 2) not null,
-	[w_tax] [decimal](4, 4) not null,
-	[w_name] [varchar](10) not null,
-	[w_street_1] [varchar](20) not null,
-	[w_street_2] [varchar](20) not null,
-	[w_city] [varchar](20) not null,
-	[w_state] [char](2) not null,
-	[w_zip] [char](9) not null,
-	primary key (w_id)
+CREATE TABLE [dbo].[WAREHOUSE](
+	[W_ID] [INT] NOT NULL,
+	[W_YTD] [DECIMAL](12, 2) NOT NULL,
+	[W_TAX] [DECIMAL](4, 4) NOT NULL,
+	[W_NAME] [VARCHAR](10) NOT NULL,
+	[W_STREET_1] [VARCHAR](20) NOT NULL,
+	[W_STREET_2] [VARCHAR](20) NOT NULL,
+	[W_CITY] [VARCHAR](20) NOT NULL,
+	[W_STATE] [CHAR](2) NOT NULL,
+	[W_ZIP] [CHAR](9) NOT NULL,
+	PRIMARY KEY (W_ID)
 );
 
-create table [dbo].[stock](
-	[s_w_id] [int] not null,
-	[s_i_id] [int] not null,
-	[s_quantity] [decimal](4, 0) not null,
-	[s_ytd] [decimal](8, 2) not null,
-	[s_order_cnt] [int] not null,
-	[s_remote_cnt] [int] not null,
-	[s_data] [varchar](50) not null,
-	[s_dist_01] [char](24) not null,
-	[s_dist_02] [char](24) not null,
-	[s_dist_03] [char](24) not null,
-	[s_dist_04] [char](24) not null,
-	[s_dist_05] [char](24) not null,
-	[s_dist_06] [char](24) not null,
-	[s_dist_07] [char](24) not null,
-	[s_dist_08] [char](24) not null,
-	[s_dist_09] [char](24) not null,
-	[s_dist_10] [char](24) not null,
-	primary key (s_w_id,s_i_id)
+CREATE TABLE [dbo].[STOCK](
+	[S_W_ID] [INT] NOT NULL,
+	[S_I_ID] [INT] NOT NULL,
+	[S_QUANTITY] [DECIMAL](4, 0) NOT NULL,
+	[S_YTD] [DECIMAL](8, 2) NOT NULL,
+	[S_ORDER_CNT] [INT] NOT NULL,
+	[S_REMOTE_CNT] [INT] NOT NULL,
+	[S_DATA] [VARCHAR](50) NOT NULL,
+	[S_DIST_01] [CHAR](24) NOT NULL,
+	[S_DIST_02] [CHAR](24) NOT NULL,
+	[S_DIST_03] [CHAR](24) NOT NULL,
+	[S_DIST_04] [CHAR](24) NOT NULL,
+	[S_DIST_05] [CHAR](24) NOT NULL,
+	[S_DIST_06] [CHAR](24) NOT NULL,
+	[S_DIST_07] [CHAR](24) NOT NULL,
+	[S_DIST_08] [CHAR](24) NOT NULL,
+	[S_DIST_09] [CHAR](24) NOT NULL,
+	[S_DIST_10] [CHAR](24) NOT NULL,
+	PRIMARY KEY (S_W_ID,S_I_ID)
 );
 
-create table [dbo].[order_line](
-	[ol_w_id] [int] not null,
-	[ol_d_id] [int] not null,
-	[ol_o_id] [int] not null,
-	[ol_number] [int] not null,
-	[ol_i_id] [int] not null,
-	[ol_delivery_d] [datetime] null,
-	[ol_amount] [decimal](6, 2) not null,
-	[ol_supply_w_id] [int] not null,
-	[ol_quantity] [decimal](2, 0) not null,
-	[ol_dist_info] [char](24) not null,
-	primary key (ol_w_id,ol_d_id,ol_o_id,ol_number)
+CREATE TABLE [dbo].[ORDER_LINE](
+	[OL_W_ID] [INT] NOT NULL,
+	[OL_D_ID] [INT] NOT NULL,
+	[OL_O_ID] [INT] NOT NULL,
+	[OL_NUMBER] [INT] NOT NULL,
+	[OL_I_ID] [INT] NOT NULL,
+	[OL_DELIVERY_D] [DATETIME] NULL,
+	[OL_AMOUNT] [DECIMAL](6, 2) NOT NULL,
+	[OL_SUPPLY_W_ID] [INT] NOT NULL,
+	[OL_QUANTITY] [DECIMAL](2, 0) NOT NULL,
+	[OL_DIST_INFO] [CHAR](24) NOT NULL,
+	PRIMARY KEY (OL_W_ID,OL_D_ID,OL_O_ID,OL_NUMBER)
 ); 
 
-create table [dbo].[oorder](
-	[o_w_id] [int] not null,
-	[o_d_id] [int] not null,
-	[o_id] [int] not null,
-	[o_c_id] [int] not null,
-	[o_carrier_id] [int] null,
-	[o_ol_cnt] [decimal](2, 0) not null,
-	[o_all_local] [decimal](1, 0) not null,
-	[o_entry_d] [datetime] null,
-	primary key (o_w_id,o_d_id,o_id),
-    unique (o_w_id,o_d_id,o_c_id,o_id)
+CREATE TABLE [dbo].[OORDER](
+	[O_W_ID] [INT] NOT NULL,
+	[O_D_ID] [INT] NOT NULL,
+	[O_ID] [INT] NOT NULL,
+	[O_C_ID] [INT] NOT NULL,
+	[O_CARRIER_ID] [INT] NULL,
+	[O_OL_CNT] [DECIMAL](2, 0) NOT NULL,
+	[O_ALL_LOCAL] [DECIMAL](1, 0) NOT NULL,
+	[O_ENTRY_D] [DATETIME] NULL,
+	PRIMARY KEY (O_W_ID,O_D_ID,O_ID),
+    UNIQUE (O_W_ID,O_D_ID,O_C_ID,O_ID)
 );
 
-create table [dbo].[new_order](
-	[no_w_id] [int] not null,
-	[no_d_id] [int] not null,
-	[no_o_id] [int] not null,
-	primary key (no_w_id,no_d_id,no_o_id)
+CREATE TABLE [dbo].[NEW_ORDER](
+	[NO_W_ID] [INT] NOT NULL,
+	[NO_D_ID] [INT] NOT NULL,
+	[NO_O_ID] [INT] NOT NULL,
+	PRIMARY KEY (NO_W_ID,NO_D_ID,NO_O_ID)
 );
 
-create table [dbo].[item](
-	[i_id] [int] not null,
-	[i_name] [varchar](24) not null,
-	[i_price] [decimal](5, 2) not null,
-	[i_data] [varchar](50) not null,
-	[i_im_id] [int] not null,
-	primary key (i_id)
+CREATE TABLE [dbo].[ITEM](
+	[I_ID] [INT] NOT NULL,
+	[I_NAME] [VARCHAR](24) NOT NULL,
+	[I_PRICE] [DECIMAL](5, 2) NOT NULL,
+	[I_DATA] [VARCHAR](50) NOT NULL,
+	[I_IM_ID] [INT] NOT NULL,
+	PRIMARY KEY (I_ID)
 );
 
-create table [dbo].[history](
-	[h_c_id] [int] not null,
-	[h_c_d_id] [int] not null,
-	[h_c_w_id] [int] not null,
-	[h_d_id] [int] not null,
-	[h_w_id] [int] not null,
-	[h_date] [datetime] null,
-	[h_amount] [decimal](6, 2) not null,
-	[h_data] [varchar](24) not null
+CREATE TABLE [dbo].[HISTORY](
+	[H_C_ID] [INT] NOT NULL,
+	[H_C_D_ID] [INT] NOT NULL,
+	[H_C_W_ID] [INT] NOT NULL,
+	[H_D_ID] [INT] NOT NULL,
+	[H_W_ID] [INT] NOT NULL,
+	[H_DATE] [DATETIME] NULL,
+	[H_AMOUNT] [DECIMAL](6, 2) NOT NULL,
+	[H_DATA] [VARCHAR](24) NOT NULL
 );
 
-create table [dbo].[district](
-	[d_w_id] [int] not null,
-	[d_id] [int] not null,
-	[d_ytd] [decimal](12, 2) not null,
-	[d_tax] [decimal](4, 4) not null,
-	[d_next_o_id] [int] not null,
-	[d_name] [varchar](10) not null,
-	[d_street_1] [varchar](20) not null,
-	[d_street_2] [varchar](20) not null,
-	[d_city] [varchar](20) not null,
-	[d_state] [char](2) not null,
-	[d_zip] [char](9) not null,
-	primary key (d_w_id,d_id)
+CREATE TABLE [dbo].[DISTRICT](
+	[D_W_ID] [INT] NOT NULL,
+	[D_ID] [INT] NOT NULL,
+	[D_YTD] [DECIMAL](12, 2) NOT NULL,
+	[D_TAX] [DECIMAL](4, 4) NOT NULL,
+	[D_NEXT_O_ID] [INT] NOT NULL,
+	[D_NAME] [VARCHAR](10) NOT NULL,
+	[D_STREET_1] [VARCHAR](20) NOT NULL,
+	[D_STREET_2] [VARCHAR](20) NOT NULL,
+	[D_CITY] [VARCHAR](20) NOT NULL,
+	[D_STATE] [CHAR](2) NOT NULL,
+	[D_ZIP] [CHAR](9) NOT NULL,
+	PRIMARY KEY (D_W_ID,D_ID)
 );
 
 
-create table [dbo].[customer](
-	[c_w_id] [int] not null,
-	[c_d_id] [int] not null,
-	[c_id] [int] not null,
-	[c_discount] [decimal](4, 4) not null,
-	[c_credit] [char](2) not null,
-	[c_last] [varchar](16) not null,
-	[c_first] [varchar](16) not null,
-	[c_credit_lim] [decimal](12, 2) not null,
-	[c_balance] [decimal](12, 2) not null,
-	[c_ytd_payment] [real] not null,
-	[c_payment_cnt] [int] not null,
-	[c_delivery_cnt] [int] not null,
-	[c_street_1] [varchar](20) not null,
-	[c_street_2] [varchar](20) not null,
-	[c_city] [varchar](20) not null,
-	[c_state] [char](2) not null,
-	[c_zip] [char](9) not null,
-	[c_phone] [char](16) not null,
-	[c_since] [datetime] null,
-	[c_middle] [char](2) not null,
-	[c_data] [varchar](500) not null,
-	primary key (c_w_id,c_d_id,c_id)
+CREATE TABLE [dbo].[CUSTOMER](
+	[C_W_ID] [INT] NOT NULL,
+	[C_D_ID] [INT] NOT NULL,
+	[C_ID] [INT] NOT NULL,
+	[C_DISCOUNT] [DECIMAL](4, 4) NOT NULL,
+	[C_CREDIT] [CHAR](2) NOT NULL,
+	[C_LAST] [VARCHAR](16) NOT NULL,
+	[C_FIRST] [VARCHAR](16) NOT NULL,
+	[C_CREDIT_LIM] [DECIMAL](12, 2) NOT NULL,
+	[C_BALANCE] [DECIMAL](12, 2) NOT NULL,
+	[C_YTD_PAYMENT] [REAL] NOT NULL,
+	[C_PAYMENT_CNT] [INT] NOT NULL,
+	[C_DELIVERY_CNT] [INT] NOT NULL,
+	[C_STREET_1] [VARCHAR](20) NOT NULL,
+	[C_STREET_2] [VARCHAR](20) NOT NULL,
+	[C_CITY] [VARCHAR](20) NOT NULL,
+	[C_STATE] [CHAR](2) NOT NULL,
+	[C_ZIP] [CHAR](9) NOT NULL,
+	[C_PHONE] [CHAR](16) NOT NULL,
+	[C_SINCE] [DATETIME] NULL,
+	[C_MIDDLE] [CHAR](2) NOT NULL,
+	[C_DATA] [VARCHAR](500) NOT NULL,
+	PRIMARY KEY (C_W_ID,C_D_ID,C_ID)
 );
 
--- create indexes
-create index idx_customer_name on [dbo].[customer] (c_w_id,c_d_id,c_last,c_first);
+-- CREATE INDEXES
+CREATE INDEX IDX_CUSTOMER_NAME ON [dbo].[CUSTOMER] (C_W_ID,C_D_ID,C_LAST,C_FIRST);
