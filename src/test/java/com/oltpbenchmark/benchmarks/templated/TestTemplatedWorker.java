@@ -6,7 +6,6 @@ import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.DBWorkload;
 import com.oltpbenchmark.WorkloadConfiguration;
 
-import com.oltpbenchmark.benchmarks.templated.procedures.*;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCBenchmark;
 
 import java.nio.file.Paths;

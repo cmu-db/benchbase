@@ -133,6 +133,10 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> {
                 new Class<?>[]{WorkloadConfiguration.class});
         assertNotNull(this.benchmark);
 
+        // HACK: calling this a second time is a cheap no-op for most benchmark
+        // tests, but actually ensures that the procedures list is populated
+        // for the TestTemplatedWorker test which doesn't know its procedures
+        // until after the benchmark is initialized and the config is loaded.
         assertNotNull(this.procedures());
 
         this.conn = this.benchmark.makeConnection();
