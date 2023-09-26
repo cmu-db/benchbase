@@ -104,7 +104,7 @@ public class TPCCBenchmark extends BenchmarkModule {
                 }
                 lowerDistrictId += 1;
 
-                TPCCWorker terminal = new TPCCWorker(this, workerId++, w_id, lowerDistrictId, upperDistrictId, numWarehouses);
+                TPCCWorker terminal = new TPCCWorker(this, workerId++, w_id, lowerDistrictId, upperDistrictId, numWarehouses, TPCCConfig.configDistPerWhse);
                 terminals[lowerTerminalId + terminalId] = terminal;
             }
 

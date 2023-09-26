@@ -43,10 +43,11 @@ public class TPCCWorker extends Worker<TPCCBenchmark> {
     private final Random gen = new Random();
 
     private final int numWarehouses;
+    private final int distPerWhse;
 
     public TPCCWorker(TPCCBenchmark benchmarkModule, int id,
                       int terminalWarehouseID, int terminalDistrictLowerID,
-                      int terminalDistrictUpperID, int numWarehouses) {
+                      int terminalDistrictUpperID, int numWarehouses, int distPerWhse) {
         super(benchmarkModule, id);
 
         this.terminalWarehouseID = terminalWarehouseID;
@@ -55,6 +56,11 @@ public class TPCCWorker extends Worker<TPCCBenchmark> {
 
 
         this.numWarehouses = numWarehouses;
+        this.distPerWhse = distPerWhse;
+    }
+
+    public int getDistPerWhse() {
+        return distPerWhse;
     }
 
     /**
