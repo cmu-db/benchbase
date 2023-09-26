@@ -104,7 +104,10 @@ public class TemplatedBenchmark extends BenchmarkModule {
             for (Entry<TransactionType, Procedure> kv : getProcedures().entrySet()) {
                 // Sanity check that the procedure has the right type.
                 if (!(kv.getValue() instanceof GenericQuery)) {
-                    LOG.warn("%s is not a GenericQuery, skipping", kv.getValue().getClass().getName());
+                    LOG.error(
+                        String.format(
+                            "Procedure %s does not have the correct class type (GenericQuery).",
+                        kv.getValue().toString()));
                     continue;
                 }
                 GenericQuery proc = (GenericQuery) kv.getValue();
