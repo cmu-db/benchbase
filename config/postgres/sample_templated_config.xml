@@ -24,7 +24,7 @@
         <work>
             <time>10</time>
             <rate>100</rate>
-            <weights>30,30,40</weights>
+            <weights>30,20,10,30,10</weights>
         </work>
     </works>
 
@@ -37,7 +37,13 @@
             <name>GetCust</name>
         </transactiontype>
         <transactiontype>
+            <name>GetCustNull</name>
+        </transactiontype>
+        <transactiontype>
             <name>GetWarehouse</name>
+        </transactiontype>
+        <transactiontype>
+            <name>GetItemByPrice</name>
         </transactiontype>
     </transactiontypes>
 </parameters>

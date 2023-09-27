@@ -65,6 +65,8 @@ import jakarta.xml.bind.Unmarshaller;
 public class TemplatedBenchmark extends BenchmarkModule {
     private static final Logger LOG = LoggerFactory.getLogger(TemplatedBenchmark.class);
 
+    protected CustomClassLoader classLoader;
+
     public TemplatedBenchmark(WorkloadConfiguration workConf) {
         super(workConf);
     }
@@ -73,16 +75,21 @@ public class TemplatedBenchmark extends BenchmarkModule {
     protected void initClassLoader() {
         super.initClassLoader();
 
-        this.classLoader = ClassLoader.getSystemClassLoader();
-        if (workConf.getXmlConfig().containsKey("query_templates_file")) {
+        if (workConf != null && workConf.getXmlConfig().containsKey("query_templates_file")) {
             this.classLoader = this.loadQueryTemplates(
                     workConf.getXmlConfig().getString("query_templates_file"));
+        } else {
+            LOG.error("No query_templates_file specified in xml config.");
         }
     }
 
     @Override
     protected Package getProcedurePackageImpl() {
         return (GenericQuery.class.getPackage());
+    }
+
+    public List<Class<? extends Procedure>> getProcedureClasses() {
+        return this.classLoader.getProcedureClasses();
     }
 
     @Override
@@ -107,12 +114,18 @@ public class TemplatedBenchmark extends BenchmarkModule {
                 QueryTemplateInfo info = proc.getQueryTemplateInfo();
 
                 // Parse parameter values and add each combination to a generator.
+                // FIXME: This method does not currently support NULLable
+                // parameters since they will be parsed as an empty string.
+                // See Also: comments in GenericQuery.getStatement()
+                // Additionally, it's somewhat unnecessarily expensive, since
+                // we convert from XML represented values back to CSV separated
+                // list of params.
                 List<GenericQueryOperation> list = new ArrayList<>();
                 String[] paramsTypes = info.getParamsTypes();
+                CSVParser parser = new CSVParserBuilder()
+                        .withQuoteChar('\'')
+                        .build();
                 for (String binding : info.getParamsValues()) {
-                    CSVParser parser = new CSVParserBuilder()
-                            .withQuoteChar('\'')
-                            .build();
                     Object[] params = parser.parseLine(binding);
                     assert paramsTypes.length == params.length;
                     list.add(new GenericQueryOperation(params));
@@ -134,11 +147,10 @@ public class TemplatedBenchmark extends BenchmarkModule {
 
     @Override
     protected Loader<TemplatedBenchmark> makeLoaderImpl() {
-        // Loader not currently supported.
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("Templated benchmarks do not currently support loading directly.");
     }
 
-    private ClassLoader loadQueryTemplates(String file) {
+    private CustomClassLoader loadQueryTemplates(String file) {
         // Instantiate Java compiler.
         CustomClassLoader ccloader = new CustomClassLoader(this.classLoader);
         try {
@@ -162,7 +174,7 @@ public class TemplatedBenchmark extends BenchmarkModule {
                 b.query(template.getQuery());
                 b.paramsTypes(template.getTypes().getTypeList());
                 for (ValuesType paramValue : template.getValues()) {
-                    b.addParamsValues(String.join(", ", paramValue.getValueList()));
+                    b.addParamsValues(String.join(",", paramValue.getValueList()));
                 }
 
                 ParsedQueryTemplate qt = b.build();
@@ -227,6 +239,17 @@ public class TemplatedBenchmark extends BenchmarkModule {
 
         public void putClass(String name, Class<?> clazz) {
             classes.put(name, clazz);
+        }
+
+        @SuppressWarnings("unchecked")
+        public List<Class<? extends Procedure>> getProcedureClasses() {
+            List<Class<? extends Procedure>> result = new ArrayList<>();
+            for (Class<?> clz : classes.values()) {
+                if (Procedure.class.isAssignableFrom(clz)) {
+                    result.add((Class<? extends Procedure>) clz);
+                }
+            }
+            return result;
         }
     }
 

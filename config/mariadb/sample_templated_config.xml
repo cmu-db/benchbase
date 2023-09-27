@@ -14,12 +14,9 @@
       To test this sample as is, you must first run benchbase with parameters `load=true` and
       `config=sample_tpcc_config.xml` to load the TPC-C data to the target database.
       Other templated benchmarks need to ensure that the data is loaded manually prior to running the benchmark.
-
-      For MariaDB specifically, templates cannot contain more than one wildcard ('?') parameter, otherwise the
-      query will fail.
     -->
 
-    <query_templates_file>data/templated/example_mariadb.xml</query_templates_file>
+    <query_templates_file>data/templated/example.xml</query_templates_file>
 
     <!-- The workload -->
     <terminals>1</terminals>
@@ -27,7 +24,7 @@
         <work>
             <time>10</time>
             <rate>100</rate>
-            <weights>30,30,40</weights>
+            <weights>30,20,10,30,10</weights>
         </work>
     </works>
 
@@ -40,7 +37,13 @@
             <name>GetCust</name>
         </transactiontype>
         <transactiontype>
+            <name>GetCustNull</name>
+        </transactiontype>
+        <transactiontype>
             <name>GetWarehouse</name>
+        </transactiontype>
+        <transactiontype>
+            <name>GetItemByPrice</name>
         </transactiontype>
     </transactiontypes>
 </parameters>

@@ -35,7 +35,7 @@ public class TemplatedWorker extends Worker<TemplatedBenchmark> {
     public TemplatedWorker(TemplatedBenchmark benchmarkModule, int id,
                      Map<Class<? extends Procedure>, TraceTransactionGenerator> generators) {
         super(benchmarkModule, id);
-        this.rng().setSeed(15721);
+        this.rng().setSeed(benchmarkModule.getWorkloadConfiguration().getRandomSeed());
         this.generators = generators;
     }
 
@@ -54,7 +54,7 @@ public class TemplatedWorker extends Worker<TemplatedBenchmark> {
                 // If the generator has no transactions, there are no parameters.
                 proc.run(conn);
             }
-            
+
         } catch (ClassCastException e) {
             throw new RuntimeException(e);
         }
