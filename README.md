@@ -6,6 +6,7 @@ BenchBase (formerly [OLTPBench](https://github.com/oltpbenchmark/oltpbench/)) is
 
 **Table of Contents**
 
+- [Prerequisites](#prerequisites)
 - [Quickstart](#quickstart)
 - [Description](#description)
 - [Usage Guide](#usage-guide)
@@ -15,6 +16,13 @@ BenchBase (formerly [OLTPBench](https://github.com/oltpbenchmark/oltpbench/)) is
 - [Citing This Repository](#citing-this-repository)
 
 ---
+
+## Prerequisites
+
+Java 17 needs to be installed on the system in order to run the benchbase commands.
+
+It can be downloaded directly from the [official download page.](https://www.oracle.com/java/technologies/downloads/#java17)
+
 
 ## Quickstart
 
@@ -150,6 +158,17 @@ mvn clean compile exec:java -P postgres -Dexec.args="-b tpcc -c config/postgres/
 ```
 
 this is equivalent to the steps above but eliminates the need to first package and then extract the distribution.
+
+### How to configure Database access
+
+The configuration files located in the `/config` folder define the username and password needed to connect to the databases. They can be adapted on a global level by editing the `*_config.xml` files of the corresponding database.
+
+If there is already a built distribution, the config can also be adapted directly in the `/config` folder of the build.
+
+```xml
+<username>admin</username>
+<password>password</password>
+```
 
 ### How to Enable Logging
 
