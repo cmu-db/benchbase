@@ -48,9 +48,15 @@ elif [ "$benchmark" == 'templated' ]; then
     # design, templated benchmarks do not support the 'load' operation
     # In this case, we load the tpcc data.
     echo "INFO: Loading tpcc data for templated benchmark"
+    if [ "$BENCHBASE_PROFILE" == 'sqlite' ]; then
+        # Sqlite will load much faster if we disable sync.
+        tpcc_config="config/sample_tpcc_nosync_config.xml"
+    else
+        tpcc_config="config/sample_tpcc_config.xml"
+    fi
     SKIP_TESTS=${SKIP_TESTS:-true} EXTRA_DOCKER_ARGS="--network=host $EXTRA_DOCKER_ARGS" \
     ./docker/benchbase/run-full-image.sh \
-        --config "config/sample_tpcc_nosync_config.xml" --bench tpcc \
+        --config "$tpcc_config" --bench tpcc \
         $CREATE_DB_ARGS --execute=false
 
     # Mark those actions as completed.
