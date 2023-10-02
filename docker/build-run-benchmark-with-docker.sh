@@ -50,8 +50,7 @@ elif [ "$benchmark" == 'templated' ]; then
     echo "INFO: Loading tpcc data for templated benchmark"
     SKIP_TESTS=${SKIP_TESTS:-true} EXTRA_DOCKER_ARGS="--network=host $EXTRA_DOCKER_ARGS" \
     ./docker/benchbase/run-full-image.sh \
-        --bench tpcc --config config/sample_tpcc_config.xml \
-        --config "config/sample_tpcc_config.xml" --bench tpcc \
+        --config "config/sample_tpcc_nosync_config.xml" --bench tpcc \
         $CREATE_DB_ARGS --execute=false
 
     # Mark those actions as completed.
