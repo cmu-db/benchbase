@@ -481,7 +481,6 @@ WHERE t.name='%s' AND c.name='%s'
     public static AbstractCatalog getCatalog(BenchmarkModule benchmarkModule, DatabaseType databaseType, Connection connection) throws SQLException {
         switch (databaseType) {
             case NOISEPAGE: // fall-through
-            case SQLITE:
             case HSQLDB:
                 return getCatalogHSQLDB(benchmarkModule);
             default:
