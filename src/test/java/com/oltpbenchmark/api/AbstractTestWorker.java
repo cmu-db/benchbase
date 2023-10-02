@@ -39,6 +39,10 @@ public abstract class AbstractTestWorker<T extends BenchmarkModule> extends Abst
         super(true, true);
     }
 
+    public AbstractTestWorker(String ddlOverridePath) {
+        super(true, true, ddlOverridePath);
+    }
+
     @Override
     public List<String> ignorableTables() {
         return null;
@@ -97,7 +101,6 @@ public abstract class AbstractTestWorker<T extends BenchmarkModule> extends Abst
             } catch (Throwable ex) {
                 throw new RuntimeException("Failed to execute " + txnType, ex);
             } finally {
-
                 LOG.info("completed execution of [{}] in {} ms", txnType.toString(), sw.getTime(TimeUnit.MILLISECONDS));
             }
         }
