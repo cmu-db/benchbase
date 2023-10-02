@@ -65,8 +65,6 @@ import jakarta.xml.bind.Unmarshaller;
 public class TemplatedBenchmark extends BenchmarkModule {
     private static final Logger LOG = LoggerFactory.getLogger(TemplatedBenchmark.class);
 
-    protected CustomClassLoader classLoader;
-
     public TemplatedBenchmark(WorkloadConfiguration workConf) {
         super(workConf);
     }
@@ -88,8 +86,12 @@ public class TemplatedBenchmark extends BenchmarkModule {
         return (GenericQuery.class.getPackage());
     }
 
+    private CustomClassLoader getCustomClassLoader() {
+        return (CustomClassLoader) this.classLoader;
+    }
+
     public List<Class<? extends Procedure>> getProcedureClasses() {
-        return this.classLoader.getProcedureClasses();
+        return this.getCustomClassLoader().getProcedureClasses();
     }
 
     @Override
