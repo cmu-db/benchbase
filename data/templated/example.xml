@@ -47,7 +47,7 @@
       </values>
    </template>
    <template name="GetItemByPrice">
-      <query><![CDATA[SELECT * FROM item WHERE i_price BETWEEN ? AND ? LIMIT 10]]></query>
+      <query><![CDATA[SELECT COUNT(*) FROM item WHERE i_price BETWEEN ? AND ?]]></query>
       <types>
          <type>FLOAT</type>
          <type>FLOAT</type>
