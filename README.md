@@ -19,10 +19,19 @@ BenchBase (formerly [OLTPBench](https://github.com/oltpbenchmark/oltpbench/)) is
 
 ## Prerequisites
 
-Java 17 needs to be installed on the system in order to run the benchbase commands.
+### Non-Containerized
 
-It can be downloaded directly from the [official download page.](https://www.oracle.com/java/technologies/downloads/#java17)
+Java 17 needs to be installed on the machine in order to run the benchbase commands.
 
+Java can be downloaded from the [official download page.](https://www.oracle.com/java/technologies/downloads/#java17)
+
+### Containerized
+
+Benchbase supports the usage inside of docker containers.
+
+Docker can be downloaded from the [official download page.](https://docs.docker.com/get-docker/)
+
+> See the [docker section](#how-to-use-with-docker) for more details on how to use benchbase with docker.
 
 ## Quickstart
 
@@ -187,7 +196,7 @@ To modify the logging level you can update [`logging.properties`](src/main/resou
 ./mvnw -B release:perform
 ```
 
-### How use with Docker
+### How to use with Docker
 
 - Build or pull a dev image to help building from source:
 
