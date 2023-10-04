@@ -49,6 +49,11 @@ public abstract class BenchmarkModule {
     protected final WorkloadConfiguration workConf;
 
     /**
+     * Class loader variable for this benchmark
+     */
+    protected ClassLoader classLoader;
+
+    /**
      * These are the variations of the Procedure's Statement SQL
      */
     protected final StatementDialects dialects;
@@ -72,6 +77,15 @@ public abstract class BenchmarkModule {
     public BenchmarkModule(WorkloadConfiguration workConf) {
         this.workConf = workConf;
         this.dialects = new StatementDialects(workConf);
+        initClassLoader();
+    }
+
+    /**
+     * Instantiates the classLoader variable, needs to be overwritten if
+     * benchmark uses a custom implementation.
+     */
+    protected void initClassLoader() {
+        this.classLoader = ClassLoader.getSystemClassLoader();
     }
 
     // --------------------------------------------------------------------------
@@ -331,7 +345,7 @@ public abstract class BenchmarkModule {
         Package pkg = this.getProcedurePackageImpl();
 
         String fullName = pkg.getName() + "." + procName;
-        Class<? extends Procedure> procClass = (Class<? extends Procedure>) ClassUtil.getClass(fullName);
+        Class<? extends Procedure> procClass = (Class<? extends Procedure>) ClassUtil.getClass(this.classLoader, fullName);
 
         return new TransactionType(procClass, id, false, preExecutionWait, postExecutionWait);
     }

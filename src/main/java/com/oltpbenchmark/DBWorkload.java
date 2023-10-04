@@ -496,8 +496,7 @@ public class DBWorkload {
         return options;
     }
 
-    private static XMLConfiguration buildConfiguration(String filename) throws ConfigurationException {
-
+    public static XMLConfiguration buildConfiguration(String filename) throws ConfigurationException {
         Parameters params = new Parameters();
         FileBasedConfigurationBuilder<XMLConfiguration> builder = new FileBasedConfigurationBuilder<>(XMLConfiguration.class)
                 .configure(params.xml()
@@ -505,7 +504,6 @@ public class DBWorkload {
                         .setListDelimiterHandler(new DisabledListDelimiterHandler())
                         .setExpressionEngine(new XPathExpressionEngine()));
         return builder.getConfiguration();
-
     }
 
     private static void writeHistograms(Results r) {
