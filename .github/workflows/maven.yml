@@ -292,6 +292,8 @@ jobs:
         env:
           ORACLE_PWD: password
           ORACLE_CHARACTERSET: AL32UTF8
+        options: >-
+          --name oracle
     steps:
       - name: Download artifact
         uses: actions/download-artifact@v3
