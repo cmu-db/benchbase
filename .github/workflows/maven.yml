@@ -308,9 +308,11 @@ jobs:
         run: |
           rm -rf benchbase-oracle.tgz
 
-      - name: Set up non-DBA user
+      # Add a SQL file to recreate non-DBA user to Oracle DB Docker so it can be invoked later using sqlplus
+      - name: Set up user reset script
         run: |
-          printf "create user benchbase identified by password;\nGRANT CONNECT, RESOURCE TO benchbase;" | docker exec oracle sqlplus "system/password@freepdb1"
+          printf "DROP USER benchbase CASCADE;\ncreate user benchbase identified by password;\nGRANT CONNECT, RESOURCE, UNLIMITED TABLESPACE TO benchbase;\nGRANT EXECUTE ON DBMS_CRYPTO TO benchbase;\nGRANT EXECUTE ON DBMS_LOCK TO benchbase;\n" > reset.sql
+          docker cp reset.sql oracle:/home/oracle/reset.sql
 
       - name: Set up JDK
         uses: actions/setup-java@v3
@@ -320,7 +322,7 @@ jobs:
 
       - name: Run benchmark
         run: |
-          printf "DROP USER benchbase CASCADE; create user benchbase identified by password;\nGRANT CONNECT, RESOURCE, UNLIMITED TABLESPACE TO benchbase; GRANT EXECUTE ON DBMS_CRYPTO TO benchbase; GRANT EXECUTE ON DBMS_LOCK TO benchbase;" | docker exec oracle sqlplus "sys/password@freepdb1 as sysdba"
+          docker exec oracle sqlplus "sys/password@freepdb1 as sysdba" @reset.sql
           java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/oracle/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
           # FIXME: Reduce the error rate so we don't need these overrides.
           if [ ${{matrix.benchmark}} == auctionmark ]; then
