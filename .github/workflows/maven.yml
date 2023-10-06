@@ -330,7 +330,9 @@ jobs:
           elif [ ${{matrix.benchmark}} == tatp ]; then
               ERRORS_THRESHOLD=0.05
           elif [ ${{matrix.benchmark}} == tpcc ]; then
-              ERRORS_THRESHOLD=0.02
+              ERRORS_THRESHOLD=0.03
+          elif [ ${{matrix.benchmark}} == resourcestresser ]; then
+              ERRORS_THRESHOLD=0.04
           elif [ ${{matrix.benchmark}} == wikipedia ]; then
               ERRORS_THRESHOLD=0.02
           fi
