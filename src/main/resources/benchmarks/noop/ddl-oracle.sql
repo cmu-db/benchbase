@@ -1,0 +1,7 @@
+-- Copyright (c) 2023, Oracle and/or its affiliates.
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE fake'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;;
+
+CREATE TABLE fake (
+    id                INT NOT NULL,
+    PRIMARY KEY (id)
+);

@@ -15,12 +15,14 @@
  *
  */
 
+/* Copyright (c) 2023, Oracle and/or its affiliates. */
 package com.oltpbenchmark.benchmarks.auctionmark.procedures;
 
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkConstants;
 import com.oltpbenchmark.benchmarks.auctionmark.util.ItemStatus;
+import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.SQLUtil;
 
 import java.sql.Connection;
@@ -83,6 +85,12 @@ public class LoadConfig extends Procedure {
         try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, getConfigProfile)) {
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 configProfile = SQLUtil.toList(resultSet);
+                // CLOB needs to be done while connection is alive
+                if (dbType == DatabaseType.ORACLE) {
+                    for (Object[] configProfileInstance: configProfile) {
+                        configProfileInstance[3] = SQLUtil.clobToString(configProfileInstance[3]);
+                    }
+                }
             }
         }
 

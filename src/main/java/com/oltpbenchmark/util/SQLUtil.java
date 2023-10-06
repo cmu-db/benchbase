@@ -15,6 +15,8 @@
  *
  */
 
+/* Copyright (c) 2023, Oracle and/or its affiliates. */
+
 package com.oltpbenchmark.util;
 
 import com.oltpbenchmark.api.BenchmarkModule;
@@ -24,6 +26,8 @@ import com.oltpbenchmark.types.SortDirectionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.*;
@@ -109,6 +113,15 @@ public abstract class SQLUtil {
         return (null);
     }
 
+    public static String clobToString(Object obj) {
+        try {
+            Clob clob = (Clob) obj;
+            return clob.getSubString(1, (int) clob.length());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static String getString(Object obj) {
         if (obj == null) {
             return (null);
@@ -116,6 +129,8 @@ public abstract class SQLUtil {
 
         if (obj instanceof String) {
             return (String) obj;
+        } else if (obj instanceof BigDecimal bigDecimal) {
+            return bigDecimal.toString();
         }
 
         LOG.warn("BAD BAD BAD: returning null because getString does not support {}", obj.getClass());
@@ -123,6 +138,21 @@ public abstract class SQLUtil {
         return (null);
     }
 
+    private static final Class<?> ORACLE_TIMESTAMP;
+    private static final Method TIMESTAMP_VALUE_METHOD;
+    static {
+        Method timestampValueMethod;
+        Class<?> oracleTimestamp;
+        try {
+            oracleTimestamp = Class.forName("oracle.sql.TIMESTAMP");
+            timestampValueMethod = oracleTimestamp.getDeclaredMethod("timestampValue");
+        } catch (ClassNotFoundException | NoSuchMethodException e) {
+            oracleTimestamp = null;
+            timestampValueMethod = null;
+        }
+        TIMESTAMP_VALUE_METHOD = timestampValueMethod;
+        ORACLE_TIMESTAMP = oracleTimestamp;
+    }
     /**
      * Return a double from the given object
      * Handles the different cases from the various DBMSs
@@ -139,6 +169,12 @@ public abstract class SQLUtil {
             return (Timestamp) obj;
         } else if (obj instanceof Date) {
             return new Timestamp(((Date) obj).getTime());
+        } else if (ORACLE_TIMESTAMP != null && ORACLE_TIMESTAMP.isInstance(obj)) {
+            try {
+                return (Timestamp) TIMESTAMP_VALUE_METHOD.invoke(ORACLE_TIMESTAMP.cast(obj));
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         Long timestamp = SQLUtil.getLong(obj);
@@ -286,6 +322,7 @@ WHERE t.name='%s' AND c.name='%s'
             }
             case Types.DECIMAL:
             case Types.REAL:
+            case Types.NUMERIC:
             case Types.DOUBLE: {
                 ret = Double.parseDouble(value);
                 break;

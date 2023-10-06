@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2023, Oracle and/or its affiliates. -->
+<dialects>
+    <dialect type="ORACLE">
+        <procedure name="MinRecord">
+            <statement name="minStmt">
+                SELECT id FROM sitest ORDER BY value ASC FETCH NEXT 1 ROWS ONLY
+            </statement>
+        </procedure>
+    </dialect>
+</dialects>

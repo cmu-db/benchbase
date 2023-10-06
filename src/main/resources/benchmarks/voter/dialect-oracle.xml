@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2023, Oracle and/or its affiliates. -->
+<dialects>
+    <dialect type="ORACLE">
+        <procedure name="Vote">
+            <statement name="insertVoteStmt">
+                INSERT INTO votes (vote_id, phone_number, state, contestant_number, created) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+            </statement>
+        </procedure>
+    </dialect>
+</dialects>

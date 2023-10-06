@@ -15,6 +15,7 @@
  *
  */
 
+/* Copyright (c) 2023, Oracle and/or its affiliates. */
 package com.oltpbenchmark.api;
 
 import com.oltpbenchmark.jdbc.AutoIncrementPreparedStatement;
@@ -36,7 +37,15 @@ public abstract class Procedure {
     private static final Logger LOG = LoggerFactory.getLogger(Procedure.class);
 
     private final String procName;
-    private DatabaseType dbType;
+    /**
+     * LoadConfig procedure in auctionmark and seats benchmark contains CLOB on Oracle config
+     *
+     * For other databases, calling <code>SQLUtil.getString(Object)</code> after connection close is fine, but for
+     *      Oracle config, CLOBS needs to be resolved into String when the connection is open. Making this field
+     *      protected allows LoadConfig procedure to determine current database type, and decide if it should perform
+     *      the conversion.
+     */
+    protected DatabaseType dbType;
     private Map<String, SQLStmt> name_stmt_xref;
 
     /**

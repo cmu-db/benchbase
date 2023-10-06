@@ -20,6 +20,7 @@ package com.oltpbenchmark.benchmarks.seats.procedures;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.seats.SEATSConstants;
+import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.SQLUtil;
 
 import java.sql.Connection;
@@ -67,6 +68,12 @@ public class LoadConfig extends Procedure {
         try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, getConfigProfile)) {
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 configProfile = SQLUtil.toList(resultSet);
+                // CLOB needs to be done while connection is alive
+                if (dbType == DatabaseType.ORACLE) {
+                    for (Object[] configProfileInstance: configProfile) {
+                        configProfileInstance[1] = SQLUtil.clobToString(configProfileInstance[1]);
+                    }
+                }
             }
         }
 
@@ -74,6 +81,12 @@ public class LoadConfig extends Procedure {
         try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, getConfigHistogram)) {
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 histogram = SQLUtil.toList(resultSet);
+                // CLOB needs to be done while connection is alive
+                if (dbType == DatabaseType.ORACLE) {
+                    for (Object[] histogramInstance: histogram) {
+                        histogramInstance[1] = SQLUtil.clobToString(histogramInstance[1]);
+                    }
+                }
             }
         }
 

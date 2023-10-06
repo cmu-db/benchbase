@@ -1,0 +1,18 @@
+# Copyright (c) 2023,  Oracle and/or its affiliates.
+
+version: '3.5'
+
+services:
+  oracle:
+    image: container-registry.oracle.com/database/free:23.2.0.0
+    container_name: oracle
+    ports:
+      - "1521:1521"
+      - "5500:5500"
+    environment:
+      - ORACLE_PWD=password
+      - ORACLE_CHARACTERSET=AL32UTF8
+    volumes:
+      # This should be done at setup, but this image is already expanded for faster startup. The script only sets up
+      #     a user so there is no issue rerunning the script multiple times
+      - "./setup:/opt/oracle/scripts/startup"

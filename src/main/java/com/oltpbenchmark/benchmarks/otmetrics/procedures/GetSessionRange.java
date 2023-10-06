@@ -15,6 +15,8 @@
  *
  */
 
+/* Copyright (c) 2023, Oracle and/or its affiliates. */
+
 package com.oltpbenchmark.benchmarks.otmetrics.procedures;
 
 import com.oltpbenchmark.api.Procedure;
@@ -70,6 +72,7 @@ public class GetSessionRange extends Procedure {
                 finalResults.add(arr);
             }
         }
+        stmt.close();
         return (finalResults);
     }
 

@@ -15,6 +15,7 @@
  *
  */
 
+/* Copyright (c) 2023, Oracle and/or its affiliates. */
 
 package com.oltpbenchmark.api;
 
@@ -248,7 +249,14 @@ public abstract class BenchmarkModule {
             }
     }
 
-
+    public final void runScript(String scriptPath) throws SQLException, IOException {
+        try (Connection conn = this.makeConnection()) {
+            DatabaseType dbType = this.workConf.getDatabaseType();
+            ScriptRunner runner = new ScriptRunner(conn, true, true);
+            LOG.debug("Executing script [{}] for database type [{}]", scriptPath, dbType);
+            runner.runScript(scriptPath);
+        }
+    }
     /**
      * Invoke this benchmark's database loader
      */

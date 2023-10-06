@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2023, Oracle and/or its affiliates. -->
+<dialects>
+    <dialect type="ORACLE">
+        <procedure name="NoOp">
+            <statement name="noopStmt">
+                SELECT 1 FROM DUAL;
+            </statement>
+        </procedure>
+    </dialect>
+</dialects>

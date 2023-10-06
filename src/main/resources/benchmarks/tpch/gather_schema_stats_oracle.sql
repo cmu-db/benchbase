@@ -1,0 +1,2 @@
+-- Copyright (c) 2023, Oracle and/or its affiliates.
+BEGIN dbms_stats.gather_schema_stats(ownname => 'benchbase', estimate_percent => dbms_stats.auto_sample_size, method_opt => 'for all columns size AUTO'); END;;
