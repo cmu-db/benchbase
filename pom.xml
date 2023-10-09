@@ -225,7 +225,7 @@
         <dependency>
             <groupId>org.glassfish.jaxb</groupId>
             <artifactId>jaxb-runtime</artifactId>
-            <version>4.0.2</version>
+            <version>4.0.3</version>
         </dependency>
 
         <dependency>
@@ -251,7 +251,7 @@
         <dependency>
             <groupId>org.codehaus.janino</groupId>
             <artifactId>janino</artifactId>
-            <version>3.1.9</version>
+            <version>3.1.10</version>
         </dependency>
 
     </dependencies>
@@ -321,7 +321,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-release-plugin</artifactId>
-                <version>3.0.0</version>
+                <version>3.0.1</version>
                 <configuration>
                     <useReleaseProfile>false</useReleaseProfile>
                     <tagNameFormat>v@{version}</tagNameFormat>
