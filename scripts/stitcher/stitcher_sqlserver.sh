@@ -1027,3 +1027,6 @@ sleep 300
 echo "023-02-02 03:25:00========================================"
 
 echo "END OF DAY"
+
+# Wait for all subprocesses to return.
+wait
