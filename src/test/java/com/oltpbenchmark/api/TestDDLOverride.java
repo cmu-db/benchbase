@@ -1,5 +1,10 @@
 package com.oltpbenchmark.api;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
 
@@ -8,6 +13,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import org.junit.Test;
 
 public class TestDDLOverride extends AbstractTestCase<MockBenchmark> {
 
@@ -30,6 +36,7 @@ public class TestDDLOverride extends AbstractTestCase<MockBenchmark> {
         return null;
     }
 
+    @Test
     public void testCreateWithDdlOverride() throws Exception {
         this.benchmark.createDatabase();
 

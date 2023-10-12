@@ -10,7 +10,7 @@
 
     <!-- Scale factor is the number of warehouses in TPCC -->
     <scalefactor>1</scalefactor>
-    
+
     <!-- SQLITE only supports one writer thread -->
     <loaderThreads>1</loaderThreads>
 

@@ -7,15 +7,19 @@ For instance:
 ```bash
 # Set which database to target.
 export BENCHBASE_PROFILE='sqlserver'
+# Set which benchmark to run.
+benchmark='tpcc'
+
+# Optional additional overrides (defaults shown):
+
 # Set which profiles to build.
 export BENCHBASE_PROFILES=$BENCHBASE_PROFILE
+# Specify a different version of the profile to use (suffix in this directory).
+export PROFILE_VERSION='latest'
 # Whether or not to rebuild the package/image.
 export CLEAN_BUILD="false"
 # When rebuilding, whether or not to run the unit tests.
 export SKIP_TESTS="true"
-
-# Set which benchmark to run.
-benchmark='tpcc'
 
 ./docker/build-run-benchmark-with-docker.sh $benchmark
 ```

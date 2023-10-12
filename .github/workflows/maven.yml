@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up JDK
         uses: actions/setup-java@v3
@@ -61,7 +61,7 @@ jobs:
         profile: [ 'cockroachdb', 'mariadb', 'mysql', 'postgres', 'spanner', 'phoenix', 'sqlserver', 'sqlite' ]
     steps:
     - name: Checkout repo
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Set up JDK
       uses: actions/setup-java@v3
@@ -89,7 +89,7 @@ jobs:
       fail-fast: false
       matrix:
         # BROKEN: tpch
-        benchmark: [ 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
+        benchmark: [ 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'templated', 'tpcc', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
     steps:
       - name: Download artifact
         uses: actions/download-artifact@v3
@@ -112,7 +112,16 @@ jobs:
 
       - name: Run benchmark
         run: |
-          java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/sqlite/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
+          # For templated benchmarks, we need to preload some data for the test since by design, templated benchmarks do not support the 'load' operation
+          # In this case, we load the tpcc data.
+          if [[ ${{matrix.benchmark}} == templated ]]; then
+            # Disable synchronous mode for sqlite tpcc data loading to save some time.
+            java -jar benchbase.jar -b tpcc -c config/sqlite/sample_tpcc_nosync_config.xml --create=true --load=true --execute=false --json-histograms results/histograms.json
+            # Run the templated benchmark.
+            java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/sqlite/sample_${{matrix.benchmark}}_config.xml --create=false --load=false --execute=true --json-histograms results/histograms.json
+          else
+            java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/sqlite/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
+          fi
           # FIXME: Reduce the error rate so we don't need these overrides.
           if [ ${{matrix.benchmark}} == auctionmark ]; then
               ERRORS_THRESHOLD=0.02
@@ -134,7 +143,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
+        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'templated', 'tpcc', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
     services:
       mariadb: # https://hub.docker.com/_/mariadb
         image: mariadb:latest
@@ -143,8 +152,9 @@ jobs:
           MARIADB_DATABASE: benchbase
           MARIADB_USER: admin
           MARIADB_PASSWORD: password
+        # Use status instead of ping due to exit code issues: https://jira.mariadb.org/browse/MDEV-31550
         options: >-
-          --health-cmd "mysqladmin ping"
+          --health-cmd "mariadb-admin status -uroot -prootyMcRooty"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -175,7 +185,16 @@ jobs:
           MARIADB_PORT: ${{ job.services.mariadb.ports[3306] }}
         run: |
           mysql -h127.0.0.1 -P$MARIADB_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
-          java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/mariadb/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
+
+          # For templated benchmarks, we need to preload some data for the test since by design, templated benchmarks do not support the 'load' operation
+          # In this case, we load the tpcc data.
+          if [[ ${{matrix.benchmark}} == templated ]]; then
+            java -jar benchbase.jar -b tpcc -c config/mariadb/sample_tpcc_config.xml --create=true --load=true --execute=false --json-histograms results/histograms.json
+            java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/mariadb/sample_${{matrix.benchmark}}_config.xml --create=false --load=false --execute=true --json-histograms results/histograms.json
+          else
+            java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/mariadb/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
+          fi
+
           # FIXME: Reduce the error rate so we don't need these overrides.
           if [ ${{matrix.benchmark}} == auctionmark ]; then
               ERRORS_THRESHOLD=0.02
@@ -193,7 +212,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
+        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'templated', 'tpcc', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
     services:
       mysql: # https://hub.docker.com/_/mysql
         image: mysql:latest
@@ -234,7 +253,16 @@ jobs:
           MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
           mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
-          java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/mysql/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
+
+          # For templated benchmarks, we need to preload some data for the test since by design, templated benchmarks do not support the 'load' operation
+          # In this case, we load the tpcc data.
+          if [[ ${{matrix.benchmark}} == templated ]]; then
+            java -jar benchbase.jar -b tpcc -c config/mysql/sample_tpcc_config.xml --create=true --load=true --execute=false --json-histograms results/histograms.json
+            java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/mysql/sample_${{matrix.benchmark}}_config.xml --create=false --load=false --execute=true --json-histograms results/histograms.json
+          else
+            java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/mysql/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
+          fi
+
           # FIXME: Reduce the error rate so we don't need these overrides.
           if [ ${{matrix.benchmark}} == auctionmark ]; then
               ERRORS_THRESHOLD=0.02
@@ -252,7 +280,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
+        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'templated', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
     services:
       postgres: # https://hub.docker.com/_/postgres
         image: postgres:latest
@@ -291,7 +319,16 @@ jobs:
         run: |
           PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
           PGPASSWORD=password createdb -h localhost -U admin benchbase
-          java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/postgres/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
+
+          # For templated benchmarks, we need to preload some data for the test since by design, templated benchmarks do not support the 'load' operation
+          # In this case, we load the tpcc data.
+          if [[ ${{matrix.benchmark}} == templated ]]; then
+            java -jar benchbase.jar -b tpcc -c config/postgres/sample_tpcc_config.xml --create=true --load=true --execute=false --json-histograms results/histograms.json
+            java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/postgres/sample_${{matrix.benchmark}}_config.xml --create=false --load=false --execute=true --json-histograms results/histograms.json
+          else
+            java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/postgres/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
+          fi
+
           # FIXME: Reduce the error rate so we don't need these overrides.
           if [ ${{matrix.benchmark}} == auctionmark ]; then
               ERRORS_THRESHOLD=0.02
@@ -361,7 +398,7 @@ jobs:
       matrix:
         # TODO: add more benchmarks
         #benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
-        benchmark: [ 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'sibench', 'smallbank', 'tatp', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
+        benchmark: [ 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'sibench', 'smallbank', 'tatp', 'tpcc', 'templated', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
     services:
       sqlserver:
         image: mcr.microsoft.com/mssql/server:latest
@@ -422,7 +459,15 @@ jobs:
       - name: Run benchmark
         # Note: user/pass should match those used in sample configs.
         run: |
-          java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/sqlserver/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
+          # For templated benchmarks, we need to preload some data for the test since by design, templated benchmarks do not support the 'load' operation
+          # In this case, we load the tpcc data.
+          if [[ ${{matrix.benchmark}} == templated ]]; then
+            java -jar benchbase.jar -b tpcc -c config/sqlserver/sample_tpcc_config.xml --create=true --load=true --execute=false --json-histograms results/histograms.json
+            java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/sqlserver/sample_${{matrix.benchmark}}_config.xml --create=false --load=false --execute=true --json-histograms results/histograms.json
+          else
+            java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/sqlserver/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
+          fi
+
           # FIXME: Reduce the error rate so we don't need these overrides.
           if [ ${{matrix.benchmark}} == tatp ]; then
               ERRORS_THRESHOLD=0.05
@@ -458,7 +503,7 @@ jobs:
           PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
           PGPASSWORD=password createdb -h localhost -U admin benchbase
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       # https://github.com/actions/cache/blob/master/examples.md#java---maven
       - name: Cache local Maven repository
         uses: actions/cache@v3
@@ -510,7 +555,7 @@ jobs:
       # but setting ACR_LOGINURL to something else allows us to do testing on forks.
       - name: Log in to Docker Hub
         if: ${{ (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')) && env.CONTAINER_REGISTRY_NAME != '' }}
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ${{ secrets.ACR_LOGINURL }}
           username: ${{ secrets.ACR_USERNAME }}

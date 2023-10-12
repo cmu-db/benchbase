@@ -19,23 +19,26 @@ package com.oltpbenchmark.catalog;
 import com.oltpbenchmark.api.MockBenchmark;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.SQLUtil;
-import junit.framework.TestCase;
 
 import java.io.InputStream;
 import java.util.Map;
 import java.util.Map.Entry;
+import org.junit.Before;
+import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
-public class TestHSQLDBCatalog extends TestCase {
+public class TestHSQLDBCatalog {
 
     private MockBenchmark benchmark;
     private HSQLDBCatalog catalog;
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-
+    @Before
+    public void setUp() throws Exception {
         this.benchmark = new MockBenchmark();
         this.catalog = new HSQLDBCatalog(benchmark);
         assertNotNull(this.catalog);
@@ -44,6 +47,7 @@ public class TestHSQLDBCatalog extends TestCase {
     /**
      * testGetOriginalTableNames
      */
+    @Test
     public void testGetOriginalTableNames() {
         // Make sure that the key and values in this map are not
         // equal unless we ignore their case
@@ -60,6 +64,7 @@ public class TestHSQLDBCatalog extends TestCase {
     /**
      * testInit
      */
+    @Test
     public void testInit() throws Exception {
         // Count the number of CREATE TABLEs in our test file
         String ddlPath = this.benchmark.getDatabaseDDLPath(DatabaseType.HSQLDB);
@@ -92,6 +97,7 @@ public class TestHSQLDBCatalog extends TestCase {
     /**
      * testForeignKeys
      */
+    @Test
     public void testForeignKeys() {
         // The C table should have two foreign keys
         Table catalog_tbl = this.catalog.getTable("C");
@@ -111,6 +117,7 @@ public class TestHSQLDBCatalog extends TestCase {
     /**
      * testIndexes
      */
+    @Test
     public void testIndexes() {
         for (Table catalog_tbl : this.catalog.getTables()) {
             assertNotNull(catalog_tbl);
@@ -131,6 +138,7 @@ public class TestHSQLDBCatalog extends TestCase {
     /**
      * testIntegerColumns
      */
+    @Test
     public void testIntegerColumns() {
         // Any column that has a name with 'IATTR' in it is an integer
         // So we need to check to make sure that our little checker works

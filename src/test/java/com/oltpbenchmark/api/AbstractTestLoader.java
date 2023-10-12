@@ -17,9 +17,14 @@
 
 package com.oltpbenchmark.api;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.Histogram;
 import com.oltpbenchmark.util.SQLUtil;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,6 +49,7 @@ public abstract class AbstractTestLoader<T extends BenchmarkModule> extends Abst
     /**
      * testLoad
      */
+    @Test
     public void testLoad() throws Exception {
 
         this.benchmark.loadDatabase();

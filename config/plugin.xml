@@ -17,4 +17,5 @@
     <plugin name="smallbank">com.oltpbenchmark.benchmarks.smallbank.SmallBankBenchmark</plugin>
     <plugin name="hyadapt">com.oltpbenchmark.benchmarks.hyadapt.HYADAPTBenchmark</plugin>
     <plugin name="otmetrics">com.oltpbenchmark.benchmarks.otmetrics.OTMetricsBenchmark</plugin>
+    <plugin name="templated">com.oltpbenchmark.benchmarks.templated.TemplatedBenchmark</plugin>
 </plugins>

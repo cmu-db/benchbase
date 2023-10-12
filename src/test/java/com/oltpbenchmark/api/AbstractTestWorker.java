@@ -17,12 +17,17 @@
 
 package com.oltpbenchmark.api;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+
 import com.oltpbenchmark.api.Procedure.UserAbortException;
 import org.apache.commons.lang3.time.StopWatch;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import org.junit.Test;
 
 public abstract class AbstractTestWorker<T extends BenchmarkModule> extends AbstractTestCase<T> {
 
@@ -32,6 +37,10 @@ public abstract class AbstractTestWorker<T extends BenchmarkModule> extends Abst
 
     public AbstractTestWorker() {
         super(true, true);
+    }
+
+    public AbstractTestWorker(String ddlOverridePath) {
+        super(true, true, ddlOverridePath);
     }
 
     @Override
@@ -49,6 +58,7 @@ public abstract class AbstractTestWorker<T extends BenchmarkModule> extends Abst
     /**
      * testGetProcedure
      */
+    @Test
     public void testGetProcedure() {
         // Make sure that we can get a Procedure handle for each TransactionType
         Worker<?> w = workers.get(0);
@@ -64,6 +74,7 @@ public abstract class AbstractTestWorker<T extends BenchmarkModule> extends Abst
     /**
      * testExecuteWork
      */
+    @Test
     public void testExecuteWork() throws Exception {
 
         Worker<?> w = workers.get(0);
@@ -90,7 +101,6 @@ public abstract class AbstractTestWorker<T extends BenchmarkModule> extends Abst
             } catch (Throwable ex) {
                 throw new RuntimeException("Failed to execute " + txnType, ex);
             } finally {
-
                 LOG.info("completed execution of [{}] in {} ms", txnType.toString(), sw.getTime(TimeUnit.MILLISECONDS));
             }
         }
