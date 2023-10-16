@@ -27,10 +27,10 @@
         <!--
         <descriptors>src/main/assembly/dir.xml,src/main/assembly/tgz.xml,src/main/assembly/zip.xml</descriptors>
         -->
-        <descriptors>src/main/assembly/tgz.xml,src/main/assembly/zip.xml</descriptors>
         <!--
-        <descriptors>src/main/assembly/tgz.xml</descriptors>
+        <descriptors>src/main/assembly/tgz.xml,src/main/assembly/zip.xml</descriptors>
         -->
+        <descriptors>src/main/assembly/dir.xml</descriptors>
     </properties>
 
     <scm>
