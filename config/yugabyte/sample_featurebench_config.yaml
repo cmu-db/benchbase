@@ -2,7 +2,7 @@ type: YUGABYTE
 driver: com.yugabyte.Driver
 url: jdbc:yugabytedb://localhost:5433/yugabyte?sslmode=disable&ApplicationName=featurebench&reWriteBatchedInserts=true
 username: yugabyte
-password:
+password: null
 batchsize: 128
 isolation: TRANSACTION_REPEATABLE_READ
 loaderthreads: 1
@@ -17,49 +17,49 @@ works:
 microbenchmark:
     class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
     properties:
-        setAutoCommit : true
+        setAutoCommit: true
         create:
-            - DROP TABLE IF EXISTS demo100col;
-            - CREATE TABLE demo100col (id INT, col1 TEXT, primary key (id ASC)) ;
+        - DROP TABLE IF EXISTS demo100col;
+        - CREATE TABLE demo100col (id INT, col1 TEXT, primary key (id ASC)) ;
         loadRules:
-            -   table: demo100col
-                rows: 10
-                columns:
-                    -   name: id
-                        util: PrimaryIntGen
-                        params:
-                            - 1
-                            - 1000
-                    -   name: col1
-                        util: RandomStringNumeric
-                        params:
-                            - 128
+        -   table: demo100col
+            rows: 10
+            columns:
+            -   name: id
+                util: PrimaryIntGen
+                params:
+                - 1
+                - 1000
+            -   name: col1
+                util: RandomStringNumeric
+                params:
+                - 128
         executeRules:
-            - workload: RangeScan1
-              run:
-                  -   name: ReadQuery1
-                      weight: 100
-                      queries:
-                          -   query: INSERT INTO demo100col VALUES(?,?)
-                              bindings:
-                                  - util: PrimaryIntGen
-                                    params:
-                                        - 10000
-                                        - 100000
-                                  - util: RandomAString
-                                    params:
-                                         - 5
-                                         - 5
-                  -   name: WriteQuery2
-                      weight: 50
-                      queries:
-                          -   query: UPDATE demo100col set col1 = ? where id = ?
-                              bindings:
-                                  -   util: RandomAString
-                                      params:
-                                          - 10
-                                          - 20
-                                  -   util: RandomNumber
-                                      params:
-                                          - 1
-                                          - 1000
+        -   workload: RangeScan1
+            run:
+            -   name: ReadQuery1
+                weight: 100
+                queries:
+                -   query: INSERT INTO demo100col VALUES(?,?)
+                    bindings:
+                    -   util: PrimaryIntGen
+                        params:
+                        - 10000
+                        - 100000
+                    -   util: RandomAString
+                        params:
+                        - 5
+                        - 5
+            -   name: WriteQuery2
+                weight: 50
+                queries:
+                -   query: UPDATE demo100col set col1 = ? where id = ?
+                    bindings:
+                    -   util: RandomAString
+                        params:
+                        - 10
+                        - 20
+                    -   util: RandomNumber
+                        params:
+                        - 1
+                        - 1000

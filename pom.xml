@@ -260,6 +260,16 @@
             <artifactId>jackson-annotations</artifactId>
             <version>2.13.4</version>
         </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.4.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.yugabyte</groupId>
+            <artifactId>jdbc-yugabytedb</artifactId>
+            <version>42.3.4</version>
+        </dependency>
 
     </dependencies>
 
