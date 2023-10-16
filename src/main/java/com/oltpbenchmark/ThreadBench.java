@@ -51,7 +51,8 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
     public static Results runRateLimitedBenchmark(List<Worker<? extends BenchmarkModule>> workers,
             List<WorkloadConfiguration> workConfs, int intervalMonitoring) {
         ThreadBench bench = new ThreadBench(workers, workConfs, intervalMonitoring);
-        return bench.runRateLimitedMultiPhase();
+        // return bench.runRateLimitedMultiPhase();
+        return bench.runReplayBenchmark();
     }
 
     private void createWorkerThreads() {
@@ -101,6 +102,16 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         return requests;
     }
 
+    private Results runReplayBenchmark() {
+        long start = System.nanoTime();
+        long measureEnd = -1;
+        int[] latencies = {1, 2, 3, 4, 5};
+        int measuredRequests = 5; // TODO(phw2): get this from finalizeWorkers()
+        DistributionStatistics stats = DistributionStatistics.computeStatistics(latencies);
+        Results results = new Results(measureEnd - start, measuredRequests, stats, samples);
+        return results;
+    }
+
     private Results runRateLimitedMultiPhase() {
         List<WorkloadState> workStates = new ArrayList<>();
 
@@ -125,6 +136,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         for (WorkloadState workState : workStates) {
             workState.switchToNextPhase();
             phase = workState.getCurrentPhase();
+            System.out.println("before log current phase");
             LOG.info(phase.currentPhaseString());
             if (phase.getRate() < lowestRate) {
                 lowestRate = phase.getRate();
