@@ -152,6 +152,10 @@ public class WorkloadConfiguration {
         phases.add(new Phase(benchmarkName, id, time, warmup, rate, weights, rateLimited, disabled, serial, timed, active_terminals, arrival));
     }
 
+    public void addReplayPhase() {
+        phases.add(new ReplayPhase());
+    }
+
 
 
 

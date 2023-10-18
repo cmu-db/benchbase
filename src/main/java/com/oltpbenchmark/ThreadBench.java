@@ -103,10 +103,20 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
     }
 
     private Results runReplayBenchmark() {
+        WorkloadConfiguration workConf = this.workConfs.get(0);
+        workConf.addReplayPhase();
+        workConf.initializeState(testState);
+        WorkloadState workState = workConf.getWorkloadState();
+        workState.switchToNextPhase(); // switch to the replay phase we just added
+        System.out.println("addToQueue() called");
+        workState.addToQueue(1, false);
+
         long start = System.nanoTime();
         long measureEnd = -1;
+
+        // TODO(phw2): get this from finalizeWorkers()
         int[] latencies = {1, 2, 3, 4, 5};
-        int measuredRequests = 5; // TODO(phw2): get this from finalizeWorkers()
+        int measuredRequests = 5;
         DistributionStatistics stats = DistributionStatistics.computeStatistics(latencies);
         Results results = new Results(measureEnd - start, measuredRequests, stats, samples);
         return results;
