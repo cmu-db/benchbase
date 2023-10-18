@@ -9,5 +9,14 @@
     <password>password</password>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
     <batchsize>128</batchsize>
+
+    <!-- The DynamicProcedure transaction type should be the only one -->
+    <transactiontypes>
+        <transactiontype>
+            <name>DynamicProcedure</name>
+            <preExecutionWait>0</preExecutionWait>
+            <postExecutionWait>0</postExecutionWait>
+        </transactiontype>
+    </transactiontypes>
     
 </parameters>

@@ -108,16 +108,21 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         workConf.addReplayPhase();
         workConf.initializeState(testState);
         WorkloadState workState = workConf.getWorkloadState();
+
+        this.createWorkerThreads();
+
         workState.switchToNextPhase(); // switch to the replay phase we just added
-        System.out.println("addToQueue() called");
         List<SubmittedProcedure> submittedProcedures = new ArrayList<SubmittedProcedure>();
         List<Object> sqlStmts = new ArrayList<Object>();
         sqlStmts.add(new SQLStmt("SELECT * FROM customer LIMIT 10;"));
-        submittedProcedures.add(new SubmittedProcedure(0, sqlStmts));
+        submittedProcedures.add(new SubmittedProcedure(1, sqlStmts));
         workState.addToQueue(submittedProcedures);
 
         long start = System.nanoTime();
         long measureEnd = -1;
+
+        // Allow workers to start work.
+        testState.blockForStart();
 
         // TODO(phw2): get this from finalizeWorkers()
         int[] latencies = {1, 2, 3, 4, 5};
@@ -151,7 +156,6 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         for (WorkloadState workState : workStates) {
             workState.switchToNextPhase();
             phase = workState.getCurrentPhase();
-            System.out.println("before log current phase");
             LOG.info(phase.currentPhaseString());
             if (phase.getRate() < lowestRate) {
                 lowestRate = phase.getRate();

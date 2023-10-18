@@ -11,7 +11,6 @@ public class ReplayPhase extends Phase {
 
     @Override
     public int chooseTransaction() {
-        System.out.println("ReplayPhase.chooseTransaction() called");
         return 5;
     }
 }

@@ -1,7 +1,5 @@
 package com.oltpbenchmark.benchmarks.replay;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +21,10 @@ public class ReplayBenchmark extends BenchmarkModule {
 
     @Override
     protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
-        return new ArrayList<Worker<? extends BenchmarkModule>>();
+        List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
+        int workerID = 0;
+        workers.add(new ReplayWorker(this, workerID++));
+        return workers;
     }
 
     @Override

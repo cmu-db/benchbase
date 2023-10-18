@@ -386,7 +386,6 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
      * @param transactionType TODO
      */
     protected final void doWork(DatabaseType databaseType, TransactionType transactionType, List<Object> procedureArguments) {
-
         try {
             int retryCount = 0;
             int maxRetryCount = configuration.getMaxRetries();
