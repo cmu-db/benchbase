@@ -5,7 +5,7 @@
     <!-- Connection details -->
     <type>ORACLE</type>
     <driver>oracle.jdbc.OracleDriver</driver>
-    <url>jdbc:oracle:thin:@localhost:1521/freepdb1</url>
+    <url>jdbc:oracle:thin:@localhost:1521/xepdb1</url>
     <username>benchbase</username>
     <password>password</password>
     <!-- TRANSACTION_SERIALIZABLE -->

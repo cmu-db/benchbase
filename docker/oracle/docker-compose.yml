@@ -4,15 +4,19 @@ version: '3.5'
 
 services:
   oracle:
-    image: container-registry.oracle.com/database/free:23.2.0.0
+    image: gvenzl/oracle-xe:21.3.0-slim-faststart
     container_name: oracle
     ports:
       - "1521:1521"
       - "5500:5500"
     environment:
-      - ORACLE_PWD=password
+      - ORACLE_PASSWORD=password
       - ORACLE_CHARACTERSET=AL32UTF8
-    volumes:
-      # This should be done at setup, but this image is already expanded for faster startup. The script only sets up
-      #     a user so there is no issue rerunning the script multiple times
-      - "./setup:/opt/oracle/scripts/startup"
+      - APP_USER=benchbase
+      - APP_USER_PASSWORD=password
+    healthcheck:
+      test: echo exit | sqlplus benchbase/password@xepdb1 | grep Connected
+      interval: 1s
+      timeout: 5s
+      retries: 30
+      start_period: 5s
