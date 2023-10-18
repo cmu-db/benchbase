@@ -61,6 +61,7 @@ public class WorkloadState {
      * Add submitted procedures to the queue and wake up workers.
      */
     public void addToQueue(List<SubmittedProcedure> submittedProcedures) {
+        System.out.println("addToQueue called");
         synchronized (this) {
             int workAdded = 0;
 

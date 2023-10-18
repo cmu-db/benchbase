@@ -534,7 +534,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
      *
      * @param conn    TODO
      * @param txnType TODO
-     * @param procedureArguments Arguments used to instantiate the Procedure for this TransactionType. Set to null for no arguments.
+     * @param procedureArguments Arguments used to run the Procedure for this TransactionType. Set to null for no arguments.
      * @return TODO
      * @throws UserAbortException TODO
      * @throws SQLException       TODO

@@ -19,6 +19,7 @@ package com.oltpbenchmark;
 
 import com.oltpbenchmark.LatencyRecord.Sample;
 import com.oltpbenchmark.api.BenchmarkModule;
+import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.types.State;
@@ -110,6 +111,9 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         workState.switchToNextPhase(); // switch to the replay phase we just added
         System.out.println("addToQueue() called");
         List<SubmittedProcedure> submittedProcedures = new ArrayList<SubmittedProcedure>();
+        List<Object> sqlStmts = new ArrayList<Object>();
+        sqlStmts.add(new SQLStmt("SELECT * FROM customer LIMIT 10;"));
+        submittedProcedures.add(new SubmittedProcedure(0, sqlStmts));
         workState.addToQueue(submittedProcedures);
 
         long start = System.nanoTime();
