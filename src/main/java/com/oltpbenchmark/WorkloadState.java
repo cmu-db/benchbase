@@ -24,6 +24,8 @@ import org.slf4j.LoggerFactory;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ArrayList;
+import com.oltpbenchmark.api.SQLStmt;
 
 /**
  * This class is used to share a state among the workers of a single
@@ -56,11 +58,34 @@ public class WorkloadState {
     }
 
     /**
-     * Add a request to do work.
+     * Add submitted procedures to the queue and wake up workers.
      */
-    public void addToQueue(int amount, boolean resetQueues) {
-        int workAdded = 0;
-        
+    public void addToQueue(List<SubmittedProcedure> submittedProcedures) {
+        synchronized (this) {
+            int workAdded = 0;
+
+            // Add the specified number of procedures to the end of the queue.
+            for (SubmittedProcedure submittedProcedure : submittedProcedures) {
+                // If we can't keep up with current rate, truncate transactions
+                if (workQueue.size() >= RATE_QUEUE_LIMIT) {
+                    break;
+                }
+                workQueue.add(submittedProcedure);
+                workAdded++;
+            }
+
+            // Wake up sleeping workers to deal with the new work.
+            int numToWake = Math.min(workAdded, workersWaiting);
+            while (numToWake-- > 0) {
+                this.notify();
+            }
+        }
+    }
+
+    /**
+     * Add to the queue as specified by the current phase.
+     */
+    public void addToQueueForPhase(int amount, boolean resetQueues) {
         synchronized (this) {
             if (resetQueues) {
                 workQueue.clear();
@@ -72,18 +97,21 @@ public class WorkloadState {
                 return;
             }
             
-            // Add the specified number of procedures to the end of the queue.
-            // If we can't keep up with current rate, truncate transactions
-            for (int i = 0; i < amount && workQueue.size() <= RATE_QUEUE_LIMIT; ++i) {
-                workQueue.add(new SubmittedProcedure(currentPhase.chooseTransaction()));
-                workAdded++;
+            // Generate procedures to add to the queue
+            List<SubmittedProcedure> submittedProcedures = new ArrayList<SubmittedProcedure>();
+            for (int i = 0; i < amount; ++i) {
+                // Note that we may be calling currentPhase.chooseTransaction() more times than will be
+                // added to the workQueue by addToQueue (due to RATE_QUEUE_LIMIT). If currentPhase.chooseTransaction()
+                // becomes stateful, this code will need to change
+                submittedProcedures.add(new SubmittedProcedure(currentPhase.chooseTransaction()));
             }
+            addToQueue(submittedProcedures);
+        }
+    }
 
-            // Wake up sleeping workers to deal with the new work.
-            int numToWake = Math.min(workAdded, workersWaiting);
-            while (numToWake-- > 0) {
-                this.notify();
-            }
+    public void addToReplayQueue(List<SQLStmt> sqlStmts) {
+        synchronized (this) {
+            workQueue.add(new SubmittedProcedure(currentPhase.chooseTransaction()));
         }
     }
 

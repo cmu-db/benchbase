@@ -109,7 +109,8 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         WorkloadState workState = workConf.getWorkloadState();
         workState.switchToNextPhase(); // switch to the replay phase we just added
         System.out.println("addToQueue() called");
-        workState.addToQueue(1, false);
+        List<SubmittedProcedure> submittedProcedures = new ArrayList<SubmittedProcedure>();
+        workState.addToQueue(submittedProcedures);
 
         long start = System.nanoTime();
         long measureEnd = -1;
@@ -192,7 +193,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                 } else {
                     rateFactor = 1;
                 }
-                workState.addToQueue(nextToAdd * rateFactor, resetQueues);
+                workState.addToQueueForPhase(nextToAdd * rateFactor, resetQueues);
             }
             resetQueues = false;
 
