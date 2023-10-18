@@ -32,6 +32,7 @@ import com.oltpbenchmark.util.TextGenerator;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Time;
+import java.util.List;
 
 public class TwitterWorker extends Worker<TwitterBenchmark> {
     private final TransactionGenerator<TwitterOperation> generator;
@@ -49,7 +50,7 @@ public class TwitterWorker extends Worker<TwitterBenchmark> {
     }
 
     @Override
-    protected TransactionStatus executeWork(Connection conn, TransactionType nextTrans) throws UserAbortException, SQLException {
+    protected TransactionStatus executeWork(Connection conn, TransactionType nextTrans, List<Object> procedureArguments) throws UserAbortException, SQLException {
         TwitterOperation t = generator.nextTransaction();
         // zero is an invalid id, so fixing random here to be atleast 1
         t.uid = this.rng().nextInt(this.num_users - 1 ) + 1;

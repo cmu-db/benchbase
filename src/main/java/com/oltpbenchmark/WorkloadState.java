@@ -109,12 +109,6 @@ public class WorkloadState {
         }
     }
 
-    public void addToReplayQueue(List<SQLStmt> sqlStmts) {
-        synchronized (this) {
-            workQueue.add(new SubmittedProcedure(currentPhase.chooseTransaction()));
-        }
-    }
-
     public void signalDone() {
         int current = this.benchmarkState.signalDone();
         if (current == 0) {

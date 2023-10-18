@@ -280,7 +280,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
     }
 
     @Override
-    protected TransactionStatus executeWork(Connection conn, TransactionType txnType) throws UserAbortException, SQLException {
+    protected TransactionStatus executeWork(Connection conn, TransactionType txnType, List<Object> procedureArguments) throws UserAbortException, SQLException {
         Transaction txn = Transaction.get(txnType.getName());
 
 

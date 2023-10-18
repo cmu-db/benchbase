@@ -43,7 +43,7 @@ public class OTMetricsWorker extends Worker<OTMetricsBenchmark> {
     }
 
     @Override
-    protected TransactionStatus executeWork(Connection conn, TransactionType nextTrans) throws UserAbortException, SQLException {
+    protected TransactionStatus executeWork(Connection conn, TransactionType nextTrans, List<Object> procedureArguments) throws UserAbortException, SQLException {
         if (nextTrans.getProcedureClass().equals(GetSessionRange.class)) {
             execGetSessionRange(conn);
         }

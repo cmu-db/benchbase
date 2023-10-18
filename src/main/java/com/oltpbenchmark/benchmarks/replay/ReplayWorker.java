@@ -8,6 +8,7 @@ import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.benchmarks.replay.procedures.DynamicProcedure;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.types.TransactionStatus;
+import java.util.List;
 
 public class ReplayWorker extends Worker<ReplayBenchmark> {
     public ReplayWorker(ReplayBenchmark benchmarkModule, int id) {
@@ -15,8 +16,8 @@ public class ReplayWorker extends Worker<ReplayBenchmark> {
     }
 
     @Override
-    protected TransactionStatus executeWork(Connection conn, TransactionType nextTransaction) throws UserAbortException, SQLException {
-        DynamicProcedure proc = (DynamicProcedure) this.getProcedure(nextTransaction.getProcedureClass());
+    protected TransactionStatus executeWork(Connection conn, TransactionType nextTransaction, List<Object> procedureArguments) throws UserAbortException, SQLException {
+        DynamicProcedure proc = (DynamicProcedure) this.getProcedure(nextTransaction);
         proc.run(conn);
         return (TransactionStatus.SUCCESS);
     }

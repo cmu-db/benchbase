@@ -9,7 +9,5 @@
     <password>password</password>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
     <batchsize>128</batchsize>
-
-    <!-- The workload -->
     
 </parameters>

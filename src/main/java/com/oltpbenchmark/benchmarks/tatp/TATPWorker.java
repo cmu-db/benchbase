@@ -32,6 +32,7 @@ import java.sql.SQLException;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
 
 public class TATPWorker extends Worker<TATPBenchmark> {
     private static final Logger LOG = LoggerFactory.getLogger(TATPWorker.class);
@@ -170,7 +171,7 @@ public class TATPWorker extends Worker<TATPBenchmark> {
     }
 
     @Override
-    protected TransactionStatus executeWork(Connection conn, TransactionType txnType) throws UserAbortException, SQLException {
+    protected TransactionStatus executeWork(Connection conn, TransactionType txnType, List<Object> procedureArguments) throws UserAbortException, SQLException {
         Transaction t = Transaction.get(txnType.getName());
 
 

@@ -31,6 +31,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.List;
 
 public class EpinionsWorker extends Worker<EpinionsBenchmark> {
 
@@ -47,7 +48,7 @@ public class EpinionsWorker extends Worker<EpinionsBenchmark> {
     }
 
     @Override
-    protected TransactionStatus executeWork(Connection conn, TransactionType nextTrans) throws UserAbortException, SQLException {
+    protected TransactionStatus executeWork(Connection conn, TransactionType nextTrans, List<Object> procedureArguments) throws UserAbortException, SQLException {
         if (nextTrans.getProcedureClass().equals(GetReviewItemById.class)) {
             reviewItemByID(conn);
         } else if (nextTrans.getProcedureClass().equals(GetReviewsByUser.class)) {

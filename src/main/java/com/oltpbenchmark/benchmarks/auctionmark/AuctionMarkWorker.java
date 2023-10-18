@@ -304,7 +304,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
     }
 
     @Override
-    protected TransactionStatus executeWork(Connection conn, TransactionType txnType) throws UserAbortException, SQLException {
+    protected TransactionStatus executeWork(Connection conn, TransactionType txnType, List<Object> procedureArguments) throws UserAbortException, SQLException {
         // We need to subtract the different between this and the profile's start time,
         // since that accounts for the time gap between when the loader started and when the client start.
         // Otherwise, all of our cache date will be out dated if it took a really long time

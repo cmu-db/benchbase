@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.oltpbenchmark.types.State.MEASURE;
@@ -256,6 +257,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
             // PART 3: Execute work
 
             TransactionType transactionType = getTransactionType(pieceOfWork, prePhase, preState, workloadState);
+            List<Object> procedureArguments = pieceOfWork.getProcedureArguments();
 
             if (!transactionType.equals(TransactionType.INVALID)) {
 
@@ -279,7 +281,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
                 long start = System.nanoTime();
 
-                doWork(configuration.getDatabaseType(), transactionType);
+                doWork(configuration.getDatabaseType(), transactionType, procedureArguments);
 
                 long end = System.nanoTime();
 
@@ -383,7 +385,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
      * @param databaseType TODO
      * @param transactionType TODO
      */
-    protected final void doWork(DatabaseType databaseType, TransactionType transactionType) {
+    protected final void doWork(DatabaseType databaseType, TransactionType transactionType, List<Object> procedureArguments) {
 
         try {
             int retryCount = 0;
@@ -413,7 +415,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                         LOG.debug(String.format("%s %s attempting...", this, transactionType));
                     }
 
-                    status = this.executeWork(conn, transactionType);
+                    status = this.executeWork(conn, transactionType, procedureArguments);
 
                     if (LOG.isDebugEnabled()) {
                         LOG.debug(String.format("%s %s completed with status [%s]...", this, transactionType, status.name()));
@@ -521,15 +523,23 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
     }
 
     /**
+     * Wrapper around executeWork() for null procedureArguments.
+     */
+    protected TransactionStatus executeWork(Connection conn, TransactionType txnType) throws UserAbortException, SQLException {
+        return executeWork(conn, txnType, null);
+    }
+
+    /**
      * Invoke a single transaction for the given TransactionType
      *
      * @param conn    TODO
      * @param txnType TODO
+     * @param procedureArguments Arguments used to instantiate the Procedure for this TransactionType. Set to null for no arguments.
      * @return TODO
      * @throws UserAbortException TODO
      * @throws SQLException       TODO
      */
-    protected abstract TransactionStatus executeWork(Connection conn, TransactionType txnType) throws UserAbortException, SQLException;
+    protected abstract TransactionStatus executeWork(Connection conn, TransactionType txnType, List<Object> procedureArguments) throws UserAbortException, SQLException;
 
     /**
      * Called at the end of the test to do any clean up that may be required.
