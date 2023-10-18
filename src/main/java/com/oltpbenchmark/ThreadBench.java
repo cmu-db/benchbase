@@ -18,6 +18,7 @@
 package com.oltpbenchmark;
 
 import com.oltpbenchmark.LatencyRecord.Sample;
+import com.oltpbenchmark.Phase.Arrival;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.api.TransactionType;
@@ -104,32 +105,35 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
     }
 
     private Results runReplayBenchmark() {
+        // IGNORE THIS: boilerplate to set up a phase
         WorkloadConfiguration workConf = this.workConfs.get(0);
-        workConf.addReplayPhase();
+        workConf.addPhase(0, 0, 0, 0, new ArrayList<Double>(), true, false, false, false, 0, Arrival.REGULAR);
         workConf.initializeState(testState);
         WorkloadState workState = workConf.getWorkloadState();
-
         this.createWorkerThreads();
+        workState.switchToNextPhase(); // switch to the phase we just added
+        // END IGNORE THIS
 
-        workState.switchToNextPhase(); // switch to the replay phase we just added
+
+        // CORE CODE: demos passing a sql statement
         List<SubmittedProcedure> submittedProcedures = new ArrayList<SubmittedProcedure>();
         List<Object> sqlStmts = new ArrayList<Object>();
         sqlStmts.add(new SQLStmt("SELECT * FROM customer LIMIT 10;"));
         submittedProcedures.add(new SubmittedProcedure(1, sqlStmts));
         workState.addToQueue(submittedProcedures);
+        // END CORE CODE
 
+
+        // IGNORE THIS: boilerplate to return a random results object
         long start = System.nanoTime();
         long measureEnd = -1;
-
-        // Allow workers to start work.
         testState.blockForStart();
-
-        // TODO(phw2): get this from finalizeWorkers()
         int[] latencies = {1, 2, 3, 4, 5};
         int measuredRequests = 5;
         DistributionStatistics stats = DistributionStatistics.computeStatistics(latencies);
         Results results = new Results(measureEnd - start, measuredRequests, stats, samples);
         return results;
+        // END IGNORE THIS
     }
 
     private Results runRateLimitedMultiPhase() {

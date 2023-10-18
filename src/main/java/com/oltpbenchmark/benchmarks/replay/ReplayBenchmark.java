@@ -23,6 +23,7 @@ public class ReplayBenchmark extends BenchmarkModule {
     protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
         List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
         int workerID = 0;
+        // for testing, just make a single worker
         workers.add(new ReplayWorker(this, workerID++));
         return workers;
     }
