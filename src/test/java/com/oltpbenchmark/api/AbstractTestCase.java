@@ -99,18 +99,33 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> {
         HsqlProperties props = new HsqlProperties();
         //props.setProperty("server.remote_open", true);
 
-        int port = portCounter.incrementAndGet();
-
-        LOG.info("starting HSQLDB server for test [{}] on port [{}]", name.getMethodName(), port);
-
         server = new Server();
         server.setProperties(props);
         server.setDatabasePath(0, "mem:benchbase;sql.syntax_mys=true");
         server.setDatabaseName(0, "benchbase");
         server.setAddress("localhost");
-        server.setPort(port);
         server.setSilent(true);
         server.setLogWriter(null);
+
+        int port = -1;
+        boolean portFound = false;
+
+        for (int i = 0; i < MAX_TRIES; i++) {
+            port = portCounter.incrementAndGet();
+            try (ServerSocket testSocket = new ServerSocket(port)) {
+                portFound = true;
+                break;
+            } catch (BindException e) {
+                continue;
+            }   
+        }
+
+        if (!portFound) {
+            throw new RuntimeException("Unable to find an available port after " + MAX_TRIES + " tries.");
+        }
+
+        LOG.info("starting HSQLDB server for test [{}] on port [{}]", name.getMethodName(), port);
+        server.setPort(port);
         server.start();
 
         this.workConf = new WorkloadConfiguration();
