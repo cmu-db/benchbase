@@ -39,6 +39,8 @@ import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.net.ServerSocket;
+import java.net.BindException;
 
 public abstract class AbstractTestCase<T extends BenchmarkModule> {
 
@@ -69,6 +71,7 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> {
     protected final String ddlOverridePath;
 
     private static final AtomicInteger portCounter = new AtomicInteger(9001);
+    private static final int MAX_TRIES = 10;
 
 
     public AbstractTestCase(boolean createDatabase, boolean loadDatabase) {
