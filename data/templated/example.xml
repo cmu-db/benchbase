@@ -20,10 +20,10 @@
    <template name="GetCust">
       <query><![CDATA[SELECT C_DISCOUNT, C_LAST, C_CREDIT FROM customer WHERE C_W_ID = ?]]></query>
       <types>
-         <type>INTEGER</type>
+         <type>DISTRIBUTION</type>
       </types>
       <values>
-         <value>8</value>
+         <value>uniform,100</value>
       </values>
    </template>
    <template name="GetCustNull">
