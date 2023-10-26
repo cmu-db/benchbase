@@ -81,7 +81,6 @@ public abstract class GenericQuery extends Procedure {
                         max = params.get(i + 2).toString();
                         ZipfianGenerator zipf = new ZipfianGenerator(rng, Integer.parseInt(min),
                                 Integer.parseInt(max));
-
                         stmt.setInt(i + 1, zipf.nextInt());
                         break;
                     case "uniform":
@@ -89,12 +88,20 @@ public abstract class GenericQuery extends Procedure {
                         val = rng.nextInt(Integer.parseInt(max));
                         stmt.setInt(i + 1, val);
                         break;
+                    case "binomial":
+                        int minI = Integer.parseInt(params.get(i + 1).toString());
+                        int maxI = Integer.parseInt(params.get(i + 2).toString());
+                        do {
+                            val = (int) (minI + Math.abs(rng.nextGaussian()) * maxI);
+                        } while (val > maxI || val < minI);
+
+                        stmt.setInt(i + 1, val);
+                        break;
                     case "scrambled":
                         min = params.get(i + 1).toString();
                         max = params.get(i + 2).toString();
                         ScrambledZipfianGenerator scramZipf = new ScrambledZipfianGenerator(Integer.parseInt(min),
                                 Integer.parseInt(max));
-
                         stmt.setInt(i + 1, scramZipf.nextInt());
                         break;
                     case "string":
