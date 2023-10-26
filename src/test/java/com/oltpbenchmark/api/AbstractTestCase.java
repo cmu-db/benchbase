@@ -105,7 +105,7 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> {
         int port = findAvailablePort();
 
         LOG.info("starting HSQLDB server for test [{}] on port [{}]", name.getMethodName(), port);
-        
+
         server = new Server();
         server.setProperties(props);
         server.setDatabasePath(0, "mem:benchbase;sql.syntax_mys=true");
@@ -113,7 +113,7 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> {
         server.setAddress("localhost");
         server.setPort(port);
         server.setSilent(true);
-        server.setLogWriter(null);        
+        server.setLogWriter(null); 
         server.start();
 
         this.workConf = new WorkloadConfiguration();
