@@ -23,7 +23,7 @@
          <type>DISTRIBUTION</type>
       </types>
       <values>
-         <value>uniform,100</value>
+         <value>uniform,0,100</value>
       </values>
    </template>
    <template name="GetCustNull">

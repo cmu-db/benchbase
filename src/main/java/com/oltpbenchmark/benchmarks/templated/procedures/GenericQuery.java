@@ -74,6 +74,7 @@ public abstract class GenericQuery extends Procedure {
             } else if (paramsTypes[i].equalsIgnoreCase("DISTRIBUTION")) {
                 String distType = params.get(i).toString();
                 String min, max;
+                int minI, maxI;
                 int val;
                 switch (distType) {
                     case "zipf":
@@ -84,13 +85,14 @@ public abstract class GenericQuery extends Procedure {
                         stmt.setInt(i + 1, zipf.nextInt());
                         break;
                     case "uniform":
-                        max = params.get(i + 1).toString();
-                        val = rng.nextInt(Integer.parseInt(max));
+                        minI = Integer.parseInt(params.get(i + 1).toString());
+                        maxI = Integer.parseInt(params.get(i + 2).toString());
+                        val = rng.nextInt(maxI - minI) + minI;
                         stmt.setInt(i + 1, val);
                         break;
                     case "binomial":
-                        int minI = Integer.parseInt(params.get(i + 1).toString());
-                        int maxI = Integer.parseInt(params.get(i + 2).toString());
+                        minI = Integer.parseInt(params.get(i + 1).toString());
+                        maxI = Integer.parseInt(params.get(i + 2).toString());
                         do {
                             val = (int) (minI + Math.abs(rng.nextGaussian()) * maxI);
                         } while (val > maxI || val < minI);
@@ -98,23 +100,21 @@ public abstract class GenericQuery extends Procedure {
                         stmt.setInt(i + 1, val);
                         break;
                     case "scrambled":
-                        min = params.get(i + 1).toString();
-                        max = params.get(i + 2).toString();
-                        ScrambledZipfianGenerator scramZipf = new ScrambledZipfianGenerator(Integer.parseInt(min),
-                                Integer.parseInt(max));
+                        minI = Integer.parseInt(params.get(i + 1).toString());
+                        maxI = Integer.parseInt(params.get(i + 2).toString());
+                        ScrambledZipfianGenerator scramZipf = new ScrambledZipfianGenerator(minI,
+                                maxI);
                         stmt.setInt(i + 1, scramZipf.nextInt());
                         break;
                     case "string":
-                        max = params.get(i + 1).toString();
-                        String randText = TextGenerator.randomStr(rng, Integer.parseInt(max));
+                        maxI = Integer.parseInt(params.get(i + 1).toString());
+                        String randText = TextGenerator.randomStr(rng, maxI);
                         stmt.setString(i + 1, randText);
                         break;
                     default:
                         throw new RuntimeException(
-                                "No suitable distribution found. Currently supported are 'zipf' | 'normal' | 'uniform' | 'string' ");
+                                "No suitable distribution found. Currently supported are 'zipf' | 'scrambled' | 'normal' | 'uniform' | 'string' ");
                 }
-
-                System.out.println(stmt.toString());
 
             } else {
                 try {
