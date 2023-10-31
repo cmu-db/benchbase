@@ -36,9 +36,15 @@ public abstract class GenericQuery extends Procedure {
 
     /** Execution method with parameters. */
     public void run(Connection conn, List<Object> params) throws SQLException {
-        try (PreparedStatement stmt = getStatement(conn, params); ResultSet rs = stmt.executeQuery()) {
-            while (rs.next()) {
-                //do nothing
+        PreparedStatement stmt = getStatement(conn, params);
+        if (stmt.toString().toLowerCase().startsWith("update")) {
+            stmt.executeUpdate();
+            // do nothing
+        } else {
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    // do nothing
+                }
             }
         }
         conn.commit();
@@ -48,9 +54,10 @@ public abstract class GenericQuery extends Procedure {
     public void run(Connection conn) throws SQLException {
         QueryTemplateInfo queryTemplateInfo = this.getQueryTemplateInfo();
 
-        try (PreparedStatement stmt = this.getPreparedStatement(conn, queryTemplateInfo.getQuery()); ResultSet rs = stmt.executeQuery()) {
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, queryTemplateInfo.getQuery());
+                ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
-                //do nothing
+                // do nothing
             }
         }
         conn.commit();
@@ -67,14 +74,17 @@ public abstract class GenericQuery extends Procedure {
             } else {
                 try {
                     // TODO: add support for nullable other types
-                    // For instance, can we provide a <value /> tag in the XML file to represent a NULL value?
+                    // For instance, can we provide a <value /> tag in the XML file to represent a
+                    // NULL value?
                     // Or does it need a special marker like "$null" to signify a NULL value?
                     Object param = params.get(i);
-                    stmt.setObject(i + 1, param, Integer.parseInt(Types.class.getDeclaredField(paramsTypes[i]).get(null).toString()));
+                    stmt.setObject(i + 1, param,
+                            Integer.parseInt(Types.class.getDeclaredField(paramsTypes[i]).get(null).toString()));
                 } catch (Exception e) {
                     e.printStackTrace();
                     throw new RuntimeException(
-                        "Error when setting parameters. Parameter type: " + paramsTypes[i] + ", parameter value: " + params.get(i));
+                            "Error when setting parameters. Parameter type: " + paramsTypes[i] + ", parameter value: "
+                                    + params.get(i));
                 }
             }
         }
