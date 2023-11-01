@@ -37,7 +37,8 @@ public abstract class GenericQuery extends Procedure {
     /** Execution method with parameters. */
     public void run(Connection conn, List<Object> params) throws SQLException {
         PreparedStatement stmt = getStatement(conn, params);
-        if (stmt.toString().toLowerCase().startsWith("update")) {
+        String queryString = stmt.toString().toLowerCase();
+        if (queryString.startsWith("update") || queryString.startsWith("delete") || queryString.startsWith("insert")) {
             stmt.executeUpdate();
             // do nothing
         } else {
