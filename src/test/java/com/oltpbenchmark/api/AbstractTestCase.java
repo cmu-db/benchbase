@@ -113,7 +113,7 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> {
         server.setAddress("localhost");
         server.setPort(port);
         server.setSilent(true);
-        server.setLogWriter(null); 
+        server.setLogWriter(null);
         server.start();
 
         this.workConf = new WorkloadConfiguration();
