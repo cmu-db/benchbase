@@ -17,10 +17,14 @@
 package com.oltpbenchmark.benchmarks.templated.procedures;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.sql.Types;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Random;
 
@@ -111,10 +115,24 @@ public abstract class GenericQuery extends Procedure {
                         String randText = TextGenerator.randomStr(rng, maxI);
                         stmt.setString(i + 1, randText);
                         break;
+                    case "datetime":
+                    case "timestamp":
+                        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+                        stmt.setTimestamp(i + 1, timestamp);
+                        break;
+                    case "date":
+                        Date date = new Date(System.currentTimeMillis());
+                        stmt.setDate(i + 1, date);
+                        break;
+                    case "time":
+                        Time time = new Time(System.currentTimeMillis());
+                        stmt.setTime(i + 1, time);
+                        break;
                     default:
                         throw new RuntimeException(
                                 "No suitable distribution found. Currently supported are 'zipf' | 'scrambled' | 'normal' | 'uniform' | 'string' ");
                 }
+                System.out.println(stmt.toString());
 
             } else {
                 try {
