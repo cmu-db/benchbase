@@ -58,6 +58,8 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
 
     public AtomicBoolean isPGStatStatementCollected = new AtomicBoolean(false);
 
+    public AtomicBoolean isPGStatResetCalled = new AtomicBoolean(false);
+
     static AtomicBoolean isInitializeDone = new AtomicBoolean(false);
 
     public FeatureBenchWorker(FeatureBenchBenchmark benchmarkModule,
@@ -97,13 +99,16 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
         if (isInitializeDone.get()) return;
         synchronized (FeatureBenchWorker.class) {
             if (isInitializeDone.get()) return;
-            if (this.getWorkloadConfiguration().getXmlConfig().getBoolean("collect_pg_stat_statements", false)) {
+            if (!isPGStatResetCalled.get() &&
+                this.getWorkloadConfiguration().getXmlConfig().getBoolean("collect_pg_stat_statements", false)
+            ) {
                 LOG.info("Resetting pg_stat_statements for workload : " + this.workloadName);
                 try {
                     Statement stmt = conn.createStatement();
                     stmt.executeQuery("SELECT pg_stat_statements_reset();");
                     if (!conn.getAutoCommit())
                         conn.commit();
+                    isPGStatResetCalled.set(true);
                 } catch (SQLException e) {
                     throw new RuntimeException(e);
                 }
@@ -297,27 +302,16 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
                 List<JSONObject> jsonResultsList = new ArrayList<>();
                 JSONObject pgStatOutputs = null;
                 JSONObject pgPreparedStatementOutputs = null;
-                if (this.getWorkloadConfiguration().getXmlConfig().getBoolean("collect_pg_stat_statements", false)) {
+                if (!isPGStatStatementCollected.get() && this.getWorkloadConfiguration().getXmlConfig().getBoolean("collect_pg_stat_statements", false)) {
                     try {
                         LOG.info("Collecting pg_stat_statements for workload : " + this.workloadName);
                         pgStatOutputs = callPGStats();
+                        isPGStatStatementCollected.set(true);
                         /*TODO: remove collecting prepared_statements*/
                         pgPreparedStatementOutputs = collectPgPreparedStatements();
                     } catch (SQLException e) {
                         throw new RuntimeException(e);
                     }
-                }
-                // reset pg_stat_statements
-                try {
-                    if (this.getWorkloadConfiguration().getXmlConfig().getBoolean("collect_pg_stat_statements", false)) {
-                        Statement stmt = null;
-                        stmt = conn.createStatement();
-                        stmt.executeQuery("SELECT pg_stat_statements_reset();");
-                    }
-                    if (!conn.getAutoCommit())
-                        conn.commit();
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
                 }
 
                 for (String queryString : queryStrings) {
