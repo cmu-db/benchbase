@@ -1,4 +1,3 @@
--- Copyright (c) 2023, Oracle and/or its affiliates.
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE sitest'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;;
 
 CREATE TABLE sitest (

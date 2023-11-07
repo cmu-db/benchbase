@@ -1,4 +1,3 @@
--- Copyright (c) 2023, Oracle and/or its affiliates.
 -- ORACLE Wikipedia
 
 ALTER SESSION SET NLS_LENGTH_SEMANTICS=CHAR;

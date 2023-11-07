@@ -1,5 +1,4 @@
 <?xml version="1.0"?>
-<!-- Copyright (c) 2023, Oracle and/or its affiliates. -->
 <dialects>
     <dialect type="ORACLE">
         <procedure name="LoadConfig">

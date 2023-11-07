@@ -15,8 +15,6 @@
  *
  */
 
-/* Copyright (c) 2023, Oracle and/or its affiliates. */
-
 package com.oltpbenchmark.benchmarks.resourcestresser.procedures;
 
 import com.oltpbenchmark.api.Procedure;

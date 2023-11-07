@@ -1,4 +1,3 @@
--- Copyright (c) 2023,  Oracle and/or its affiliates.
 -- Non-DBA user specified in sample config file
 DROP USER benchbase CASCADE;
 CREATE USER benchbase IDENTIFIED BY password;

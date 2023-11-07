@@ -1,5 +1,3 @@
--- Copyright (c) 2023, Oracle and/or its affiliates.
-
 -- Epinions DDL for Oracle DDL
 
 -- Drop all tables

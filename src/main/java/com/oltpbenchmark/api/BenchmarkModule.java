@@ -15,8 +15,6 @@
  *
  */
 
-/* Copyright (c) 2023, Oracle and/or its affiliates. */
-
 package com.oltpbenchmark.api;
 
 import com.oltpbenchmark.WorkloadConfiguration;

@@ -1,4 +1,3 @@
--- Copyright (c) 2023, Oracle and/or its affiliates.
 -- Drop all tables
 
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE cputable'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;;

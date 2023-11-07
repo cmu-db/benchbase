@@ -15,8 +15,6 @@
  *
  */
 
-/* Copyright (c) 2023, Oracle and/or its affiliates. */
-
 package com.oltpbenchmark.benchmarks.wikipedia;
 
 import com.oltpbenchmark.api.Loader;

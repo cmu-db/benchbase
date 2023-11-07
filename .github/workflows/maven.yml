@@ -10,8 +10,6 @@
 # - One job to build/test the docker images.
 # - One job to publish the docker image.
 
-# Copyright (c) 2023, Oracle and/or its affiliates.
-
 name: BenchBase (Java with Maven)
 
 on:
