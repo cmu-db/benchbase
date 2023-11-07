@@ -507,7 +507,14 @@ WHERE t.name='%s' AND c.name='%s'
 
         String separator = md.getIdentifierQuoteString();
         String catalog = connection.getCatalog();
-        String schema = connection.getSchema();
+        String schema;
+        try {
+            schema = connection.getSchema();
+        } catch (java.lang.AbstractMethodError e) {
+            // Sybase ASE JDBC does not implement getSchema
+            LOG.info("Abstract method getSchema() not implemented and will not use schema name.");
+            schema = null;
+        }
 
         Map<String, Table> tables = new HashMap<>();
 
