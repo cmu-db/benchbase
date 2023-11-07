@@ -84,8 +84,13 @@ public class LoadConfig extends Procedure {
         try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, getConfigProfile)) {
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 configProfile = SQLUtil.toList(resultSet);
-                // CLOB needs to be done while connection is alive
-                if (dbType == DatabaseType.ORACLE) {
+                // Oracle DB DDL contains some CLOB fields (for LoadConfig procedures).
+                // These CLOB needs to be converted to String while the connection is alive.
+
+                // This CLOB conversion for Oracle needs to be done here, otherwise the conversion will be attempted
+                // by SQLUtil.getString(Object) after the connection closes, which will result in
+                // java.sql.SQLRecoverableException: Closed Connection.
+                if (getDbType() == DatabaseType.ORACLE) {
                     for (Object[] configProfileInstance: configProfile) {
                         configProfileInstance[3] = SQLUtil.clobToString(configProfileInstance[3]);
                     }

@@ -18,8 +18,8 @@
     <terminals>1</terminals>
 
     <!-- Gather schema stats after loading to improve performance -->
-    <!-- See src/main/resources/benchmarks/chbenchmark/gather_schema_stats_oracle.sql -->
-    <afterload>/benchmarks/chbenchmark/gather_schema_stats_oracle.sql</afterload>
+    <!-- See src/main/resources/benchmarks/gather_schema_stats_oracle.sql -->
+    <afterload>/benchmarks/gather_schema_stats_oracle.sql</afterload>
 
     <!-- Extra Features (Commented Out) -->
     <!-- Can be workload-specific -->

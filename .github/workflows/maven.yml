@@ -58,7 +58,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        profile: [ 'cockroachdb', 'mariadb', 'mysql', 'postgres', 'spanner', 'phoenix', 'sqlserver', 'sqlite' , 'oracle' ]
+        profile: [ 'cockroachdb', 'mariadb', 'mysql', 'oracle', 'phoenix', 'postgres', 'spanner', 'sqlite', 'sqlserver' ]
     steps:
     - name: Checkout repo
       uses: actions/checkout@v4

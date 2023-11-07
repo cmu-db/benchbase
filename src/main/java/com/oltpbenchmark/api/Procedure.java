@@ -36,6 +36,7 @@ public abstract class Procedure {
     private static final Logger LOG = LoggerFactory.getLogger(Procedure.class);
 
     private final String procName;
+    private DatabaseType dbType;
     /**
      * LoadConfig procedure in auctionmark and seats benchmark contains CLOB on Oracle config
      *
@@ -44,7 +45,10 @@ public abstract class Procedure {
      *      protected allows LoadConfig procedure to determine current database type, and decide if it should perform
      *      the conversion.
      */
-    protected DatabaseType dbType;
+    public DatabaseType getDbType() {
+        return dbType;
+    }
+
     private Map<String, SQLStmt> name_stmt_xref;
 
     /**
