@@ -178,6 +178,7 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> {
                 return port;
             } catch (BindException e) {
                 // This port is already in use. Continue to next port.
+                LOG.warn("Port {} is already in use. Trying next port.", port);
             }
         }
     }
