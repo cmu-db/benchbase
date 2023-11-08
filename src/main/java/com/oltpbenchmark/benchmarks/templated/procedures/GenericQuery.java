@@ -43,11 +43,12 @@ public abstract class GenericQuery extends Procedure {
                     // do nothing
                 }
             } catch (Exception e) {
+                // Retry for INSERT/DELETE/UPDATE queries
                 try {
                     stmt.execute();
                 } catch (Exception noExecute) {
                     noExecute.printStackTrace();
-                    throw new RuntimeException("Not able to execute query/update: " + stmt.toString());
+                    throw new RuntimeException("Not able to execute query: " + stmt.toString());
                 }
             }
         } catch (Exception stmtException) {
