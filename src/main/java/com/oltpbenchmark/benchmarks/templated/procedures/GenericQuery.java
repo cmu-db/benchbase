@@ -36,18 +36,25 @@ public abstract class GenericQuery extends Procedure {
 
     /** Execution method with parameters. */
     public void run(Connection conn, List<Object> params) throws SQLException {
-        PreparedStatement stmt = getStatement(conn, params);
-        String queryString = stmt.toString().toLowerCase();
-        if (queryString.startsWith("update") || queryString.startsWith("delete") || queryString.startsWith("insert")) {
-            stmt.executeUpdate();
-            // do nothing
-        } else {
+
+        try (PreparedStatement stmt = getStatement(conn, params)) {
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     // do nothing
                 }
+            } catch (Exception e) {
+                try {
+                    stmt.execute();
+                } catch (Exception noExecute) {
+                    noExecute.printStackTrace();
+                    throw new RuntimeException("Not able to execute query/update: " + stmt.toString());
+                }
             }
+        } catch (Exception stmtException) {
+            stmtException.printStackTrace();
+            throw new RuntimeException("Error when trying to create statement with params: " + params.toString());
         }
+
         conn.commit();
     }
 
