@@ -33,7 +33,7 @@ public class TemplatedWorker extends Worker<TemplatedBenchmark> {
     protected final Map<Class<? extends Procedure>, TraceTransactionGenerator> generators;
 
     public TemplatedWorker(TemplatedBenchmark benchmarkModule, int id,
-                     Map<Class<? extends Procedure>, TraceTransactionGenerator> generators) {
+            Map<Class<? extends Procedure>, TraceTransactionGenerator> generators) {
         super(benchmarkModule, id);
         this.rng().setSeed(benchmarkModule.getWorkloadConfiguration().getRandomSeed());
         this.generators = generators;
@@ -49,7 +49,8 @@ public class TemplatedWorker extends Worker<TemplatedBenchmark> {
                 // If there is a generator available use it to create a
                 // parameter binding.
                 TraceTransactionGenerator generator = generators.get(clazz);
-                proc.run(conn, generator.nextTransaction().getParams());
+                proc.run(conn, generator.nextTransaction().getParams(),
+                        generator.nextTransaction().getRandomGenHashMap());
             } else {
                 // If the generator has no transactions, there are no parameters.
                 proc.run(conn);
@@ -63,4 +64,3 @@ public class TemplatedWorker extends Worker<TemplatedBenchmark> {
 
     }
 }
-

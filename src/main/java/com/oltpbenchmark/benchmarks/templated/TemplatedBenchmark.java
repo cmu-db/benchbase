@@ -107,9 +107,9 @@ public class TemplatedBenchmark extends BenchmarkModule {
                 // Sanity check that the procedure has the right type.
                 if (!(kv.getValue() instanceof GenericQuery)) {
                     LOG.error(
-                        String.format(
-                            "Procedure %s does not have the correct class type (GenericQuery).",
-                        kv.getValue().toString()));
+                            String.format(
+                                    "Procedure %s does not have the correct class type (GenericQuery).",
+                                    kv.getValue().toString()));
                     continue;
                 }
                 GenericQuery proc = (GenericQuery) kv.getValue();
@@ -194,14 +194,14 @@ public class TemplatedBenchmark extends BenchmarkModule {
                             }
                         }
                         """.formatted(
-                            GenericQuery.class.getPackageName(),
-                            qt.getName(),
-                            GenericQuery.class.getCanonicalName(),
-                            QueryTemplateInfo.class.getCanonicalName(),
-                            SQLStmt.class.getCanonicalName(),
-                            StringEscapeUtils.escapeJava(qt.getQuery()),
-                            getParamsString(qt.getParamsTypes()),
-                            getParamsString(qt.getParamsValues()));
+                        GenericQuery.class.getPackageName(),
+                        qt.getName(),
+                        GenericQuery.class.getCanonicalName(),
+                        QueryTemplateInfo.class.getCanonicalName(),
+                        SQLStmt.class.getCanonicalName(),
+                        StringEscapeUtils.escapeJava(qt.getQuery()),
+                        getParamsString(qt.getParamsTypes()),
+                        getParamsString(qt.getParamsValues()));
                 LOG.debug("Class definition for query template {}:\n {}", qt.getName(), s);
                 final String qualifiedClassName = GenericQuery.class.getPackageName() + "." + qt.getName();
                 final ISimpleCompiler compiler = compilerFactory.newSimpleCompiler();
