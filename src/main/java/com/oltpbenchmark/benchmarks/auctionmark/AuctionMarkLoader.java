@@ -441,7 +441,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             // STRINGS
             for (Column catalog_col : this.random_str_cols) {
                 int size = catalog_col.getSize();
-                // This can generate an empty string which is treated as NULL in Oracle DB
+                // This (0) can generate an empty string which is treated as NULL in Oracle DB
                 int start = getDatabaseType() == ORACLE ? 1 : 0;
                 row[catalog_col.getIndex()] = profile.rng.astring(profile.rng.nextInt(start, size - 1), size);
                 cols++;
