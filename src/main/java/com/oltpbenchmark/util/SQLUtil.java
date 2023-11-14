@@ -163,6 +163,7 @@ public abstract class SQLUtil {
         TIMESTAMP_VALUE_METHOD = timestampValueMethod;
         ORACLE_TIMESTAMP = oracleTimestamp;
     }
+    
     /**
      * Return a double from the given object
      * Handles the different cases from the various DBMSs
