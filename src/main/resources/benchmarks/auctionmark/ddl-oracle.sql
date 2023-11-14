@@ -70,7 +70,7 @@ CREATE TABLE USERACCT (
     u_sattr7            VARCHAR2(64),
     u_iattr0            NUMBER(19, 0) DEFAULT NULL,
     u_iattr1            NUMBER(19, 0) DEFAULT NULL,
-    u_iattr2			NUMBER(19, 0) DEFAULT NULL,
+    u_iattr2            NUMBER(19, 0) DEFAULT NULL,
     u_iattr3            NUMBER(19, 0) DEFAULT NULL,
     u_iattr4            NUMBER(19, 0) DEFAULT NULL,
     u_iattr5            NUMBER(19, 0) DEFAULT NULL,
