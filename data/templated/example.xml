@@ -20,10 +20,10 @@
    <template name="GetCust">
       <query><![CDATA[SELECT C_DISCOUNT, C_LAST, C_CREDIT FROM customer WHERE C_W_ID = ?]]></query>
       <types>
-         <type>DISTRIBUTION</type>
+         <type>INTEGER</type>
       </types>
       <values>
-         <value>uniform,0,100</value>
+         <value>8</value>
       </values>
    </template>
    <template name="GetCustNull">
@@ -59,6 +59,18 @@
       <values>
          <value>10.50</value>
          <value>11</value>
+      </values>
+   </template>
+   <template name="GetItemRandom">
+      <query><![CDATA[SELECT COUNT(*) FROM item WHERE i_im_id = ?]]></query>
+      <types>
+         <type>RANDOM</type>
+      </types>
+      <values>
+         <value>binomial,0,9999</value>
+      </values>
+      <values>
+         <value>uniform,0,9999</value>
       </values>
    </template>
 </templates>

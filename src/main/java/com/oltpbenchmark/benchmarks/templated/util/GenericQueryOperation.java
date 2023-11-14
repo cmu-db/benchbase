@@ -75,7 +75,6 @@ public class GenericQueryOperation extends Operation {
             }
             i += 2;
         }
-
         return randomGenerators;
 
     }

@@ -24,7 +24,6 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
-import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
@@ -74,46 +73,51 @@ public abstract class GenericQuery extends Procedure {
 
         PreparedStatement stmt = this.getPreparedStatement(conn, queryTemplateInfo.getQuery());
         String[] paramsTypes = queryTemplateInfo.getParamsTypes();
+        int j = 0;
         for (int i = 0; i < paramsTypes.length; i++) {
             if (paramsTypes[i].equalsIgnoreCase("NULL")) {
                 stmt.setNull(i + 1, Types.NULL);
-                // ENTER RIGHT HERE WITH THE DISTRIBUTION
-            } else if (paramsTypes[i].equalsIgnoreCase("DISTRIBUTION")) {
-                String distType = params.get(i).toString();
+            } else if (paramsTypes[i].equalsIgnoreCase("RANDOM")) {
+                int index = i + j;
+                String distType = params.get(index).toString();
                 int minI, maxI;
-                int val;
                 switch (distType) {
                     case "zipf":
-                        ZipfianGenerator zipfGen = (ZipfianGenerator) randomGenerators.get(i);
+                        ZipfianGenerator zipfGen = (ZipfianGenerator) randomGenerators.get(index);
                         stmt.setInt(i + 1, zipfGen.nextInt());
+                        j += 2;
                         break;
                     case "uniform":
-                        minI = Integer.parseInt(params.get(i + 1).toString());
-                        maxI = Integer.parseInt(params.get(i + 2).toString());
-                        Random rnd = (Random) randomGenerators.get(i);
-                        val = rnd.nextInt(maxI - minI) + minI;
-                        stmt.setInt(i + 1, val);
+                        minI = Integer.parseInt(params.get(index + 1).toString());
+                        maxI = Integer.parseInt(params.get(index + 2).toString());
+                        Random rnd = (Random) randomGenerators.get(index);
+                        int uVal = rnd.nextInt(maxI - minI) + minI;
+                        stmt.setInt(i + 1, uVal);
+                        j += 2;
                         break;
                     case "binomial":
-                        minI = Integer.parseInt(params.get(i + 1).toString());
-                        maxI = Integer.parseInt(params.get(i + 2).toString());
-                        Random rng = (Random) randomGenerators.get(i);
+                        minI = Integer.parseInt(params.get(index + 1).toString());
+                        maxI = Integer.parseInt(params.get(index + 2).toString());
+                        Random rng = (Random) randomGenerators.get(index);
+                        int bVal;
                         do {
-                            val = (int) (minI + Math.abs(rng.nextGaussian()) * maxI);
-                        } while (val > maxI || val < minI);
+                            bVal = (int) (minI + Math.abs(rng.nextGaussian()) * maxI);
+                        } while (bVal > maxI || bVal < minI);
 
-                        stmt.setInt(i + 1, val);
+                        stmt.setInt(i + 1, bVal);
+                        j += 2;
                         break;
                     case "scrambled":
-
-                        ScrambledZipfianGenerator scramZipf = (ScrambledZipfianGenerator) randomGenerators.get(i);
+                        ScrambledZipfianGenerator scramZipf = (ScrambledZipfianGenerator) randomGenerators.get(index);
                         stmt.setInt(i + 1, scramZipf.nextInt());
+                        j += 2;
                         break;
                     case "string":
-                        maxI = Integer.parseInt(params.get(i + 1).toString());
-                        Random randStr = (Random) randomGenerators.get(i);
-                        String randText = TextGenerator.randomStr(randStr, maxI);
+                        maxI = Integer.parseInt(params.get(index + 1).toString());
+                        Random rand = (Random) randomGenerators.get(index);
+                        String randText = TextGenerator.randomStr(rand, maxI);
                         stmt.setString(i + 1, randText);
+                        j += 1;
                         break;
                     case "datetime":
                     case "timestamp":
@@ -129,7 +133,6 @@ public abstract class GenericQuery extends Procedure {
                         throw new RuntimeException(
                                 "No suitable distribution found. Currently supported are 'zipf' | 'scrambled' | 'normal' | 'uniform' | 'string' | 'datetime' | 'timestamp' | 'date' | 'time' ");
                 }
-                System.out.println(stmt.toString());
 
             } else {
                 try {
