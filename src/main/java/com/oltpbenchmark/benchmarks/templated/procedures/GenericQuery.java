@@ -59,7 +59,7 @@ public abstract class GenericQuery extends Procedure {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException("Error when trying to execute statement:");
+            throw new RuntimeException("Error when trying to execute statement");
         }
 
         conn.commit();
