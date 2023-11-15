@@ -41,7 +41,7 @@ public final class Results {
     private final Histogram<TransactionType> retryDifferent = new Histogram<>(false);
     private final Map<TransactionType, Histogram<String>> abortMessages = new HashMap<>();
 
-    public Results(long start_ts, long end_ms, long elapsed_nanoseconds, int measuredRequests, DistributionStatistics distributionStatistics, final List<LatencyRecord.Sample> latencySamples) {
+    public Results(long start_ts, long elapsed_nanoseconds, int measuredRequests, DistributionStatistics distributionStatistics, final List<LatencyRecord.Sample> latencySamples) {
         this.start_ts = start_ts;
         this.nanoseconds = elapsed_nanoseconds;
         this.measuredRequests = measuredRequests;
