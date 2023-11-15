@@ -113,6 +113,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
 
         // long measureStart = start;
 
+        long start_ts = System.currentTimeMillis();
         long start = System.nanoTime();
         long warmupStart = System.nanoTime();
         long warmup = warmupStart;
@@ -314,7 +315,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
             }
             DistributionStatistics stats = DistributionStatistics.computeStatistics(latencies);
 
-            Results results = new Results(measureEnd - start, requests, stats, samples);
+            Results results = new Results(start_ts, measureEnd - start, requests, stats, samples);
 
             // Compute transaction histogram
             Set<TransactionType> txnTypes = new HashSet<>();

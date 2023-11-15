@@ -102,7 +102,9 @@ public class ResultWriter {
         Map<String, Object> summaryMap = new TreeMap<>();
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         Date now = new Date();
+        summaryMap.put("Start timestamp (milliseconds)", results.getStartTs());
         summaryMap.put("Current Timestamp (milliseconds)", now.getTime());
+        summaryMap.put("Elapsed Time (nanoseconds)", results.getNanoseconds());
         summaryMap.put("DBMS Type", dbType);
         summaryMap.put("DBMS Version", collector.collectVersion());
         summaryMap.put("Benchmark Type", benchType);
