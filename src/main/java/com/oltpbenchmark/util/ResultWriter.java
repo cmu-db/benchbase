@@ -99,7 +99,7 @@ public class ResultWriter {
     }
 
     public void writeSummary(PrintStream os) {
-        Map<String, Object> summaryMap = new TreeMap<>();
+        Map<String, Object> summaryMap = new LinkedHashMap<>();
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         Date now = new Date();
         summaryMap.put("Start timestamp (milliseconds)", results.getStartTs());
