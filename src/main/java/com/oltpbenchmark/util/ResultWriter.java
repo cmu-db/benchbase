@@ -108,6 +108,7 @@ public class ResultWriter {
         summaryMap.put("DBMS Type", dbType);
         summaryMap.put("DBMS Version", collector.collectVersion());
         summaryMap.put("Benchmark Type", benchType);
+        summaryMap.put("Measured Requests", results.getMeasuredRequests());
         for (String field : BENCHMARK_KEY_FIELD) {
             summaryMap.put(field, expConf.getString(field));
         }
