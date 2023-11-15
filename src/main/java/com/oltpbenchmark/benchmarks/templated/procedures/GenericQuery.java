@@ -38,22 +38,28 @@ public abstract class GenericQuery extends Procedure {
     public void run(Connection conn, List<Object> params) throws SQLException {
 
         try (PreparedStatement stmt = getStatement(conn, params)) {
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
+
+            // False for UPDATE, INSERT, DELETE queries
+            boolean hasResultSet = stmt.execute();
+
+            while (true) {
+                if (hasResultSet) {
+                    try (ResultSet rs = stmt.getResultSet()) {
+                        while (rs.next()) {
+                            // do nothing
+                        }
+                    }
+                } else {
+                    if (stmt.getUpdateCount() == -1) {
+                        break;
+                    }
                     // do nothing
                 }
-            } catch (Exception e) {
-                // Retry for INSERT/DELETE/UPDATE queries
-                try {
-                    stmt.execute();
-                } catch (Exception noExecute) {
-                    noExecute.printStackTrace();
-                    throw new RuntimeException("Not able to execute query: " + stmt.toString());
-                }
+                hasResultSet = stmt.getMoreResults();
             }
-        } catch (Exception stmtException) {
-            stmtException.printStackTrace();
-            throw new RuntimeException("Error when trying to create statement with params: " + params.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error when trying to execute statement:");
         }
 
         conn.commit();
@@ -63,10 +69,9 @@ public abstract class GenericQuery extends Procedure {
     public void run(Connection conn) throws SQLException {
         QueryTemplateInfo queryTemplateInfo = this.getQueryTemplateInfo();
 
-        try (PreparedStatement stmt = this.getPreparedStatement(conn, queryTemplateInfo.getQuery());
-                ResultSet rs = stmt.executeQuery()) {
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, queryTemplateInfo.getQuery()); ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
-                // do nothing
+                //do nothing
             }
         }
         conn.commit();
@@ -83,17 +88,14 @@ public abstract class GenericQuery extends Procedure {
             } else {
                 try {
                     // TODO: add support for nullable other types
-                    // For instance, can we provide a <value /> tag in the XML file to represent a
-                    // NULL value?
+                    // For instance, can we provide a <value /> tag in the XML file to represent a NULL value?
                     // Or does it need a special marker like "$null" to signify a NULL value?
                     Object param = params.get(i);
-                    stmt.setObject(i + 1, param,
-                            Integer.parseInt(Types.class.getDeclaredField(paramsTypes[i]).get(null).toString()));
+                    stmt.setObject(i + 1, param, Integer.parseInt(Types.class.getDeclaredField(paramsTypes[i]).get(null).toString()));
                 } catch (Exception e) {
                     e.printStackTrace();
                     throw new RuntimeException(
-                            "Error when setting parameters. Parameter type: " + paramsTypes[i] + ", parameter value: "
-                                    + params.get(i));
+                        "Error when setting parameters. Parameter type: " + paramsTypes[i] + ", parameter value: " + params.get(i));
                 }
             }
         }
