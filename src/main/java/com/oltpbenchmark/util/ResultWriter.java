@@ -102,7 +102,7 @@ public class ResultWriter {
         Map<String, Object> summaryMap = new LinkedHashMap<>();
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         Date now = new Date();
-        summaryMap.put("Start timestamp (milliseconds)", results.getStartTs());
+        summaryMap.put("Start timestamp (milliseconds)", results.getStartTimestampMs());
         summaryMap.put("Current Timestamp (milliseconds)", now.getTime());
         summaryMap.put("Elapsed Time (nanoseconds)", results.getNanoseconds());
         summaryMap.put("DBMS Type", dbType);
