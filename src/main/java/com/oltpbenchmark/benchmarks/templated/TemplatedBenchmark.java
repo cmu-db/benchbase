@@ -18,6 +18,7 @@ package com.oltpbenchmark.benchmarks.templated;
 
 import java.io.FileInputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,12 +46,12 @@ import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.api.templates.ValuesType;
 import com.oltpbenchmark.api.templates.TemplateType;
 import com.oltpbenchmark.api.templates.TemplatesType;
+import com.oltpbenchmark.api.templates.ValueType;
 import com.oltpbenchmark.benchmarks.templated.procedures.GenericQuery;
 import com.oltpbenchmark.benchmarks.templated.procedures.GenericQuery.QueryTemplateInfo;
+import com.oltpbenchmark.benchmarks.templated.util.ComplexValue;
 import com.oltpbenchmark.benchmarks.templated.util.GenericQueryOperation;
 import com.oltpbenchmark.benchmarks.templated.util.TraceTransactionGenerator;
-import com.opencsv.CSVParser;
-import com.opencsv.CSVParserBuilder;
 
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBElement;
@@ -124,14 +125,25 @@ public class TemplatedBenchmark extends BenchmarkModule {
                 // list of params.
                 List<GenericQueryOperation> list = new ArrayList<>();
                 String[] paramsTypes = info.getParamsTypes();
-                CSVParser parser = new CSVParserBuilder()
-                        .withQuoteChar('\'')
-                        .build();
-                for (String binding : info.getParamsValues()) {
-                    Object[] params = parser.parseLine(binding);
-                    assert paramsTypes.length == params.length;
+               
+                ComplexValue[] params = info.getParamsValues();
+                int paramsLen = params.length;
+                int typesLen = paramsTypes.length;
+
+                assert (paramsLen % typesLen) == 0;
+
+                
+                int subRange = paramsLen / typesLen;
+                if(paramsLen == typesLen){
                     list.add(new GenericQueryOperation(params));
+                } else {
+                    for(int j = 0; j < paramsLen; j+= subRange){
+                        ComplexValue[] subset = Arrays.copyOfRange(params, j, j+subRange);
+                        assert subset.length == typesLen;
+                        list.add(new GenericQueryOperation(subset));
+                    }
                 }
+                
                 generators.put(proc.getClass(), new TraceTransactionGenerator(list));
             }
 
@@ -170,38 +182,43 @@ public class TemplatedBenchmark extends BenchmarkModule {
             JAXBElement<TemplatesType> result = unmarshaller.unmarshal(streamSource, TemplatesType.class);
             TemplatesType templates = result.getValue();
 
-            for (TemplateType template : templates.getTemplateList()) {
+            for (TemplateType template : templates.getTemplate()) {
                 ImmutableParsedQueryTemplate.Builder b = ImmutableParsedQueryTemplate.builder();
                 b.name(template.getName());
                 b.query(template.getQuery());
-                b.paramsTypes(template.getTypes().getTypeList());
+                b.paramsTypes(template.getTypes().getType());
+            
                 for (ValuesType paramValue : template.getValues()) {
-                    b.addParamsValues(String.join(",", paramValue.getValueList()));
+                    for(ValueType value: paramValue.getValue()){
+                        b.addParamsValues(new ComplexValue(value.getDist(),value.getMin(),value.getMax(),value.getSeed(),value.getValue()));
+                    }  
                 }
 
                 ParsedQueryTemplate qt = b.build();
                 // Create and compile class.
                 final String s = """
                         package %s ;
+                        import %s ;
                         public final class %s extends %s {
                             @Override
                             public %s getQueryTemplateInfo() {
                                 return ImmutableQueryTemplateInfo.builder()
                                         .query(new %s(\"%s\"))
                                         .paramsTypes(new String[] {%s})
-                                        .paramsValues(new String[] {%s})
+                                        .paramsValues(new ComplexValue[] {%s})
                                         .build();
                             }
                         }
                         """.formatted(
                         GenericQuery.class.getPackageName(),
+                        ComplexValue.class.getCanonicalName(),
                         qt.getName(),
                         GenericQuery.class.getCanonicalName(),
                         QueryTemplateInfo.class.getCanonicalName(),
                         SQLStmt.class.getCanonicalName(),
                         StringEscapeUtils.escapeJava(qt.getQuery()),
                         getParamsString(qt.getParamsTypes()),
-                        getParamsString(qt.getParamsValues()));
+                        buildComplexValueString(qt.getParamsValues()));
                 LOG.debug("Class definition for query template {}:\n {}", qt.getName(), s);
                 final String qualifiedClassName = GenericQuery.class.getPackageName() + "." + qt.getName();
                 final ISimpleCompiler compiler = compilerFactory.newSimpleCompiler();
@@ -224,6 +241,21 @@ public class TemplatedBenchmark extends BenchmarkModule {
         }
         return result.isEmpty() ? "" : result.substring(0, result.length() - 1);
     }
+
+    private String buildComplexValueString(List<ComplexValue> params) {
+        String result = "";
+        for (ComplexValue param : params) {
+            result += "new ComplexValue(" 
+                    + "\"" + param.getDist() + "\"" + ","
+                    + "\"" + param.getMin() + "\"" + ","
+                    + "\"" + param.getMax() + "\"" + ","
+                    + "\"" + param.getSeed() + "\"" + ","
+                    + "\"" + StringEscapeUtils.escapeJava(param.getValue()) + "\""
+                    + "),";
+        }
+        return result.isEmpty() ? "" : result.substring(0,result.length()-1);
+    }
+
 
     private static class CustomClassLoader extends ClassLoader {
 
@@ -272,7 +304,7 @@ public class TemplatedBenchmark extends BenchmarkModule {
 
         /** Potential query parameter values. */
         @Value.Default
-        default List<String> getParamsValues() {
+        default List<ComplexValue> getParamsValues() {
             return List.of();
         }
     }

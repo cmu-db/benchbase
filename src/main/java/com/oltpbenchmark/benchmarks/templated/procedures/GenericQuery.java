@@ -24,7 +24,6 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
@@ -34,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
+import com.oltpbenchmark.benchmarks.templated.util.ComplexValue;
 import com.oltpbenchmark.distributions.ScrambledZipfianGenerator;
 import com.oltpbenchmark.distributions.ZipfianGenerator;
 import com.oltpbenchmark.util.TextGenerator;
@@ -43,9 +43,9 @@ public abstract class GenericQuery extends Procedure {
     protected static final Logger LOG = LoggerFactory.getLogger(GenericQuery.class);
 
     /** Execution method with parameters. */
-    public void run(Connection conn, List<Object> params, HashMap<Integer, Object> randomGenerators)
+    public void run(Connection conn, List<ComplexValue> params)
             throws SQLException {
-        try (PreparedStatement stmt = getStatement(conn, params, randomGenerators);
+        try (PreparedStatement stmt = getStatement(conn, params);
                 ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 // do nothing
@@ -67,35 +67,60 @@ public abstract class GenericQuery extends Procedure {
         conn.commit();
     }
 
-    public PreparedStatement getStatement(Connection conn, List<Object> params,
-            HashMap<Integer, Object> randomGenerators) throws SQLException {
+    public PreparedStatement getStatement(Connection conn, List<ComplexValue> params) throws SQLException {
         QueryTemplateInfo queryTemplateInfo = this.getQueryTemplateInfo();
 
         PreparedStatement stmt = this.getPreparedStatement(conn, queryTemplateInfo.getQuery());
         String[] paramsTypes = queryTemplateInfo.getParamsTypes();
-        int j = 0;
         for (int i = 0; i < paramsTypes.length; i++) {
-            if (paramsTypes[i].equalsIgnoreCase("NULL")) {
+
+            ComplexValue param = params.get(i);
+            boolean hasDist = param.getDist().length() > 0;
+            boolean hasValue = param.getValue().length() > 0;
+
+            if ((!hasDist && !hasValue) || paramsTypes[i].equalsIgnoreCase("NULL")) {
                 stmt.setNull(i + 1, Types.NULL);
-            } else if (paramsTypes[i].equalsIgnoreCase("RANDOM")) {
-                int index = i + j;
-                String distType = params.get(index).toString();
-                int minI, maxI;
-                switch (distType) {
-                    case "zipf":
-                        ZipfianGenerator zipfGen = (ZipfianGenerator) randomGenerators.get(index);
-                        stmt.setInt(i + 1, zipfGen.nextInt());
-                        j += 2;
-                        break;
+            
+            } else if (hasDist) {
+                String distribution = param.getDist();
+                switch (distribution) {
                     case "uniform":
-                        minI = Integer.parseInt(params.get(index + 1).toString());
-                        maxI = Integer.parseInt(params.get(index + 2).toString());
-                        Random rnd = (Random) randomGenerators.get(index);
-                        int uVal = rnd.nextInt(maxI - minI) + minI;
-                        stmt.setInt(i + 1, uVal);
-                        j += 2;
+                        Random rnd = (Random) param.getGen();
+
+                        switch (paramsTypes[i].toLowerCase()) {
+                            case "integer":
+                                int min = param.getMin().intValue();
+                                int max = param.getMax().intValue();
+                                stmt.setInt(i+1, rnd.nextInt(min,max));
+                                break;
+                            case "float":
+                            case "real":
+                                float minF = Float.parseFloat(param.getMinString());
+                                float maxF = Float.parseFloat(param.getMaxString());
+                                stmt.setFloat(i+1, rnd.nextFloat(minF,maxF));
+                                break;
+                            case "bigint":
+                                stmt.setLong(i+1,rnd.nextLong(param.getMin(), param.getMax()));
+                            case "string": 
+                                int maxLen = param.getMax().intValue();
+                                stmt.setString(i + 1, TextGenerator.randomStr(rnd, maxLen));
+                                break;
+                            case "timestamp":
+                                stmt.setTimestamp(i + 1, new Timestamp(rnd.nextLong(param.getMin(), param.getMax())));
+                                break;
+                            case "date":
+                                stmt.setDate(i + 1, new Date(rnd.nextLong(param.getMin(), param.getMax())));
+                                break;
+                            case "time":
+                                stmt.setTime(i + 1, new Time(rnd.nextLong(param.getMin(), param.getMax())));
+                                break;
+                            default:
+                                throw new RuntimeException("The type '" + paramsTypes[i] + "' is not supported by the '" + distribution + "' distribution");
+                        }
                         break;
                     case "binomial":
+                        break;
+                     /*
                         minI = Integer.parseInt(params.get(index + 1).toString());
                         maxI = Integer.parseInt(params.get(index + 2).toString());
                         Random rng = (Random) randomGenerators.get(index);
@@ -103,10 +128,18 @@ public abstract class GenericQuery extends Procedure {
                         do {
                             bVal = (int) (minI + Math.abs(rng.nextGaussian()) * maxI);
                         } while (bVal > maxI || bVal < minI);
-
                         stmt.setInt(i + 1, bVal);
                         j += 2;
                         break;
+
+                    case "zipf":
+                        ZipfianGenerator zipfGen = (ZipfianGenerator) randomGenerators.get(index);
+                        stmt.setInt(i + 1, zipfGen.nextInt());
+                        zipfGen.n
+                        j += 2;
+                        break;
+                    
+                   
                     case "scrambled":
                         ScrambledZipfianGenerator scramZipf = (ScrambledZipfianGenerator) randomGenerators.get(index);
                         stmt.setInt(i + 1, scramZipf.nextInt());
@@ -129,28 +162,25 @@ public abstract class GenericQuery extends Procedure {
                     case "time":
                         stmt.setTime(i + 1, new Time(System.currentTimeMillis()));
                         break;
+                        */
                     default:
-                        throw new RuntimeException(
-                                "No suitable distribution found. Currently supported are 'zipf' | 'scrambled' | 'normal' | 'uniform' | 'string' | 'datetime' | 'timestamp' | 'date' | 'time' ");
+                        throw new RuntimeException("No suitable distribution found: " + distribution);
                 }
 
             } else {
                 try {
-                    // TODO: add support for nullable other types
-                    // For instance, can we provide a <value /> tag in the XML file to represent a
-                    // NULL value?
-                    // Or does it need a special marker like "$null" to signify a NULL value?
-                    Object param = params.get(i);
-                    stmt.setObject(i + 1, param,
+                    Object val = param.getValue();
+                    stmt.setObject(i + 1, val,
                             Integer.parseInt(Types.class.getDeclaredField(paramsTypes[i]).get(null).toString()));
                 } catch (Exception e) {
                     e.printStackTrace();
                     throw new RuntimeException(
                             "Error when setting parameters. Parameter type: " + paramsTypes[i] + ", parameter value: "
-                                    + params.get(i));
+                                    + param.getValue());
                 }
             }
         }
+        System.out.println(stmt.toString());
         return stmt;
     }
 
@@ -166,7 +196,7 @@ public abstract class GenericQuery extends Procedure {
         String[] getParamsTypes();
 
         /** Potential query parameter values. */
-        String[] getParamsValues();
+        ComplexValue[] getParamsValues();
     }
 
 }

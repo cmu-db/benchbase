@@ -49,8 +49,7 @@ public class TemplatedWorker extends Worker<TemplatedBenchmark> {
                 // If there is a generator available use it to create a
                 // parameter binding.
                 TraceTransactionGenerator generator = generators.get(clazz);
-                proc.run(conn, generator.nextTransaction().getParams(),
-                        generator.nextTransaction().getRandomGenHashMap());
+                proc.run(conn, generator.nextTransaction().getParams());
             } else {
                 // If the generator has no transactions, there are no parameters.
                 proc.run(conn);
