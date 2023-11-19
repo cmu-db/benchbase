@@ -82,7 +82,27 @@ public abstract class JSONUtil {
      */
     public static String format(String json) {
         try {
-            return (JSONUtil.format(new JSONObject(json)));
+            return (JSONUtil.format(new JSONObject(json){
+                /**
+                 * changes the value of JSONObject.map to a LinkedHashMap in order to maintain
+                 * order of keys.
+                 * See Also: https://stackoverflow.com/a/62476486
+                 */
+                @Override
+                public JSONObject put(String key, Object value) throws JSONException {
+                    try {
+                        Field map = JSONObject.class.getDeclaredField("map");
+                        map.setAccessible(true);
+                        Object mapValue = map.get(this);
+                        if (!(mapValue instanceof LinkedHashMap)) {
+                            map.set(this, new LinkedHashMap<>());
+                        }
+                    } catch (NoSuchFieldException | IllegalAccessException e) {
+                        throw new RuntimeException(e);
+                    }
+                    return super.put(key, value);
+                }
+            }));
         } catch (RuntimeException ex) {
             throw ex;
         } catch (Exception ex) {
