@@ -69,5 +69,8 @@
       <values>
          <value dist="uniform" min="0" max="9999" seed="12"></value>
       </values>
+      <values>
+         <value dist="zipf" min="0" max="9999" seed="12"></value>
+      </values>
    </template>
 </templates>

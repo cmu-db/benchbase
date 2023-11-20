@@ -80,93 +80,208 @@ public abstract class GenericQuery extends Procedure {
 
             if ((!hasDist && !hasValue) || paramsTypes[i].equalsIgnoreCase("NULL")) {
                 stmt.setNull(i + 1, Types.NULL);
-            
+
             } else if (hasDist) {
                 String distribution = param.getDist();
-                switch (distribution) {
-                    case "uniform":
-                        Random rnd = (Random) param.getGen();
+                String paramType = paramsTypes[i].toLowerCase();
+                switch (paramType) {
+                    case "integer":
+                        int min = param.getMin().intValue();
+                        int max = param.getMax().intValue();
 
-                        switch (paramsTypes[i].toLowerCase()) {
-                            case "integer":
-                                int min = param.getMin().intValue();
-                                int max = param.getMax().intValue();
-                                stmt.setInt(i+1, rnd.nextInt(min,max));
+                        switch (distribution) {
+
+                            case "uniform":
+                                Random uniformRand = (Random) param.getGen();
+                                stmt.setInt(i + 1, uniformRand.nextInt(min, max));
                                 break;
-                            case "float":
-                            case "real":
-                                float minF = Float.parseFloat(param.getMinString());
-                                float maxF = Float.parseFloat(param.getMaxString());
-                                stmt.setFloat(i+1, rnd.nextFloat(minF,maxF));
+                            case "binomial":
+                                Random binomialRandom = (Random) param.getGen();
+                                int bVal;
+                                do {
+                                    bVal = (int) (min + Math.abs(binomialRandom.nextGaussian()) * max);
+                                } while (bVal > max || bVal < min);
+
+                                stmt.setInt(i + 1, bVal);
                                 break;
-                            case "bigint":
-                                stmt.setLong(i+1,rnd.nextLong(param.getMin(), param.getMax()));
-                            case "string": 
-                                int maxLen = param.getMax().intValue();
-                                stmt.setString(i + 1, TextGenerator.randomStr(rnd, maxLen));
+                            case "zipf":
+                                ZipfianGenerator zipfGen = (ZipfianGenerator) param.getGen();
+                                stmt.setInt(i + 1, zipfGen.nextInt());
                                 break;
-                            case "timestamp":
-                                stmt.setTimestamp(i + 1, new Timestamp(rnd.nextLong(param.getMin(), param.getMax())));
-                                break;
-                            case "date":
-                                stmt.setDate(i + 1, new Date(rnd.nextLong(param.getMin(), param.getMax())));
-                                break;
-                            case "time":
-                                stmt.setTime(i + 1, new Time(rnd.nextLong(param.getMin(), param.getMax())));
+                            case "scrambled":
+                                ScrambledZipfianGenerator scramGen = (ScrambledZipfianGenerator) param.getGen();
+                                stmt.setInt(i + 1, scramGen.nextInt());
                                 break;
                             default:
-                                throw new RuntimeException("The type '" + paramsTypes[i] + "' is not supported by the '" + distribution + "' distribution");
+                                throw new RuntimeException(
+                                        "Distribution: " + distribution + " not supported for type: " + paramType);
                         }
                         break;
-                    case "binomial":
-                        break;
-                     /*
-                        minI = Integer.parseInt(params.get(index + 1).toString());
-                        maxI = Integer.parseInt(params.get(index + 2).toString());
-                        Random rng = (Random) randomGenerators.get(index);
-                        int bVal;
-                        do {
-                            bVal = (int) (minI + Math.abs(rng.nextGaussian()) * maxI);
-                        } while (bVal > maxI || bVal < minI);
-                        stmt.setInt(i + 1, bVal);
-                        j += 2;
-                        break;
+                    case "float":
+                    case "real":
+                        float minF = Float.parseFloat(param.getMinString());
+                        float maxF = Float.parseFloat(param.getMaxString());
+                        switch (distribution) {
 
-                    case "zipf":
-                        ZipfianGenerator zipfGen = (ZipfianGenerator) randomGenerators.get(index);
-                        stmt.setInt(i + 1, zipfGen.nextInt());
-                        zipfGen.n
-                        j += 2;
+                            case "uniform":
+                                Random uniformRand = (Random) param.getGen();
+                                stmt.setFloat(i + 1, uniformRand.nextFloat(minF, maxF));
+                                break;
+                            case "binomial":
+                                Random binomialRandom = (Random) param.getGen();
+                                float fVal;
+                                do {
+                                    fVal = (float) (minF + Math.abs(binomialRandom.nextGaussian()) * maxF);
+                                } while (fVal > maxF || fVal < minF);
+
+                                stmt.setFloat(i + 1, fVal);
+                                break;
+                            default:
+                                throw new RuntimeException(
+                                        "Distribution: " + distribution + " not supported for type: " + paramType);
+                        }
                         break;
-                    
-                   
-                    case "scrambled":
-                        ScrambledZipfianGenerator scramZipf = (ScrambledZipfianGenerator) randomGenerators.get(index);
-                        stmt.setInt(i + 1, scramZipf.nextInt());
-                        j += 2;
+                    case "bigint":
+                        Long minL = param.getMin();
+                        Long maxL = param.getMax();
+                        switch (distribution) {
+
+                            case "uniform":
+                                Random uniformRand = (Random) param.getGen();
+                                stmt.setLong(i + 1, uniformRand.nextLong(minL, maxL));
+                                break;
+                            case "binomial":
+                                Random binomialRandom = (Random) param.getGen();
+                                Long lVal;
+                                do {
+                                    lVal = Double.valueOf(minL + Math.abs(binomialRandom.nextGaussian()) * maxL)
+                                            .longValue();
+                                } while (lVal > maxL || lVal < minL);
+
+                                stmt.setLong(i + 1, lVal);
+                                break;
+                            case "zipf":
+                                ZipfianGenerator zipfGen = (ZipfianGenerator) param.getGen();
+                                stmt.setLong(i + 1, zipfGen.nextLong());
+                                break;
+                            case "scrambled":
+                                ScrambledZipfianGenerator scramGen = (ScrambledZipfianGenerator) param.getGen();
+                                stmt.setLong(i + 1, scramGen.nextLong());
+                                break;
+                            default:
+                                throw new RuntimeException(
+                                        "Distribution: " + distribution + " not supported for type: " + paramType);
+                        }
                         break;
+                    case "varchar":
                     case "string":
-                        maxI = Integer.parseInt(params.get(index + 1).toString());
-                        Random rand = (Random) randomGenerators.get(index);
-                        String randText = TextGenerator.randomStr(rand, maxI);
-                        stmt.setString(i + 1, randText);
-                        j += 1;
+                        switch (distribution) {
+                            case "uniform":
+                                Random strRandom = (Random) param.getGen();
+                                stmt.setString(i + 1, TextGenerator.randomStr(strRandom, param.getMax().intValue()));
+                                break;
+                            default:
+                                throw new RuntimeException(
+                                        "Distribution: " + distribution + " not supported for type: " + paramType);
+                        }
                         break;
-                    case "datetime":
                     case "timestamp":
-                        stmt.setTimestamp(i + 1, new Timestamp(System.currentTimeMillis()));
+                        Long stampMin = param.getMin();
+                        Long stampMax = param.getMax();
+                        switch (distribution) {
+                            case "uniform":
+                                Random uniformRand = (Random) param.getGen();
+                                stmt.setTimestamp(i + 1, new Timestamp(uniformRand.nextLong(stampMin, stampMax)));
+                                break;
+                            case "binomial":
+                                Random binomialRandom = (Random) param.getGen();
+                                Long lVal;
+                                do {
+                                    lVal = Double.valueOf(stampMin + Math.abs(binomialRandom.nextGaussian()) * stampMax)
+                                            .longValue();
+                                } while (lVal > stampMax || lVal < stampMin);
+
+                                stmt.setTimestamp(i + 1, new Timestamp(lVal));
+                                break;
+                            case "zipf":
+                                ZipfianGenerator zipfGen = (ZipfianGenerator) param.getGen();
+                                stmt.setTimestamp(i + 1, new Timestamp(zipfGen.nextLong()));
+                                break;
+                            case "scrambled":
+                                ScrambledZipfianGenerator scramGen = (ScrambledZipfianGenerator) param.getGen();
+                                stmt.setTimestamp(i + 1, new Timestamp(scramGen.nextLong()));
+                                break;
+                            default:
+                                throw new RuntimeException(
+                                        "Distribution: " + distribution + " not supported for type: " + paramType);
+                        }
                         break;
                     case "date":
-                        stmt.setDate(i + 1, new Date(System.currentTimeMillis()));
+                        Long dateMin = param.getMin();
+                        Long dateMax = param.getMax();
+                        switch (distribution) {
+                            case "uniform":
+                                Random uniformRand = (Random) param.getGen();
+                                stmt.setDate(i + 1, new Date(uniformRand.nextLong(dateMin, dateMax)));
+                                break;
+                            case "binomial":
+                                Random binomialRandom = (Random) param.getGen();
+                                Long lVal;
+                                do {
+                                    lVal = Double.valueOf(dateMin + Math.abs(binomialRandom.nextGaussian()) * dateMax)
+                                            .longValue();
+                                } while (lVal > dateMax || lVal < dateMin);
+
+                                stmt.setDate(i + 1, new Date(lVal));
+                                break;
+                            case "zipf":
+                                ZipfianGenerator zipfGen = (ZipfianGenerator) param.getGen();
+                                stmt.setDate(i + 1, new Date(zipfGen.nextLong()));
+                                break;
+                            case "scrambled":
+                                ScrambledZipfianGenerator scramGen = (ScrambledZipfianGenerator) param.getGen();
+                                stmt.setDate(i + 1, new Date(scramGen.nextLong()));
+                                break;
+                            default:
+                                throw new RuntimeException(
+                                        "Distribution: " + distribution + " not supported for type: " + paramType);
+                        }
                         break;
                     case "time":
-                        stmt.setTime(i + 1, new Time(System.currentTimeMillis()));
-                        break;
-                        */
-                    default:
-                        throw new RuntimeException("No suitable distribution found: " + distribution);
-                }
+                        Long timeMin = param.getMin();
+                        Long timeMax = param.getMax();
+                        switch (distribution) {
+                            case "uniform":
+                                Random uniformRand = (Random) param.getGen();
+                                stmt.setTime(i + 1, new Time(uniformRand.nextLong(timeMin, timeMax)));
+                                break;
+                            case "binomial":
+                                Random binomialRandom = (Random) param.getGen();
+                                Long lVal;
+                                do {
+                                    lVal = Double.valueOf(timeMin + Math.abs(binomialRandom.nextGaussian()) * timeMax)
+                                            .longValue();
+                                } while (lVal > timeMax || lVal < timeMin);
 
+                                stmt.setTime(i + 1, new Time(lVal));
+                                break;
+                            case "zipf":
+                                ZipfianGenerator zipfGen = (ZipfianGenerator) param.getGen();
+                                stmt.setTime(i + 1, new Time(zipfGen.nextLong()));
+                                break;
+                            case "scrambled":
+                                ScrambledZipfianGenerator scramGen = (ScrambledZipfianGenerator) param.getGen();
+                                stmt.setTime(i + 1, new Time(scramGen.nextLong()));
+                                break;
+                            default:
+                                throw new RuntimeException(
+                                        "Distribution: " + distribution + " not supported for type: " + paramType);
+                        }
+                        break;
+                    default:
+                        throw new RuntimeException(
+                                "Support for distributions for the type: " + paramType + " is current not implemented");
+                }
             } else {
                 try {
                     Object val = param.getValue();
@@ -180,8 +295,8 @@ public abstract class GenericQuery extends Procedure {
                 }
             }
         }
-        System.out.println(stmt.toString());
         return stmt;
+
     }
 
     public abstract QueryTemplateInfo getQueryTemplateInfo();

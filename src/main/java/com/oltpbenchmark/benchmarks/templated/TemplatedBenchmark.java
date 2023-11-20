@@ -125,25 +125,24 @@ public class TemplatedBenchmark extends BenchmarkModule {
                 // list of params.
                 List<GenericQueryOperation> list = new ArrayList<>();
                 String[] paramsTypes = info.getParamsTypes();
-               
+
                 ComplexValue[] params = info.getParamsValues();
                 int paramsLen = params.length;
                 int typesLen = paramsTypes.length;
 
                 assert (paramsLen % typesLen) == 0;
 
-                
-                int subRange = paramsLen / typesLen;
-                if(paramsLen == typesLen){
+                if (paramsLen == typesLen) {
                     list.add(new GenericQueryOperation(params));
                 } else {
-                    for(int j = 0; j < paramsLen; j+= subRange){
-                        ComplexValue[] subset = Arrays.copyOfRange(params, j, j+subRange);
+                    int numSplits = paramsLen / typesLen;
+                    for (int j = 0; j < numSplits; j += 1) {
+                        ComplexValue[] subset = Arrays.copyOfRange(params, j * typesLen, j * typesLen + typesLen);
                         assert subset.length == typesLen;
                         list.add(new GenericQueryOperation(subset));
                     }
                 }
-                
+
                 generators.put(proc.getClass(), new TraceTransactionGenerator(list));
             }
 
@@ -187,11 +186,12 @@ public class TemplatedBenchmark extends BenchmarkModule {
                 b.name(template.getName());
                 b.query(template.getQuery());
                 b.paramsTypes(template.getTypes().getType());
-            
+
                 for (ValuesType paramValue : template.getValues()) {
-                    for(ValueType value: paramValue.getValue()){
-                        b.addParamsValues(new ComplexValue(value.getDist(),value.getMin(),value.getMax(),value.getSeed(),value.getValue()));
-                    }  
+                    for (ValueType value : paramValue.getValue()) {
+                        b.addParamsValues(new ComplexValue(value.getDist(), value.getMin(), value.getMax(),
+                                value.getSeed(), value.getValue()));
+                    }
                 }
 
                 ParsedQueryTemplate qt = b.build();
@@ -245,7 +245,7 @@ public class TemplatedBenchmark extends BenchmarkModule {
     private String buildComplexValueString(List<ComplexValue> params) {
         String result = "";
         for (ComplexValue param : params) {
-            result += "new ComplexValue(" 
+            result += "new ComplexValue("
                     + "\"" + param.getDist() + "\"" + ","
                     + "\"" + param.getMin() + "\"" + ","
                     + "\"" + param.getMax() + "\"" + ","
@@ -253,9 +253,8 @@ public class TemplatedBenchmark extends BenchmarkModule {
                     + "\"" + StringEscapeUtils.escapeJava(param.getValue()) + "\""
                     + "),";
         }
-        return result.isEmpty() ? "" : result.substring(0,result.length()-1);
+        return result.isEmpty() ? "" : result.substring(0, result.length() - 1);
     }
-
 
     private static class CustomClassLoader extends ClassLoader {
 
