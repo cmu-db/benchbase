@@ -313,14 +313,9 @@ jobs:
         run: |
           rm -rf benchbase-oracle.tgz
 
-      # Add a reset SQL file to Oracle container home directory (docker exec oracle pwd) to recreate non-DBA user, so it can be invoked later using sqlplus
-      # See docker/oracle/reset.sql
-      # This file is recreated using printf instead of included in the artifact because only Oracle profile reset is more complicated than others,
-      #   and benchmark doesn't need to be reset between runs normally
       - name: Set up user reset script
         run: |
-          printf "DROP USER benchbase CASCADE;\ncreate user benchbase identified by password;\nGRANT CONNECT, RESOURCE, CREATE VIEW, UNLIMITED TABLESPACE TO benchbase;\nGRANT EXECUTE ON DBMS_CRYPTO TO benchbase;\nGRANT EXECUTE ON DBMS_LOCK TO benchbase;\n" > reset.sql
-          docker cp reset.sql oracle:/opt/oracle/reset.sql
+          docker cp config/oracle/scripts/reset.sql oracle:/opt/oracle/reset.sql
 
       - name: Set up JDK
         uses: actions/setup-java@v3
