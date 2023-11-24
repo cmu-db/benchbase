@@ -67,6 +67,15 @@ public abstract class AbstractTestLoader<T extends BenchmarkModule> extends Abst
 
         this.benchmark.loadDatabase();
 
+        // A table called extra is added with after-load, with one entry zero
+        try (PreparedStatement stmt = conn.prepareStatement("SELECT * FROM extra"); ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                assertEquals("Table 'extra' from /after-load.sql has value different than 0", rs.getInt(1), 0);
+            }
+        } catch (Exception e) {
+            fail("Table 'extra' from /after-load.sql was not created");
+        }
+
         validateLoad();
 
     }
@@ -98,16 +107,6 @@ public abstract class AbstractTestLoader<T extends BenchmarkModule> extends Abst
             }
         }
 
-        // A table called extra is added with after-load, with one
-        if (this.benchmark.getAfterLoadScriptPath() != null) {
-            try (PreparedStatement stmt = conn.prepareStatement("SELECT * FROM extra"); ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    assertEquals("Table 'extra' from /after-load.sql has value different than 0", rs.getInt(1), 0);
-                }
-            } catch (Exception e) {
-                fail("Table 'extra' from /after-load.sql was not initialized");
-            }
-        }
 
         LOG.debug("=== TABLE SIZES ===\n" + tableSizes);
         assertFalse("Unable to compute the tables size for " + benchmark.getBenchmarkName().toUpperCase(), tableSizes.isEmpty());
