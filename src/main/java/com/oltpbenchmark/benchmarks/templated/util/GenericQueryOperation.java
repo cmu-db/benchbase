@@ -26,15 +26,14 @@ import com.oltpbenchmark.api.Operation;
  */
 public class GenericQueryOperation extends Operation {
 
-    public final List<ComplexValue> params;
-  
+    public final List<TemplatedValue> params;
 
-    public GenericQueryOperation(ComplexValue[] params) {
+    public GenericQueryOperation(TemplatedValue[] params) {
         super();
         this.params = Arrays.asList(params);
     }
 
-    public List<ComplexValue> getParams() {
+    public List<TemplatedValue> getParams() {
         return params;
     }
 }

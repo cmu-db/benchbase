@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
-import com.oltpbenchmark.benchmarks.templated.util.ComplexValue;
+import com.oltpbenchmark.benchmarks.templated.util.TemplatedValue;
 import com.oltpbenchmark.distributions.ScrambledZipfianGenerator;
 import com.oltpbenchmark.distributions.ZipfianGenerator;
 import com.oltpbenchmark.util.TextGenerator;
@@ -43,7 +43,7 @@ public abstract class GenericQuery extends Procedure {
     protected static final Logger LOG = LoggerFactory.getLogger(GenericQuery.class);
 
     /** Execution method with parameters. */
-    public void run(Connection conn, List<ComplexValue> params)
+    public void run(Connection conn, List<TemplatedValue> params)
             throws SQLException {
         try (PreparedStatement stmt = getStatement(conn, params);
                 ResultSet rs = stmt.executeQuery()) {
@@ -67,14 +67,14 @@ public abstract class GenericQuery extends Procedure {
         conn.commit();
     }
 
-    public PreparedStatement getStatement(Connection conn, List<ComplexValue> params) throws SQLException {
+    public PreparedStatement getStatement(Connection conn, List<TemplatedValue> params) throws SQLException {
         QueryTemplateInfo queryTemplateInfo = this.getQueryTemplateInfo();
 
         PreparedStatement stmt = this.getPreparedStatement(conn, queryTemplateInfo.getQuery());
         String[] paramsTypes = queryTemplateInfo.getParamsTypes();
         for (int i = 0; i < paramsTypes.length; i++) {
 
-            ComplexValue param = params.get(i);
+            TemplatedValue param = params.get(i);
             boolean hasDist = param.getDist().length() > 0;
             boolean hasValue = param.getValue().length() > 0;
 
@@ -92,11 +92,11 @@ public abstract class GenericQuery extends Procedure {
                         switch (distribution) {
 
                             case "uniform":
-                                Random uniformRand = (Random) param.getGen();
+                                Random uniformRand = (Random) param.getGenerator();
                                 stmt.setInt(i + 1, uniformRand.nextInt(min, max));
                                 break;
                             case "binomial":
-                                Random binomialRandom = (Random) param.getGen();
+                                Random binomialRandom = (Random) param.getGenerator();
                                 int bVal;
                                 do {
                                     bVal = (int) (min + Math.abs(binomialRandom.nextGaussian()) * max);
@@ -105,11 +105,11 @@ public abstract class GenericQuery extends Procedure {
                                 stmt.setInt(i + 1, bVal);
                                 break;
                             case "zipf":
-                                ZipfianGenerator zipfGen = (ZipfianGenerator) param.getGen();
+                                ZipfianGenerator zipfGen = (ZipfianGenerator) param.getGenerator();
                                 stmt.setInt(i + 1, zipfGen.nextInt());
                                 break;
                             case "scrambled":
-                                ScrambledZipfianGenerator scramGen = (ScrambledZipfianGenerator) param.getGen();
+                                ScrambledZipfianGenerator scramGen = (ScrambledZipfianGenerator) param.getGenerator();
                                 stmt.setInt(i + 1, scramGen.nextInt());
                                 break;
                             default:
@@ -124,11 +124,11 @@ public abstract class GenericQuery extends Procedure {
                         switch (distribution) {
 
                             case "uniform":
-                                Random uniformRand = (Random) param.getGen();
+                                Random uniformRand = (Random) param.getGenerator();
                                 stmt.setFloat(i + 1, uniformRand.nextFloat(minF, maxF));
                                 break;
                             case "binomial":
-                                Random binomialRandom = (Random) param.getGen();
+                                Random binomialRandom = (Random) param.getGenerator();
                                 float fVal;
                                 do {
                                     fVal = (float) (minF + Math.abs(binomialRandom.nextGaussian()) * maxF);
@@ -147,11 +147,11 @@ public abstract class GenericQuery extends Procedure {
                         switch (distribution) {
 
                             case "uniform":
-                                Random uniformRand = (Random) param.getGen();
+                                Random uniformRand = (Random) param.getGenerator();
                                 stmt.setLong(i + 1, uniformRand.nextLong(minL, maxL));
                                 break;
                             case "binomial":
-                                Random binomialRandom = (Random) param.getGen();
+                                Random binomialRandom = (Random) param.getGenerator();
                                 Long lVal;
                                 do {
                                     lVal = Double.valueOf(minL + Math.abs(binomialRandom.nextGaussian()) * maxL)
@@ -161,11 +161,11 @@ public abstract class GenericQuery extends Procedure {
                                 stmt.setLong(i + 1, lVal);
                                 break;
                             case "zipf":
-                                ZipfianGenerator zipfGen = (ZipfianGenerator) param.getGen();
+                                ZipfianGenerator zipfGen = (ZipfianGenerator) param.getGenerator();
                                 stmt.setLong(i + 1, zipfGen.nextLong());
                                 break;
                             case "scrambled":
-                                ScrambledZipfianGenerator scramGen = (ScrambledZipfianGenerator) param.getGen();
+                                ScrambledZipfianGenerator scramGen = (ScrambledZipfianGenerator) param.getGenerator();
                                 stmt.setLong(i + 1, scramGen.nextLong());
                                 break;
                             default:
@@ -177,7 +177,7 @@ public abstract class GenericQuery extends Procedure {
                     case "string":
                         switch (distribution) {
                             case "uniform":
-                                Random strRandom = (Random) param.getGen();
+                                Random strRandom = (Random) param.getGenerator();
                                 stmt.setString(i + 1, TextGenerator.randomStr(strRandom, param.getMax().intValue()));
                                 break;
                             default:
@@ -190,11 +190,11 @@ public abstract class GenericQuery extends Procedure {
                         Long stampMax = param.getMax();
                         switch (distribution) {
                             case "uniform":
-                                Random uniformRand = (Random) param.getGen();
+                                Random uniformRand = (Random) param.getGenerator();
                                 stmt.setTimestamp(i + 1, new Timestamp(uniformRand.nextLong(stampMin, stampMax)));
                                 break;
                             case "binomial":
-                                Random binomialRandom = (Random) param.getGen();
+                                Random binomialRandom = (Random) param.getGenerator();
                                 Long lVal;
                                 do {
                                     lVal = Double.valueOf(stampMin + Math.abs(binomialRandom.nextGaussian()) * stampMax)
@@ -204,11 +204,11 @@ public abstract class GenericQuery extends Procedure {
                                 stmt.setTimestamp(i + 1, new Timestamp(lVal));
                                 break;
                             case "zipf":
-                                ZipfianGenerator zipfGen = (ZipfianGenerator) param.getGen();
+                                ZipfianGenerator zipfGen = (ZipfianGenerator) param.getGenerator();
                                 stmt.setTimestamp(i + 1, new Timestamp(zipfGen.nextLong()));
                                 break;
                             case "scrambled":
-                                ScrambledZipfianGenerator scramGen = (ScrambledZipfianGenerator) param.getGen();
+                                ScrambledZipfianGenerator scramGen = (ScrambledZipfianGenerator) param.getGenerator();
                                 stmt.setTimestamp(i + 1, new Timestamp(scramGen.nextLong()));
                                 break;
                             default:
@@ -221,11 +221,11 @@ public abstract class GenericQuery extends Procedure {
                         Long dateMax = param.getMax();
                         switch (distribution) {
                             case "uniform":
-                                Random uniformRand = (Random) param.getGen();
+                                Random uniformRand = (Random) param.getGenerator();
                                 stmt.setDate(i + 1, new Date(uniformRand.nextLong(dateMin, dateMax)));
                                 break;
                             case "binomial":
-                                Random binomialRandom = (Random) param.getGen();
+                                Random binomialRandom = (Random) param.getGenerator();
                                 Long lVal;
                                 do {
                                     lVal = Double.valueOf(dateMin + Math.abs(binomialRandom.nextGaussian()) * dateMax)
@@ -235,11 +235,11 @@ public abstract class GenericQuery extends Procedure {
                                 stmt.setDate(i + 1, new Date(lVal));
                                 break;
                             case "zipf":
-                                ZipfianGenerator zipfGen = (ZipfianGenerator) param.getGen();
+                                ZipfianGenerator zipfGen = (ZipfianGenerator) param.getGenerator();
                                 stmt.setDate(i + 1, new Date(zipfGen.nextLong()));
                                 break;
                             case "scrambled":
-                                ScrambledZipfianGenerator scramGen = (ScrambledZipfianGenerator) param.getGen();
+                                ScrambledZipfianGenerator scramGen = (ScrambledZipfianGenerator) param.getGenerator();
                                 stmt.setDate(i + 1, new Date(scramGen.nextLong()));
                                 break;
                             default:
@@ -252,11 +252,11 @@ public abstract class GenericQuery extends Procedure {
                         Long timeMax = param.getMax();
                         switch (distribution) {
                             case "uniform":
-                                Random uniformRand = (Random) param.getGen();
+                                Random uniformRand = (Random) param.getGenerator();
                                 stmt.setTime(i + 1, new Time(uniformRand.nextLong(timeMin, timeMax)));
                                 break;
                             case "binomial":
-                                Random binomialRandom = (Random) param.getGen();
+                                Random binomialRandom = (Random) param.getGenerator();
                                 Long lVal;
                                 do {
                                     lVal = Double.valueOf(timeMin + Math.abs(binomialRandom.nextGaussian()) * timeMax)
@@ -266,11 +266,11 @@ public abstract class GenericQuery extends Procedure {
                                 stmt.setTime(i + 1, new Time(lVal));
                                 break;
                             case "zipf":
-                                ZipfianGenerator zipfGen = (ZipfianGenerator) param.getGen();
+                                ZipfianGenerator zipfGen = (ZipfianGenerator) param.getGenerator();
                                 stmt.setTime(i + 1, new Time(zipfGen.nextLong()));
                                 break;
                             case "scrambled":
-                                ScrambledZipfianGenerator scramGen = (ScrambledZipfianGenerator) param.getGen();
+                                ScrambledZipfianGenerator scramGen = (ScrambledZipfianGenerator) param.getGenerator();
                                 stmt.setTime(i + 1, new Time(scramGen.nextLong()));
                                 break;
                             default:
@@ -311,7 +311,7 @@ public abstract class GenericQuery extends Procedure {
         String[] getParamsTypes();
 
         /** Potential query parameter values. */
-        ComplexValue[] getParamsValues();
+        TemplatedValue[] getParamsValues();
     }
 
 }

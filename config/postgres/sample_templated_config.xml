@@ -6,7 +6,7 @@
     <driver>org.postgresql.Driver</driver>
     <url>jdbc:postgresql://localhost:5432/benchbase?sslmode=disable&amp;ApplicationName=templated&amp;reWriteBatchedInserts=true</url>
     <username>admin</username>
-    <password>password</password>
+    <password>admin</password>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
     <batchsize>128</batchsize>
 

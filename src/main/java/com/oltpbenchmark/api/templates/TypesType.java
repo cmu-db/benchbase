@@ -22,7 +22,6 @@
 // Generated on: 2023.11.16 at 08:29:59 AM UTC 
 //
 
-
 package com.oltpbenchmark.api.templates;
 
 import java.util.ArrayList;
@@ -30,9 +29,12 @@ import java.util.List;
 import jakarta.xml.bind.annotation.*;
 
 /**
- * <p>Java class for typesType complex type.
+ * <p>
+ * Java class for typesType complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>
+ * The following schema fragment specifies the expected content contained within
+ * this class.
  * 
  * <pre>
  * &lt;complexType name="typesType"&gt;
@@ -50,7 +52,7 @@ import jakarta.xml.bind.annotation.*;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "typesType", propOrder = {
-    "type"
+        "type"
 })
 public class TypesType {
 
@@ -68,8 +70,9 @@ public class TypesType {
      * 
      * <p>
      * For example, to add a new item, do as follows:
+     * 
      * <pre>
-     *    getType().add(newItem);
+     * getType().add(newItem);
      * </pre>
      * 
      * 
@@ -80,8 +83,8 @@ public class TypesType {
      * 
      */
     public List<String> getType() {
-        if (type == null) {
-            type = new ArrayList<String>();
+        if (this.type == null) {
+            this.type = new ArrayList<>();
         }
         return this.type;
     }

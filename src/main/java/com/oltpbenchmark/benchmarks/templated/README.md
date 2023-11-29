@@ -34,7 +34,8 @@ The file path for the XML template has to be defined in the workload configurati
 
 An example configuration can be found in [`config/sqlserver/sample_template_config.xml`](../../../../../../../config/sqlserver/sample_templated_config.xml).
 
-> Since the templated benchmark is meant to flexibly support a myriad of different database schemas, it doesn't *currently* support the `init` and `load` phases.
+> Since the templated benchmark is meant to flexibly support a myriad of different database schemas, it doesn't _currently_ support the `init` and `load` phases.
+
 <!-- TODO: Add support for init/load phases? -->
 
 The example can be executed if a loaded TPC-C instance is used as JDBC endpoint.
@@ -54,3 +55,47 @@ java -jar benchbase.jar -b templated -c config/sqlserver/sample_templated_config
 ```
 
 > For additional examples, please refer to the build pipeline definition in the [`maven.yml`](../../../../../../../.github/workflows/maven.yml#L423) Github Actions workflow file.
+
+## Value Distributions
+
+In order to support more variety in templated queries, it is possible to use a whole distribution of values instead of a single static value in a templated query
+
+Each time the query is run, a different value will substitute the `?`.
+
+```xml
+<templates>
+    <template name="MyTemplate">
+        <query><![CDATA[SELECT * FROM MyTable WHERE id = ?]]></query>
+        <types>
+            <type>INTEGER</type>
+        </types>
+        <values>
+            <value dist="uniform" min="0" max="1000" seed="1"/>
+        </values>
+         <values>
+            <value dist="zipf" max="1000" seed="1"/>
+        </values>
+    </template>
+    <!-- ... -->
+<templates>
+```
+
+The distributions are dependent on the type of the value. Currently, the following type-distributions pairs are supported:
+| Type | uniform | binomial | zipfian | scrambled zipfian |
+|---|:---:|:---:|:---:|:---:|
+| INTEGER | X | X | X | X |
+| FLOAT / REAL | X | X|- | - |
+| BIGINT | X | X | X | X |
+| VARCHAR / STRING | X | -| -| -|
+| TIMESTAMP | X | X |X |X |
+| DATE | X | X| X| X|
+| TIME | X |X | X| X|
+
+The following properties can be set on the value:
+
+-   dist _The distribution of the values_
+-   min _The minimum value the generator can produce. Defaults to 0_
+-   max _The maximum value the generator can produce. Defaults to 1_
+-   seed _A seed for the generator to ensure consistency_
+
+For Timestamps, Dates and Times, the min and max values must be converted to a long (milliseconds)
