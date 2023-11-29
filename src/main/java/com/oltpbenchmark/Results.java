@@ -28,6 +28,7 @@ import java.util.Map;
 
 public final class Results {
 
+    private final long startTimestampMs;
     private final long nanoseconds;
     private final int measuredRequests;
     private final DistributionStatistics distributionStatistics;
@@ -40,8 +41,9 @@ public final class Results {
     private final Histogram<TransactionType> retryDifferent = new Histogram<>(false);
     private final Map<TransactionType, Histogram<String>> abortMessages = new HashMap<>();
 
-    public Results(long nanoseconds, int measuredRequests, DistributionStatistics distributionStatistics, final List<LatencyRecord.Sample> latencySamples) {
-        this.nanoseconds = nanoseconds;
+    public Results(long startTimestampMs, long elapsedNanoseconds, int measuredRequests, DistributionStatistics distributionStatistics, final List<LatencyRecord.Sample> latencySamples) {
+        this.startTimestampMs = startTimestampMs;
+        this.nanoseconds = elapsedNanoseconds;
         this.measuredRequests = measuredRequests;
         this.distributionStatistics = distributionStatistics;
 
@@ -96,6 +98,10 @@ public final class Results {
 
     public List<Sample> getLatencySamples() {
         return latencySamples;
+    }
+
+    public long getStartTimestampMs() {
+        return startTimestampMs;
     }
 
     public long getNanoseconds() {
