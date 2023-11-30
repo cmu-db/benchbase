@@ -246,7 +246,7 @@ public class TemplatedBenchmark extends BenchmarkModule {
         String result = "";
         for (TemplatedValue param : params) {
             result += "new TemplatedValue("
-                    + "\"" + param.getDist() + "\"" + ","
+                    + "\"" + param.getDistribution() + "\"" + ","
                     + "\"" + param.getMin() + "\"" + ","
                     + "\"" + param.getMax() + "\"" + ","
                     + "\"" + param.getSeed() + "\"" + ","

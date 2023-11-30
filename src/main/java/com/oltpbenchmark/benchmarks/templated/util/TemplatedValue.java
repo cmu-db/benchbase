@@ -5,8 +5,13 @@ import java.util.Random;
 import com.oltpbenchmark.distributions.ScrambledZipfianGenerator;
 import com.oltpbenchmark.distributions.ZipfianGenerator;
 
+/**
+ * This class is used to store information about the values
+ * used in templated benchmarks. It can hold static values but also
+ * generators for value distributions
+ */
 public class TemplatedValue {
-    String dist;
+    ValueGenerator distribution;
     Long min;
     Long max;
     Long seed;
@@ -25,11 +30,11 @@ public class TemplatedValue {
      * @param value Value that is used if no distribution is given
      */
     public TemplatedValue(String dist, String min, String max, String seed, String value) {
-        this.dist = dist == null ? "" : dist;
         this.min = min == null ? 0 : Long.parseLong(min);
         this.max = max == null ? 1 : Long.parseLong(max);
         this.seed = seed == null ? 0 : Long.parseLong(seed);
         this.value = value;
+
         this.generatorObject = createGenerator(dist, this.min, this.max, this.seed);
 
         this.minS = min;
@@ -46,43 +51,51 @@ public class TemplatedValue {
      */
     private Object createGenerator(String distribution, Long min, Long max, Long seed) {
 
-        if (distribution == null || distribution.length() < 1)
+        if (distribution == null || distribution.equals("null") || distribution.length() < 1)
             return null;
 
-        switch (distribution) {
+        switch (distribution.toLowerCase()) {
             case "uniform":
+                this.distribution = ValueGenerator.UNIFORM;
+                return new Random(seed);
             case "binomial":
+            case "normal":
+                this.distribution = ValueGenerator.BINOMIAL;
                 return new Random(seed);
             case "zipf":
+            case "zipfian":
+                this.distribution = ValueGenerator.ZIPFIAN;
                 return new ZipfianGenerator(new Random(seed), min, max);
             case "scrambled":
+            case "scramzipf":
+                this.distribution = ValueGenerator.SCRAMBLED;
                 return new ScrambledZipfianGenerator(min, max);
             default:
                 throw new RuntimeException(
                         "The distribution: '" + distribution
-                                + "' is not supported. Currently supported are 'zipf' | 'scrambled' | 'normal' | 'uniform'");
+                                + "' is not supported. Currently supported are 'uniform' | 'binomial' | 'zipfian' | 'scrambled'");
         }
 
     }
 
-    public String getDist() {
-        return dist;
+    public ValueGenerator getDistribution() {
+        return this.distribution;
     }
 
     public Long getMin() {
-        return min;
+        return this.min;
     }
 
     public Long getMax() {
-        return max;
+        return this.max;
     }
 
     public Long getSeed() {
-        return seed;
+        return this.seed;
     }
 
     public String getValue() {
-        return value;
+        return this.value;
     }
 
     public String getMinString() {
