@@ -70,10 +70,10 @@ public abstract class AbstractTestLoader<T extends BenchmarkModule> extends Abst
         // A table called extra is added with after-load, with one entry zero
         try (PreparedStatement stmt = conn.prepareStatement("SELECT * FROM extra"); ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
-                assertEquals("Table 'extra' from /after-load.sql has value different than 0", rs.getInt(1), 0);
+                assertEquals("Table 'extra' from after-load.sql has value different than 0", rs.getInt(1), 0);
             }
         } catch (Exception e) {
-            fail("Table 'extra' from /after-load.sql was not created");
+            fail("Table 'extra' from after-load.sql was not created");
         }
 
         validateLoad();
