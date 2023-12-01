@@ -77,7 +77,6 @@ public abstract class AbstractTestLoader<T extends BenchmarkModule> extends Abst
         }
 
         validateLoad();
-
     }
 
     private void validateLoad() throws SQLException {
