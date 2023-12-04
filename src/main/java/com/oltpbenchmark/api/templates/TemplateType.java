@@ -141,7 +141,7 @@ public class TemplateType {
      * 
      * 
      */
-    public List<ValuesType> getValues() {
+    public List<ValuesType> getValuesList() {
         if (this.values == null) {
             this.values = new ArrayList<ValuesType>();
         }

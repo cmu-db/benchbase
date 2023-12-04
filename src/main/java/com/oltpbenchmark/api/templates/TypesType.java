@@ -82,7 +82,7 @@ public class TypesType {
      * 
      * 
      */
-    public List<String> getType() {
+    public List<String> getTypeList() {
         if (this.type == null) {
             this.type = new ArrayList<>();
         }

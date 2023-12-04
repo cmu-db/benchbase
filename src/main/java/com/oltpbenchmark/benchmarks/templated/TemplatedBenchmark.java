@@ -181,14 +181,14 @@ public class TemplatedBenchmark extends BenchmarkModule {
             JAXBElement<TemplatesType> result = unmarshaller.unmarshal(streamSource, TemplatesType.class);
             TemplatesType templates = result.getValue();
 
-            for (TemplateType template : templates.getTemplate()) {
+            for (TemplateType template : templates.getTemplateList()) {
                 ImmutableParsedQueryTemplate.Builder b = ImmutableParsedQueryTemplate.builder();
                 b.name(template.getName());
                 b.query(template.getQuery());
-                b.paramsTypes(template.getTypes().getType());
+                b.paramsTypes(template.getTypes().getTypeList());
 
-                for (ValuesType paramValue : template.getValues()) {
-                    for (ValueType value : paramValue.getValue()) {
+                for (ValuesType paramValue : template.getValuesList()) {
+                    for (ValueType value : paramValue.getValueList()) {
                         b.addParamsValues(new TemplatedValue(value.getDist(), value.getMin(), value.getMax(),
                                 value.getSeed(), value.getValue()));
                     }

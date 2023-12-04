@@ -82,7 +82,7 @@ public class ValuesType {
      * 
      * 
      */
-    public List<ValueType> getValue() {
+    public List<ValueType> getValueList() {
         if (this.value == null) {
             this.value = new ArrayList<ValueType>();
         }

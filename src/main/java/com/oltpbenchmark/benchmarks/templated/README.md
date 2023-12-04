@@ -81,21 +81,20 @@ Each time the query is run, a different value will substitute the `?`.
 ```
 
 The distributions are dependent on the type of the value. Currently, the following type-distributions pairs are supported:
-| Type | uniform | binomial | zipfian | scrambled zipfian |
-|---|:---:|:---:|:---:|:---:|
-| INTEGER | X | X | X | X |
-| FLOAT / REAL | X | X|- | - |
-| BIGINT | X | X | X | X |
-| VARCHAR / STRING | X | -| -| -|
-| TIMESTAMP | X | X |X |X |
-| DATE | X | X| X| X|
-| TIME | X |X | X| X|
-
+| Type             | uniform | binomial | zipfian | scrambled zipfian |
+| ---------------- | :-----: | :------: | :-----: | :---------------: |
+| INTEGER          |    X    |    X     |    X    |         X         |
+| FLOAT / REAL     |    X    |    X     |    -    |         -         |
+| BIGINT           |    X    |    X     |    X    |         X         |
+| VARCHAR / STRING |    X    |    -     |    -    |         -         |
+| TIMESTAMP        |    X    |    X     |    X    |         X         |
+| DATE             |    X    |    X     |    X    |         X         |
+| TIME             |    X    |    X     |    X    |         X         |
 The following properties can be set on the value:
 
--   dist _The distribution of the values_
--   min _The minimum value the generator can produce. Defaults to 0_
--   max _The maximum value the generator can produce. Defaults to 1_
--   seed _A seed for the generator to ensure consistency_
+-   `dist`: The distribution of the values
+-   `min`: The minimum value the generator can produce. Defaults to 0
+-   `max`: The maximum value the generator can produce. Defaults to 1
+-   `seed`: A seed for the generator to ensure consistency
 
 For Timestamps, Dates and Times, the min and max values must be converted to a long (milliseconds)

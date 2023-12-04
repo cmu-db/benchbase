@@ -82,7 +82,7 @@ public class TemplatesType {
      * 
      * 
      */
-    public List<TemplateType> getTemplate() {
+    public List<TemplateType> getTemplateList() {
         if (this.template == null) {
             this.template = new ArrayList<TemplateType>();
         }
