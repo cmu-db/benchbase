@@ -70,7 +70,8 @@ public class GetSessionRange extends Procedure {
                 finalResults.add(arr);
             }
         }
-        stmt.close();
+	    stmt.close();
+
         return (finalResults);
     }
 
