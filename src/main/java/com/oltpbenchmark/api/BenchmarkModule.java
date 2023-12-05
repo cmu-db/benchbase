@@ -104,6 +104,16 @@ public abstract class BenchmarkModule {
         }
     }
 
+    private String afterLoadScriptPath = null;
+
+    public final void setAfterLoadScriptPath(String scriptPath) {
+        this.afterLoadScriptPath = scriptPath;
+    }
+
+    public String getAfterLoadScriptPath() {
+        return this.afterLoadScriptPath;
+    }
+
     // --------------------------------------------------------------------------
     // IMPLEMENTING CLASS INTERFACE
     // --------------------------------------------------------------------------
@@ -248,11 +258,19 @@ public abstract class BenchmarkModule {
             }
     }
 
+    public final void runScript(String scriptPath) throws SQLException, IOException {
+        try (Connection conn = this.makeConnection()) {
+            DatabaseType dbType = this.workConf.getDatabaseType();
+            ScriptRunner runner = new ScriptRunner(conn, true, true);
+            LOG.debug("Executing script [{}] for database type [{}]", scriptPath, dbType);
+            runner.runScript(scriptPath);
+        }
+    }
 
     /**
      * Invoke this benchmark's database loader
      */
-    public final Loader<? extends BenchmarkModule> loadDatabase() throws SQLException, InterruptedException {
+    public final Loader<? extends BenchmarkModule> loadDatabase() throws IOException, SQLException, InterruptedException {
         Loader<? extends BenchmarkModule> loader;
 
         loader = this.makeLoaderImpl();
@@ -273,6 +291,12 @@ public abstract class BenchmarkModule {
                     LOG.debug(String.format("Finished loading the %s database", this.getBenchmarkName().toUpperCase()));
                 }
             }
+        }
+
+        if (this.afterLoadScriptPath != null) {
+            LOG.debug("Running script after load for {} benchmark...", this.workConf.getBenchmarkName().toUpperCase());
+            runScript(this.afterLoadScriptPath);
+            LOG.debug("Finished running script after load for {} benchmark...", this.workConf.getBenchmarkName().toUpperCase());
         }
 
         return loader;

@@ -214,6 +214,11 @@ public class DBWorkload {
                     postExecutionWait = xmlConfig.getLong(key + "/postExecutionWait");
                 }
 
+                // After load
+                if (xmlConfig.containsKey("afterload")) {
+                    bench.setAfterLoadScriptPath(xmlConfig.getString("afterload"));
+                }
+
                 TransactionType tmpType = bench.initTransactionType(txnName, txnId + txnIdOffset, preExecutionWait, postExecutionWait);
 
                 // Keep a reference for filtering
@@ -626,7 +631,7 @@ public class DBWorkload {
         bench.createDatabase();
     }
 
-    private static void runLoader(BenchmarkModule bench) throws SQLException, InterruptedException {
+    private static void runLoader(BenchmarkModule bench) throws IOException, SQLException, InterruptedException {
         LOG.debug(String.format("Loading %s Database", bench));
         bench.loadDatabase();
     }
