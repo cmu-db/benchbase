@@ -49,6 +49,11 @@ public abstract class BenchmarkModule {
     protected final WorkloadConfiguration workConf;
 
     /**
+     * Class loader variable for this benchmark
+     */
+    protected ClassLoader classLoader;
+
+    /**
      * These are the variations of the Procedure's Statement SQL
      */
     protected final StatementDialects dialects;
@@ -72,6 +77,15 @@ public abstract class BenchmarkModule {
     public BenchmarkModule(WorkloadConfiguration workConf) {
         this.workConf = workConf;
         this.dialects = new StatementDialects(workConf);
+        initClassLoader();
+    }
+
+    /**
+     * Instantiates the classLoader variable, needs to be overwritten if
+     * benchmark uses a custom implementation.
+     */
+    protected void initClassLoader() {
+        this.classLoader = ClassLoader.getSystemClassLoader();
     }
 
     // --------------------------------------------------------------------------
@@ -88,6 +102,16 @@ public abstract class BenchmarkModule {
                     workConf.getUsername(),
                     workConf.getPassword());
         }
+    }
+
+    private String afterLoadScriptPath = null;
+
+    public final void setAfterLoadScriptPath(String scriptPath) {
+        this.afterLoadScriptPath = scriptPath;
+    }
+
+    public String getAfterLoadScriptPath() {
+        return this.afterLoadScriptPath;
     }
 
     // --------------------------------------------------------------------------
@@ -234,11 +258,19 @@ public abstract class BenchmarkModule {
             }
     }
 
+    public final void runScript(String scriptPath) throws SQLException, IOException {
+        try (Connection conn = this.makeConnection()) {
+            DatabaseType dbType = this.workConf.getDatabaseType();
+            ScriptRunner runner = new ScriptRunner(conn, true, true);
+            LOG.debug("Executing script [{}] for database type [{}]", scriptPath, dbType);
+            runner.runScript(scriptPath);
+        }
+    }
 
     /**
      * Invoke this benchmark's database loader
      */
-    public final Loader<? extends BenchmarkModule> loadDatabase() throws SQLException, InterruptedException {
+    public final Loader<? extends BenchmarkModule> loadDatabase() throws IOException, SQLException, InterruptedException {
         Loader<? extends BenchmarkModule> loader;
 
         loader = this.makeLoaderImpl();
@@ -259,6 +291,12 @@ public abstract class BenchmarkModule {
                     LOG.debug(String.format("Finished loading the %s database", this.getBenchmarkName().toUpperCase()));
                 }
             }
+        }
+
+        if (this.afterLoadScriptPath != null) {
+            LOG.debug("Running script after load for {} benchmark...", this.workConf.getBenchmarkName().toUpperCase());
+            runScript(this.afterLoadScriptPath);
+            LOG.debug("Finished running script after load for {} benchmark...", this.workConf.getBenchmarkName().toUpperCase());
         }
 
         return loader;
@@ -331,7 +369,7 @@ public abstract class BenchmarkModule {
         Package pkg = this.getProcedurePackageImpl();
 
         String fullName = pkg.getName() + "." + procName;
-        Class<? extends Procedure> procClass = (Class<? extends Procedure>) ClassUtil.getClass(fullName);
+        Class<? extends Procedure> procClass = (Class<? extends Procedure>) ClassUtil.getClass(this.classLoader, fullName);
 
         return new TransactionType(procClass, id, false, preExecutionWait, postExecutionWait);
     }

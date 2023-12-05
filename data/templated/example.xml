@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Note: these example templates reuse TPC-C queries and data as a demonstration, but others are possible. -->
+<!-- TODO: Add additional parameter data types to increase test coverage. -->
+<templates>
+   <template name="GetOrder">
+      <query><![CDATA[SELECT NO_O_ID FROM new_order WHERE NO_D_ID = ? OR NO_D_ID = ? ORDER BY NO_O_ID ASC]]></query>
+      <types>
+         <type>INTEGER</type>
+         <type>INTEGER</type>
+      </types>
+      <values>
+         <value>3</value>
+         <value>4</value>
+      </values>
+       <values>
+         <value>5</value>
+         <value>6</value>
+      </values>
+   </template>
+   <template name="GetCust">
+      <query><![CDATA[SELECT C_DISCOUNT, C_LAST, C_CREDIT FROM customer WHERE C_W_ID = ?]]></query>
+      <types>
+         <type>INTEGER</type>
+      </types>
+      <values>
+         <value>8</value>
+      </values>
+   </template>
+   <template name="GetCustNull">
+      <query><![CDATA[SELECT C_DISCOUNT, C_LAST, C_CREDIT FROM customer WHERE C_W_ID = ? OR C_W_ID = ?]]></query>
+      <types>
+         <type>NULL</type>
+         <type>INTEGER</type>
+      </types>
+      <values>
+        <value />
+        <value>8</value>
+      </values>
+   </template>
+   <template name="GetWarehouse">
+      <query><![CDATA[SELECT * FROM warehouse WHERE W_STREET_1 LIKE ?]]></query>
+      <types>
+         <type>VARCHAR</type>
+      </types>
+      <values>
+         <value>Str</value>
+      </values>
+   </template>
+   <template name="GetItemByPrice">
+      <query><![CDATA[SELECT COUNT(*) FROM item WHERE i_price BETWEEN ? AND ?]]></query>
+      <types>
+         <type>FLOAT</type>
+         <type>FLOAT</type>
+      </types>
+      <values>
+         <value>10</value>
+         <value>10.49</value>
+      </values>
+      <values>
+         <value>10.50</value>
+         <value>11</value>
+      </values>
+   </template>
+</templates>

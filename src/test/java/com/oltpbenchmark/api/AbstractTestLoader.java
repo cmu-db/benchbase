@@ -17,10 +17,6 @@
 
 package com.oltpbenchmark.api;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.Histogram;
 import com.oltpbenchmark.util.SQLUtil;
@@ -28,10 +24,14 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
+
+import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 public abstract class AbstractTestLoader<T extends BenchmarkModule> extends AbstractTestCase<T> {
 
@@ -56,6 +56,27 @@ public abstract class AbstractTestLoader<T extends BenchmarkModule> extends Abst
 
         validateLoad();
 
+    }
+
+    /**
+     * testLoad with after load script
+     */
+    @Test
+    public void testLoadWithAfterLoad() throws Exception {
+        this.benchmark.setAfterLoadScriptPath("/after-load.sql");
+
+        this.benchmark.loadDatabase();
+
+        // A table called extra is added with after-load, with one entry zero
+        try (PreparedStatement stmt = conn.prepareStatement("SELECT * FROM extra"); ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                assertEquals("Table 'extra' from after-load.sql has value different than 0", rs.getInt(1), 0);
+            }
+        } catch (Exception e) {
+            fail("Table 'extra' from after-load.sql was not created");
+        }
+
+        validateLoad();
     }
 
     private void validateLoad() throws SQLException {
