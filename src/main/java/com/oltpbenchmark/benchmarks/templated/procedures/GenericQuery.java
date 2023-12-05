@@ -34,34 +34,31 @@ public abstract class GenericQuery extends Procedure {
 
     protected static final Logger LOG = LoggerFactory.getLogger(GenericQuery.class);
 
-    /** Execution method with parameters. */
+     /** Execution method with parameters. */
     public void run(Connection conn, List<Object> params) throws SQLException {
 
         try (PreparedStatement stmt = getStatement(conn, params)) {
-
-            // False for UPDATE, INSERT, DELETE queries
             boolean hasResultSet = stmt.execute();
-
-            while (true) {
                 if (hasResultSet) {
-                    try (ResultSet rs = stmt.getResultSet()) {
-                        while (rs.next()) {
-                            // do nothing
+                    do {
+                        try (ResultSet rs = stmt.getResultSet()) {
+                            while (rs.next()) {
+                                // do nothing
+                            }
+                        } catch (Exception resultException){
+                            resultException.printStackTrace();
+                            throw new RuntimeException("Could not retrieve ResultSet");
                         }
-                    }
+                    } while(stmt.getMoreResults());
                 } else {
-                    if (stmt.getUpdateCount() == -1) {
-                        break;
-                    }
+                    // Case for UPDATE, INSERT, DELETE queries
                     // do nothing
-                }
-                hasResultSet = stmt.getMoreResults();
-            }
+                }    
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Error when trying to execute statement");
         }
-
+        
         conn.commit();
     }
 
