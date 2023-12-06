@@ -20,3 +20,4 @@ We also acknowledge contributions from the following collaborators:
 
 + [Florian Funke](http://www3.in.tum.de/~funkef/)
 + [Michael Seibold](http://www3.in.tum.de/~seibold/)
++ [Oracle](https://github.com/oracle) (Copyright (c) 2023, Oracle and/or its affiliates.)
