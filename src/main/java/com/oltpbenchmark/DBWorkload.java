@@ -630,7 +630,7 @@ public class DBWorkload {
         bench.createDatabase();
     }
 
-    private static void runLoader(BenchmarkModule bench) throws SQLException, InterruptedException, IOException {
+    private static void runLoader(BenchmarkModule bench) throws IOException, SQLException, InterruptedException {
         LOG.debug(String.format("Loading %s Database", bench));
         bench.loadDatabase();
     }

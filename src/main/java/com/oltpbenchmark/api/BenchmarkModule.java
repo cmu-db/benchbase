@@ -109,11 +109,6 @@ public abstract class BenchmarkModule {
         this.afterLoadScriptPath = scriptPath;
     }
 
-    public String getAfterLoadScriptPath() {
-        return this.afterLoadScriptPath;
-    }
-
-
     // --------------------------------------------------------------------------
     // IMPLEMENTING CLASS INTERFACE
     // --------------------------------------------------------------------------
@@ -266,6 +261,7 @@ public abstract class BenchmarkModule {
             runner.runScript(scriptPath);
         }
     }
+
     /**
      * Invoke this benchmark's database loader
      */

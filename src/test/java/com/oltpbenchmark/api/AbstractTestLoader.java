@@ -33,6 +33,9 @@ import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
+import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
+
 public abstract class AbstractTestLoader<T extends BenchmarkModule> extends AbstractTestCase<T> {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractTestLoader.class);
@@ -67,8 +70,16 @@ public abstract class AbstractTestLoader<T extends BenchmarkModule> extends Abst
 
         this.benchmark.loadDatabase();
 
-        validateLoad();
+        // A table called extra is added with after-load, with one entry zero
+        try (PreparedStatement stmt = conn.prepareStatement("SELECT * FROM extra"); ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                assertEquals("Table 'extra' from after-load.sql has value different than 0", rs.getInt(1), 0);
+            }
+        } catch (Exception e) {
+            fail("Table 'extra' from after-load.sql was not created");
+        }
 
+        validateLoad();
     }
 
     private void validateLoad() throws SQLException {
@@ -95,17 +106,6 @@ public abstract class AbstractTestLoader<T extends BenchmarkModule> extends Abst
                 int count = result.getInt(1);
                 LOG.debug(sql + " => " + count);
                 tableSizes.put(tableName, count);
-            }
-        }
-
-        // A table called extra is added with after-load, with one
-        if (this.benchmark.getAfterLoadScriptPath() != null) {
-            try (PreparedStatement stmt = conn.prepareStatement("SELECT * FROM extra"); ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    assertEquals("Table 'extra' from /after-load.sql has value different than 0", rs.getInt(1), 0);
-                }
-            } catch (Exception e) {
-                fail("Table 'extra' from /after-load.sql was not initialized");
             }
         }
 
