@@ -39,21 +39,21 @@ public abstract class GenericQuery extends Procedure {
 
         try (PreparedStatement stmt = getStatement(conn, params)) {
             boolean hasResultSet = stmt.execute();
-                if (hasResultSet) {
-                    do {
-                        try (ResultSet rs = stmt.getResultSet()) {
-                            while (rs.next()) {
-                                // do nothing
-                            }
-                        } catch (Exception resultException){
-                            resultException.printStackTrace();
-                            throw new RuntimeException("Could not retrieve ResultSet");
+            if (hasResultSet) {
+                do {
+                    try (ResultSet rs = stmt.getResultSet()) {
+                        while (rs.next()) {
+                            // do nothing
                         }
-                    } while(stmt.getMoreResults());
-                } else {
-                    // Case for UPDATE, INSERT, DELETE queries
-                    // do nothing
-                }    
+                    } catch (Exception resultException){
+                        resultException.printStackTrace();
+                        throw new RuntimeException("Could not retrieve ResultSet");
+                    }
+                } while(stmt.getMoreResults());
+            } else {
+                // Case for UPDATE, INSERT, DELETE queries
+                // do nothing
+            }    
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Error when trying to execute statement");
