@@ -34,7 +34,7 @@ public abstract class GenericQuery extends Procedure {
 
     protected static final Logger LOG = LoggerFactory.getLogger(GenericQuery.class);
 
-     /** Execution method with parameters. */
+    /** Execution method with parameters. */
     public void run(Connection conn, List<Object> params) throws SQLException {
 
         try (PreparedStatement stmt = getStatement(conn, params)) {
