@@ -17,6 +17,7 @@
 package com.oltpbenchmark.benchmarks.templated.util;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import com.oltpbenchmark.api.Operation;
@@ -30,7 +31,7 @@ public class GenericQueryOperation extends Operation {
 
     public GenericQueryOperation(TemplatedValue[] params) {
         super();
-        this.params = Arrays.asList(params);
+        this.params = Collections.unmodifiableList(Arrays.asList(params));
     }
 
     public List<TemplatedValue> getParams() {

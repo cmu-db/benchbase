@@ -4,6 +4,7 @@ import java.util.Random;
 
 import com.oltpbenchmark.distributions.ScrambledZipfianGenerator;
 import com.oltpbenchmark.distributions.ZipfianGenerator;
+import com.oltpbenchmark.util.TextGenerator;
 
 /**
  * This class is used to store information about the values
@@ -23,20 +24,21 @@ public class TemplatedValue {
 
     /**
      * 
-     * @param dist  The desired value distribution
+     * @param distribution  The desired value distribution
      * @param min   Minimum value. Default is 0
      * @param max   Maximum value. Default is 1
      * @param seed  The seed for the random generator. Default is 0
      * @param value Value that is used if no distribution is given
      */
-    public TemplatedValue(String dist, String min, String max, String seed, String value) {
+    public TemplatedValue(String distribution, String min, String max, String seed, String value) {
         this.min = min == null ? 0 : Long.parseLong(min);
         this.max = max == null ? 1 : Long.parseLong(max);
         this.seed = seed == null ? 0 : Long.parseLong(seed);
         this.value = value;
 
-        this.generatorObject = createGenerator(dist, this.min, this.max, this.seed);
+        this.generatorObject = createGenerator(distribution, this.min, this.max, this.seed);
 
+        //String values are kept for the construction of Floating Point bounds
         this.minS = min;
         this.maxS = max;
     }
@@ -51,9 +53,10 @@ public class TemplatedValue {
      */
     private Object createGenerator(String distribution, Long min, Long max, Long seed) {
 
-        if (distribution == null || distribution.equals("null") || distribution.length() < 1)
+        if (distribution == null || distribution.equals("null") || distribution.length() < 1){
             return null;
-
+        }
+            
         switch (distribution.toLowerCase()) {
             case "uniform":
                 this.distribution = ValueGenerator.UNIFORM;
@@ -108,5 +111,56 @@ public class TemplatedValue {
 
     public Object getGenerator() {
         return this.generatorObject;
+    }
+
+    public Long getNextLongBinomial(){
+        Random binomialGenerator = (Random) this.generatorObject;
+        Long generatedValue;
+        do {
+            generatedValue = Double.valueOf(this.min + Math.abs(binomialGenerator.nextGaussian()) * this.max).longValue();
+        } while (generatedValue > max || generatedValue < min); 
+
+        return generatedValue;
+    }
+
+    public Long getNextLongUniform(){
+        Random uniformGenerator = (Random) this.generatorObject;
+        return uniformGenerator.nextLong(this.min, this.max);
+    }
+
+    public Long getNextLongZipf(){
+        ZipfianGenerator zipfianGenerator = (ZipfianGenerator) this.generatorObject;
+        return zipfianGenerator.nextLong();
+    }
+
+    public Long getNextLongScrambled(){
+        ScrambledZipfianGenerator scrambledGenerator = (ScrambledZipfianGenerator) this.generatorObject;
+        return scrambledGenerator.nextLong();
+    }
+
+    public String getNextString(){
+        Random stringGenerator = (Random) this.generatorObject;
+        return TextGenerator.randomStr(stringGenerator, this.max.intValue());
+    }
+
+    public Float getNextFloatUniform(){
+        Random floatGenerator = (Random) this.generatorObject;
+        return floatGenerator.nextFloat(Float.parseFloat(this.minS), Float.parseFloat(this.maxS));
+    }
+
+    public Float getNextFloatBinomial(){
+        Float minF = Float.parseFloat(this.minS);
+        Float maxF = Float.parseFloat(this.maxS);
+        Random floatGenerator = (Random) this.generatorObject;
+        Float generatedFloat;
+        do {
+            generatedFloat = (float) (minF + Math.abs(floatGenerator.nextGaussian()) * maxF);
+        } while (generatedFloat > maxF || generatedFloat < minF);
+
+        return generatedFloat;
+    }
+
+    public RuntimeException createRuntimeException(String paramType){
+        return new RuntimeException("Distribution: " + this.distribution + " not supported for type: " + paramType);
     }
 }

@@ -64,19 +64,19 @@
     <template name="UpdateItemPrice">
       <query><![CDATA[UPDATE item SET i_price = i_price + 1 WHERE i_price < ?]]></query>
       <types>
-         <type>FLOAT</type>
+         <type>INTEGER</type>
       </types>
       <values>
-         <value>2.1</value>
+         <value dist="zipf" min="10" max="40">2.1</value>
       </values>
    </template>
    <template name="DeleteItem">
-      <query><![CDATA[DELETE FROM item WHERE i_price > ?]]></query>
+      <query><![CDATA[DELETE FROM oorder WHERE o_entry_d < ?]]></query>
       <types>
-         <type>FLOAT</type>
+         <type>TIMESTAMP</type>
       </types>
       <values>
-         <value>255.0</value>
+         <value dist="scrambled" min="1000" max="300000"></value>
       </values>
    </template>
    <template name="InsertItem">
@@ -90,10 +90,10 @@
       </types>
       <values>
          <value>100001</value>
-         <value>Testname</value>
-         <value>255.1</value>
-         <value>Testdata</value>
-         <value>1</value>
+         <value dist="uniform" min="0" max="5" />
+         <value dist="binomial" min="0" max="2" />
+         <value dist="uniform" min="0" max="10" />
+         <value dist="zipf" min="0" max="10" />
       </values>
    </template>
 </templates>
