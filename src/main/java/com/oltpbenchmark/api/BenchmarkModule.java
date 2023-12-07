@@ -15,6 +15,7 @@
  *
  */
 
+
 package com.oltpbenchmark.api;
 
 import com.oltpbenchmark.WorkloadConfiguration;
