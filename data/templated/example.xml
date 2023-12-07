@@ -61,4 +61,39 @@
          <value>11</value>
       </values>
    </template>
+    <template name="UpdateItemPrice">
+      <query><![CDATA[UPDATE item SET i_price = i_price + 1 WHERE i_price < ?]]></query>
+      <types>
+         <type>FLOAT</type>
+      </types>
+      <values>
+         <value>2.1</value>
+      </values>
+   </template>
+   <template name="DeleteItem">
+      <query><![CDATA[DELETE FROM item WHERE i_price > ?]]></query>
+      <types>
+         <type>FLOAT</type>
+      </types>
+      <values>
+         <value>255.0</value>
+      </values>
+   </template>
+   <template name="InsertItem">
+      <query><![CDATA[INSERT INTO item VALUES(?,?,?,?,?)]]></query>
+      <types>
+         <type>INTEGER</type>
+         <type>VARCHAR</type>
+         <type>FLOAT</type>
+         <type>VARCHAR</type>
+         <type>INTEGER</type>
+      </types>
+      <values>
+         <value>100001</value>
+         <value>Testname</value>
+         <value>255.1</value>
+         <value>Testdata</value>
+         <value>1</value>
+      </values>
+   </template>
 </templates>
