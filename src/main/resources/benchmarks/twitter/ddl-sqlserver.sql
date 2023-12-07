@@ -8,7 +8,7 @@ IF OBJECT_ID('[user_profiles]') IS NOT NULL DROP table [dbo].[user_profiles];
 
 -- Create Tables
 CREATE TABLE [dbo].[user_profiles] (
-  uid int NOT NULL,
+  uid bigint NOT NULL,
   name varchar(255) DEFAULT NULL,
   email varchar(255) DEFAULT NULL,
   partitionid int DEFAULT NULL,
@@ -18,21 +18,21 @@ CREATE TABLE [dbo].[user_profiles] (
 );
 
 CREATE TABLE [dbo].[followers] (
-  f1 int NOT NULL REFERENCES [user_profiles] (uid),
-  f2 int NOT NULL REFERENCES [user_profiles] (uid),
+  f1 bigint NOT NULL REFERENCES [user_profiles] (uid),
+  f2 bigint NOT NULL REFERENCES [user_profiles] (uid),
   PRIMARY KEY (f1,f2)
 );
 
 CREATE TABLE [dbo].[follows] (
-  f1 int NOT NULL REFERENCES [user_profiles] (uid),
-  f2 int NOT NULL REFERENCES [user_profiles] (uid),
+  f1 bigint NOT NULL REFERENCES [user_profiles] (uid),
+  f2 bigint NOT NULL REFERENCES [user_profiles] (uid),
   PRIMARY KEY (f1,f2)
 );
 
 -- TODO: id AUTO_INCREMENT
 CREATE TABLE [dbo].[tweets] (
   id bigint NOT NULL,
-  uid int NOT NULL REFERENCES [user_profiles] (uid),
+  uid bigint NOT NULL REFERENCES [user_profiles] (uid),
   text char(140) NOT NULL,
   createdate datetime DEFAULT NULL,
   PRIMARY KEY (id)
@@ -40,7 +40,7 @@ CREATE TABLE [dbo].[tweets] (
 
 CREATE TABLE [dbo].[added_tweets] (
   id bigint NOT NULL identity(1,1),
-  uid int NOT NULL REFERENCES [user_profiles] (uid),
+  uid bigint NOT NULL REFERENCES [user_profiles] (uid),
   text char(140) NOT NULL,
   createdate datetime DEFAULT NULL,
   PRIMARY KEY (id)

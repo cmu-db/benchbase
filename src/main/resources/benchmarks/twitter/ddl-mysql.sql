@@ -8,7 +8,7 @@ DROP TABLE IF EXISTS added_tweets CASCADE;
 DROP TABLE IF EXISTS user_profiles CASCADE;
 
 CREATE TABLE user_profiles (
-    uid          int NOT NULL,
+    uid          bigint NOT NULL,
     name         varchar(255) DEFAULT NULL,
     email        varchar(255) DEFAULT NULL,
     partitionid  int          DEFAULT NULL,
@@ -20,16 +20,16 @@ CREATE INDEX idx_user_followers ON user_profiles (followers);
 CREATE INDEX idx_user_partition ON user_profiles (partitionid);
 
 CREATE TABLE followers (
-    f1 int NOT NULL,
-    f2 int NOT NULL,
+    f1 bigint NOT NULL,
+    f2 bigint NOT NULL,
     FOREIGN KEY (f1) REFERENCES user_profiles (uid) ON DELETE CASCADE,
     FOREIGN KEY (f2) REFERENCES user_profiles (uid) ON DELETE CASCADE,
     PRIMARY KEY (f1, f2)
 );
 
 CREATE TABLE follows (
-    f1 int NOT NULL,
-    f2 int NOT NULL,
+    f1 bigint NOT NULL,
+    f2 bigint NOT NULL,
     FOREIGN KEY (f1) REFERENCES user_profiles (uid) ON DELETE CASCADE,
     FOREIGN KEY (f2) REFERENCES user_profiles (uid) ON DELETE CASCADE,
     PRIMARY KEY (f1, f2)
@@ -37,7 +37,7 @@ CREATE TABLE follows (
 
 CREATE TABLE tweets (
     id         bigint    NOT NULL,
-    uid        int       NOT NULL,
+    uid        bigint       NOT NULL,
     text       char(140) NOT NULL,
     createdate datetime DEFAULT NULL,
     FOREIGN KEY (uid) REFERENCES user_profiles (uid) ON DELETE CASCADE,
@@ -47,7 +47,7 @@ CREATE INDEX idx_tweets_uid ON tweets (uid);
 
 CREATE TABLE added_tweets (
     id         bigint    NOT NULL AUTO_INCREMENT,
-    uid        int       NOT NULL,
+    uid        bigint       NOT NULL,
     text       char(140) NOT NULL,
     createdate datetime DEFAULT NULL,
     FOREIGN KEY (uid) REFERENCES user_profiles (uid) ON DELETE CASCADE,

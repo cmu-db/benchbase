@@ -32,24 +32,18 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
 public class TwitterLoader extends Loader<TwitterBenchmark> {
-    private final int num_users;
-    private final long num_tweets;
-    private final int num_follows;
+
+    private final int followerSeed;
 
     public TwitterLoader(TwitterBenchmark benchmark) {
         super(benchmark);
-        this.num_users = (int) Math.round(TwitterConstants.NUM_USERS * this.scaleFactor);
-        this.num_tweets = (int) Math.round(TwitterConstants.NUM_TWEETS * this.scaleFactor);
-        this.num_follows = (int) Math.round(TwitterConstants.MAX_FOLLOW_PER_USER * this.scaleFactor);
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("# of USERS:  {}", this.num_users);
-            LOG.debug("# of TWEETS: {}", this.num_tweets);
-            LOG.debug("# of FOLLOWS: {}", this.num_follows);
-        }
+        this.followerSeed = rng().nextInt();
     }
 
     @Override
@@ -57,24 +51,23 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
         List<LoaderThread> threads = new ArrayList<>();
         final int numLoaders = this.benchmark.getWorkloadConfiguration().getLoaderThreads();
         // first we load USERS
-        final int itemsPerThread = Math.max(this.num_users / numLoaders, 1);
-        final int numUserThreads = (int) Math.ceil((double) this.num_users / itemsPerThread);
+        final long itemsPerThread = Math.max(this.benchmark.numUsers / numLoaders, 1);
+        final int numUserThreads = (int) Math.ceil((double) this.benchmark.numUsers / itemsPerThread);
         // then we load FOLLOWS and TWEETS
-        final long tweetsPerThread = Math.max(this.num_tweets / numLoaders, 1);
-        final int numTweetThreads = (int) Math.ceil((double) this.num_tweets / tweetsPerThread);
+        final long tweetsPerThread = Math.max(this.benchmark.numTweets / numLoaders, 1);
+        final int numTweetThreads = (int) Math.ceil((double) this.benchmark.numTweets / tweetsPerThread);
 
         final CountDownLatch userLatch = new CountDownLatch(numUserThreads);
 
         // USERS
         for (int i = 0; i < numUserThreads; i++) {
-            final int lo = i * itemsPerThread + 1;
-            final int hi = Math.min(this.num_users, (i + 1) * itemsPerThread);
+            final long lo = i * itemsPerThread + 1;
+            final long hi = Math.min(this.benchmark.numUsers, (i + 1) * itemsPerThread);
 
             threads.add(new LoaderThread(this.benchmark) {
                 @Override
                 public void load(Connection conn) throws SQLException {
                     loadUsers(conn, lo, hi);
-
                 }
 
                 @Override
@@ -86,13 +79,12 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
 
         // FOLLOW_DATA depends on USERS
         for (int i = 0; i < numUserThreads; i++) {
-            final int lo = i * itemsPerThread + 1;
-            final int hi = Math.min(this.num_users, (i + 1) * itemsPerThread);
+            final long lo = i * itemsPerThread + 1;
+            final long hi = Math.min(this.benchmark.numUsers, (i + 1) * itemsPerThread);
 
             threads.add(new LoaderThread(this.benchmark) {
                 @Override
                 public void load(Connection conn) throws SQLException {
-
                     loadFollowData(conn, lo, hi);
                 }
 
@@ -111,13 +103,11 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
         // TWEETS depends on USERS
         for (int i = 0; i < numTweetThreads; i++) {
             final long lo = i * tweetsPerThread + 1;
-            final long hi = Math.min(this.num_tweets, (i + 1) * tweetsPerThread);
+            final long hi = Math.min(this.benchmark.numTweets, (i + 1) * tweetsPerThread);
 
             threads.add(new LoaderThread(this.benchmark) {
                 @Override
                 public void load(Connection conn) throws SQLException {
-
-
                     loadTweets(conn, lo, hi);
                 }
 
@@ -136,45 +126,52 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
     }
 
     /**
+     * Quick and dirty way to deterministicly get the number of followers to insert
+     * for a given user id
+     * @param uid
+     * @return
+     */
+    private int computeNumFollowers(long uid) {
+        return (Math.round(uid * this.followerSeed) % this.benchmark.numFollows);
+    }
+
+
+    /**
      * @throws SQLException
      * @author Djellel Load num_users users.
      */
-    protected void loadUsers(Connection conn, int lo, int hi) throws SQLException {
+    protected void loadUsers(Connection conn, long lo, long hi) throws SQLException {
         Table catalog_tbl = benchmark.getCatalog().getTable(TwitterConstants.TABLENAME_USER);
-
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
 
-        int total = 0;
+        NameHistogram name_h = new NameHistogram();
+        FlatHistogram<Integer> name_len_rng = new FlatHistogram<>(this.rng(), name_h);
 
+        int total = 0;
         try (PreparedStatement userInsert = conn.prepareStatement(sql)) {
             int batchSize = 0;
 
-            NameHistogram name_h = new NameHistogram();
-            FlatHistogram<Integer> name_len_rng = new FlatHistogram<>(this.rng(), name_h);
-
-
-            for (int i = lo; i <= hi; i++) {
+            for (long i = lo; i <= hi; i++) {
                 // Generate a random username for this user
                 int name_length = name_len_rng.nextValue();
                 String name = TextGenerator.randomStr(this.rng(), name_length);
 
-                userInsert.setInt(1, i); // ID
+                userInsert.setLong(1, i); // ID
                 userInsert.setString(2, name); // NAME
                 userInsert.setString(3, name + "@tweeter.com"); // EMAIL
-                userInsert.setNull(4, java.sql.Types.INTEGER);
-                userInsert.setNull(5, java.sql.Types.INTEGER);
-                userInsert.setNull(6, java.sql.Types.INTEGER);
+                userInsert.setNull(4, java.sql.Types.INTEGER); // PARTITION1
+                userInsert.setNull(5, java.sql.Types.INTEGER); // PARTITION2
+                userInsert.setInt(6, this.computeNumFollowers(i)); // NUM_FOLLOWERS
                 userInsert.addBatch();
 
                 batchSize++;
                 total++;
                 if ((batchSize % workConf.getBatchSize()) == 0) {
-                    int[] result = userInsert.executeBatch();
-
+                    userInsert.executeBatch();
                     userInsert.clearBatch();
                     batchSize = 0;
                     if (LOG.isDebugEnabled()) {
-                        LOG.debug(String.format("Users %d / %d", total, this.num_users));
+                        LOG.debug(String.format("Users %d / %d", total, this.benchmark.numUsers));
                     }
                 }
             }
@@ -196,26 +193,20 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
      */
     protected void loadTweets(Connection conn, long lo, long hi) throws SQLException {
         Table catalog_tbl = benchmark.getCatalog().getTable(TwitterConstants.TABLENAME_TWEETS);
-
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
 
+        FlatHistogram<Integer> tweet_len_rng = new FlatHistogram<>(this.rng(), new TweetHistogram());
+        ScrambledZipfianGenerator zy = new ScrambledZipfianGenerator(1, this.benchmark.numUsers);
+
         int total = 0;
-
         try (PreparedStatement tweetInsert = conn.prepareStatement(sql)) {
-
-
             int batchSize = 0;
-            ScrambledZipfianGenerator zy = new ScrambledZipfianGenerator(1, this.num_users);
-
-            TweetHistogram tweet_h = new TweetHistogram();
-            FlatHistogram<Integer> tweet_len_rng = new FlatHistogram<>(this.rng(), tweet_h);
-
             for (long i = lo; i <= hi; i++) {
                 int uid = zy.nextInt();
                 tweetInsert.setLong(1, i);
                 tweetInsert.setInt(2, uid);
                 tweetInsert.setString(3, TextGenerator.randomStr(this.rng(), tweet_len_rng.nextValue()));
-                tweetInsert.setNull(4, java.sql.Types.DATE);
+                tweetInsert.setDate(4, new java.sql.Date(System.currentTimeMillis()));
                 tweetInsert.addBatch();
                 batchSize++;
                 total++;
@@ -225,7 +216,7 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
                     tweetInsert.clearBatch();
                     batchSize = 0;
                     if (LOG.isDebugEnabled()) {
-                        LOG.debug("tweet % {}/{}", total, this.num_tweets);
+                        LOG.debug("tweet % {}/{}", total, this.benchmark.numTweets);
                     }
                 }
             }
@@ -234,7 +225,7 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
             }
         }
         if (LOG.isDebugEnabled()) {
-            LOG.debug("[Tweets Loaded] {}", this.num_tweets);
+            LOG.debug("[Tweets Loaded] {}", this.benchmark.numTweets);
         }
     }
 
@@ -247,47 +238,43 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
      * correlation: ZipfianGenerator (describes the followed most)
      * ScrambledZipfianGenerator (describes the heavy tweeters)
      */
-    protected void loadFollowData(Connection conn, int lo, int hi) throws SQLException {
-
-        int total = 1;
-
+    protected void loadFollowData(Connection conn, long lo, long hi) throws SQLException {
         Table followsTable = benchmark.getCatalog().getTable(TwitterConstants.TABLENAME_FOLLOWS);
-        Table followersTable = benchmark.getCatalog().getTable(TwitterConstants.TABLENAME_FOLLOWERS);
-
         String followsTableSql = SQLUtil.getInsertSQL(followsTable, this.getDatabaseType());
+
+        Table followersTable = benchmark.getCatalog().getTable(TwitterConstants.TABLENAME_FOLLOWERS);
         String followersTableSql = SQLUtil.getInsertSQL(followersTable, this.getDatabaseType());
 
+        ZipfianGenerator zipfFollowee = new ZipfianGenerator(rng(),1, this.benchmark.numUsers, 1.75);
+        ZipfianGenerator zipfFollows = new ZipfianGenerator(rng(), this.benchmark.numFollows, 1.75);
+
+        int total = 1;
         try (PreparedStatement followsInsert = conn.prepareStatement(followsTableSql);
              PreparedStatement followersInsert = conn.prepareStatement(followersTableSql)) {
-
-
             int batchSize = 0;
-
-            ZipfianGenerator zipfFollowee = new ZipfianGenerator(rng(),1, this.num_users, 1.75);
-            ZipfianGenerator zipfFollows = new ZipfianGenerator(rng(), this.num_follows, 1.75);
-            List<Integer> followees = new ArrayList<>();
-            for (int follower = lo; follower <= hi; follower++) {
+            Set<Long> followees = new HashSet<>();
+            for (long follower = lo; follower <= hi; follower++) {
                 followees.clear();
+
                 int time = zipfFollows.nextInt();
                 if (time == 0) {
                     time = 1; // At least this follower will follow 1 user
                 }
                 for (int f = 0; f < time; ) {
-                    int followee = zipfFollowee.nextInt();
+                    long followee = zipfFollowee.nextLong();
                     if (follower != followee && !followees.contains(followee)) {
-                        followsInsert.setInt(1, follower);
-                        followsInsert.setInt(2, followee);
+                        followsInsert.setLong(1, follower);
+                        followsInsert.setLong(2, followee);
                         followsInsert.addBatch();
 
-                        followersInsert.setInt(1, followee);
-                        followersInsert.setInt(2, follower);
+                        followersInsert.setLong(1, followee);
+                        followersInsert.setLong(2, follower);
                         followersInsert.addBatch();
 
                         followees.add(followee);
 
                         total++;
                         batchSize++;
-
 
                         if ((batchSize % workConf.getBatchSize()) == 0) {
                             followsInsert.executeBatch();
@@ -296,11 +283,10 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
                             followersInsert.clearBatch();
                             batchSize = 0;
                             if (LOG.isDebugEnabled()) {
-                                LOG.debug("Follows  % {}", (int) (((double) follower / (double) this.num_users) * 100));
+                                LOG.debug("Follows  % {}", (int) (((double) follower / (double) this.benchmark.numUsers) * 100));
                             }
                         }
                     }
-
                     f++;
                 }
             }

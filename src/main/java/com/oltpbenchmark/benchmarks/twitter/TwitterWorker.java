@@ -19,12 +19,10 @@
 package com.oltpbenchmark.benchmarks.twitter;
 
 import com.oltpbenchmark.api.Procedure.UserAbortException;
-import com.oltpbenchmark.api.TransactionGenerator;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.twitter.procedures.*;
 import com.oltpbenchmark.benchmarks.twitter.util.TweetHistogram;
-import com.oltpbenchmark.benchmarks.twitter.util.TwitterOperation;
 import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.RandomDistribution.FlatHistogram;
 import com.oltpbenchmark.util.TextGenerator;
@@ -34,69 +32,59 @@ import java.sql.SQLException;
 import java.sql.Time;
 
 public class TwitterWorker extends Worker<TwitterBenchmark> {
-    private final TransactionGenerator<TwitterOperation> generator;
 
     private final FlatHistogram<Integer> tweet_len_rng;
-    private final int num_users;
 
-    public TwitterWorker(TwitterBenchmark benchmarkModule, int id, TransactionGenerator<TwitterOperation> generator) {
+    public TwitterWorker(TwitterBenchmark benchmarkModule, int id) {
         super(benchmarkModule, id);
-        this.generator = generator;
-        this.num_users = (int) Math.round(TwitterConstants.NUM_USERS * this.getWorkloadConfiguration().getScaleFactor());
-
         TweetHistogram tweet_h = new TweetHistogram();
         this.tweet_len_rng = new FlatHistogram<>(this.rng(), tweet_h);
     }
 
     @Override
     protected TransactionStatus executeWork(Connection conn, TransactionType nextTrans) throws UserAbortException, SQLException {
-        TwitterOperation t = generator.nextTransaction();
         // zero is an invalid id, so fixing random here to be atleast 1
-        t.uid = this.rng().nextInt(this.num_users - 1 ) + 1;
+        long uid = this.rng().nextLong(this.getBenchmark().numUsers - 1 ) + 1;
 
         if (nextTrans.getProcedureClass().equals(GetTweet.class)) {
-            doSelect1Tweet(conn, t.tweetid);
+            long tweet_id = this.rng().nextLong(this.getBenchmark().numTweets - 1 ) + 1;
+            doSelect1Tweet(conn, tweet_id);
         } else if (nextTrans.getProcedureClass().equals(GetTweetsFromFollowing.class)) {
-            doSelectTweetsFromPplIFollow(conn, t.uid);
+            doSelectTweetsFromPplIFollow(conn, uid);
         } else if (nextTrans.getProcedureClass().equals(GetFollowers.class)) {
-            doSelectNamesOfPplThatFollowMe(conn, t.uid);
+            doSelectNamesOfPplThatFollowMe(conn, uid);
         } else if (nextTrans.getProcedureClass().equals(GetUserTweets.class)) {
-            doSelectTweetsForUid(conn, t.uid);
+            doSelectTweetsForUid(conn, uid);
         } else if (nextTrans.getProcedureClass().equals(InsertTweet.class)) {
             int len = this.tweet_len_rng.nextValue();
             String text = TextGenerator.randomStr(this.rng(), len);
-            doInsertTweet(conn, t.uid, text);
+            doInsertTweet(conn, uid, text);
         }
         return (TransactionStatus.SUCCESS);
     }
 
-    public void doSelect1Tweet(Connection conn, int tweet_id) throws SQLException {
+    public void doSelect1Tweet(Connection conn, long tweet_id) throws SQLException {
         GetTweet proc = this.getProcedure(GetTweet.class);
-
         proc.run(conn, tweet_id);
     }
 
-    public void doSelectTweetsFromPplIFollow(Connection conn, int uid) throws SQLException {
+    public void doSelectTweetsFromPplIFollow(Connection conn, long uid) throws SQLException {
         GetTweetsFromFollowing proc = this.getProcedure(GetTweetsFromFollowing.class);
-
         proc.run(conn, uid);
     }
 
-    public void doSelectNamesOfPplThatFollowMe(Connection conn, int uid) throws SQLException {
+    public void doSelectNamesOfPplThatFollowMe(Connection conn, long uid) throws SQLException {
         GetFollowers proc = this.getProcedure(GetFollowers.class);
-
         proc.run(conn, uid);
     }
 
-    public void doSelectTweetsForUid(Connection conn, int uid) throws SQLException {
+    public void doSelectTweetsForUid(Connection conn, long uid) throws SQLException {
         GetUserTweets proc = this.getProcedure(GetUserTweets.class);
-
         proc.run(conn, uid);
     }
 
-    public void doInsertTweet(Connection conn, int uid, String text) throws SQLException {
+    public void doInsertTweet(Connection conn, long uid, String text) throws SQLException {
         InsertTweet proc = this.getProcedure(InsertTweet.class);
-
         Time time = new Time(System.currentTimeMillis());
         proc.run(conn, uid, text, time);
 
