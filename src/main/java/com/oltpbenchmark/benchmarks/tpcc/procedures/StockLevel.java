@@ -36,15 +36,15 @@ public class StockLevel extends TPCCProcedure {
 
     public SQLStmt stockGetDistOrderIdSQL = new SQLStmt(
     """
-        SELECT D_NEXT_O_ID 
+        SELECT D_NEXT_O_ID
           FROM  %s
-         WHERE D_W_ID = ? 
+         WHERE D_W_ID = ?
            AND D_ID = ?
     """.formatted(TPCCConstants.TABLENAME_DISTRICT));
 
     public SQLStmt stockGetCountStockSQL = new SQLStmt(
     """
-        SELECT COUNT(DISTINCT (S_I_ID)) AS STOCK_COUNT 
+        SELECT COUNT(DISTINCT (S_I_ID)) AS STOCK_COUNT
          FROM  %s, %s
          WHERE OL_W_ID = ?
          AND OL_D_ID = ?

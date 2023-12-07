@@ -41,7 +41,7 @@ public class Payment extends TPCCProcedure {
     """
         UPDATE %s
            SET W_YTD = W_YTD + ?
-         WHERE W_ID = ? 
+         WHERE W_ID = ?
     """.formatted(TPCCConstants.TABLENAME_WAREHOUSE));
 
     public SQLStmt payGetWhseSQL = new SQLStmt(
