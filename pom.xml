@@ -282,6 +282,14 @@
                 <configuration>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
+                    <showWarnings>true</showWarnings>
+                    <compilerArgs>
+                        <!-- Enable all linter messages for the compiler. -->
+                        <!-- TODO: Remove annotations preprocess warning exception. -->
+                        <arg>-Xlint:all,-processing</arg>
+                        <!-- Turn all warnings into errors to help keep the code clean. -->
+                        <arg>-Werror</arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
             <plugin>
