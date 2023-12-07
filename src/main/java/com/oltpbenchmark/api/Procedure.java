@@ -37,6 +37,11 @@ public abstract class Procedure {
 
     private final String procName;
     private DatabaseType dbType;
+
+    public DatabaseType getDbType() {
+        return dbType;
+    }
+
     private Map<String, SQLStmt> name_stmt_xref;
 
     /**

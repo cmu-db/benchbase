@@ -36,7 +36,7 @@ public class CPU1 extends Procedure {
         for (int i = 1; i <= ResourceStresserWorker.CPU1_nestedLevel; ++i) {
             complexClause = "md5(concat(" + complexClause + ",?))";
         }
-        cpuSelect = new SQLStmt("SELECT count(*) FROM (SELECT " + complexClause + " FROM " + ResourceStresserConstants.TABLENAME_CPUTABLE + " WHERE empid >= 0 AND empid < 100) AS T1");
+        cpuSelect = new SQLStmt("SELECT count(*) FROM (SELECT " + complexClause + " FROM " + ResourceStresserConstants.TABLENAME_CPUTABLE + " WHERE empid >= 0 AND empid < 100) T1");
     }
 
     public void run(Connection conn, int howManyPerTransaction, int sleepLength, int nestedLevel) throws SQLException {

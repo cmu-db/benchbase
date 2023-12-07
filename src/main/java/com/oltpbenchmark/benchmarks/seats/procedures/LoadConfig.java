@@ -20,6 +20,7 @@ package com.oltpbenchmark.benchmarks.seats.procedures;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.seats.SEATSConstants;
+import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.SQLUtil;
 
 import java.sql.Connection;
@@ -67,6 +68,17 @@ public class LoadConfig extends Procedure {
         try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, getConfigProfile)) {
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 configProfile = SQLUtil.toList(resultSet);
+                // Oracle DB DDL contains some CLOB fields (for LoadConfig procedures).
+                // These CLOB needs to be converted to String while the connection is alive.
+
+                // This CLOB conversion for Oracle needs to be done here, otherwise the conversion will be attempted
+                // by SQLUtil.getString(Object) after the connection closes, which will result in
+                // java.sql.SQLRecoverableException: Closed Connection.
+                if (getDbType() == DatabaseType.ORACLE) {
+                    for (Object[] configProfileInstance: configProfile) {
+                        configProfileInstance[1] = SQLUtil.clobToString(configProfileInstance[1]);
+                    }
+                }
             }
         }
 
@@ -74,6 +86,17 @@ public class LoadConfig extends Procedure {
         try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, getConfigHistogram)) {
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 histogram = SQLUtil.toList(resultSet);
+                // Oracle DB DDL contains some CLOB fields (for LoadConfig procedures).
+                // These CLOB needs to be converted to String while the connection is alive.
+
+                // This CLOB conversion for Oracle needs to be done here, otherwise the conversion will be attempted
+                // by SQLUtil.getString(Object) after the connection closes, which will result in
+                // java.sql.SQLRecoverableException: Closed Connection.
+                if (getDbType() == DatabaseType.ORACLE) {
+                    for (Object[] histogramInstance: histogram) {
+                        histogramInstance[1] = SQLUtil.clobToString(histogramInstance[1]);
+                    }
+                }
             }
         }
 

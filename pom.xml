@@ -88,6 +88,22 @@
                 </dependency>
             </dependencies>
         </profile>
+        <!-- Oracle DB driver needed in profile compilation -->
+        <profile>
+            <id>oracle</id>
+            <properties>
+                <classifier>oracle</classifier>
+            </properties>
+            <dependencies>
+                <!-- https://mvnrepository.com/artifact/com.oracle.database.jdbc/ojdbc11 -->
+                <dependency>
+                    <groupId>com.oracle.database.jdbc</groupId>
+                    <artifactId>ojdbc11</artifactId>
+                    <version>21.5.0.0</version>
+                    <scope>runtime</scope>
+                </dependency>
+            </dependencies>
+        </profile>
         <profile>
             <id>mariadb</id>
             <properties>
@@ -159,7 +175,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>2.0.7</version>
+            <version>2.0.9</version>
         </dependency>
 
         <dependency>
@@ -195,7 +211,7 @@
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.12.0</version>
+            <version>2.15.1</version>
         </dependency>
 
         <dependency>
@@ -251,7 +267,7 @@
         <dependency>
             <groupId>org.codehaus.janino</groupId>
             <artifactId>janino</artifactId>
-            <version>3.1.10</version>
+            <version>3.1.11</version>
         </dependency>
 
     </dependencies>

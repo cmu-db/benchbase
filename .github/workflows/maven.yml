@@ -58,7 +58,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        profile: [ 'cockroachdb', 'mariadb', 'mysql', 'postgres', 'spanner', 'phoenix', 'sqlserver', 'sqlite' ]
+        profile: [ 'cockroachdb', 'mariadb', 'mysql', 'oracle', 'phoenix', 'postgres', 'spanner', 'sqlite', 'sqlserver' ]
     steps:
     - name: Checkout repo
       uses: actions/checkout@v4
@@ -268,6 +268,83 @@ jobs:
               ERRORS_THRESHOLD=0.02
           elif [ ${{matrix.benchmark}} == tatp ]; then
               ERRORS_THRESHOLD=0.05
+          fi
+          ./scripts/check_histogram_results.sh results/histograms.json $ERRORS_THRESHOLD
+
+  ## ----------------------------------------------------------------------------------
+  ## ORACLE
+  ## ----------------------------------------------------------------------------------
+  oracle:
+    needs: package-and-upload
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'twitter', 'voter', 'wikipedia', 'ycsb', 'templated' ]
+    services:
+      oracle:
+        image: gvenzl/oracle-xe:21.3.0-slim-faststart
+        ports:
+          - "1521:1521"
+          - "5500:5500"
+        env:
+          ORACLE_PASSWORD: password
+          ORACLE_CHARACTERSET: AL32UTF8
+          APP_USER: benchbase
+          APP_USER_PASSWORD: password
+        options: >-
+          --name oracle
+          --health-cmd "echo exit | sqlplus benchbase/password@xepdb1 | grep Connected"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+          --health-start-period 5s
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: benchbase-oracle
+
+      - name: Extract artifact
+        run: |
+          tar xvzf benchbase-oracle.tgz --strip-components=1
+
+      - name: Delete artifact
+        run: |
+          rm -rf benchbase-oracle.tgz
+
+      - name: Set up user reset script
+        run: |
+          docker cp config/oracle/scripts/reset.sql oracle:/opt/oracle/reset.sql
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{env.JAVA_VERSION}}
+          distribution: 'temurin'
+
+      - name: Run benchmark
+        run: |
+          docker exec oracle sqlplus "sys/password@xepdb1 as sysdba" @reset.sql
+          # For templated benchmarks, we need to preload some data for the test since by design, templated benchmarks do not support the 'load' operation
+          # In this case, we load the tpcc data.
+          if [[ ${{matrix.benchmark}} == templated ]]; then
+            java -jar benchbase.jar -b tpcc -c config/oracle/sample_tpcc_config.xml --create=true --load=true --execute=false --json-histograms results/histograms.json
+            java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/oracle/sample_${{matrix.benchmark}}_config.xml --create=false --load=false --execute=true --json-histograms results/histograms.json
+          else
+            java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/oracle/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
+          fi
+          # FIXME: Reduce the error rate so we don't need these overrides.
+          if [ ${{matrix.benchmark}} == auctionmark ]; then
+              ERRORS_THRESHOLD=0.04
+          elif [ ${{matrix.benchmark}} == tatp ]; then
+              ERRORS_THRESHOLD=0.05
+          elif [ ${{matrix.benchmark}} == tpcc ]; then
+              ERRORS_THRESHOLD=0.03
+          elif [ ${{matrix.benchmark}} == resourcestresser ]; then
+              ERRORS_THRESHOLD=0.04
+          elif [ ${{matrix.benchmark}} == wikipedia ]; then
+              ERRORS_THRESHOLD=0.02
           fi
           ./scripts/check_histogram_results.sh results/histograms.json $ERRORS_THRESHOLD
 
