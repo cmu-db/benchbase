@@ -24,6 +24,8 @@ import com.oltpbenchmark.types.SortDirectionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.*;
@@ -109,6 +111,15 @@ public abstract class SQLUtil {
         return (null);
     }
 
+    public static String clobToString(Object obj) {
+        try {
+            Clob clob = (Clob) obj;
+            return clob.getSubString(1, (int) clob.length());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static String getString(Object obj) {
         if (obj == null) {
             return (null);
@@ -116,6 +127,8 @@ public abstract class SQLUtil {
 
         if (obj instanceof String) {
             return (String) obj;
+        } else if (obj instanceof BigDecimal bigDecimal) {
+            return bigDecimal.toString();
         }
 
         LOG.warn("BAD BAD BAD: returning null because getString does not support {}", obj.getClass());
@@ -123,6 +136,34 @@ public abstract class SQLUtil {
         return (null);
     }
 
+    /**
+     * Support for Oracle DB introduced TIMESTAMP fields in Oracle DDL (for example, auctionmark CONFIG_PROFILE table),
+     *      which results in OJDBC-specific {@code oracle.sql.TIMESTAMP} object.
+     * {@link #getTimestamp(Object)} needs to be able to convert {@code oracle.sql.TIMESTAMP} into {@code java.sql.TIMESTAMP}.
+     *
+     * The main issue is that {@code oracle.sql.TIMESTAMP} is not available in JDBC, so trying to import and resolve the
+     *      type normally will break other database profiles.
+     * This can be solved by loading OJDBC-specific class + method reflectively.
+     */
+    private static final Class<?> ORACLE_TIMESTAMP;
+    private static final Method TIMESTAMP_VALUE_METHOD;
+    static {
+        Method timestampValueMethod;
+        Class<?> oracleTimestamp;
+        try {
+            // If oracle.sql.TIMESTAMP can be loaded
+            oracleTimestamp = Class.forName("oracle.sql.TIMESTAMP");
+            // Then java.sql.Timestamp oracle.sql.TIMESTAMP.timestampValue() can be loaded
+            timestampValueMethod = oracleTimestamp.getDeclaredMethod("timestampValue");
+        } catch (ClassNotFoundException | NoSuchMethodException e) {
+            oracleTimestamp = null;
+            timestampValueMethod = null;
+        }
+        // If loading is successful then both variables won't be null.
+        TIMESTAMP_VALUE_METHOD = timestampValueMethod;
+        ORACLE_TIMESTAMP = oracleTimestamp;
+    }
+    
     /**
      * Return a double from the given object
      * Handles the different cases from the various DBMSs
@@ -139,6 +180,13 @@ public abstract class SQLUtil {
             return (Timestamp) obj;
         } else if (obj instanceof Date) {
             return new Timestamp(((Date) obj).getTime());
+        } else if (ORACLE_TIMESTAMP != null && ORACLE_TIMESTAMP.isInstance(obj)) {
+            try {
+                // https://docs.oracle.com/en/database/oracle/oracle-database/21/jajdb/oracle/sql/TIMESTAMP.html#timestampValue__
+                return (Timestamp) TIMESTAMP_VALUE_METHOD.invoke(ORACLE_TIMESTAMP.cast(obj));
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         Long timestamp = SQLUtil.getLong(obj);
@@ -286,6 +334,7 @@ WHERE t.name='%s' AND c.name='%s'
             }
             case Types.DECIMAL:
             case Types.REAL:
+            case Types.NUMERIC:
             case Types.DOUBLE: {
                 ret = Double.parseDouble(value);
                 break;

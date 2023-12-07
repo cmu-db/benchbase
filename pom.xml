@@ -88,6 +88,22 @@
                 </dependency>
             </dependencies>
         </profile>
+        <!-- Oracle DB driver needed in profile compilation -->
+        <profile>
+            <id>oracle</id>
+            <properties>
+                <classifier>oracle</classifier>
+            </properties>
+            <dependencies>
+                <!-- https://mvnrepository.com/artifact/com.oracle.database.jdbc/ojdbc11 -->
+                <dependency>
+                    <groupId>com.oracle.database.jdbc</groupId>
+                    <artifactId>ojdbc11</artifactId>
+                    <version>21.5.0.0</version>
+                    <scope>runtime</scope>
+                </dependency>
+            </dependencies>
+        </profile>
         <profile>
             <id>mariadb</id>
             <properties>
