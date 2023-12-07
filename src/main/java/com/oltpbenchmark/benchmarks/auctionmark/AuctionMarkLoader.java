@@ -40,7 +40,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
-import static com.oltpbenchmark.types.DatabaseType.ORACLE;
+import com.oltpbenchmark.types.DatabaseType;
 
 /**
  * @author pavlo
@@ -442,7 +442,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             for (Column catalog_col : this.random_str_cols) {
                 int size = catalog_col.getSize();
                 // This (0) can generate an empty string which is treated as NULL in Oracle DB
-                int start = getDatabaseType() == ORACLE ? 1 : 0;
+                int start = getDatabaseType() == DatabaseType.ORACLE ? 1 : 0;
                 row[catalog_col.getIndex()] = profile.rng.astring(profile.rng.nextInt(start, size - 1), size);
                 cols++;
             }
