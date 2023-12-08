@@ -291,7 +291,7 @@ public class AuctionMarkProfile {
         this.items_per_category = other.items_per_category;
         this.gag_ids = other.gag_ids;
 
-        // Initialize the UserIdGenerator so we can figure out whether our 
+        // Initialize the UserIdGenerator so we can figure out whether our
         // client should even have these ids
         this.initializeUserIdGenerator(this.client_id);
 
@@ -866,7 +866,7 @@ public class AuctionMarkProfile {
                 continue;
             }
 
-            // If they want an item that is ending in the future, then we compare it with 
+            // If they want an item that is ending in the future, then we compare it with
             // the current timestamp
             if (needFutureEndDate) {
                 boolean compareTo = (temp.getEndDate().compareTo(currentTime) < 0);
