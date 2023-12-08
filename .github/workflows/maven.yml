@@ -558,7 +558,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DOCKER_BUILDKIT: 1
-      BENCHBASE_PROFILES: 'cockroachdb mariadb mysql postgres spanner phoenix sqlserver sqlite'
+      BENCHBASE_PROFILES: 'cockroachdb mariadb mysql oracle phoenix postgres spanner sqlite sqlserver'
       CONTAINER_REGISTRY_NAME: ${{ secrets.ACR_LOGINURL }}
     services:
       postgres: # https://hub.docker.com/_/postgres
