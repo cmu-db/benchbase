@@ -17,11 +17,13 @@
 
 package com.oltpbenchmark.util;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Random;
+import org.junit.Test;
 
-public class TestRandomDistribution extends TestCase {
+public class TestRandomDistribution {
 
     private final Random rand = new Random(0);
 
@@ -34,6 +36,7 @@ public class TestRandomDistribution extends TestCase {
     /**
      * testCalculateMean
      */
+    @Test
     public void testCalculateMean() throws Exception {
         final int expected = ((max - min) / 2) + min;
         final int samples = 10000;
@@ -48,6 +51,7 @@ public class TestRandomDistribution extends TestCase {
     /**
      * testHistory
      */
+    @Test
     public void testHistory() throws Exception {
         double sigma = 1.0000001d;
         RandomDistribution.Zipf zipf = new RandomDistribution.Zipf(this.rand, min, max, sigma);
@@ -69,6 +73,7 @@ public class TestRandomDistribution extends TestCase {
     /**
      * testGaussianInt
      */
+    @Test
     public void testGaussian() throws Exception {
         int expected = ((max - min) / 2) + min;
 
@@ -92,6 +97,7 @@ public class TestRandomDistribution extends TestCase {
     /**
      * testGaussianLong
      */
+    @Test
     public void testGaussianLong() throws Exception {
         int expected = ((max - min) / 2) + min;
 
@@ -115,6 +121,7 @@ public class TestRandomDistribution extends TestCase {
     /**
      * testZipfian
      */
+    @Test
     public void testZipfian() throws Exception {
         double sigma = 1.0000001d;
 
@@ -144,6 +151,7 @@ public class TestRandomDistribution extends TestCase {
     /**
      * testFlatHistogramInt
      */
+    @Test
     public void testFlatHistogramInt() throws Exception {
         Histogram<Integer> hist = new Histogram<Integer>();
         RandomDistribution.Zipf zipf = new RandomDistribution.Zipf(this.rand, min, max, 1.0000001d);
@@ -162,6 +170,7 @@ public class TestRandomDistribution extends TestCase {
     /**
      * testFlatHistogramLong
      */
+    @Test
     public void testFlatHistogramLong() throws Exception {
         Histogram<Long> hist = new Histogram<Long>();
         RandomDistribution.Zipf zipf = new RandomDistribution.Zipf(this.rand, min, max, 1.0000001d);

@@ -99,19 +99,22 @@ public class ResultWriter {
     }
 
     public void writeSummary(PrintStream os) {
-        Map<String, Object> summaryMap = new TreeMap<>();
+        Map<String, Object> summaryMap = new LinkedHashMap<>();
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         Date now = new Date();
+        summaryMap.put("Start timestamp (milliseconds)", results.getStartTimestampMs());
         summaryMap.put("Current Timestamp (milliseconds)", now.getTime());
+        summaryMap.put("Elapsed Time (nanoseconds)", results.getNanoseconds());
         summaryMap.put("DBMS Type", dbType);
         summaryMap.put("DBMS Version", collector.collectVersion());
         summaryMap.put("Benchmark Type", benchType);
-        summaryMap.put("Latency Distribution", results.getDistributionStatistics().toMap());
-        summaryMap.put("Throughput (requests/second)", results.requestsPerSecondThroughput());
-        summaryMap.put("Goodput (requests/second)", results.requestsPerSecondGoodput());
+        summaryMap.put("Measured Requests", results.getMeasuredRequests());
         for (String field : BENCHMARK_KEY_FIELD) {
             summaryMap.put(field, expConf.getString(field));
         }
+        summaryMap.put("Latency Distribution", results.getDistributionStatistics().toMap());
+        summaryMap.put("Throughput (requests/second)", results.requestsPerSecondThroughput());
+        summaryMap.put("Goodput (requests/second)", results.requestsPerSecondGoodput());
         os.println(JSONUtil.format(JSONUtil.toJSONString(summaryMap)));
     }
 

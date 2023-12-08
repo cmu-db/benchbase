@@ -104,20 +104,22 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                 SQLUtil.setIdentityInsert(conn, getDatabaseType(), catalog_tbl, true);
 
                 String sql = SQLUtil.getInsertSQL(catalog_tbl, benchmark.getWorkloadConfiguration().getDatabaseType());
+                // Empty string which is treated as NULL in Oracle DB
+                String dummyString = getDatabaseType() == DatabaseType.ORACLE ? " " : "";
 
                 // load anonymous user
                 try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                     int param = 1;
                     stmt.setInt(param++, WikipediaConstants.ANONYMOUS_USER_ID); // user_id
                     stmt.setString(param++, "Anonymous"); // user_name
-                    stmt.setString(param++, ""); // user_real_name
-                    stmt.setString(param++, ""); // user_password
-                    stmt.setString(param++, ""); // user_newpassword
+                    stmt.setString(param++, dummyString); // user_real_name
+                    stmt.setString(param++, dummyString); // user_password
+                    stmt.setString(param++, dummyString); // user_newpassword
                     stmt.setNull(param++, JDBCType.VARCHAR.getVendorTypeNumber()); // user_newpass_time
-                    stmt.setString(param++, ""); // user_email
-                    stmt.setString(param++, ""); // user_options
-                    stmt.setString(param++, ""); // user_touched
-                    stmt.setString(param++, ""); // user_token
+                    stmt.setString(param++, dummyString); // user_email
+                    stmt.setString(param++, dummyString); // user_options
+                    stmt.setString(param++, dummyString); // user_touched
+                    stmt.setString(param++, dummyString); // user_token
                     stmt.setNull(param++, JDBCType.VARCHAR.getVendorTypeNumber()); // user_email_authenticated
                     stmt.setNull(param++, JDBCType.VARCHAR.getVendorTypeNumber()); // user_email_token
                     stmt.setNull(param++, JDBCType.VARCHAR.getVendorTypeNumber()); // user_email_token_expires

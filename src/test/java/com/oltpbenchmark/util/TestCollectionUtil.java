@@ -17,21 +17,27 @@
 
 package com.oltpbenchmark.util;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+
 import org.apache.commons.collections4.set.ListOrderedSet;
 
 import java.util.*;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author pavlo
  */
-public class TestCollectionUtil extends TestCase {
+public class TestCollectionUtil {
 
     private final Random rand = new Random();
 
     /**
      * testIterableEnumeration
      */
+    @Test
     public void testIterableEnumeration() {
         final int size = 10;
         Enumeration<Integer> e = new Enumeration<Integer>() {
@@ -57,6 +63,7 @@ public class TestCollectionUtil extends TestCase {
     /**
      * testAddAll
      */
+    @Test
     public void testAddAll() {
         int cnt = rand.nextInt(50) + 1;
         List<Integer> l = new ArrayList<Integer>();
@@ -79,6 +86,7 @@ public class TestCollectionUtil extends TestCase {
     /**
      * testGetGreatest
      */
+    @Test
     public void testGetGreatest() {
         Map<String, Integer> map = new HashMap<String, Integer>();
         map.put("a", 1);
@@ -92,6 +100,7 @@ public class TestCollectionUtil extends TestCase {
     /**
      * testGetFirst
      */
+    @Test
     public void testGetFirst() {
         List<String> list = new ArrayList<String>();
         list.add("a");
@@ -105,6 +114,7 @@ public class TestCollectionUtil extends TestCase {
      * testPop
      */
     @SuppressWarnings("unchecked")
+    @Test
     public void testPop() {
         String[] expected = new String[11];
         RandomGenerator rng = new RandomGenerator(0);

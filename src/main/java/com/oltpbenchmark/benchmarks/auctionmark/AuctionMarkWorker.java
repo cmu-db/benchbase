@@ -444,8 +444,8 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
             LOG.debug("Executing {}", proc);
         }
         Timestamp[] benchmarkTimes = this.getTimestampParameterArray();
-        Timestamp startTime = profile.getLastCloseAuctionsTime();
-        Timestamp endTime = profile.updateAndGetLastCloseAuctionsTime();
+        Timestamp startTime = Timestamp.from(profile.getLastCloseAuctionsTime().toInstant());
+        Timestamp endTime = Timestamp.from(profile.updateAndGetLastCloseAuctionsTime().toInstant());
 
         List<Object[]> results = proc.run(conn, benchmarkTimes, startTime, endTime);
 

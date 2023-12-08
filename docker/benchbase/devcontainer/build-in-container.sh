@@ -2,6 +2,8 @@
 #
 # A simple script for building one or more profiles (in parallel) inside the container.
 
+# TODO: Convert this to a multi-stage build for better caching.
+
 # Make sure any failure halts the rest of the operation.
 set -eu -o pipefail
 

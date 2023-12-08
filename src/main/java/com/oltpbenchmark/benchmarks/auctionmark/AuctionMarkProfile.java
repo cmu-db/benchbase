@@ -698,9 +698,9 @@ public class AuctionMarkProfile {
         Integer cnt = this.seller_item_cnt.get(seller_id);
         if (cnt == null || cnt == 0) {
             cnt = seller_id.getItemCount();
-            //this.seller_item_cnt.put(seller_id, cnt);
+            this.seller_item_cnt.put(seller_id, cnt);
         }
-        this.seller_item_cnt.put(seller_id, cnt);
+        this.seller_item_cnt.put(seller_id, 1);
         return (new ItemId(seller_id, cnt));
     }
 
@@ -746,8 +746,8 @@ public class AuctionMarkProfile {
                 continue;
             }
 
-            for (ItemInfo itemInfo : items) {
-                this.addItemToProperQueue(itemInfo, currentTime);
+            for (Iterator<ItemInfo> it = items.iterator(); it.hasNext();) {
+                this.addItemToProperQueue(it.next(), currentTime, it);
             }
         }
 
@@ -767,10 +767,10 @@ public class AuctionMarkProfile {
         Timestamp baseTime = (is_loader ? this.getLoaderStartTime() : this.getCurrentTime());
 
 
-        return addItemToProperQueue(itemInfo, baseTime);
+        return addItemToProperQueue(itemInfo, baseTime, null);
     }
 
-    private ItemStatus addItemToProperQueue(ItemInfo itemInfo, Timestamp baseTime) {
+    private ItemStatus addItemToProperQueue(ItemInfo itemInfo, Timestamp baseTime, Iterator<ItemInfo> currentQueueIterator) {
         // Always check whether we even want it for this client
         // The loader's profile and the cache profile will always have a negative client_id,
         // which means that we always want to keep it
@@ -799,30 +799,25 @@ public class AuctionMarkProfile {
 
 
         if (!new_status.equals(existingStatus)) {
+            // Remove the item from the current queue
+            if (currentQueueIterator != null) {
+                currentQueueIterator.remove();
+            }
+
             switch (new_status) {
                 case OPEN:
                     this.addItem(this.items_available, itemInfo);
                     break;
                 case ENDING_SOON:
-                    this.items_available.remove(itemInfo);
                     this.addItem(this.items_endingSoon, itemInfo);
                     break;
                 case WAITING_FOR_PURCHASE:
-                    (existingStatus == ItemStatus.OPEN ? this.items_available : this.items_endingSoon).remove(itemInfo);
                     this.addItem(this.items_waitingForPurchase, itemInfo);
                     break;
                 case CLOSED:
-                    if (existingStatus == ItemStatus.OPEN) {
-                        this.items_available.remove(itemInfo);
-                    } else if (existingStatus == ItemStatus.ENDING_SOON) {
-                        this.items_endingSoon.remove(itemInfo);
-                    } else {
-                        this.items_waitingForPurchase.remove(itemInfo);
-                    }
                     this.addItem(this.items_completed, itemInfo);
                     break;
                 default:
-
             }
             itemInfo.setStatus(new_status);
         }

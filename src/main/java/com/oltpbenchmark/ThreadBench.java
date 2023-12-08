@@ -113,12 +113,13 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
 
         // long measureStart = start;
 
+        long start_ts = System.currentTimeMillis();
         long start = System.nanoTime();
         long warmupStart = System.nanoTime();
         long warmup = warmupStart;
         long measureEnd = -1;
         // used to determine the longest sleep interval
-        int lowestRate = Integer.MAX_VALUE;
+        double lowestRate = Double.MAX_VALUE;
 
         Phase phase = null;
 
@@ -166,7 +167,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
 
             for (WorkloadState workState : workStates) {
                 if (workState.getCurrentPhase() != null) {
-                    rateFactor = workState.getCurrentPhase().getRate() / lowestRate;
+                    rateFactor = (int) (workState.getCurrentPhase().getRate() / lowestRate);
                 } else {
                     rateFactor = 1;
                 }
@@ -314,7 +315,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
             }
             DistributionStatistics stats = DistributionStatistics.computeStatistics(latencies);
 
-            Results results = new Results(measureEnd - start, requests, stats, samples);
+            Results results = new Results(start_ts, measureEnd - start, requests, stats, samples);
 
             // Compute transaction histogram
             Set<TransactionType> txnTypes = new HashSet<>();
@@ -345,12 +346,12 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         }
     }
 
-    private long getInterval(int lowestRate, Phase.Arrival arrival) {
+    private long getInterval(double lowestRate, Phase.Arrival arrival) {
         // TODO Auto-generated method stub
         if (arrival == Phase.Arrival.POISSON) {
             return (long) ((-Math.log(1 - Math.random()) / lowestRate) * 1000000000.);
         } else {
-            return (long) (1000000000. / (double) lowestRate + 0.5);
+            return (long) (1000000000. / lowestRate + 0.5);
         }
     }
 
