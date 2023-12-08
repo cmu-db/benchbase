@@ -299,6 +299,7 @@
         </dependency>
 
         <dependency>
+            <!-- FIXME: Scope this to just test -->
             <groupId>org.hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
             <version>2.7.2</version>
@@ -342,11 +343,29 @@
                         <!-- Enable all linter messages for the compiler. -->
                         <!-- TODO: Remove annotations preprocess warning exception. -->
                         <arg>-Xlint:all,-processing</arg>
+                        <!-- TODO: Enable documentation linting.
+                        <arg>-Xdoclint:all</arg>
+                        -->
                         <!-- Turn all warnings into errors to help keep the code clean. -->
                         <arg>-Werror</arg>
                     </compilerArgs>
                 </configuration>
             </plugin>
+            <!-- TODO: Use PMD to check for various code health things.plugin>
+                Invoked with `mvn pmd:check` or `mvn verify`
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>3.21.2</version>
+                <configuration>
+                    <excludeRoots>
+                        <excludeRoot>target/generated-sources</excludeRoot>
+                        <excludeRoot>target/generated-test-sources</excludeRoot>
+                    </excludeRoots>
+                    <linkXRef>true</linkXRef>
+                </configuration>
+            </plugin>
+            -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -443,7 +462,9 @@
                             <goal>analyze-only</goal>
                         </goals>
                         <configuration>
-                            <failOnWarning>false</failOnWarning>
+                            <!-- TODO: Enforce this
+                                -->
+                            <failOnWarning>true</failOnWarning>
                         </configuration>
                     </execution>
                 </executions>
@@ -458,5 +479,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>
