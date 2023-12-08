@@ -175,6 +175,7 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> {
             }
 
             try (ServerSocket testSocket = new ServerSocket(port)) {
+                assert testSocket != null;
                 return port;
             } catch (BindException e) {
                 // This port is already in use. Continue to next port.
