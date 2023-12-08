@@ -102,7 +102,6 @@ public abstract class StringUtil {
      * @param maps
      * @return
      */
-    @SuppressWarnings("unchecked")
     public static String formatMaps(String delimiter, boolean upper, boolean box, boolean border_top,
             boolean border_bottom, boolean recursive, boolean first_element_title, Map<?, ?>... maps) {
         boolean need_divider = (maps.length > 1 || border_bottom || border_top);

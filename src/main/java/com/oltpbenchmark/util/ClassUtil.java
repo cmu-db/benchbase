@@ -150,6 +150,7 @@ public abstract class ClassUtil {
             LOG.debug("TARGET PARAMS: {}", Arrays.toString(params));
         }
 
+        @SuppressWarnings("rawtypes")
         List<Class<?>>[] paramSuper = (List<Class<?>>[]) new List[params.length];
         for (int i = 0; i < params.length; i++) {
             paramSuper[i] = ClassUtil.getSuperClasses(params[i]);
