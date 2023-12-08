@@ -406,8 +406,8 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
         ItemId i_id = new ItemId(SQLUtil.getString(row[col++]));  // i_id
         String i_u_id = SQLUtil.getString(row[col++]);          // i_u_id
         assert i_u_id != null;
+        @SuppressWarnings("unused")
         String i_name = (String) row[col++];                    // i_name
-        assert i_name != null;
         double i_current_price = SQLUtil.getDouble(row[col++]); // i_current_price
         long i_num_bids = SQLUtil.getLong(row[col++]);          // i_num_bids
         Timestamp i_end_date = SQLUtil.getTimestamp(row[col++]);// i_end_date
