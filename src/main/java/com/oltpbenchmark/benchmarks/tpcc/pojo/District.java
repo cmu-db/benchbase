@@ -21,6 +21,7 @@ package com.oltpbenchmark.benchmarks.tpcc.pojo;
 import java.io.Serializable;
 
 public class District implements Serializable {
+    static final long serialVersionUID = 0;
 
     public int d_id;
     public int d_w_id;
