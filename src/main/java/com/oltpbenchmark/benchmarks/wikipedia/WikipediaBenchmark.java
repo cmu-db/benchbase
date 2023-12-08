@@ -23,7 +23,7 @@ import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.wikipedia.data.RevisionHistograms;
 import com.oltpbenchmark.benchmarks.wikipedia.procedures.AddWatchList;
-import com.oltpbenchmark.util.RandomDistribution.FlatHistogram;
+import com.oltpbenchmark.util.RandomDistribution.IntegerFlatHistogram;
 import com.oltpbenchmark.util.TextGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,22 +34,21 @@ import java.util.List;
 public class WikipediaBenchmark extends BenchmarkModule {
     private static final Logger LOG = LoggerFactory.getLogger(WikipediaBenchmark.class);
 
-    protected final FlatHistogram<Integer> commentLength;
-    protected final FlatHistogram<Integer> minorEdit;
-    private final FlatHistogram<Integer>[] revisionDeltas;
+    protected final IntegerFlatHistogram commentLength;
+    protected final IntegerFlatHistogram minorEdit;
+    private final IntegerFlatHistogram[] revisionDeltas;
 
     protected final int num_users;
     protected final int num_pages;
 
-    @SuppressWarnings("unchecked")
     public WikipediaBenchmark(WorkloadConfiguration workConf) {
         super(workConf);
 
-        this.commentLength = new FlatHistogram<>(this.rng(), RevisionHistograms.COMMENT_LENGTH);
-        this.minorEdit = new FlatHistogram<>(this.rng(), RevisionHistograms.MINOR_EDIT);
-        this.revisionDeltas = new FlatHistogram[RevisionHistograms.REVISION_DELTA_SIZES.length];
+        this.commentLength = new IntegerFlatHistogram(this.rng(), RevisionHistograms.COMMENT_LENGTH);
+        this.minorEdit = new IntegerFlatHistogram(this.rng(), RevisionHistograms.MINOR_EDIT);
+        this.revisionDeltas = new IntegerFlatHistogram[RevisionHistograms.REVISION_DELTA_SIZES.length];
         for (int i = 0; i < this.revisionDeltas.length; i++) {
-            this.revisionDeltas[i] = new FlatHistogram<>(this.rng(), RevisionHistograms.REVISION_DELTAS[i]);
+            this.revisionDeltas[i] = new IntegerFlatHistogram(this.rng(), RevisionHistograms.REVISION_DELTAS[i]);
         }
 
         this.num_users = (int) Math.ceil(WikipediaConstants.USERS * this.getWorkloadConfiguration().getScaleFactor());
@@ -72,7 +71,7 @@ public class WikipediaBenchmark extends BenchmarkModule {
         // Where is your god now?
         // There is probably some sort of minimal size that we should adhere to,
         // but it's 12:30am and I simply don't feel like dealing with that now
-        FlatHistogram<Integer> h = null;
+        IntegerFlatHistogram h = null;
         for (int i = 0; i < this.revisionDeltas.length - 1; i++) {
             if (orig_text.length <= RevisionHistograms.REVISION_DELTA_SIZES[i]) {
                 h = this.revisionDeltas[i];

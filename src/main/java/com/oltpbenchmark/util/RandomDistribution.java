@@ -240,6 +240,13 @@ public class RandomDistribution {
         }
     }
 
+    public static class IntegerFlatHistogram extends FlatHistogram<Integer> {
+        private static final long serialVersionUID = 1L;
+        public IntegerFlatHistogram(Random random, Histogram<Integer> histogram) {
+            super(random, histogram);
+        }
+    }
+
     /**
      * Gaussian Distribution
      */
