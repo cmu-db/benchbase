@@ -61,8 +61,8 @@ public class TestAuctionMarkWorker extends AbstractTestWorker<AuctionMarkBenchma
         Set<UserId> worker_users = new TreeSet<UserId>();
         Integer last_num_users = null;
         for (var w : this.workers) {
-            assertNotNull(w);
             AuctionMarkWorker worker = (AuctionMarkWorker) w;
+            assertNotNull(w);
 
             // Get the uninitialized profile
             AuctionMarkProfile profile = worker.getProfile();
