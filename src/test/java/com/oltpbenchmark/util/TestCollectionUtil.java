@@ -122,6 +122,7 @@ public class TestCollectionUtil {
             expected[i] = rng.astring(1, 32);
         } // FOR
 
+        @SuppressWarnings("rawtypes")
         Collection<String>[] collections = new Collection[]{
                 CollectionUtil.addAll(new ListOrderedSet<String>(), expected),
                 CollectionUtil.addAll(new HashSet<String>(), expected),
