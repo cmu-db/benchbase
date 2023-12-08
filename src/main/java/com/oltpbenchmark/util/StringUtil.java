@@ -110,7 +110,10 @@ public abstract class StringUtil {
         // Figure out the largest key size so we can get spacing right
         int max_key_size = 0;
         int max_title_size = 0;
-        final Map<Object, String[]>[] map_keys = (Map<Object, String[]>[]) new Map[maps.length];
+        class Obj2StrArrMap extends HashMap<Object, String[]> {
+            static final long serialVersionUID = 0;
+        }
+        final Map<Object, String[]>[] map_keys = new Obj2StrArrMap[maps.length];
         final boolean[] map_titles = new boolean[maps.length];
         for (int i = 0; i < maps.length; i++) {
             Map<?, ?> m = maps[i];
