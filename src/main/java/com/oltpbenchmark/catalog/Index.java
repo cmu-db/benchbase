@@ -33,6 +33,8 @@ public class Index extends AbstractCatalogObject {
     private final boolean unique;
 
     static class IndexColumn implements Serializable {
+        static final long serialVersionUID = 0;
+
         private final String name;
         private final SortDirectionType dir;
 
