@@ -290,6 +290,9 @@ public abstract class RevisionHistograms {
      */
     public static final int[] REVISION_DELTA_SIZES = {1000, 10000, 100000};
 
+    /**
+     * Simple generic class overload to avoid some cast warnings below.
+     */
     public static class IntHistogram extends Histogram<Integer> {}
 
     /**

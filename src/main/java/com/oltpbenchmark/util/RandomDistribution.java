@@ -240,7 +240,11 @@ public class RandomDistribution {
         }
     }
 
+    /**
+     * Simple generic class overload to avoid some cast warnings below.
+     */
     public static class IntegerFlatHistogram extends FlatHistogram<Integer> {
+        // Required serialization field.
         private static final long serialVersionUID = 1L;
         public IntegerFlatHistogram(Random random, Histogram<Integer> histogram) {
             super(random, histogram);

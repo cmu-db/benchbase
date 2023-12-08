@@ -109,7 +109,11 @@ public class AuctionMarkProfile {
      */
     protected transient Histogram<Integer> items_per_category = new Histogram<>();
 
+    /**
+     * Simple generic class overload to avoid some cast warnings below.
+     */
     class ItemInfoList extends LinkedList<ItemInfo> {
+        // Required serialization field.
         static final long serialVersionUID = 0;
     }
 

@@ -81,6 +81,14 @@ public abstract class StringUtil {
     }
 
     /**
+     * Simple generic class overload to avoid some cast warnings below.
+     */
+    public static class Obj2StrArrMap extends HashMap<Object, String[]> {
+        // Required serialization field.
+        static final long serialVersionUID = 0;
+    }
+
+    /**
      * Return key/value maps into a nicely formatted table
      * The maps are displayed in order from first to last, and there will be a
      * spacer
@@ -109,9 +117,7 @@ public abstract class StringUtil {
         // Figure out the largest key size so we can get spacing right
         int max_key_size = 0;
         int max_title_size = 0;
-        class Obj2StrArrMap extends HashMap<Object, String[]> {
-            static final long serialVersionUID = 0;
-        }
+
         final Map<Object, String[]>[] map_keys = new Obj2StrArrMap[maps.length];
         final boolean[] map_titles = new boolean[maps.length];
         for (int i = 0; i < maps.length; i++) {
