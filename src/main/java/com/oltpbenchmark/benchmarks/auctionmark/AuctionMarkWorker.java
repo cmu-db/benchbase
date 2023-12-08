@@ -404,10 +404,12 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
     public ItemId processItemRecord(Object[] row) {
         int col = 0;
         ItemId i_id = new ItemId(SQLUtil.getString(row[col++]));  // i_id
+        /*
         @SuppressWarnings("unused")
         String i_u_id = SQLUtil.getString(row[col++]);          // i_u_id
         @SuppressWarnings("unused")
         String i_name = (String) row[col++];                    // i_name
+        */
         double i_current_price = SQLUtil.getDouble(row[col++]); // i_current_price
         long i_num_bids = SQLUtil.getLong(row[col++]);          // i_num_bids
         Timestamp i_end_date = SQLUtil.getTimestamp(row[col++]);// i_end_date
