@@ -76,6 +76,7 @@ public class AuctionMarkProfile {
     // ----------------------------------------------------------------
     // SERIALIZABLE DATA MEMBERS
     // ----------------------------------------------------------------
+    static final long serialVersionUID = 0;
 
     /**
      * Database Scale Factor
@@ -108,7 +109,9 @@ public class AuctionMarkProfile {
      */
     protected transient Histogram<Integer> items_per_category = new Histogram<>();
 
-    class ItemInfoList extends LinkedList<ItemInfo> {}
+    class ItemInfoList extends LinkedList<ItemInfo> {
+        static final long serialVersionUID = 0;
+    }
 
     /**
      * Three status types for an item:
