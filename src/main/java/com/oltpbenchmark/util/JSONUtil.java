@@ -362,7 +362,7 @@ public abstract class JSONUtil {
     @SuppressWarnings("unchecked")
     protected static void readCollectionField(final JSONArray json_array, final Collection collection, final Stack<Class> inner_classes) throws Exception {
         // We need to figure out what the inner type of the collection is
-        // If it's a Collection or a Map, then we need to instantiate it before 
+        // If it's a Collection or a Map, then we need to instantiate it before
         // we can call readFieldValue() again for it.
         Class inner_class = inner_classes.pop();
         Collection<Class<?>> inner_interfaces = ClassUtil.getInterfaces(inner_class);
