@@ -51,6 +51,12 @@
     <profiles>
         <profile>
             <id>sqlite</id>
+            <activation>
+                <property>
+                    <name>env.BENCHBASE_PROFILE</name>
+                    <value>sqlite</value>
+                </property>
+            </activation>
             <properties>
                 <classifier>sqlite</classifier>
             </properties>
@@ -64,6 +70,12 @@
         </profile>
         <profile>
             <id>postgres</id>
+            <activation>
+                <property>
+                    <name>env.BENCHBASE_PROFILE</name>
+                    <value>postgres</value>
+                </property>
+            </activation>
             <properties>
                 <classifier>postgres</classifier>
             </properties>
@@ -77,6 +89,12 @@
         </profile>
         <profile>
             <id>mysql</id>
+            <activation>
+                <property>
+                    <name>env.BENCHBASE_PROFILE</name>
+                    <value>mysql</value>
+                </property>
+            </activation>
             <properties>
                 <classifier>mysql</classifier>
             </properties>
@@ -91,6 +109,12 @@
         <!-- Oracle DB driver needed in profile compilation -->
         <profile>
             <id>oracle</id>
+            <activation>
+                <property>
+                    <name>env.BENCHBASE_PROFILE</name>
+                    <value>oracle</value>
+                </property>
+            </activation>
             <properties>
                 <classifier>oracle</classifier>
             </properties>
@@ -106,6 +130,12 @@
         </profile>
         <profile>
             <id>mariadb</id>
+            <activation>
+                <property>
+                    <name>env.BENCHBASE_PROFILE</name>
+                    <value>mariadb</value>
+                </property>
+            </activation>
             <properties>
                 <classifier>mariadb</classifier>
             </properties>
@@ -119,6 +149,12 @@
         </profile>
         <profile>
             <id>spanner</id>
+            <activation>
+                <property>
+                    <name>env.BENCHBASE_PROFILE</name>
+                    <value>spanner</value>
+                </property>
+            </activation>
             <properties>
                 <classifier>spanner</classifier>
             </properties>
@@ -132,6 +168,12 @@
         </profile>
         <profile>
             <id>cockroachdb</id>
+            <activation>
+                <property>
+                    <name>env.BENCHBASE_PROFILE</name>
+                    <value>cockroachdb</value>
+                </property>
+            </activation>
             <properties>
                 <classifier>cockroachdb</classifier>
             </properties>
@@ -145,6 +187,12 @@
         </profile>
         <profile>
             <id>phoenix</id>
+            <activation>
+                <property>
+                    <name>env.BENCHBASE_PROFILE</name>
+                    <value>phoenix</value>
+                </property>
+            </activation>
             <properties>
                 <classifier>phoenix</classifier>
             </properties>
@@ -158,6 +206,12 @@
         </profile>
         <profile>
             <id>sqlserver</id>
+            <activation>
+                <property>
+                    <name>env.BENCHBASE_PROFILE</name>
+                    <value>sqlserver</value>
+                </property>
+            </activation>
             <properties>
                 <classifier>sqlserver</classifier>
             </properties>
