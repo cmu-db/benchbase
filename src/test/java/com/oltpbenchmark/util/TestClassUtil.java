@@ -123,6 +123,8 @@ public class TestClassUtil {
                 Collection.class,
                 List.class,
                 RandomAccess.class,
+                // New in Java 21:
+                SequencedCollection.class,
         };
         Collection<Class<?>> results = ClassUtil.getInterfaces(target_class);
         // System.err.println(target_class + " => " + results);
