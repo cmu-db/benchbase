@@ -96,17 +96,17 @@ else
     echo "WARNING: Unhandled SKIP_TESTS mode: '$SKIP_TESTS'" >&2
 fi
 
-# Fetch resources serially to work around mvn races with downloading the same
-# file in multiple processes (mvn uses *.part instead of use tmpfile naming).
-for profile in ${BENCHBASE_PROFILES}; do
-    mvn -T2C -B --file pom.xml -D buildDirectory=target/$profile $EXTRA_MAVEN_ARGS process-resources dependency:copy-dependencies
-done
-
 # Pre format checks are mostly for CI.
 # Else, things are reformatted during compile.
 if [ "${DO_FORMAT_CHECKS:-}" == 'true' ]; then
     mvn -B --file pom.xml fmt:check
 fi
+
+# Fetch resources serially to work around mvn races with downloading the same
+# file in multiple processes (mvn uses *.part instead of use tmpfile naming).
+for profile in ${BENCHBASE_PROFILES}; do
+    mvn -T2C -B --file pom.xml -D buildDirectory=target/$profile $EXTRA_MAVEN_ARGS process-resources dependency:copy-dependencies
+done
 
 # Make sure that we've built the base stuff (and test) before we build individual profiles.
 mvn -T 2C -B --file pom.xml $SKIP_TEST_ARGS $EXTRA_MAVEN_ARGS compile # ${TEST_TARGET:-}
