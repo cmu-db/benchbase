@@ -24,6 +24,7 @@ import com.opencsv.CSVReader;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.IOException;
 import java.util.Iterator;
 
 /**
@@ -80,7 +81,7 @@ public class TableDataIterable implements Iterable<Object[]>, AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() throws IOException {
         if (this.in != null) {
             in.close();
         }
