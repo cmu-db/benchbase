@@ -34,9 +34,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AuctionMarkBenchmark extends BenchmarkModule {
-
+    @SuppressWarnings("unused")
     private static final Logger LOG = LoggerFactory.getLogger(AuctionMarkBenchmark.class);
-
 
     private final RandomGenerator rng = new RandomGenerator((int) System.currentTimeMillis());
 
@@ -70,6 +69,4 @@ public class AuctionMarkBenchmark extends BenchmarkModule {
     protected Loader<AuctionMarkBenchmark> makeLoaderImpl() {
         return new AuctionMarkLoader(this);
     }
-
-
 }
