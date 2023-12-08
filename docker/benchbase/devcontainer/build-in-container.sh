@@ -7,7 +7,7 @@
 # Make sure any failure halts the rest of the operation.
 set -eu -o pipefail
 
-BENCHBASE_PROFILES="${BENCHBASE_PROFILES:-cockroachdb mariadb mysql postgres spanner phoenix sqlserver sqlite}"
+BENCHBASE_PROFILES="${BENCHBASE_PROFILES:-cockroachdb mariadb mysql oracle phoenix postgres spanner sqlite sqlserver}"
 CLEAN_BUILD="${CLEAN_BUILD:-true}"    # true, false, pre, post
 SKIP_TESTS="${SKIP_TESTS:-false}"
 
