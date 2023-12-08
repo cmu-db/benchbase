@@ -108,6 +108,8 @@ public class AuctionMarkProfile {
      */
     protected transient Histogram<Integer> items_per_category = new Histogram<>();
 
+    class ItemInfoList extends LinkedList<ItemInfo> {}
+
     /**
      * Three status types for an item:
      * (1) Available - The auction of this item is still open
@@ -117,13 +119,13 @@ public class AuctionMarkProfile {
      * (3) Complete (The auction is closed and (There is no bid winner or
      * the bid winner has already purchased the item)
      */
-    private transient final LinkedList<ItemInfo> items_available = new LinkedList<>();
-    private transient final LinkedList<ItemInfo> items_endingSoon = new LinkedList<>();
-    private transient final LinkedList<ItemInfo> items_waitingForPurchase = new LinkedList<>();
-    private transient final LinkedList<ItemInfo> items_completed = new LinkedList<>();
+    private transient final ItemInfoList items_available = new ItemInfoList();
+    private transient final ItemInfoList items_endingSoon = new ItemInfoList();
+    private transient final ItemInfoList items_waitingForPurchase = new ItemInfoList();
+    private transient final ItemInfoList items_completed = new ItemInfoList();
 
-    @SuppressWarnings("unchecked")
-    protected transient final LinkedList<ItemInfo>[] allItemSets = new LinkedList[]{
+
+    protected transient final ItemInfoList allItemSets[] = new ItemInfoList[]{
             this.items_available,
             this.items_endingSoon,
             this.items_waitingForPurchase,
