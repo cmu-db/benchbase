@@ -45,7 +45,7 @@ public class OTMetricsBenchmark extends BenchmarkModule {
         // Compute the number of records per table.
         this.num_sources = (int) Math.round(OTMetricsConstants.NUM_SOURCES * workConf.getScaleFactor());
         this.num_sessions = (int) Math.round(OTMetricsConstants.NUM_SESSIONS * workConf.getScaleFactor());
-        this.num_observations = (long) Math.round(OTMetricsConstants.NUM_OBSERVATIONS * workConf.getScaleFactor());
+        this.num_observations = Math.round(OTMetricsConstants.NUM_OBSERVATIONS * workConf.getScaleFactor());
     }
 
     @Override
