@@ -39,7 +39,7 @@ public class GetAccessData extends Procedure {
             stmt.setLong(1, s_id);
             stmt.setByte(2, ai_type);
             try (ResultSet results = stmt.executeQuery()) {
-
+                assert results != null;
             }
         }
     }
