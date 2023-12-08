@@ -10,6 +10,7 @@ set -eu -o pipefail
 BENCHBASE_PROFILES="${BENCHBASE_PROFILES:-cockroachdb mariadb mysql postgres spanner phoenix sqlserver sqlite}"
 CLEAN_BUILD="${CLEAN_BUILD:-true}"    # true, false, pre, post
 SKIP_TESTS="${SKIP_TESTS:-false}"
+DO_FORMAT_CHECKS="${DO_FORMAT_CHECKS:-false}"
 
 cd /benchbase
 mkdir -p results
@@ -100,6 +101,12 @@ fi
 for profile in ${BENCHBASE_PROFILES}; do
     mvn -T2C -B --file pom.xml -D buildDirectory=target/$profile $EXTRA_MAVEN_ARGS process-resources dependency:copy-dependencies
 done
+
+# Pre format checks are mostly for CI.
+# Else, things are reformatted during compile.
+if [ "${DO_FORMAT_CHECKS:-}" == 'true' ]; then
+    mvn -B --file pom.xml fmt:check
+fi
 
 # Make sure that we've built the base stuff (and test) before we build individual profiles.
 mvn -T 2C -B --file pom.xml $SKIP_TEST_ARGS $EXTRA_MAVEN_ARGS compile # ${TEST_TARGET:-}

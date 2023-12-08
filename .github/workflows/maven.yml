@@ -611,6 +611,7 @@ jobs:
       - name: Build the benchbase docker image with all profiles using the dev image
         env:
           SKIP_TESTS: 'false'
+          DO_FORMAT_CHECKS: 'true'
         run: |
           ./docker/benchbase/build-full-image.sh
       - name: Run a basic test from the docker image against postgres test DB
