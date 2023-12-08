@@ -32,7 +32,7 @@ import java.util.List;
  * @author pavlo
  */
 public class OTMetricsBenchmark extends BenchmarkModule {
-
+    @SuppressWarnings("unused")
     private static final Logger LOG = LoggerFactory.getLogger(OTMetricsBenchmark.class);
 
     protected final int num_sources;

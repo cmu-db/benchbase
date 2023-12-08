@@ -464,7 +464,6 @@ public class AuctionMarkProfile {
 
     private static void loadPendingItemComments(AuctionMarkProfile profile, List<Object[]> vt) {
         for (Object[] row : vt) {
-            int col = 1;
             long ic_id = SQLUtil.getLong(row[0]);
             String ic_i_id = SQLUtil.getString(row[1]);
             String ic_u_id = SQLUtil.getString(row[2]);
@@ -721,6 +720,7 @@ public class AuctionMarkProfile {
             // HACK: Always swap existing ItemInfos with our new one, since it will
             // more up-to-date information
             ItemInfo existing = items.set(idx, itemInfo);
+            assert existing != null;
 
             return (true);
         }

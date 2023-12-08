@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import java.sql.Timestamp;
 
 public abstract class AuctionMarkUtil {
+    @SuppressWarnings("unused")
     private static final Logger LOG = LoggerFactory.getLogger(AuctionMarkUtil.class);
 
     private static final long ITEM_ID_MASK = 0xFFFFFFFFFFFFFFL; // 56 bits (ITEM_ID)
