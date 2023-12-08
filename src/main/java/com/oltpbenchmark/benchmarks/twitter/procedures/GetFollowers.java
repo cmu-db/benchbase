@@ -52,6 +52,7 @@ public class GetFollowers extends Procedure {
                             getFollowerNamesstmt.setLong(ctr, last);
                         }
                         try (ResultSet getFollowerNamesrs = getFollowerNamesstmt.executeQuery()) {
+                            assert getFollowerNamesrs != null;
                         }
                     }
                 }

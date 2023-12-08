@@ -54,6 +54,7 @@ public class GetTweetsFromFollowing extends Procedure {
                             stmt.setLong(ctr, last);
                         }
                         try (ResultSet getTweetsResult = stmt.executeQuery()) {
+                            assert getTweetsResult != null;
                         }
                     } else {
                         // LOG.debug("No followers for user: "+uid); // so what .. ?
