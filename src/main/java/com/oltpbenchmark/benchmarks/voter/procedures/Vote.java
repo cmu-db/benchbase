@@ -65,25 +65,24 @@ public class Vote extends Procedure {
 
     // Checks if the vote is for a valid contestant
     public final SQLStmt checkContestantStmt = new SQLStmt(
-            "SELECT contestant_number FROM " + TABLENAME_CONTESTANTS + " WHERE contestant_number = ?;"
+            "SELECT contestant_number FROM " + TABLENAME_CONTESTANTS + " WHERE contestant_number = ?"
     );
 
     // Checks if the voter has exceeded their allowed number of votes
     public final SQLStmt checkVoterStmt = new SQLStmt(
-            "SELECT COUNT(*) FROM " + TABLENAME_VOTES + " WHERE phone_number = ?;"
+            "SELECT COUNT(*) FROM " + TABLENAME_VOTES + " WHERE phone_number = ?"
     );
 
     // Checks an area code to retrieve the corresponding state
     public final SQLStmt checkStateStmt = new SQLStmt(
-            "SELECT state FROM " + TABLENAME_LOCATIONS + " WHERE area_code = ?;"
+            "SELECT state FROM " + TABLENAME_LOCATIONS + " WHERE area_code = ?"
     );
 
     // Records a vote
     public final SQLStmt insertVoteStmt = new SQLStmt(
             "INSERT INTO " + TABLENAME_VOTES + " (vote_id, phone_number, state, contestant_number, created) " +
-                    "VALUES (?, ?, ?, ?, NOW());"
+                    "VALUES (?, ?, ?, ?, NOW())"
     );
-
     public long run(Connection conn, long voteId, long phoneNumber, int contestantNumber, long maxVotesPerPhoneNumber) throws SQLException {
 
         try (PreparedStatement ps = getPreparedStatement(conn, checkContestantStmt)) {

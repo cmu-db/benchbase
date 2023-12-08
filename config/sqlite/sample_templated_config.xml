@@ -22,7 +22,7 @@
         <work>
             <time>10</time>
             <rate>100</rate>
-            <weights>30,20,10,30,10</weights>
+            <weights>20,20,10,10,10,10,10,10</weights>
         </work>
     </works>
 
@@ -42,6 +42,15 @@
         </transactiontype>
         <transactiontype>
             <name>GetItemByPrice</name>
+        </transactiontype>
+        <transactiontype>
+            <name>UpdateItemPrice</name>
+        </transactiontype>
+        <transactiontype>
+            <name>DeleteItem</name>
+        </transactiontype>
+        <transactiontype>
+            <name>InsertItem</name>
         </transactiontype>
     </transactiontypes>
 </parameters>

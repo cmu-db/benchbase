@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<dialects>
+    <dialect type="ORACLE">
+        <procedure name="NoOp">
+            <statement name="noopStmt">
+                SELECT 1 FROM DUAL;
+            </statement>
+        </procedure>
+    </dialect>
+</dialects>
