@@ -104,7 +104,7 @@ public class Delivery extends TPCCProcedure {
 
         int[] orderIDs = new int[10];
 
-        for (d_id = 1; d_id <= terminalDistrictUpperID; d_id++) {
+        for (d_id = 1; d_id <= TPCCConfig.configDistPerWhse; d_id++) {
             Integer no_o_id = getOrderId(conn, w_id, d_id);
 
             if (no_o_id == null) {
