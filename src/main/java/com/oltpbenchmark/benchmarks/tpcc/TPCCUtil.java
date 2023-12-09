@@ -59,7 +59,7 @@ public class TPCCUtil {
         return c;
     }
 
-    private static final RandomGenerator ran = new RandomGenerator(0);
+    private static final RandomGenerator ran = new RandomGenerator();
 
     public static String randomStr(int strLen) {
         if (strLen > 1) {

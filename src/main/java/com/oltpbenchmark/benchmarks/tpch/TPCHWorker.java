@@ -34,7 +34,7 @@ public class TPCHWorker extends Worker<TPCHBenchmark> {
     public TPCHWorker(TPCHBenchmark benchmarkModule, int id) {
         super(benchmarkModule, id);
         this.rng().setSeed(15721);
-        rand = new RandomGenerator(this.rng().nextInt());
+        rand = new RandomGenerator();
     }
 
     @Override

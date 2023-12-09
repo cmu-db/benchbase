@@ -40,7 +40,7 @@ import java.util.StringTokenizer;
 import java.util.concurrent.CountDownLatch;
 
 public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
-    private static final RandomGenerator ran = new RandomGenerator(0);
+    private static final RandomGenerator ran = new RandomGenerator();
 
 
     //create possible keys for n_nationkey ([a-zA-Z0-9])

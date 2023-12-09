@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 by OLTPBenchmark Project
+ * Copyright 2023 by OLTPBenchmark Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,110 +16,147 @@
  */
 
 
-package com.oltpbenchmark.util;
+ package com.oltpbenchmark.util;
 
-import java.util.Random;
+ import java.util.concurrent.ThreadLocalRandom;
 
-public class RandomGenerator extends Random {
+ public class RandomGenerator extends java.util.Random {
 
-    /**
-     * Constructor
-     *
-     * @param seed
-     */
-    public RandomGenerator(int seed) {
-        super(seed);
-    }
+     /**
+      * Constructor
+      */
+     public RandomGenerator() {
+     }
 
-    /**
-     * Returns a random int value between minimum and maximum (inclusive)
-     *
-     * @param minimum
-     * @param maximum
-     * @returns a int in the range [minimum, maximum]. Note that this is inclusive.
-     */
-    public int number(int minimum, int maximum) {
+     @Override
+     protected int next(int bits) {
+         return ThreadLocalRandom.current().nextInt() >>> (32 - bits);
+     }
 
-        int range_size = maximum - minimum + 1;
-        int value = this.nextInt(range_size);
-        value += minimum;
+     @Override
+     public int nextInt() {
+         return ThreadLocalRandom.current().nextInt();
+     }
 
-        return value;
-    }
+     @Override
+     public int nextInt(int bound) {
+         return ThreadLocalRandom.current().nextInt(bound);
+     }
 
-    /**
-     * Returns a random long value between minimum and maximum (inclusive)
-     *
-     * @param minimum
-     * @param maximum
-     * @return
-     */
-    public long number(long minimum, long maximum) {
+     @Override
+     public long nextLong() {
+         return ThreadLocalRandom.current().nextLong();
+     }
 
-        long range_size = (maximum - minimum) + 1;
+     @Override
+     public boolean nextBoolean() {
+         return ThreadLocalRandom.current().nextBoolean();
+     }
 
-        // error checking and 2^x checking removed for simplicity.
-        long bits, val;
-        do {
-            bits = (this.nextLong() << 1) >>> 1;
-            val = bits % range_size;
-        }
-        while (bits - val + range_size < 0L);
-        val += minimum;
+     @Override
+     public float nextFloat() {
+         return ThreadLocalRandom.current().nextFloat();
+     }
+
+     @Override
+     public double nextDouble() {
+         return ThreadLocalRandom.current().nextDouble();
+     }
+
+     @Override
+     public double nextGaussian() {
+         return ThreadLocalRandom.current().nextGaussian();
+     }
+
+     /**
+      * Returns a random int value between minimum and maximum (inclusive)
+      *
+      * @param minimum
+      * @param maximum
+      * @returns a int in the range [minimum, maximum]. Note that this is inclusive.
+      */
+     public int number(int minimum, int maximum) {
+
+         int range_size = maximum - minimum + 1;
+         int value = ThreadLocalRandom.current().nextInt(range_size);
+         value += minimum;
+
+         return value;
+     }
+
+     /**
+      * Returns a random long value between minimum and maximum (inclusive)
+      *
+      * @param minimum
+      * @param maximum
+      * @return
+      */
+     public long number(long minimum, long maximum) {
+
+         long range_size = (maximum - minimum) + 1;
+
+         // error checking and 2^x checking removed for simplicity.
+         long bits, val;
+         do {
+             bits = (ThreadLocalRandom.current().nextLong() << 1) >>> 1;
+             val = bits % range_size;
+         }
+         while (bits - val + range_size < 0L);
+         val += minimum;
 
 
-        return val;
-    }
+         return val;
+     }
 
-    /**
-     * @param decimal_places
-     * @param minimum
-     * @param maximum
-     * @return
-     */
-    public double fixedPoint(int decimal_places, double minimum, double maximum) {
-
-
-        int multiplier = 1;
-        for (int i = 0; i < decimal_places; ++i) {
-            multiplier *= 10;
-        }
-
-        int int_min = (int) (minimum * multiplier + 0.5);
-        int int_max = (int) (maximum * multiplier + 0.5);
-
-        return (double) this.number(int_min, int_max) / (double) multiplier;
-    }
-
-    /**
-     * @returns a random alphabetic string with length in range [minimum_length, maximum_length].
-     */
-    public String astring(int minimum_length, int maximum_length) {
-        return randomString(minimum_length, maximum_length, 'a', 26);
-    }
+     /**
+      * @param decimal_places
+      * @param minimum
+      * @param maximum
+      * @return
+      */
+     public double fixedPoint(int decimal_places, double minimum, double maximum) {
 
 
-    /**
-     * @returns a random numeric string with length in range [minimum_length, maximum_length].
-     */
-    public String nstring(int minimum_length, int maximum_length) {
-        return randomString(minimum_length, maximum_length, '0', 10);
-    }
+         int multiplier = 1;
+         for (int i = 0; i < decimal_places; ++i) {
+             multiplier *= 10;
+         }
 
-    /**
-     * @param minimum_length
-     * @param maximum_length
-     * @param base
-     * @param numCharacters
-     * @return
-     */
-    private String randomString(int minimum_length, int maximum_length, char base, int numCharacters) {
-        int length = number(minimum_length, maximum_length);
-        byte baseByte = (byte) base;
-        byte[] bytes = new byte[length];
-        for (int i = 0; i < length; ++i) {
-            bytes[i] = (byte) (baseByte + number(0, numCharacters - 1));
-        }
-        return new String(bytes);
-    }
-}
+         int int_min = (int) (minimum * multiplier + 0.5);
+         int int_max = (int) (maximum * multiplier + 0.5);
+
+         return (double) this.number(int_min, int_max) / (double) multiplier;
+     }
+
+     /**
+      * @returns a random alphabetic string with length in range [minimum_length, maximum_length].
+      */
+     public String astring(int minimum_length, int maximum_length) {
+         return randomString(minimum_length, maximum_length, 'a', 26);
+     }
+
+
+     /**
+      * @returns a random numeric string with length in range [minimum_length, maximum_length].
+      */
+     public String nstring(int minimum_length, int maximum_length) {
+         return randomString(minimum_length, maximum_length, '0', 10);
+     }
+
+     /**
+      * @param minimum_length
+      * @param maximum_length
+      * @param base
+      * @param numCharacters
+      * @return
+      */
+     private String randomString(int minimum_length, int maximum_length, char base, int numCharacters) {
+         int length = number(minimum_length, maximum_length);
+         byte baseByte = (byte) base;
+         byte[] bytes = new byte[length];
+         for (int i = 0; i < length; ++i) {
+             bytes[i] = (byte) (baseByte + number(0, numCharacters - 1));
+         }
+         return new String(bytes);
+     }
+ }

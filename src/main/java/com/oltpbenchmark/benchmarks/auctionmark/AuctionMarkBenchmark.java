@@ -38,7 +38,7 @@ public class AuctionMarkBenchmark extends BenchmarkModule {
     private static final Logger LOG = LoggerFactory.getLogger(AuctionMarkBenchmark.class);
 
 
-    private final RandomGenerator rng = new RandomGenerator((int) System.currentTimeMillis());
+    private final RandomGenerator rng = new RandomGenerator();
 
     public AuctionMarkBenchmark(WorkloadConfiguration workConf) {
         super(workConf);

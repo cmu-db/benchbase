@@ -31,7 +31,7 @@ import java.util.List;
 
 public class SEATSBenchmark extends BenchmarkModule {
 
-    private final RandomGenerator rng = new RandomGenerator((int) System.currentTimeMillis());
+    private final RandomGenerator rng = new RandomGenerator();
 
     public SEATSBenchmark(WorkloadConfiguration workConf) {
         super(workConf);
