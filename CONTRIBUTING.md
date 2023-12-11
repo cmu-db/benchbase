@@ -15,6 +15,7 @@ We welcome all contributions! Please open a [pull request](https://github.com/cm
     - [IDE](#ide)
     - [Adding a new DBMS](#adding-a-new-dbms)
     - [Java Development Notes](#java-development-notes)
+        - [Avoid var keyword](#avoid-var-keyword)
         - [Compiler Warnings](#compiler-warnings)
             - [Alternatives to arrays of generics](#alternatives-to-arrays-of-generics)
 
@@ -37,6 +38,10 @@ In an effort to enforce clean, safe, maintainable code, [PR #413](https://github
 This means that any compiler warnings will cause the build to fail.
 
 If you are seeing a build failure due to a compiler warning, please fix the warning or (on rare occassions) add an exception to the line causing the issue.
+
+### Avoid `var` keyword
+
+In general, we prefer to avoid the `var` keyword in favor of explicit types.
 
 #### Alternatives to arrays of generics
 
