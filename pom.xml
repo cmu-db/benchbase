@@ -253,6 +253,7 @@
         </dependency>
 
         <dependency>
+            <!-- For templated benchmark -->
             <groupId>commons-jxpath</groupId>
             <artifactId>commons-jxpath</artifactId>
             <version>1.3</version>
@@ -495,6 +496,8 @@
                                 <ignoredUnusedDeclaredDependency>org.slf4j:slf4j-reload4j:jar</ignoredUnusedDeclaredDependency>
                                 <!-- Used by the templated benchmark for internal compiling proceedures. -->
                                 <ignoredUnusedDeclaredDependency>org.codehaus.janino:janino:jar</ignoredUnusedDeclaredDependency>
+                                <!-- Used by the templated benchmark. -->
+                                <ignoredUnusedDeclaredDependency>commons-jxpath:commons-jxpath:jar</ignoredUnusedDeclaredDependency>
 
                                 <!--
                                 Need to ignore the following profile specific dependencies since they're runtime only.
