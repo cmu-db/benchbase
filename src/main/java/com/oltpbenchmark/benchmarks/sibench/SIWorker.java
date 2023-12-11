@@ -60,7 +60,7 @@ public class SIWorker extends Worker<SIBenchmark> {
     private void minRecord(Connection conn) throws SQLException {
         MinRecord proc = this.getProcedure(MinRecord.class);
 
-        int minId = proc.run(conn);
+        proc.run(conn);
     }
 
     private void updateRecord(Connection conn) throws SQLException {

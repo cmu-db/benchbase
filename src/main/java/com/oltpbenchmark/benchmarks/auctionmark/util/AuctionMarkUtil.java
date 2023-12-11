@@ -28,6 +28,7 @@ public abstract class AuctionMarkUtil {
     @SuppressWarnings("unused")
     private static final Logger LOG = LoggerFactory.getLogger(AuctionMarkUtil.class);
 
+    @SuppressWarnings("unused")
     private static final long ITEM_ID_MASK = 0xFFFFFFFFFFFFFFL; // 56 bits (ITEM_ID)
 
     /**
@@ -64,9 +65,9 @@ public abstract class AuctionMarkUtil {
      */
     public static long getScaledTimestamp(Timestamp benchmarkStart, Timestamp clientStart, Timestamp current) {
         // First get the offset between the benchmarkStart and the clientStart
-        // We then subtract that value from the current time. This gives us the total elapsed 
-        // time from the current time to the time that the benchmark start (with the gap 
-        // from when the benchmark was loading data cut out) 
+        // We then subtract that value from the current time. This gives us the total elapsed
+        // time from the current time to the time that the benchmark start (with the gap
+        // from when the benchmark was loading data cut out)
         long base = benchmarkStart.getTime();
         long offset = current.getTime() - (clientStart.getTime() - base);
         long elapsed = (offset - base) * AuctionMarkConstants.TIME_SCALE_FACTOR;

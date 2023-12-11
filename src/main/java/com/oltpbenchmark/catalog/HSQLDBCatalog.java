@@ -93,6 +93,7 @@ public class HSQLDBCatalog implements AbstractCatalog {
                 while (colRS.next()) {
                     String colName = colRS.getString(4);
                     int colType = colRS.getInt(5);
+                    @SuppressWarnings("unused")
                     String colTypeName = colRS.getString(6);
                     Integer colSize = colRS.getInt(7);
                     boolean colNullable = colRS.getString(18).equalsIgnoreCase("YES");

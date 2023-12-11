@@ -30,7 +30,6 @@ import com.oltpbenchmark.util.TextGenerator;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Random;
 
 /**
  * YCSBWorker Implementation
@@ -69,7 +68,7 @@ class YCSBWorker extends Worker<YCSBBenchmark> {
         }
 
         // This is a minor speed-up to avoid having to invoke the hashmap look-up
-        // everytime we want to execute a txn. This is important to do on 
+        // everytime we want to execute a txn. This is important to do on
         // a client machine with not a lot of cores
         this.procUpdateRecord = this.getProcedure(UpdateRecord.class);
         this.procScanRecord = this.getProcedure(ScanRecord.class);

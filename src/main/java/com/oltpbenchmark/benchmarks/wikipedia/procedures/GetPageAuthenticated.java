@@ -97,6 +97,7 @@ public class GetPageAuthenticated extends Procedure {
                     try (ResultSet rs = st.executeQuery()) {
                         while (rs.next()) {
                             String userGroupName = rs.getString(1);
+                            assert userGroupName != null;
                         }
                     }
                 }
@@ -122,7 +123,7 @@ public class GetPageAuthenticated extends Procedure {
             try (ResultSet rs = st.executeQuery()) {
                 while (rs.next()) {
                     byte[] pr_type = rs.getBytes(1);
-
+                    assert pr_type != null;
                 }
             }
         }
@@ -134,7 +135,7 @@ public class GetPageAuthenticated extends Procedure {
             try (ResultSet rs = st.executeQuery()) {
                 while (rs.next()) {
                     byte[] ipb_expiry = rs.getBytes(11);
-
+                    assert ipb_expiry != null;
                 }
             }
         }

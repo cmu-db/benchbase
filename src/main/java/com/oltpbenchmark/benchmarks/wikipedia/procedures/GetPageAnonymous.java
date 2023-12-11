@@ -32,6 +32,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class GetPageAnonymous extends Procedure {
+    @SuppressWarnings("unused")
     private static final Logger LOG = LoggerFactory.getLogger(GetPageAnonymous.class);
 
     // -----------------------------------------------------------------

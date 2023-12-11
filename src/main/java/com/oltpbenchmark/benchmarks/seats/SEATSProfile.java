@@ -210,7 +210,7 @@ public class SEATSProfile {
             stmt.setObject(param_idx++, this.reservation_upcoming_offset); // CFP_RESERVATION_OFFSET
             stmt.setObject(param_idx++, this.num_reservations); // CFP_NUM_RESERVATIONS
             stmt.setObject(param_idx, JSONUtil.toJSONString(this.code_id_xref)); // CFP_CODE_ID_XREF
-            int result = stmt.executeUpdate();
+            stmt.executeUpdate();
 
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Saved profile information into {}", profileTable.getName());
@@ -226,7 +226,7 @@ public class SEATSProfile {
                 stmt.setObject(param_idx++, e.getKey()); // CFH_NAME
                 stmt.setObject(param_idx++, e.getValue().toJSONString()); // CFH_DATA
                 stmt.setObject(param_idx, 1); // CFH_IS_AIRPORT
-                int result = stmt.executeUpdate();
+                stmt.executeUpdate();
 
             }
             if (LOG.isDebugEnabled()) {
@@ -238,7 +238,7 @@ public class SEATSProfile {
                 stmt.setObject(param_idx++, e.getKey()); // CFH_NAME
                 stmt.setObject(param_idx++, e.getValue().toJSONString()); // CFH_DATA
                 stmt.setObject(param_idx, 0); // CFH_IS_AIRPORT
-                int result = stmt.executeUpdate();
+                stmt.executeUpdate();
 
             }
 
