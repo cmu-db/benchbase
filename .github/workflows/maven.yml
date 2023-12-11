@@ -164,6 +164,12 @@ jobs:
         ports:
           - 3306:3306
     steps:
+      - name: Dump event payload
+        run: |
+          set -x
+          echo "$GITHUB_EVENT_PATH"
+          cat "$GITHUB_EVENT_PATH"
+
       - name: Download artifact
         uses: actions/download-artifact@v3
         with:
