@@ -332,6 +332,13 @@
 
         <dependency>
             <groupId>org.codehaus.janino</groupId>
+            <artifactId>commons-compiler</artifactId>
+            <version>3.1.11</version>
+        </dependency>
+
+        <dependency>
+            <!-- Used by the templated benchmark for internal compiling proceedures. -->
+            <groupId>org.codehaus.janino</groupId>
             <artifactId>janino</artifactId>
             <version>3.1.11</version>
         </dependency>
@@ -480,6 +487,8 @@
                                 <ignoredUnusedDeclaredDependency>org.glassfish.jaxb:jaxb-runtime:jar</ignoredUnusedDeclaredDependency>
                                 <!-- Drop-in replacement of log4j -->
                                 <ignoredUnusedDeclaredDependency>org.slf4j:slf4j-reload4j:jar</ignoredUnusedDeclaredDependency>
+                                <!-- Used by the templated benchmark for internal compiling proceedures. -->
+                                <ignoredUnusedDeclaredDependency>org.codehaus.janino:janino:jar</ignoredUnusedDeclaredDependency>
 
                                 <!--
                                 Need to ignore the following profile specific dependencies since they're runtime only.
