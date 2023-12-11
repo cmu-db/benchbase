@@ -560,14 +560,6 @@ WHERE t.name='%s' AND c.name='%s'
 
         Map<String, Table> tables = new HashMap<>();
 
-        List<String> excludedColumns = new ArrayList<>();
-
-        if (databaseType.equals(DatabaseType.COCKROACHDB)) {
-            // cockroachdb has a hidden column called "ROWID" that should not be directly used via the catalog
-            excludedColumns.add("ROWID");
-        }
-
-
         try (ResultSet table_rs = md.getTables(catalog, schema, null, new String[]{"TABLE"})) {
             while (table_rs.next()) {
 
@@ -583,9 +575,15 @@ WHERE t.name='%s' AND c.name='%s'
                     while (col_rs.next()) {
                         String col_name = col_rs.getString("COLUMN_NAME");
 
-                        if (excludedColumns.contains(col_name.toUpperCase())) {
-                            LOG.debug("found excluded column [{}] for in database type [{}].  Skipping...", col_name, databaseType);
-                            continue;
+                        if (databaseType.equals(DatabaseType.COCKROACHDB)) {
+                            if (col_name.equals("rowid") || col_name.startsWith("crdb_internal_")) {
+                                // CockroachDB adds a hidden column called "rowid" or "crdb_internal_*"
+                                // when a table is defined without a primary key or when a hash-sharded
+                                // primary key is used, respectively, that should not be directly used
+                                // via the catalog.
+                                LOG.debug("found excluded column [{}] for in database type [{}].  Skipping...", col_name, databaseType);
+                                continue;
+                            }
                         }
 
                         int col_type = col_rs.getInt("DATA_TYPE");
