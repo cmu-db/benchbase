@@ -77,7 +77,7 @@ public class SILoader extends Loader<SIBenchmark> {
                 stmt.addBatch();
 
                 if (++batch >= workConf.getBatchSize()) {
-                    int[] result = stmt.executeBatch();
+                    stmt.executeBatch();
 
                     batch = 0;
                 }

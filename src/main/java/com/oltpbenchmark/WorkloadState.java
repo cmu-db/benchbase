@@ -42,6 +42,7 @@ public class WorkloadState {
     private final Iterator<Phase> phaseIterator;
 
     private int workersWaiting = 0;
+    @SuppressWarnings("unused") // never read
     private int workersWorking = 0;
     private int workerNeedSleep;
 
@@ -60,7 +61,7 @@ public class WorkloadState {
      */
     public void addToQueue(int amount, boolean resetQueues) {
         int workAdded = 0;
-        
+
         synchronized (this) {
             if (resetQueues) {
                 workQueue.clear();
@@ -71,7 +72,7 @@ public class WorkloadState {
                     || !currentPhase.isRateLimited() || currentPhase.isSerial()) {
                 return;
             }
-            
+
             // Add the specified number of procedures to the end of the queue.
             // If we can't keep up with current rate, truncate transactions
             for (int i = 0; i < amount && workQueue.size() <= RATE_QUEUE_LIMIT; ++i) {

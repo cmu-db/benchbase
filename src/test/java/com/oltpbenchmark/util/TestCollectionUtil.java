@@ -24,7 +24,6 @@ import static org.junit.Assert.assertNotNull;
 import org.apache.commons.collections4.set.ListOrderedSet;
 
 import java.util.*;
-import org.junit.Before;
 import org.junit.Test;
 
 /**

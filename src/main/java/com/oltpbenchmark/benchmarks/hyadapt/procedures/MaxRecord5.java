@@ -44,6 +44,7 @@ public class MaxRecord5 extends Procedure {
                 }
             }
         }
+        assert max != -1;
     }
 
 }

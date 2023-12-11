@@ -1268,7 +1268,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         private Timestamp convertTimeString(Timestamp base_date, String code) {
             Matcher m = SEATSConstants.TIMECODE_PATTERN.matcher(code);
             boolean result = m.find();
-
+            assert result;
 
             int hour = -1;
             try {
