@@ -202,7 +202,7 @@ jobs:
             java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/mariadb/sample_${{matrix.benchmark}}_config.xml --create=false --load=false --execute=true --json-histograms results/histograms.json
           elif [[ ${{matrix.benchmark}} == tpcc-with-reconnects ]]; then
             java -jar benchbase.jar -b tpcc -c config/mariadb/sample_tpcc_config.xml --create=true --load=true
-            ./scripts/interrupt-docker-db-service.sh mariadb
+            (sleep 5 && ./scripts/interrupt-docker-db-service.sh mariadb) &
             java -jar benchbase.jar -b tpcc -c config/mariadb/sample_tpcc_config.xml --execute=true --json-histograms results/histograms.json
           else
             java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/mariadb/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
@@ -274,7 +274,7 @@ jobs:
             java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/mysql/sample_${{matrix.benchmark}}_config.xml --create=false --load=false --execute=true --json-histograms results/histograms.json
           elif [[ ${{matrix.benchmark}} == tpcc-with-reconnects ]]; then
             java -jar benchbase.jar -b tpcc -c config/mysql/sample_tpcc_config.xml --create=true --load=true
-            ./scripts/interrupt-docker-db-service.sh mysql
+            (sleep 5 && ./scripts/interrupt-docker-db-service.sh mysql) &
             java -jar benchbase.jar -b tpcc -c config/mysql/sample_tpcc_config.xml --execute=true --json-histograms results/histograms.json
           else
             java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/mysql/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
@@ -350,7 +350,7 @@ jobs:
             java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/oracle/sample_${{matrix.benchmark}}_config.xml --create=false --load=false --execute=true --json-histograms results/histograms.json
           elif [[ ${{matrix.benchmark}} == tpcc-with-reconnects ]]; then
             java -jar benchbase.jar -b tpcc -c config/oracle/sample_tpcc_config.xml --create=true --load=true
-            ./scripts/interrupt-docker-db-service.sh oracle
+            (sleep 5 && ./scripts/interrupt-docker-db-service.sh oracle) &
             java -jar benchbase.jar -b tpcc -c config/oracle/sample_tpcc_config.xml --execute=true --json-histograms results/histograms.json
           else
             java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/oracle/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
@@ -425,7 +425,7 @@ jobs:
             java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/postgres/sample_${{matrix.benchmark}}_config.xml --create=false --load=false --execute=true --json-histograms results/histograms.json
           elif [[ ${{matrix.benchmark}} == tpcc-with-reconnects ]]; then
             java -jar benchbase.jar -b tpcc -c config/postgres/sample_tpcc_config.xml --create=true --load=true
-            ./scripts/interrupt-docker-db-service.sh postgres
+            (sleep 5 && ./scripts/interrupt-docker-db-service.sh postgres) &
             java -jar benchbase.jar -b tpcc -c config/postgres/sample_tpcc_config.xml --execute=true --json-histograms results/histograms.json
           else
             java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/postgres/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
@@ -567,7 +567,7 @@ jobs:
             java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/sqlserver/sample_${{matrix.benchmark}}_config.xml --create=false --load=false --execute=true --json-histograms results/histograms.json
           elif [[ ${{matrix.benchmark}} == tpcc-with-reconnects ]]; then
             java -jar benchbase.jar -b tpcc -c config/sqlserver/sample_tpcc_config.xml --create=true --load=true
-            ./scripts/interrupt-docker-db-service.sh sqlserver
+            (sleep 5 && ./scripts/interrupt-docker-db-service.sh sqlserver) &
             java -jar benchbase.jar -b tpcc -c config/sqlserver/sample_tpcc_config.xml --execute=true --json-histograms results/histograms.json
           else
             java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/sqlserver/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
