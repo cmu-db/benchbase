@@ -15,8 +15,9 @@ We welcome all contributions! Please open a [pull request](https://github.com/cm
     - [IDE](#ide)
     - [Adding a new DBMS](#adding-a-new-dbms)
     - [Java Development Notes](#java-development-notes)
-        - [Avoid var keyword](#avoid-var-keyword)
+        - [Code Style](#code-style)
         - [Compiler Warnings](#compiler-warnings)
+        - [Avoid var keyword](#avoid-var-keyword)
             - [Alternatives to arrays of generics](#alternatives-to-arrays-of-generics)
 
 <!-- /TOC -->
@@ -30,6 +31,14 @@ Although you can use any IDE you prefer, there are some configurations for [VSCo
 Please see the existing MySQL and PostgreSQL code for an example.
 
 ## Java Development Notes
+
+### Code Style
+
+To allow reviewers to focus more on code content and not style nits, [PR #416](https://github.com/cmu-db/benchbase/pulls/416) added support for auto formatting code at compile time according to [Google Java Style](https://google.github.io/styleguide/javaguide.html) using [google-java-format](https://github.com/google/google-java-format) and [fmt-maven-plugin](https://github.com/spotify/fmt-maven-plugin) Maven plugins.
+
+Be sure to commit and include these changes in your PRs when submitting them so that the CI pipeline passes.
+
+Additionally, this formatting style is included in the VSCode settings files for this repo.
 
 ### Compiler Warnings
 
