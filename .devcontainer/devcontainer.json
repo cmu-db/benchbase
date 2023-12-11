@@ -46,6 +46,7 @@
                 "github.vscode-github-actions",
                 "github.vscode-pull-request-github",
                 "huntertran.auto-markdown-toc",
+                "redhat.fabric8-analytics",
                 "vscjava.vscode-java-pack"
             ]
         }
