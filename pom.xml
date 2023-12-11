@@ -300,6 +300,7 @@
             <groupId>org.glassfish.jaxb</groupId>
             <artifactId>jaxb-runtime</artifactId>
             <version>4.0.4</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
