@@ -434,6 +434,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                         conn.rollback();
                     } catch(SQLException ex2) {
                         LOG.error("SQLException caught while rolling back transaction.", ex2);
+                        // force a reconnection
                         conn = null;
                     }
 
@@ -448,13 +449,13 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                     boolean isConnectionErrorException = SQLUtil.isConnectionErrorException(ex);
 
                     if (indicatesReadOnly(ex)) {
-                        if (conn != null) {
+                        if (SQLUtil.isConnectionOK(conn)) {
                             conn.setReadOnly(true);
                         }
                     }
 
                     // if the connection is closed, we can't rollback
-                    if (!isConnectionErrorException && conn != null && !conn.isClosed()) {
+                    if (!isConnectionErrorException && SQLUtil.isConnectionOK(conn)) {
                         // if the error is that we're attempting a write transaction to a read-only secondary,
                         // then we can't rollback anyways, so don't bother trying
                         if (conn.isReadOnly()) {
@@ -466,21 +467,28 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                             catch (SQLException ex2) {
                                 LOG.error("SQLException caught while closing connection.", ex2);
                             }
+                            // force a reconnection
                             conn = null;
-                        } else {
+                        }
+                        // otherwise, we should attempt a rollback
+                        else {
                             LOG.debug(String.format("Attempting a rollback since a problem was detected during [%s]... current retry attempt [%d], max retry attempts [%d], sql state [%s], error code [%d].", transactionType, retryCount, maxRetryCount, ex.getSQLState(), ex.getErrorCode()), ex);
                             try {
                                 conn.rollback();
                             }
                             catch (SQLException ex2) {
                                 LOG.error("SQLException caught while attempting to rollback transaction.", ex2);
+                                // force a reconnection
                                 conn = null;
                             }
                         }
-                    } else {
+                    }
+                    // connection is closed, try a reconnect
+                    else {
                         if (this.configuration.getReconnectOnConnectionFailure()) {
                             LOG.debug(String.format("Won't attempt a rollback since a problem with the SQL connection was detected during [%s]... current retry attempt [%d], max retry attempts [%d], sql state [%s], error code [%d].", transactionType, retryCount, maxRetryCount, ex.getSQLState(), ex.getErrorCode()), ex);
-                        } else {
+                        }
+                        else {
                             // old behavior, will likley result in an exception thrown
                             // and an aborted benchmark due to the connection problem
                             LOG.debug(String.format("Attempting a rollback since a problem was detected during [%s] (despite connection error detection - see reconnectOnConnectionFailure setting)... current retry attempt [%d], max retry attempts [%d], sql state [%s], error code [%d].", transactionType, retryCount, maxRetryCount, ex.getSQLState(), ex.getErrorCode()), ex);
@@ -489,12 +497,14 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                             }
                             catch (SQLException ex2) {
                                 LOG.error("SQLException caught while attempting to rollback transaction.", ex2);
+                                // force a reconnection
                                 conn = null;
                             }
                         }
                     }
 
-                    if ((isConnectionErrorException || conn == null || conn.isClosed())
+                    // check the connection (after possible reconnection) again
+                    if ((isConnectionErrorException || !SQLUtil.isConnectionOK(conn))
                         && this.configuration.getReconnectOnConnectionFailure()
                     ) {
                         LOG.debug(String.format("Retryable SQL connection exception occurred during [%s]... current retry attempt [%d], max retry attempts [%d], sql state [%s], error code [%d].", transactionType, retryCount, maxRetryCount, ex.getSQLState(), ex.getErrorCode()), ex);
@@ -502,7 +512,8 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                         // force a reconnection
                         try {
                             conn.close();
-                        } catch (Exception e) {
+                        }
+                        catch (Exception e) {
                             LOG.warn("Failed to close faulty connection (somewhat expected).", e);
                         }
                         finally {
@@ -512,7 +523,8 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                         status = TransactionStatus.RETRY_DIFFERENT;
 
                         retryCount++;
-                    } else if (isRetryable(ex)) {
+                    }
+                    else if (isRetryable(ex)) {
                         LOG.debug(String.format("Retryable SQLException occurred during [%s]... current retry attempt [%d], max retry attempts [%d], sql state [%s], error code [%d].", transactionType, retryCount, maxRetryCount, ex.getSQLState(), ex.getErrorCode()), ex);
 
                         status = TransactionStatus.RETRY;
@@ -525,7 +537,6 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
                         break;
                     }
-
                 } finally {
                     if (this.configuration.getNewConnectionPerTxn() && this.conn != null) {
                         try {

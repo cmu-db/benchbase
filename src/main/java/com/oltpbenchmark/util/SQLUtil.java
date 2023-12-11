@@ -163,7 +163,7 @@ public abstract class SQLUtil {
         TIMESTAMP_VALUE_METHOD = timestampValueMethod;
         ORACLE_TIMESTAMP = oracleTimestamp;
     }
-    
+
     /**
      * Return a double from the given object
      * Handles the different cases from the various DBMSs
@@ -669,6 +669,11 @@ WHERE t.name='%s' AND c.name='%s'
         return (false);
     }
 
+    /**
+     * Checks to see if a SqlException is about a connection error.
+     * @param ex SqlException
+     * @return boolean
+     */
     public static boolean isConnectionErrorException(SQLException ex) {
         if (ex.getMessage().equals("Connection reset")
             || ex.getMessage().equals("The connection is closed.")
@@ -680,5 +685,34 @@ WHERE t.name='%s' AND c.name='%s'
         }
 
         return false;
+    }
+
+    /**
+     * Checks to see if a connection looks OK.
+     *
+     * @param conn
+     * @param checkValid Whether or not to issue a isValid() check on the
+     *                   connection. Note: this can be expensive since it may
+     *                   actually issue a noop query.
+     * @return boolean
+     * @throws SQLException
+     */
+    public static boolean isConnectionOK(Connection conn, boolean checkValid) throws SQLException {
+        boolean ret = conn != null && !conn.isClosed();
+        if (checkValid) {
+            // isValid() can be expensive, so only do it if we have to and timeout after 1 second
+            ret = ret && conn.isValid(1);
+        }
+        return ret;
+    }
+
+    /**
+     * Checks to see if a connection looks OK without issuing an isValid() check.
+     * @param conn
+     * @return boolean
+     * @throws SQLException
+     */
+    public static boolean isConnectionOK(Connection conn) throws SQLException {
+        return isConnectionOK(conn, false);
     }
 }
