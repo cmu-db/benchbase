@@ -675,11 +675,17 @@ WHERE t.name='%s' AND c.name='%s'
      * @return boolean
      */
     public static boolean isConnectionErrorException(SQLException ex) {
-        if (ex.getMessage().equals("Connection reset")
+        if (ex instanceof SQLNonTransientConnectionException
+            || ex instanceof SQLTransientConnectionException
+            || ex.getMessage().equals("Connection reset")
             || ex.getMessage().equals("The connection is closed.")
             || ex.getMessage().equals("Read timed out.")
             || ex.getMessage().contains("The connection has been closed.")
+            || ex.getMessage().contains("Can not read response from server.")
+            || ex.getMessage().endsWith("connection was unexpectedly lost.")
             || ex.getMessage().endsWith("Command could not be timed out. Reason: Socket closed")
+            || ex.getMessage().endsWith("No operations allowed after connection closed")
+            || ex.getMessage().endsWith("Communications link failure")
         ) {
             return true;
         }
