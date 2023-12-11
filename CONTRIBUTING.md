@@ -1,0 +1,58 @@
+# Contributing
+
+We welcome all contributions! Please open a [pull request](https://github.com/cmu-db/benchbase/pulls). Common contributions may include:
+
+- Adding support for a new DBMS.
+- Adding more tests of existing benchmarks.
+- Fixing any bugs or known issues.
+
+## Contents
+
+<!-- TOC -->
+
+- [Contributing](#contributing)
+    - [Contents](#contents)
+    - [IDE](#ide)
+    - [Adding a new DBMS](#adding-a-new-dbms)
+    - [Java Development Notes](#java-development-notes)
+        - [Compiler Warnings](#compiler-warnings)
+            - [Alternatives to arrays of generics](#alternatives-to-arrays-of-generics)
+
+<!-- /TOC -->
+
+## IDE
+
+Although you can use any IDE you prefer, there are some configurations for [VSCode](https://code.visualstudio.com/) that you may find useful included in the repository, including [Github Codespaces](https://github.com/features/codespaces) and [VSCode devcontainer](https://code.visualstudio.com/docs/remote/containers) support to automatically handle dependencies, environment setup, code formatting, and more.
+
+## Adding a new DBMS
+
+Please see the existing MySQL and PostgreSQL code for an example.
+
+## Java Development Notes
+
+### Compiler Warnings
+
+In an effort to enforce clean, safe, maintainable code, [PR #413](https://github.com/cmu-db/benchbase/pull/413) enabled the `-Werror` and `-Xlint:all` options for the `javac` compiler.
+
+This means that any compiler warnings will cause the build to fail.
+
+If you are seeing a build failure due to a compiler warning, please fix the warning or (on rare occassions) add an exception to the line causing the issue.
+
+#### Alternatives to arrays of generics
+
+Per the [Java Language Specification](https://docs.oracle.com/javase/tutorial/java/generics/restrictions.html#createArrays), arrays of generic types are not allowed and will cause compiler warnings (e.g., `unchecked cast`)
+
+In some cases, you can extend a generic type to create a non-generic type that can be used in an array.
+
+For instance,
+
+```java
+// Simple generic class overload to avoid some cast warnings.
+class SomeTypeList extends LinkedList<SomeType> {}
+
+SomeTypeList[] someTypeLists = new SomeTypeList[] {
+    new SomeTypeList(),
+    new SomeTypeList(),
+    new SomeTypeList(),
+};
+```
