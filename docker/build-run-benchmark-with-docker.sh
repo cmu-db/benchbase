@@ -57,7 +57,7 @@ elif [ "$benchmark" == 'templated' ]; then
     else
         tpcc_config="config/sample_tpcc_config.xml"
     fi
-    SKIP_TESTS=${SKIP_TESTS:-true} EXTRA_DOCKER_ARGS="--network=host $EXTRA_DOCKER_ARGS" \
+    BUILD_IMAGE=false EXTRA_DOCKER_ARGS="--network=host $EXTRA_DOCKER_ARGS" \
     ./docker/benchbase/run-full-image.sh \
         --config "$tpcc_config" --bench tpcc \
         $CREATE_DB_ARGS --execute=false
@@ -73,7 +73,7 @@ if [ "$WITH_SERVICE_INTERRUPTIONS" == 'true' ]; then
     (sleep 10 && ./scripts/interrupt-docker-db-service.sh "$BENCHBASE_PROFILE") &
 fi
 
-SKIP_TESTS=${SKIP_TESTS:-true} EXTRA_DOCKER_ARGS="--network=host $EXTRA_DOCKER_ARGS" \
+BUILD_IMAGE=false EXTRA_DOCKER_ARGS="--network=host $EXTRA_DOCKER_ARGS" \
 ./docker/benchbase/run-full-image.sh \
     --config "config/sample_${benchmark}_config.xml" --bench "$benchmark" \
     $CREATE_DB_ARGS --execute=true \
