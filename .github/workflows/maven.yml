@@ -318,7 +318,7 @@ jobs:
           docker cp config/oracle/scripts/reset.sql oracle:/opt/oracle/reset.sql
 
       - name: Set up JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: ${{env.JAVA_VERSION}}
           distribution: 'temurin'
@@ -558,7 +558,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DOCKER_BUILDKIT: 1
-      BENCHBASE_PROFILES: 'cockroachdb mariadb mysql postgres spanner phoenix sqlserver sqlite'
+      BENCHBASE_PROFILES: 'cockroachdb mariadb mysql oracle phoenix postgres spanner sqlite sqlserver'
       CONTAINER_REGISTRY_NAME: ${{ secrets.ACR_LOGINURL }}
     services:
       postgres: # https://hub.docker.com/_/postgres
