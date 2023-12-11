@@ -70,8 +70,9 @@ jobs:
         cache: 'maven'
         distribution: 'temurin'
 
-    - name: Package with Maven
-      run: mvn -B package -P ${{matrix.profile}} --file pom.xml -DskipTests -D descriptors=src/main/assembly/tgz.xml
+    - name: Package and verify with Maven
+      run: |
+        mvn -B package verify -P ${{matrix.profile}} --file pom.xml -DskipTests -D descriptors=src/main/assembly/tgz.xml
 
     - name: Upload TGZ artifact
       uses: actions/upload-artifact@v3
