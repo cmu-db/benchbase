@@ -1195,7 +1195,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         private LoaderItemInfo.Bid bid = null;
         private float currentBidPriceAdvanceStep;
         private long currentCreateDateAdvanceStep;
-        @SuppressWarnings("unused") // spurious
+        @SuppressWarnings("unused") // only ever assigned
         private float currentPrice;
         private boolean new_item;
 
