@@ -573,7 +573,6 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
      * @return
      */
     private boolean indicatesReadOnly(SQLException ex) {
-
         String sqlState = ex.getSQLState();
         int errorCode = ex.getErrorCode();
 

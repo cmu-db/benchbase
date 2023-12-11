@@ -18,6 +18,9 @@ scriptdir=$(dirname "$(readlink -f "$0")")
 rootdir=$(readlink -f "$scriptdir/..")
 cd "$rootdir"
 
+# Do the rebuild (if necessary) build first.
+SKIP_TESTS=${SKIP_TESTS:-true} ./docker/benchbase/build-full-image.sh
+
 EXTRA_DOCKER_ARGS=''
 if [ "$BENCHBASE_PROFILE" == 'sqlite' ]; then
     # Map the sqlite db back to the host.
@@ -62,6 +65,12 @@ elif [ "$benchmark" == 'templated' ]; then
     # Mark those actions as completed.
     CREATE_DB_ARGS=''
     SKIP_TESTS=true
+fi
+
+if [ "$WITH_SERVICE_INTERRUPTIONS" == 'true' ]; then
+    # Randomly interrupt the docker db service by killing it.
+    # Used to test connection error handling during a benchmark.
+    (sleep 10 && ./scripts/interrupt-docker-db-service.sh "$BENCHBASE_PROFILE") &
 fi
 
 SKIP_TESTS=${SKIP_TESTS:-true} EXTRA_DOCKER_ARGS="--network=host $EXTRA_DOCKER_ARGS" \
