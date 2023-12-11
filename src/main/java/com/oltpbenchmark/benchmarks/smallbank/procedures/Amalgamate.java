@@ -44,7 +44,7 @@ public class Amalgamate extends Procedure {
 
     // 2013-05-05
     // In the original version of the benchmark, this is suppose to be a look up
-    // on the customer's name. We don't have fast implementation of replicated 
+    // on the customer's name. We don't have fast implementation of replicated
     // secondary indexes, so we'll just ignore that part for now.
     public final SQLStmt GetAccount = new SQLStmt(
             "SELECT * FROM " + SmallBankConstants.TABLENAME_ACCOUNTS +
@@ -131,14 +131,13 @@ public class Amalgamate extends Procedure {
         // assert(total >= 0);
 
         // Update Balance Information
-        int status;
         try (PreparedStatement updateStmt0 = this.getPreparedStatement(conn, ZeroCheckingBalance, custId0)) {
-            status = updateStmt0.executeUpdate();
+            updateStmt0.executeUpdate();
         }
 
 
         try (PreparedStatement updateStmt1 = this.getPreparedStatement(conn, UpdateSavingsBalance, total, custId1)) {
-            status = updateStmt1.executeUpdate();
+            updateStmt1.executeUpdate();
         }
 
     }

@@ -46,6 +46,7 @@ public class MaxRecord8 extends Procedure {
                     max = r.getInt(1);
                 }
             }
+            assert max != -1;
         }
     }
 

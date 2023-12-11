@@ -1,6 +1,6 @@
 /*
  * Copyright 2020 Trino
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,7 +25,9 @@ import com.oltpbenchmark.util.RowRandomInt;
 import static java.util.Objects.requireNonNull;
 
 public class Distribution {
+    @SuppressWarnings("unused") // never read
     private final String name;
+
     private final List<String> values;
     private final int[] weights;
     private final String[] distribution;

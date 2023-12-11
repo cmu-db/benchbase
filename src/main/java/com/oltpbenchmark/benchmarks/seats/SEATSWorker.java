@@ -73,7 +73,9 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
             this.displayName = StringUtil.title(this.name().replace("_", " "));
         }
 
+        @SuppressWarnings("unused") // never read
         public final Class<? extends Procedure> proc_class;
+
         public final String displayName;
         public final String execName;
 
@@ -269,7 +271,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
         // Fire off a FindOpenSeats so that we can prime ourselves
         FindOpenSeats proc = this.getProcedure(FindOpenSeats.class);
         try (Connection conn = getBenchmark().makeConnection()) {
-            boolean ret = this.executeFindOpenSeats(conn, proc);
+            this.executeFindOpenSeats(conn, proc);
         } catch (SQLException ex) {
             throw new RuntimeException(ex);
         }
