@@ -1,11 +1,8 @@
 {
     "recommendations": [
-        "editorconfig.editorconfig",
-        "redhat.java",
-        "vscjava.vscode-java-debug",
-        "vscjava.vscode-java-dependency",
-        "vscjava.vscode-java-pack",
-        "vscjava.vscode-java-test",
-        "vscjava.vscode-maven"
+        "EditorConfig.EditorConfig",
+        "github.vscode-pull-request-github",
+        "huntertran.auto-markdown-toc",
+        "vscjava.vscode-java-pack"
     ]
 }
