@@ -509,6 +509,7 @@
                                 <ignoredUnusedDeclaredDependency>com.google.cloud:google-cloud-spanner-jdbc:jar</ignoredUnusedDeclaredDependency>
                                 <ignoredUnusedDeclaredDependency>org.apache.phoenix:phoenix-client-hbase-2.4:jar</ignoredUnusedDeclaredDependency>
                                 <ignoredUnusedDeclaredDependency>com.microsoft.sqlserver:mssql-jdbc:jar</ignoredUnusedDeclaredDependency>
+                                <ignoredUnusedDeclaredDependency>org.xerial:sqlite-jdbc:jar</ignoredUnusedDeclaredDependency>
                             </ignoredUnusedDeclaredDependencies>
                         </configuration>
                     </execution>
