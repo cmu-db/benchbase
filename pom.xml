@@ -103,6 +103,7 @@
                     <groupId>mysql</groupId>
                     <artifactId>mysql-connector-java</artifactId>
                     <version>8.0.30</version>
+                    <scope>runtime</scope>
                 </dependency>
             </dependencies>
         </profile>
@@ -462,9 +463,19 @@
                             <goal>analyze-only</goal>
                         </goals>
                         <configuration>
-                            <!-- TODO: Enforce this
-                                -->
                             <failOnWarning>true</failOnWarning>
+
+                            <ignoredUnusedDeclaredDependencies>
+                                <!-- Used for (currently manual) code generation from xml schema files. -->
+                                <ignoredUnusedDeclaredDependency>org.glassfish.jaxb:jaxb-runtime:jar</ignoredUnusedDeclaredDependency>
+                                <!-- Drop-in replacement of log4j -->
+                                <ignoredUnusedDeclaredDependency>org.slf4j:slf4j-reload4j:jar</ignoredUnusedDeclaredDependency>
+
+                                <!--
+                                Need to ignore the following profile specific dependencies since they're runtime only.
+                                -->
+                                <ignoredUnusedDeclaredDependency>mysql:mysql-connector-java:jar</ignoredUnusedDeclaredDependency>
+                            </ignoredUnusedDeclaredDependencies>
                         </configuration>
                     </execution>
                 </executions>
