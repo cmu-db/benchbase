@@ -355,6 +355,11 @@
                         <!-- Enable all linter messages for the compiler. -->
                         <!-- TODO: Remove annotations preprocess warning exception. -->
                         <arg>-Xlint:all,-processing</arg>
+                        <!-- ignore annotation processing on generated class files -->
+                        <arg>-implicit:class</arg>
+                        <!-- TODO: Enable documentation linting.
+                        <arg>-Xdoclint:all</arg>
+                        -->
                         <!-- Turn all warnings into errors to help keep the code clean. -->
                         <arg>-Werror</arg>
                     </compilerArgs>
