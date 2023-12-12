@@ -20,22 +20,54 @@ elif [ "$SERVICE_NAME" == 'sqlite' ]; then
     exit 1
 fi
 
-container_id=$(docker ps --filter "name=^/${SERVICE_NAME}\$" --format '{{.ID}}')
+function lookup_container_id() {
+    local service_name="$1"
+    if [ -n "${GITHUB_ACTION:-}" ]; then
+        # In GitHub Actions, the container name is somewhat obfuscated, so we need
+        # to look it up by --network-alias instead.
+        # Note: this logic picks the first container with the given network alias,
+        # which may cause issues if there's more than one.
+        docker ps -q | xargs docker container inspect | jq -r '
+            [
+                [
+                    .[] | {
+                        "Id": .Id,
+                        "Image": .Config.Image,
+                        "Hostname": .Config.Hostname,
+                        "NetworkAliases": (.NetworkSettings.Networks | to_entries | .[].value.Aliases)
+                    }
+                ] | .[] | select(.NetworkAliases | index("'$service_name'"))
+            ] | first | .Id'
+    else
+        docker ps --filter "name=^/${service_name}\$" --format '{{.ID}}'
+    fi
+}
+
+function interrupt_container() {
+    local container_id="$1"
+    local signal="${2:-}"
+    local timeout=$(($RANDOM % $SPLAY + $OFFSET))
+    echo "[$(date +%s)]: Interrupting container $container_id in $timeout seconds ..."
+    sleep $timeout
+    if [ -n "$signal" ]; then
+        docker kill -s "$signal" "$container_id"
+    else
+        docker kill "$container_id"
+    fi
+}
+
+container_id=$(lookup_container_id "$SERVICE_NAME")
 
 if [ -z "$container_id" ]; then
     echo "ERROR: Failed to lookup container_id for $SERVICE_NAME." >&2
 fi
 
-timeout=$(($RANDOM % $SPLAY + $OFFSET))
-echo "[$(date +%s)]: Interrupting $SERVICE_NAME container $container_id in $timeout seconds ..."
-docker kill $SERVICE_NAME
+interrupt_container $container_id
 
 sleep $DELAY
-docker start $SERVICE_NAME
+docker start $container_id
 
-timeout=$(($RANDOM % $SPLAY + $OFFSET))
-echo "[$(date +%s)]: Killing $SERVICE_NAME container $container_id in $timeout seconds ..."
-docker kill -s KILL $SERVICE_NAME
+interrupt_container $container_id KILL
 
 sleep $DELAY
 docker start $SERVICE_NAME
