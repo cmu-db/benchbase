@@ -21,7 +21,9 @@ rootdir=$(readlink -f "$scriptdir/..")
 cd "$rootdir"
 
 # Do the rebuild (if necessary) build first.
-SKIP_TESTS=${SKIP_TESTS:-true} ./docker/benchbase/build-full-image.sh
+if [ "${BUILD_IMAGE:-true}" != "false" ]; then
+    SKIP_TESTS=${SKIP_TESTS:-true} ./docker/benchbase/build-full-image.sh
+fi
 
 EXTRA_DOCKER_ARGS=''
 if [ "$BENCHBASE_PROFILE" == 'sqlite' ]; then
@@ -72,7 +74,7 @@ else
     echo "INFO: Skipping load of $benchmark data"
 fi
 
-if [ "$WITH_SERVICE_INTERRUPTIONS" == 'true' ]; then
+if [ "${WITH_SERVICE_INTERRUPTIONS:-false}" == 'true' ]; then
     # Randomly interrupt the docker db service by killing it.
     # Used to test connection error handling during a benchmark.
     (sleep 10 && ./scripts/interrupt-docker-db-service.sh "$BENCHBASE_PROFILE") &
