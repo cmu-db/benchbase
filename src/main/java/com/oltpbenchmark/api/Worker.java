@@ -397,6 +397,9 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
                 if (this.conn == null) {
                     try {
+                        if (!this.configuration.getNewConnectionPerTxn()) {
+                            LOG.info("(Re)connecting to database.");
+                        }
                         this.conn = this.benchmark.makeConnection();
                         this.conn.setAutoCommit(false);
                         this.conn.setTransactionIsolation(this.configuration.getIsolationMode());
@@ -511,7 +514,9 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
                         // force a reconnection
                         try {
-                            conn.close();
+                            if (conn != null) {
+                                conn.close();
+                            }
                         }
                         catch (Exception e) {
                             LOG.warn("Failed to close faulty connection (somewhat expected).", e);
