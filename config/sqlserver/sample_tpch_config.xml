@@ -10,6 +10,8 @@
     <reconnectOnConnectionFailure>true</reconnectOnConnectionFailure>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
     <batchsize>1024</batchsize>
+    <!-- Session setup statements file -->
+    <!-- <sessionsetupfile>data/session-setup-files/session_setup_sqlserver_cmds_example.sql</sessionsetupfile> -->
 
     <scalefactor>0.1</scalefactor>
 

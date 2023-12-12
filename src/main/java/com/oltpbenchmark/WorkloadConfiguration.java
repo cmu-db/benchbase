@@ -35,6 +35,7 @@ public class WorkloadConfiguration {
   private String password;
   private String driverClass;
   private int batchSize;
+  private String sessionSetupFile;
   private int maxRetries;
   private int randomSeed = -1;
   private double scaleFactor = 1.0;
@@ -119,6 +120,14 @@ public class WorkloadConfiguration {
 
   public void setBatchSize(int batchSize) {
     this.batchSize = batchSize;
+  }
+
+  public String getSessionSetupFile(){
+    return sessionSetupFile;
+  }
+
+  public void setSessionSetupFile(String sessionSetupFile){
+    this.sessionSetupFile = sessionSetupFile;
   }
 
   public int getMaxRetries() {
@@ -389,6 +398,8 @@ public class WorkloadConfiguration {
         + '\''
         + ", batchSize="
         + batchSize
+        + ", sessionSetupFile="
+        + sessionSetupFile
         + ", maxRetries="
         + maxRetries
         + ", scaleFactor="
