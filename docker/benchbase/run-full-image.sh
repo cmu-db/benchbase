@@ -34,7 +34,6 @@ mkdir -p results/
 set -x
 docker run -it --rm \
     ${EXTRA_DOCKER_ARGS:-} \
-    --env=LOG_LEVEL="${LOG_LEVEL:-}" \
     --env=http_proxy="${http_proxy:-}" --env=https_proxy="${https_proxy:-}" --env=no_proxy="${no_proxy:-}" \
     --env BENCHBASE_PROFILE="$BENCHBASE_PROFILE" \
     --user "$CONTAINERUSER_UID:$CONTAINERUSER_GID" \
