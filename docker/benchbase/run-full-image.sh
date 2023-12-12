@@ -39,4 +39,3 @@ docker run -it --rm \
     --env BENCHBASE_PROFILE="$BENCHBASE_PROFILE" \
     --user "$CONTAINERUSER_UID:$CONTAINERUSER_GID" \
     -v "$SRC_DIR/results:/benchbase/results" benchbase-$BENCHBASE_PROFILE:latest $*
-set +x

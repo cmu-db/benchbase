@@ -78,11 +78,19 @@ if [ "$WITH_SERVICE_INTERRUPTIONS" == 'true' ]; then
     (sleep 10 && ./scripts/interrupt-docker-db-service.sh "$BENCHBASE_PROFILE") &
 fi
 
+rm -f results/histograms.json
 BUILD_IMAGE=false EXTRA_DOCKER_ARGS="--network=host $EXTRA_DOCKER_ARGS" \
 ./docker/benchbase/run-full-image.sh \
     --config "config/sample_${benchmark}_config.xml" --bench "$benchmark" \
     --create=false --load=false --execute=true \
     --sample 1 --interval-monitor 1000 \
     --json-histograms results/histograms.json
-wait
+rc=$?
+wait    # for the interrupt script, if any
+if [ $rc -ne 0 ]; then
+    echo "ERROR: benchmark execution failed with exit code $rc" >&2
+    exit $rc
+fi
+# else, check that the results look ok
+./scripts/check_latest_benchmark_results.sh "$benchmark"
 ./scripts/check_histogram_results.sh results/histograms.json
