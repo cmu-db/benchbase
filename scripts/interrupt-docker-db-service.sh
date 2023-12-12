@@ -67,6 +67,9 @@ interrupt_container $container_id
 sleep $DELAY
 docker start $container_id
 
+# Give it some time to startup and run normally again.
+sleep $(($OFFSET + $SPLAY))
+
 interrupt_container $container_id KILL
 
 sleep $DELAY
