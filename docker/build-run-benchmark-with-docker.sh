@@ -75,7 +75,7 @@ fi
 if [ "$WITH_SERVICE_INTERRUPTIONS" == 'true' ]; then
     # Randomly interrupt the docker db service by killing it.
     # Used to test connection error handling during a benchmark.
-    (sleep 5 && ./scripts/interrupt-docker-db-service.sh "$BENCHBASE_PROFILE") &
+    (sleep 10 && ./scripts/interrupt-docker-db-service.sh "$BENCHBASE_PROFILE") &
 fi
 
 BUILD_IMAGE=false EXTRA_DOCKER_ARGS="--network=host $EXTRA_DOCKER_ARGS" \
@@ -84,4 +84,5 @@ BUILD_IMAGE=false EXTRA_DOCKER_ARGS="--network=host $EXTRA_DOCKER_ARGS" \
     --create=false --load=false --execute=true \
     --sample 1 --interval-monitor 1000 \
     --json-histograms results/histograms.json
+wait
 ./scripts/check_histogram_results.sh results/histograms.json
