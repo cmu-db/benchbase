@@ -12,6 +12,8 @@ PROFILE_VERSION=${PROFILE_VERSION:-latest}
 
 # When we are running the full image we don't generally want to have to rebuild it repeatedly.
 export CLEAN_BUILD="${CLEAN_BUILD:-false}"
+# Can override this for easier tweaking of logging levels.
+export LOG_LEVEL="${LOG_LEVEL:-}"
 
 # Move to the repo root.
 scriptdir=$(dirname "$(readlink -f "$0")")
