@@ -485,6 +485,10 @@ jobs:
           # FIXME: Reduce the error rate so we don't need these overrides.
           if [ ${{matrix.benchmark}} == auctionmark ]; then
               ERRORS_THRESHOLD=0.02
+          elif [[ ${{matrix.benchmark}} == tpcc-with-reconnects ]]; then
+            java -jar benchbase.jar -b tpcc -c config/cockroachdb/sample_tpcc_config.xml --create=true --load=true
+            (sleep 10 && ./scripts/interrupt-docker-db-service.sh cockroachdb) &
+            java -jar benchbase.jar -b tpcc -c config/cockroachdb/sample_tpcc_config.xml --execute=true --json-histograms results/histograms.json
           elif [ ${{matrix.benchmark}} == tatp ]; then
               ERRORS_THRESHOLD=0.05
           fi
