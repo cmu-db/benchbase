@@ -70,4 +70,4 @@ docker start $container_id
 interrupt_container $container_id KILL
 
 sleep $DELAY
-docker start $SERVICE_NAME
+docker start $container_id
