@@ -38,39 +38,36 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- *
- */
+/** */
 public enum SortDirectionType {
-    INVALID(0),
-    ASC(1),
-    DESC(2);
+  INVALID(0),
+  ASC(1),
+  DESC(2);
 
-    SortDirectionType(int val) {
+  SortDirectionType(int val) {}
+
+  public int getValue() {
+    return this.ordinal();
+  }
+
+  protected static final Map<Integer, SortDirectionType> idx_lookup = new HashMap<>();
+  protected static final Map<String, SortDirectionType> name_lookup = new HashMap<>();
+
+  static {
+    for (SortDirectionType vt : EnumSet.allOf(SortDirectionType.class)) {
+      SortDirectionType.idx_lookup.put(vt.ordinal(), vt);
+      SortDirectionType.name_lookup.put(vt.name().toLowerCase().intern(), vt);
     }
+  }
 
-    public int getValue() {
-        return this.ordinal();
-    }
+  public static SortDirectionType get(Integer idx) {
 
-    protected static final Map<Integer, SortDirectionType> idx_lookup = new HashMap<>();
-    protected static final Map<String, SortDirectionType> name_lookup = new HashMap<>();
+    SortDirectionType ret = SortDirectionType.idx_lookup.get(idx);
+    return (ret == null ? SortDirectionType.INVALID : ret);
+  }
 
-    static {
-        for (SortDirectionType vt : EnumSet.allOf(SortDirectionType.class)) {
-            SortDirectionType.idx_lookup.put(vt.ordinal(), vt);
-            SortDirectionType.name_lookup.put(vt.name().toLowerCase().intern(), vt);
-        }
-    }
-
-    public static SortDirectionType get(Integer idx) {
-
-        SortDirectionType ret = SortDirectionType.idx_lookup.get(idx);
-        return (ret == null ? SortDirectionType.INVALID : ret);
-    }
-
-    public static SortDirectionType get(String name) {
-        SortDirectionType ret = SortDirectionType.name_lookup.get(name.toLowerCase().intern());
-        return (ret == null ? SortDirectionType.INVALID : ret);
-    }
+  public static SortDirectionType get(String name) {
+    SortDirectionType ret = SortDirectionType.name_lookup.get(name.toLowerCase().intern());
+    return (ret == null ? SortDirectionType.INVALID : ret);
+  }
 }

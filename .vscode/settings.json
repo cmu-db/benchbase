@@ -1,0 +1,7 @@
+{
+    "files.watcherExclude": {
+        "**/target": true
+    },
+    "java.format.settings.profile": "GoogleStyle",
+    "java.format.enabled": true
+}

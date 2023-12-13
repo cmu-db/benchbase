@@ -15,13 +15,11 @@
  *
  */
 
-
 package com.oltpbenchmark.benchmarks.tatp.procedures;
 
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.tatp.TATPConstants;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -29,29 +27,28 @@ import java.sql.SQLException;
 
 public class UpdateLocation extends Procedure {
 
-    public final SQLStmt getSubscriber = new SQLStmt(
-            "SELECT s_id FROM " + TATPConstants.TABLENAME_SUBSCRIBER + " WHERE sub_nbr = ?"
-    );
+  public final SQLStmt getSubscriber =
+      new SQLStmt("SELECT s_id FROM " + TATPConstants.TABLENAME_SUBSCRIBER + " WHERE sub_nbr = ?");
 
-    public final SQLStmt updateSubscriber = new SQLStmt(
-            "UPDATE " + TATPConstants.TABLENAME_SUBSCRIBER + " SET vlr_location = ? WHERE s_id = ?"
-    );
+  public final SQLStmt updateSubscriber =
+      new SQLStmt(
+          "UPDATE " + TATPConstants.TABLENAME_SUBSCRIBER + " SET vlr_location = ? WHERE s_id = ?");
 
-    public long run(Connection conn, int location, String sub_nbr) throws SQLException {
-        try (PreparedStatement stmt = this.getPreparedStatement(conn, getSubscriber)) {
-            stmt.setString(1, sub_nbr);
-            try (ResultSet results = stmt.executeQuery()) {
+  public long run(Connection conn, int location, String sub_nbr) throws SQLException {
+    try (PreparedStatement stmt = this.getPreparedStatement(conn, getSubscriber)) {
+      stmt.setString(1, sub_nbr);
+      try (ResultSet results = stmt.executeQuery()) {
 
-                if (results.next()) {
-                    long s_id = results.getLong(1);
-                    try (PreparedStatement stmt2 = this.getPreparedStatement(conn, updateSubscriber)) {
-                        stmt2.setInt(1, location);
-                        stmt2.setLong(2, s_id);
-                        return stmt2.executeUpdate();
-                    }
-                }
-            }
+        if (results.next()) {
+          long s_id = results.getLong(1);
+          try (PreparedStatement stmt2 = this.getPreparedStatement(conn, updateSubscriber)) {
+            stmt2.setInt(1, location);
+            stmt2.setLong(2, s_id);
+            return stmt2.executeUpdate();
+          }
         }
-        return 0;
+      }
     }
+    return 0;
+  }
 }

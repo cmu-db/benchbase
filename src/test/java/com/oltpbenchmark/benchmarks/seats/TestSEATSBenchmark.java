@@ -14,7 +14,6 @@
  *  limitations under the License.                                            *
  ******************************************************************************/
 
-
 package com.oltpbenchmark.benchmarks.seats;
 
 import static org.junit.Assert.assertNotNull;
@@ -23,44 +22,40 @@ import com.oltpbenchmark.api.AbstractTestBenchmarkModule;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.benchmarks.seats.procedures.*;
 import com.oltpbenchmark.catalog.Table;
-
 import java.io.InputStream;
 import java.util.List;
 import org.junit.Test;
 
 public class TestSEATSBenchmark extends AbstractTestBenchmarkModule<SEATSBenchmark> {
 
-    public static final List<Class<? extends Procedure>> PROCEDURE_CLASSES = List.of(
-            DeleteReservation.class,
-            FindFlights.class,
-            FindOpenSeats.class,
-            NewReservation.class,
-            UpdateCustomer.class,
-            UpdateReservation.class
-    );
+  public static final List<Class<? extends Procedure>> PROCEDURE_CLASSES =
+      List.of(
+          DeleteReservation.class,
+          FindFlights.class,
+          FindOpenSeats.class,
+          NewReservation.class,
+          UpdateCustomer.class,
+          UpdateReservation.class);
 
-    @Override
-    public List<Class<? extends Procedure>> procedures() {
-        return TestSEATSBenchmark.PROCEDURE_CLASSES;
-    }
+  @Override
+  public List<Class<? extends Procedure>> procedures() {
+    return TestSEATSBenchmark.PROCEDURE_CLASSES;
+  }
 
-    @Override
-    public Class<SEATSBenchmark> benchmarkClass() {
-        return SEATSBenchmark.class;
-    }
+  @Override
+  public Class<SEATSBenchmark> benchmarkClass() {
+    return SEATSBenchmark.class;
+  }
 
-
-    /**
-     * testGetDataDir
-     */
-    @Test
-    public void testGetDataDir() throws Exception {
-        // Test by reading the country table.
-        Table countryTable = this.benchmark.getCatalog().getTable(SEATSConstants.TABLENAME_COUNTRY);
-        String countryFilePath = SEATSBenchmark.getTableDataFilePath(this.benchmark.getDataDir(), countryTable);
-        assertNotNull(countryFilePath);
-        InputStream countryFile = this.getClass().getResourceAsStream(countryFilePath);
-        assertNotNull(countryFile);
-    }
-
+  /** testGetDataDir */
+  @Test
+  public void testGetDataDir() throws Exception {
+    // Test by reading the country table.
+    Table countryTable = this.benchmark.getCatalog().getTable(SEATSConstants.TABLENAME_COUNTRY);
+    String countryFilePath =
+        SEATSBenchmark.getTableDataFilePath(this.benchmark.getDataDir(), countryTable);
+    assertNotNull(countryFilePath);
+    InputStream countryFile = this.getClass().getResourceAsStream(countryFilePath);
+    assertNotNull(countryFile);
+  }
 }

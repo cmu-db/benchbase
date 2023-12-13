@@ -21,14 +21,15 @@ import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.tpch.TPCHConstants;
 import com.oltpbenchmark.benchmarks.tpch.TPCHUtil;
 import com.oltpbenchmark.util.RandomGenerator;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class Q21 extends GenericQuery {
 
-    public final SQLStmt query_stmt = new SQLStmt("""
+  public final SQLStmt query_stmt =
+      new SQLStmt(
+          """
             SELECT
                s_name,
                COUNT(*) AS numwait
@@ -70,16 +71,16 @@ public class Q21 extends GenericQuery {
             ORDER BY
                numwait DESC,
                s_name LIMIT 100
-            """
-    );
+            """);
 
-    @Override
-    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
-        // NATION is randomly selected within the list of values defined for N_NAME in Clause 4.2.3
-        String nation = TPCHUtil.choice(TPCHConstants.N_NAME, rand);
+  @Override
+  protected PreparedStatement getStatement(
+      Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
+    // NATION is randomly selected within the list of values defined for N_NAME in Clause 4.2.3
+    String nation = TPCHUtil.choice(TPCHConstants.N_NAME, rand);
 
-        PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
-        stmt.setString(1, nation);
-        return stmt;
-    }
+    PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
+    stmt.setString(1, nation);
+    return stmt;
+  }
 }

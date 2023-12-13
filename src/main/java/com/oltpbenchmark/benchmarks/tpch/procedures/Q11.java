@@ -21,14 +21,15 @@ import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.tpch.TPCHConstants;
 import com.oltpbenchmark.benchmarks.tpch.TPCHUtil;
 import com.oltpbenchmark.util.RandomGenerator;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class Q11 extends GenericQuery {
 
-    public final SQLStmt query_stmt = new SQLStmt("""
+  public final SQLStmt query_stmt =
+      new SQLStmt(
+          """
             SELECT
                ps_partkey,
                SUM(ps_supplycost * ps_availqty) AS VALUE
@@ -54,21 +55,21 @@ public class Q11 extends GenericQuery {
                   AND n_name = ? )
                ORDER BY
                   VALUE DESC
-            """
-    );
+            """);
 
-    @Override
-    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
-        // NATION is randomly selected within the list of values defined for N_NAME in Clause 4.2.3
-        String nation = TPCHUtil.choice(TPCHConstants.N_NAME, rand);
+  @Override
+  protected PreparedStatement getStatement(
+      Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
+    // NATION is randomly selected within the list of values defined for N_NAME in Clause 4.2.3
+    String nation = TPCHUtil.choice(TPCHConstants.N_NAME, rand);
 
-        // FRACTION is chosen as 0.0001 / SF
-        double fraction = 0.0001 / scaleFactor;
+    // FRACTION is chosen as 0.0001 / SF
+    double fraction = 0.0001 / scaleFactor;
 
-        PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
-        stmt.setString(1, nation);
-        stmt.setDouble(2, fraction);
-        stmt.setString(3, nation);
-        return stmt;
-    }
+    PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
+    stmt.setString(1, nation);
+    stmt.setDouble(2, fraction);
+    stmt.setString(3, nation);
+    return stmt;
+  }
 }

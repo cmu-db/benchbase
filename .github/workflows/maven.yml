@@ -50,6 +50,12 @@ jobs:
           cache: 'maven'
           distribution: 'temurin'
 
+      - name: Check formatting
+        run: mvn -B fmt:check --file pom.xml
+
+      - name: Compile with Maven
+        run: mvn -B compile test-compile --file pom.xml
+
       - name: Test with Maven
         run: mvn -B test --file pom.xml
 
@@ -605,6 +611,7 @@ jobs:
       - name: Build the benchbase docker image with all profiles using the dev image
         env:
           SKIP_TESTS: 'false'
+          DO_FORMAT_CHECKS: 'true'
         run: |
           ./docker/benchbase/build-full-image.sh
       - name: Run a basic test from the docker image against postgres test DB

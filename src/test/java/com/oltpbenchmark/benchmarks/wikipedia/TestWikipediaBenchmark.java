@@ -14,33 +14,30 @@
  *  limitations under the License.                                            *
  ******************************************************************************/
 
-
 package com.oltpbenchmark.benchmarks.wikipedia;
 
 import com.oltpbenchmark.api.AbstractTestBenchmarkModule;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.benchmarks.wikipedia.procedures.*;
-
 import java.util.List;
 
 public class TestWikipediaBenchmark extends AbstractTestBenchmarkModule<WikipediaBenchmark> {
 
-    public static final List<Class<? extends Procedure>> PROCEDURE_CLASSES = List.of(
-            AddWatchList.class,
-            GetPageAnonymous.class,
-            GetPageAuthenticated.class,
-            RemoveWatchList.class,
-            UpdatePage.class
-    );
+  public static final List<Class<? extends Procedure>> PROCEDURE_CLASSES =
+      List.of(
+          AddWatchList.class,
+          GetPageAnonymous.class,
+          GetPageAuthenticated.class,
+          RemoveWatchList.class,
+          UpdatePage.class);
 
-    @Override
-    public List<Class<? extends Procedure>> procedures() {
-        return TestWikipediaBenchmark.PROCEDURE_CLASSES;
-    }
+  @Override
+  public List<Class<? extends Procedure>> procedures() {
+    return TestWikipediaBenchmark.PROCEDURE_CLASSES;
+  }
 
-    @Override
-    public Class<WikipediaBenchmark> benchmarkClass() {
-        return WikipediaBenchmark.class;
-    }
-
+  @Override
+  public Class<WikipediaBenchmark> benchmarkClass() {
+    return WikipediaBenchmark.class;
+  }
 }

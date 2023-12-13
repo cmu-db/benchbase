@@ -19,7 +19,6 @@ package com.oltpbenchmark.benchmarks.tpch.procedures;
 
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.util.RandomGenerator;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -28,7 +27,9 @@ import java.util.Set;
 
 public class Q22 extends GenericQuery {
 
-    public final SQLStmt query_stmt = new SQLStmt("""
+  public final SQLStmt query_stmt =
+      new SQLStmt(
+          """
             SELECT
                cntrycode,
                COUNT(*) AS numcust,
@@ -67,40 +68,39 @@ public class Q22 extends GenericQuery {
                cntrycode
             ORDER BY
                cntrycode
-            """
-    );
+            """);
 
-    @Override
-    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
-        // I1 - I7 are randomly selected without repetition from the possible values
+  @Override
+  protected PreparedStatement getStatement(
+      Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
+    // I1 - I7 are randomly selected without repetition from the possible values
 
+    // We are given
+    //      Let i be an index into the list of strings Nations
+    //          (i.e., ALGERIA is 0, ARGENTINA is 1, etc., see Clause 4.2.3),
+    //      Let country_code be the sub-string representation of the number (i + 10)
+    // There are 25 nations, hence country_code ranges from [10, 34]
 
-        // We are given
-        //      Let i be an index into the list of strings Nations
-        //          (i.e., ALGERIA is 0, ARGENTINA is 1, etc., see Clause 4.2.3),
-        //      Let country_code be the sub-string representation of the number (i + 10)
-        // There are 25 nations, hence country_code ranges from [10, 34]
+    Set<Integer> seen = new HashSet<>(7);
+    int[] codes = new int[7];
+    for (int i = 0; i < 7; i++) {
+      int num = rand.number(10, 34);
 
-        Set<Integer> seen = new HashSet<>(7);
-        int[] codes = new int[7];
-        for (int i = 0; i < 7; i++) {
-            int num = rand.number(10, 34);
+      while (seen.contains(num)) {
+        num = rand.number(10, 34);
+      }
 
-            while (seen.contains(num)) {
-                num = rand.number(10, 34);
-            }
-
-            codes[i] = num;
-            seen.add(num);
-        }
-
-        PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
-        for (int i = 0; i < 7; i++) {
-            stmt.setString(1 + i, String.valueOf(codes[i]));
-        }
-        for (int i = 0; i < 7; i++) {
-            stmt.setString(8 + i, String.valueOf(codes[i]));
-        }
-        return stmt;
+      codes[i] = num;
+      seen.add(num);
     }
+
+    PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
+    for (int i = 0; i < 7; i++) {
+      stmt.setString(1 + i, String.valueOf(codes[i]));
+    }
+    for (int i = 0; i < 7; i++) {
+      stmt.setString(8 + i, String.valueOf(codes[i]));
+    }
+    return stmt;
+  }
 }

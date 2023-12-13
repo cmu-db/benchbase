@@ -17,80 +17,87 @@
 
 package com.oltpbenchmark.api;
 
-
 import java.util.Objects;
 
 public class TransactionType implements Comparable<TransactionType> {
 
-    public static class Invalid extends Procedure {
+  public static class Invalid extends Procedure {}
+
+  public static final int INVALID_ID = 0;
+  public static final TransactionType INVALID =
+      new TransactionType(Invalid.class, INVALID_ID, false, 0, 0);
+
+  private final Class<? extends Procedure> procedureClass;
+  private final int id;
+  private final boolean supplemental;
+  private final long preExecutionWait;
+  private final long postExecutionWait;
+
+  protected TransactionType(
+      Class<? extends Procedure> procedureClass,
+      int id,
+      boolean supplemental,
+      long preExecutionWait,
+      long postExecutionWait) {
+    this.procedureClass = procedureClass;
+    this.id = id;
+    this.supplemental = supplemental;
+    this.preExecutionWait = preExecutionWait;
+    this.postExecutionWait = postExecutionWait;
+  }
+
+  public Class<? extends Procedure> getProcedureClass() {
+    return (this.procedureClass);
+  }
+
+  public String getName() {
+    return this.procedureClass.getSimpleName();
+  }
+
+  public int getId() {
+    return this.id;
+  }
+
+  public boolean isSupplemental() {
+    return this.supplemental;
+  }
+
+  public long getPreExecutionWait() {
+    return preExecutionWait;
+  }
+
+  public long getPostExecutionWait() {
+    return postExecutionWait;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
     }
-
-    public static final int INVALID_ID = 0;
-    public static final TransactionType INVALID = new TransactionType(Invalid.class, INVALID_ID, false, 0, 0);
-
-    private final Class<? extends Procedure> procedureClass;
-    private final int id;
-    private final boolean supplemental;
-    private final long preExecutionWait;
-    private final long postExecutionWait;
-
-    protected TransactionType(Class<? extends Procedure> procedureClass, int id, boolean supplemental, long preExecutionWait, long postExecutionWait) {
-        this.procedureClass = procedureClass;
-        this.id = id;
-        this.supplemental = supplemental;
-        this.preExecutionWait = preExecutionWait;
-        this.postExecutionWait = postExecutionWait;
+    if (o == null || getClass() != o.getClass()) {
+      return false;
     }
+    TransactionType that = (TransactionType) o;
+    return id == that.id
+        && supplemental == that.supplemental
+        && preExecutionWait == that.preExecutionWait
+        && postExecutionWait == that.postExecutionWait
+        && procedureClass.equals(that.procedureClass);
+  }
 
-    public Class<? extends Procedure> getProcedureClass() {
-        return (this.procedureClass);
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(procedureClass, id, supplemental, preExecutionWait, postExecutionWait);
+  }
 
-    public String getName() {
-        return this.procedureClass.getSimpleName();
-    }
+  @Override
+  public int compareTo(TransactionType o) {
+    return (this.id - o.id);
+  }
 
-    public int getId() {
-        return this.id;
-    }
-
-    public boolean isSupplemental() {
-        return this.supplemental;
-    }
-
-    public long getPreExecutionWait() {
-        return preExecutionWait;
-    }
-
-    public long getPostExecutionWait() {
-        return postExecutionWait;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        TransactionType that = (TransactionType) o;
-        return id == that.id && supplemental == that.supplemental && preExecutionWait == that.preExecutionWait && postExecutionWait == that.postExecutionWait && procedureClass.equals(that.procedureClass);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(procedureClass, id, supplemental, preExecutionWait, postExecutionWait);
-    }
-
-    @Override
-    public int compareTo(TransactionType o) {
-        return (this.id - o.id);
-    }
-
-    @Override
-    public String toString() {
-        return String.format("%s/%02d", this.procedureClass.getName(), this.id);
-    }
-
+  @Override
+  public String toString() {
+    return String.format("%s/%02d", this.procedureClass.getName(), this.id);
+  }
 }

@@ -21,7 +21,6 @@ import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.tpch.TPCHConstants;
 import com.oltpbenchmark.benchmarks.tpch.TPCHUtil;
 import com.oltpbenchmark.util.RandomGenerator;
-
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -29,7 +28,9 @@ import java.sql.SQLException;
 
 public class Q12 extends GenericQuery {
 
-    public final SQLStmt query_stmt = new SQLStmt("""
+  public final SQLStmt query_stmt =
+      new SQLStmt(
+          """
             SELECT
                 l_shipmode,
                 SUM(
@@ -66,30 +67,31 @@ public class Q12 extends GenericQuery {
                 l_shipmode
             ORDER BY
                 l_shipmode
-            """
-    );
+            """);
 
-    @Override
-    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
-        // SHIPMODE1 is randomly selected within the list of values defined for Modes in Clause 4.2.2.13
-        String shipMode1 = TPCHUtil.choice(TPCHConstants.MODES, rand);
+  @Override
+  protected PreparedStatement getStatement(
+      Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
+    // SHIPMODE1 is randomly selected within the list of values defined for Modes in Clause 4.2.2.13
+    String shipMode1 = TPCHUtil.choice(TPCHConstants.MODES, rand);
 
-        // SHIPMODE2 is randomly selected within the list of values defined for Modes in Clause 4.2.2.13 and must be
-        // different from the value selected for SHIPMODE1 in item 1
-        String shipMode2 = shipMode1;
-        while (shipMode1.equals(shipMode2)) {
-            shipMode2 = TPCHUtil.choice(TPCHConstants.MODES, rand);
-        }
-
-        // DATE is the first of January of a randomly selected year within [1993 .. 1997]
-        int year = rand.number(1993, 1997);
-        String date = String.format("%d-01-01", year);
-
-        PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
-        stmt.setString(1, shipMode1);
-        stmt.setString(2, shipMode2);
-        stmt.setDate(3, Date.valueOf(date));
-        stmt.setDate(4, Date.valueOf(date));
-        return stmt;
+    // SHIPMODE2 is randomly selected within the list of values defined for Modes in Clause 4.2.2.13
+    // and must be
+    // different from the value selected for SHIPMODE1 in item 1
+    String shipMode2 = shipMode1;
+    while (shipMode1.equals(shipMode2)) {
+      shipMode2 = TPCHUtil.choice(TPCHConstants.MODES, rand);
     }
+
+    // DATE is the first of January of a randomly selected year within [1993 .. 1997]
+    int year = rand.number(1993, 1997);
+    String date = String.format("%d-01-01", year);
+
+    PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
+    stmt.setString(1, shipMode1);
+    stmt.setString(2, shipMode2);
+    stmt.setDate(3, Date.valueOf(date));
+    stmt.setDate(4, Date.valueOf(date));
+    return stmt;
+  }
 }
