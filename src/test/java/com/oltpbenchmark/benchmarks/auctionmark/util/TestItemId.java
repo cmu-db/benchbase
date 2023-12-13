@@ -14,55 +14,48 @@
  *  limitations under the License.                                            *
  ******************************************************************************/
 
-
 package com.oltpbenchmark.benchmarks.auctionmark.util;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import org.junit.Test;
-
 import java.util.Random;
+import org.junit.Test;
 
 public class TestItemId {
 
-    private static final Random rand = new Random(1);
+  private static final Random rand = new Random(1);
 
+  private final int num_items = 10;
+  private final int num_users = 3;
 
-    private final int num_items = 10;
-    private final int num_users = 3;
+  /** testItemId */
+  @Test
+  public void testItemId() {
+    for (int i = 0; i < num_users; i++) {
+      UserId user_id = new UserId(rand.nextInt(Integer.MAX_VALUE), rand.nextInt(Integer.MAX_VALUE));
+      for (int item_ctr = 0; item_ctr < num_items; item_ctr++) {
+        ItemId customer_id = new ItemId(user_id, item_ctr);
+        assertNotNull(customer_id);
+        assertEquals(user_id, customer_id.getSellerId());
+        assertEquals(item_ctr, customer_id.getItemCtr());
+      } // FOR
+    } // FOR
+  }
 
-    /**
-     * testItemId
-     */
-    @Test
-    public void testItemId() {
-        for (int i = 0; i < num_users; i++) {
-            UserId user_id = new UserId(rand.nextInt(Integer.MAX_VALUE), rand.nextInt(Integer.MAX_VALUE));
-            for (int item_ctr = 0; item_ctr < num_items; item_ctr++) {
-                ItemId customer_id = new ItemId(user_id, item_ctr);
-                assertNotNull(customer_id);
-                assertEquals(user_id, customer_id.getSellerId());
-                assertEquals(item_ctr, customer_id.getItemCtr());
-            } // FOR
-        } // FOR
-    }
+  /** testItemIdEncode */
+  @Test
+  public void testItemIdEncode() {
+    for (int i = 0; i < num_users; i++) {
+      UserId user_id = new UserId(rand.nextInt(Integer.MAX_VALUE), rand.nextInt(Integer.MAX_VALUE));
+      for (int item_ctr = 0; item_ctr < num_items; item_ctr++) {
+        String encoded = new ItemId(user_id, item_ctr).encode();
 
-    /**
-     * testItemIdEncode
-     */
-    @Test
-    public void testItemIdEncode() {
-        for (int i = 0; i < num_users; i++) {
-            UserId user_id = new UserId(rand.nextInt(Integer.MAX_VALUE), rand.nextInt(Integer.MAX_VALUE));
-            for (int item_ctr = 0; item_ctr < num_items; item_ctr++) {
-                String encoded = new ItemId(user_id, item_ctr).encode();
-
-                ItemId customer_id = new ItemId(encoded);
-                assertNotNull(customer_id);
-                assertEquals(user_id, customer_id.getSellerId());
-                assertEquals(item_ctr, customer_id.getItemCtr());
-            } // FOR
-        } // FOR
-    }
+        ItemId customer_id = new ItemId(encoded);
+        assertNotNull(customer_id);
+        assertEquals(user_id, customer_id.getSellerId());
+        assertEquals(item_ctr, customer_id.getItemCtr());
+      } // FOR
+    } // FOR
+  }
 }

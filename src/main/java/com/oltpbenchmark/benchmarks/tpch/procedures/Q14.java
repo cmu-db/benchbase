@@ -19,7 +19,6 @@ package com.oltpbenchmark.benchmarks.tpch.procedures;
 
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.util.RandomGenerator;
-
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -27,7 +26,9 @@ import java.sql.SQLException;
 
 public class Q14 extends GenericQuery {
 
-    public final SQLStmt query_stmt = new SQLStmt("""
+  public final SQLStmt query_stmt =
+      new SQLStmt(
+          """
             SELECT
                100.00 * SUM(
                CASE
@@ -45,19 +46,19 @@ public class Q14 extends GenericQuery {
                l_partkey = p_partkey
                AND l_shipdate >= DATE ?
                AND l_shipdate < DATE ? + INTERVAL '1' MONTH
-            """
-    );
+            """);
 
-    @Override
-    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
-        // DATE is the first day of a month randomly selected from a random year within [1993 .. 1997]
-        int year = rand.number(1993, 1997);
-        int month = rand.number(1, 12);
-        String date = String.format("%d-%02d-01", year, month);
+  @Override
+  protected PreparedStatement getStatement(
+      Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
+    // DATE is the first day of a month randomly selected from a random year within [1993 .. 1997]
+    int year = rand.number(1993, 1997);
+    int month = rand.number(1, 12);
+    String date = String.format("%d-%02d-01", year, month);
 
-        PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
-        stmt.setDate(1, Date.valueOf(date));
-        stmt.setDate(2, Date.valueOf(date));
-        return stmt;
-    }
+    PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
+    stmt.setDate(1, Date.valueOf(date));
+    stmt.setDate(2, Date.valueOf(date));
+    return stmt;
+  }
 }

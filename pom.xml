@@ -349,12 +349,25 @@
             <artifactId>janino</artifactId>
             <version>3.1.11</version>
         </dependency>
-
     </dependencies>
 
     <build>
         <directory>${buildDirectory}</directory>
         <plugins>
+            <plugin>
+                <!-- format/check code via google style format -->
+                <groupId>com.spotify.fmt</groupId>
+                <artifactId>fmt-maven-plugin</artifactId>
+                <version>2.21.1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                            <goal>format</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>

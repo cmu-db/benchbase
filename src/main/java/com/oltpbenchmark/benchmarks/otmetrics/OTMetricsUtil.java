@@ -21,28 +21,27 @@ import java.time.LocalDateTime;
 
 public class OTMetricsUtil {
 
-    /**
-     * For a given source_id, return the starting timestamp for any
-     * session/observation in the database.
-     * @param source_id
-     * @return
-     */
-    public static LocalDateTime getCreateDateTime(int source_id) {
-        return OTMetricsConstants.START_DATE.plusHours(source_id);
-    }
+  /**
+   * For a given source_id, return the starting timestamp for any session/observation in the
+   * database.
+   *
+   * @param source_id
+   * @return
+   */
+  public static LocalDateTime getCreateDateTime(int source_id) {
+    return OTMetricsConstants.START_DATE.plusHours(source_id);
+  }
 
-    /**
-     * For a given source_id and timetick within the session, return the timestamp
-     * for the observations
-     * @param source_id
-     * @param timetick
-     * @return
-     */
-    public static LocalDateTime getObservationDateTime(int source_id, int timetick) {
-        LocalDateTime base = getCreateDateTime(source_id);
-        return base.plusMinutes(timetick * 20);
-    }
-
-
-
+  /**
+   * For a given source_id and timetick within the session, return the timestamp for the
+   * observations
+   *
+   * @param source_id
+   * @param timetick
+   * @return
+   */
+  public static LocalDateTime getObservationDateTime(int source_id, int timetick) {
+    LocalDateTime base = getCreateDateTime(source_id);
+    return base.plusMinutes(timetick * 20);
+  }
 }

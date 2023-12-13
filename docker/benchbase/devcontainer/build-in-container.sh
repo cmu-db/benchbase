@@ -10,6 +10,7 @@ set -eu -o pipefail
 BENCHBASE_PROFILES="${BENCHBASE_PROFILES:-cockroachdb mariadb mysql oracle phoenix postgres spanner sqlite sqlserver}"
 CLEAN_BUILD="${CLEAN_BUILD:-true}"    # true, false, pre, post
 SKIP_TESTS="${SKIP_TESTS:-false}"
+DO_FORMAT_CHECKS="${DO_FORMAT_CHECKS:-false}"
 
 cd /benchbase
 mkdir -p results
@@ -93,6 +94,12 @@ elif [ "$SKIP_TESTS" == 'false' ]; then
     TEST_TARGET='test'
 else
     echo "WARNING: Unhandled SKIP_TESTS mode: '$SKIP_TESTS'" >&2
+fi
+
+# Pre format checks are mostly for CI.
+# Else, things are reformatted during compile.
+if [ "${DO_FORMAT_CHECKS:-}" == 'true' ]; then
+    mvn -B --file pom.xml fmt:check
 fi
 
 # Fetch resources serially to work around mvn races with downloading the same
