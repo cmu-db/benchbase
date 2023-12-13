@@ -144,6 +144,9 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> {
         var proceedures = this.procedures();
         assertNotNull(proceedures);
         assertFalse(proceedures.isEmpty());
+        if (!(this instanceof TestDDLOverride)) {
+            assertFalse(proceedures.isEmpty());
+        }
 
         this.conn = this.benchmark.makeConnection();
         assertNotNull(this.conn);
