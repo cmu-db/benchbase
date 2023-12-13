@@ -29,7 +29,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Random;
 
-public class SIWorker extends Worker<SIBenchmark> {
+public final class SIWorker extends Worker<SIBenchmark> {
 
     private static Random updateRecordIdGenerator = null;
     private final int recordCount;

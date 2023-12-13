@@ -38,7 +38,7 @@ import java.util.concurrent.CountDownLatch;
  * OtterTune Metrics Timeseries Benchmark
  * @author pavlo
  */
-public class OTMetricsLoader extends Loader<OTMetricsBenchmark> {
+public final class OTMetricsLoader extends Loader<OTMetricsBenchmark> {
 
     public OTMetricsLoader(OTMetricsBenchmark benchmark) {
         super(benchmark);

@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-public class TwitterLoader extends Loader<TwitterBenchmark> {
+public final class TwitterLoader extends Loader<TwitterBenchmark> {
     private final int num_users;
     private final long num_tweets;
     private final int num_follows;

@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TPCHBenchmark extends BenchmarkModule {
+public final class TPCHBenchmark extends BenchmarkModule {
     private static final Logger LOG = LoggerFactory.getLogger(TPCHBenchmark.class);
 
     public TPCHBenchmark(WorkloadConfiguration workConf) {

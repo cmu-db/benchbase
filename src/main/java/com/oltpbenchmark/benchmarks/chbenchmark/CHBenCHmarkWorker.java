@@ -26,7 +26,7 @@ import com.oltpbenchmark.types.TransactionStatus;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class CHBenCHmarkWorker extends Worker<CHBenCHmark> {
+public final class CHBenCHmarkWorker extends Worker<CHBenCHmark> {
     public CHBenCHmarkWorker(CHBenCHmark benchmarkModule, int id) {
         super(benchmarkModule, id);
     }

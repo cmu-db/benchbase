@@ -31,7 +31,7 @@ import java.util.List;
  * OtterTune Metrics Timeseries Benchmark
  * @author pavlo
  */
-public class OTMetricsBenchmark extends BenchmarkModule {
+public final class OTMetricsBenchmark extends BenchmarkModule {
     @SuppressWarnings("unused")
     private static final Logger LOG = LoggerFactory.getLogger(OTMetricsBenchmark.class);
 

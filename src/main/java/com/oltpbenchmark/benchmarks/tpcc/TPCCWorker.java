@@ -30,7 +30,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Random;
 
-public class TPCCWorker extends Worker<TPCCBenchmark> {
+public final class TPCCWorker extends Worker<TPCCBenchmark> {
 
     private static final Logger LOG = LoggerFactory.getLogger(TPCCWorker.class);
 

@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ResourceStresserBenchmark extends BenchmarkModule {
+public final class ResourceStresserBenchmark extends BenchmarkModule {
     private static final Logger LOG = LoggerFactory.getLogger(ResourceStresserBenchmark.class);
 
     public ResourceStresserBenchmark(WorkloadConfiguration workConf) {

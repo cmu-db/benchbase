@@ -15,7 +15,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class HSQLDBCatalog implements AbstractCatalog {
+public final class HSQLDBCatalog implements AbstractCatalog {
 
     private static final String DB_CONNECTION = "jdbc:hsqldb:mem:";
     private static final String DB_JDBC = "org.hsqldb.jdbcDriver";

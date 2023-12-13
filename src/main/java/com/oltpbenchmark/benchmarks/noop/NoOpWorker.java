@@ -31,7 +31,7 @@ import java.sql.Connection;
  * @author pavlo
  * @author eric-haibin-lin
  */
-public class NoOpWorker extends Worker<NoOpBenchmark> {
+public final class NoOpWorker extends Worker<NoOpBenchmark> {
     private static final Logger LOG = LoggerFactory.getLogger(NoOpWorker.class);
 
     private final NoOp procNoOp;

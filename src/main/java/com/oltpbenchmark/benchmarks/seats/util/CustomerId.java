@@ -23,7 +23,7 @@ import com.oltpbenchmark.util.CompositeId;
 import java.util.Comparator;
 import java.util.Objects;
 
-public class CustomerId extends CompositeId implements Comparable<CustomerId> {
+public final class CustomerId extends CompositeId implements Comparable<CustomerId> {
 
     private static final int[] COMPOSITE_BITS = {
             INT_MAX_DIGITS, // ID

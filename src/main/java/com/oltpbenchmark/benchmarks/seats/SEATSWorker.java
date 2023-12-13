@@ -58,7 +58,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.*;
 
-public class SEATSWorker extends Worker<SEATSBenchmark> {
+public final class SEATSWorker extends Worker<SEATSBenchmark> {
     private static final Logger LOG = LoggerFactory.getLogger(SEATSWorker.class);
 
     /**

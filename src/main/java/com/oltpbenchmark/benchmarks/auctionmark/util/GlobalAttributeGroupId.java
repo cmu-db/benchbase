@@ -24,7 +24,7 @@ import java.util.Comparator;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
-public class GlobalAttributeGroupId extends CompositeId implements Comparable<GlobalAttributeGroupId> {
+public final class GlobalAttributeGroupId extends CompositeId implements Comparable<GlobalAttributeGroupId> {
 
     private static final int[] COMPOSITE_BITS = {
             INT_MAX_DIGITS, // CATEGORY

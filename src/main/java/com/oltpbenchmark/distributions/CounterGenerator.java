@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Generates a sequence of integers 0, 1, ...
  */
-public class CounterGenerator extends IntegerGenerator {
+public final class CounterGenerator extends IntegerGenerator {
     final AtomicInteger counter;
 
     /**

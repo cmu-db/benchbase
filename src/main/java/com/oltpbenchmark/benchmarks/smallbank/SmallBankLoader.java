@@ -35,7 +35,7 @@ import java.util.List;
  *
  * @author pavlo
  */
-public class SmallBankLoader extends Loader<SmallBankBenchmark> {
+public final class SmallBankLoader extends Loader<SmallBankBenchmark> {
     private final Table catalogAccts;
     private final Table catalogSavings;
     private final Table catalogChecking;

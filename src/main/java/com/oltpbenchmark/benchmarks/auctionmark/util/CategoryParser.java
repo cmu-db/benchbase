@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 
-public class CategoryParser {
+public final class CategoryParser {
     @SuppressWarnings("unused")
     private static final Logger LOG = LoggerFactory.getLogger(CategoryParser.class);
 

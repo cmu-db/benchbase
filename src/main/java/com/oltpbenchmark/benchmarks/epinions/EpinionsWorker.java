@@ -31,7 +31,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class EpinionsWorker extends Worker<EpinionsBenchmark> {
+public final class EpinionsWorker extends Worker<EpinionsBenchmark> {
     @SuppressWarnings("unused")
     private static final Logger LOG = LoggerFactory.getLogger(EpinionsWorker.class);
 

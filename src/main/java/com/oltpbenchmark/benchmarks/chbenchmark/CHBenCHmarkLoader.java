@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.concurrent.CountDownLatch;
 
-public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
+public final class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
     private static final RandomGenerator ran = new RandomGenerator(0);
 
 

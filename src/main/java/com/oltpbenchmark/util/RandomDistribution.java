@@ -184,7 +184,7 @@ public class RandomDistribution {
     public static class FlatHistogram<T extends Comparable<T>> extends DiscreteRNG {
         private static final long serialVersionUID = 1L;
         private final Flat inner;
-        private final SortedMap<Long, T> value_rle = new TreeMap<>();
+        private final TreeMap<Long, T> value_rle = new TreeMap<>();
         private Histogram<T> history;
 
         /**
