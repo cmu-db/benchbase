@@ -25,7 +25,7 @@ import com.oltpbenchmark.types.TransactionStatus;
 import java.sql.Connection;
 
 
-public class TPCDSWorker extends Worker<TPCDSBenchmark> {
+public final class TPCDSWorker extends Worker<TPCDSBenchmark> {
     public TPCDSWorker(TPCDSBenchmark benchmarkModule, int id) {
         super(benchmarkModule, id);
     }

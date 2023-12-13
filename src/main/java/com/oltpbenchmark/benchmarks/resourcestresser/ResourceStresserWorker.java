@@ -28,7 +28,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Random;
 
-public class ResourceStresserWorker extends Worker<ResourceStresserBenchmark> {
+public final class ResourceStresserWorker extends Worker<ResourceStresserBenchmark> {
     public static final int CONTENTION1_howManyKeys = 10;
     public static final int CONTENTION1_howManyUpdates = 20;
     public static final int CONTENTION1_sleepLength = 1;

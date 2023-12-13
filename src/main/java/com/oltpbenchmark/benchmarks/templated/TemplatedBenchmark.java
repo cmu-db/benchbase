@@ -62,16 +62,17 @@ import jakarta.xml.bind.Unmarshaller;
  * about the structure of the expected template can be found in the local
  * readme file.
  */
-public class TemplatedBenchmark extends BenchmarkModule {
+public final class TemplatedBenchmark extends BenchmarkModule {
     private static final Logger LOG = LoggerFactory.getLogger(TemplatedBenchmark.class);
 
     public TemplatedBenchmark(WorkloadConfiguration workConf) {
         super(workConf);
+        this.setClassLoader();
     }
 
     @Override
-    protected void initClassLoader() {
-        super.initClassLoader();
+    protected void setClassLoader() {
+        super.setClassLoader();
 
         if (workConf != null && workConf.getXmlConfig().containsKey("query_templates_file")) {
             this.classLoader = this.loadQueryTemplates(

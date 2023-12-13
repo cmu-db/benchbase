@@ -16,6 +16,7 @@
 
 package com.oltpbenchmark.api;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
@@ -140,7 +141,11 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> {
         // tests, but actually ensures that the procedures list is populated
         // for the TestTemplatedWorker test which doesn't know its procedures
         // until after the benchmark is initialized and the config is loaded.
-        assertNotNull(this.procedures());
+        var proceedures = this.procedures();
+        assertNotNull(proceedures);
+        if (!(this instanceof TestDDLOverride)) {
+            assertFalse(proceedures.isEmpty());
+        }
 
         this.conn = this.benchmark.makeConnection();
         assertNotNull(this.conn);

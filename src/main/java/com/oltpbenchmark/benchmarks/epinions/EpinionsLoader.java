@@ -32,7 +32,7 @@ import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
-public class EpinionsLoader extends Loader<EpinionsBenchmark> {
+public final class EpinionsLoader extends Loader<EpinionsBenchmark> {
 
     private final int num_users;
     private final int num_items;

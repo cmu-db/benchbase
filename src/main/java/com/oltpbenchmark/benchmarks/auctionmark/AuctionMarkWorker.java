@@ -37,7 +37,7 @@ import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
+public final class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
     private static final Logger LOG = LoggerFactory.getLogger(AuctionMarkWorker.class);
 
     // -----------------------------------------------------------------

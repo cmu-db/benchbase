@@ -28,7 +28,7 @@ import com.oltpbenchmark.types.TransactionStatus;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class VoterWorker extends Worker<VoterBenchmark> {
+public final class VoterWorker extends Worker<VoterBenchmark> {
 
     private final PhoneCallGenerator switchboard;
 

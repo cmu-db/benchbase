@@ -28,7 +28,7 @@ public class Index extends AbstractCatalogObject {
     private static final long serialVersionUID = 1L;
 
     private final Table table;
-    private final SortedMap<Integer, IndexColumn> columns = new TreeMap<>();
+    private final TreeMap<Integer, IndexColumn> columns = new TreeMap<>();
     private final int type;
     private final boolean unique;
 

@@ -31,7 +31,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 
-public class HYADAPTWorker extends Worker<HYADAPTBenchmark> {
+public final class HYADAPTWorker extends Worker<HYADAPTBenchmark> {
     private static final Logger LOG = LoggerFactory.getLogger(HYADAPTWorker.class);
 
     private static CounterGenerator insertRecord;

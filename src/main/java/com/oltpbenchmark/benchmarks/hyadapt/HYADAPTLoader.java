@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class HYADAPTLoader extends Loader<HYADAPTBenchmark> {
+public final class HYADAPTLoader extends Loader<HYADAPTBenchmark> {
     private final int num_record;
     private static final Random rand = new Random();
 

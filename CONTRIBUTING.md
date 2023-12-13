@@ -15,9 +15,8 @@ We welcome all contributions! Please open a [pull request](https://github.com/cm
     - [IDE](#ide)
     - [Adding a new DBMS](#adding-a-new-dbms)
     - [Java Development Notes](#java-development-notes)
-        - [Code Style](#code-style)
-        - [Compiler Warnings](#compiler-warnings)
         - [Avoid var keyword](#avoid-var-keyword)
+        - [Compiler Warnings](#compiler-warnings)
             - [Alternatives to arrays of generics](#alternatives-to-arrays-of-generics)
 
 <!-- /TOC -->
@@ -70,3 +69,12 @@ SomeTypeList[] someTypeLists = new SomeTypeList[] {
     new SomeTypeList(),
 };
 ```
+
+#### `this-escape` warnings
+
+`possible 'this' escape before subclass is fully initialized`
+
+The `this-escape` warning above is caused by passing using `this.someOverridableMethod()` in a constructor.
+This could in theory cause problems with a subclass not being fully initialized when the method is called.
+
+Since many of our classes are not designed to be subclassed, we can safely ignore this warning by marking the class as `final` rather than completely rewrite the class initialization.
