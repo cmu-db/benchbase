@@ -293,7 +293,9 @@ public abstract class RevisionHistograms {
     /**
      * Simple generic class overload to avoid some cast warnings below.
      */
-    public static class IntHistogram extends Histogram<Integer> {}
+    public static class IntHistogram extends Histogram<Integer> {
+        private static final long serialVersionUID = 0L;
+    }
 
     /**
      *

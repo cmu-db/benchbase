@@ -38,6 +38,8 @@ import java.util.Map.Entry;
 public class Histogram<X extends Comparable<X>> implements JSONSerializable {
     private static final Logger LOG = LoggerFactory.getLogger(Histogram.class);
 
+    private static final long serialVersionUID = 0L;
+
     private static final String MARKER = "*";
     private static final Integer MAX_CHARS = 80;
     private static final Integer MAX_VALUE_LENGTH = 80;
@@ -49,7 +51,7 @@ public class Histogram<X extends Comparable<X>> implements JSONSerializable {
         KEEP_ZERO_ENTRIES,
     }
 
-    protected final SortedMap<X, Integer> histogram = new TreeMap<>();
+    protected final TreeMap<X, Integer> histogram = new TreeMap<>();
     protected int num_samples = 0;
     private transient boolean dirty = false;
 
@@ -62,17 +64,17 @@ public class Histogram<X extends Comparable<X>> implements JSONSerializable {
      * The Min/Max values are the smallest/greatest values we have seen based
      * on some natural ordering
      */
-    protected Comparable<X> min_value;
-    protected Comparable<X> max_value;
+    protected transient Comparable<X> min_value;
+    protected transient Comparable<X> max_value;
 
     /**
      * The Min/Max counts are the values that have the smallest/greatest number of
      * occurences in the histogram
      */
     protected int min_count = 0;
-    protected List<X> min_count_values;
+    protected ArrayList<X> min_count_values;
     protected int max_count = 0;
-    protected List<X> max_count_values;
+    protected ArrayList<X> max_count_values;
 
     /**
      * A switchable flag that determines whether non-zero entries are kept or removed
@@ -173,7 +175,7 @@ public class Histogram<X extends Comparable<X>> implements JSONSerializable {
         }
 
         // New Min/Max Counts
-        // The reason we have to loop through and check every time is that our 
+        // The reason we have to loop through and check every time is that our
         // value may be the current min/max count and thus it may or may not still
         // be after the count is changed
         this.max_count = 0;
