@@ -32,6 +32,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class UpdatePage extends Procedure {
+    @SuppressWarnings("unused")
     private static final Logger LOG = LoggerFactory.getLogger(UpdatePage.class);
 
     // -----------------------------------------------------------------

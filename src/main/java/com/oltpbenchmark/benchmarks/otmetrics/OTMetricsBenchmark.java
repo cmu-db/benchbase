@@ -31,8 +31,8 @@ import java.util.List;
  * OtterTune Metrics Timeseries Benchmark
  * @author pavlo
  */
-public class OTMetricsBenchmark extends BenchmarkModule {
-
+public final class OTMetricsBenchmark extends BenchmarkModule {
+    @SuppressWarnings("unused")
     private static final Logger LOG = LoggerFactory.getLogger(OTMetricsBenchmark.class);
 
     protected final int num_sources;
@@ -45,7 +45,7 @@ public class OTMetricsBenchmark extends BenchmarkModule {
         // Compute the number of records per table.
         this.num_sources = (int) Math.round(OTMetricsConstants.NUM_SOURCES * workConf.getScaleFactor());
         this.num_sessions = (int) Math.round(OTMetricsConstants.NUM_SESSIONS * workConf.getScaleFactor());
-        this.num_observations = (long) Math.round(OTMetricsConstants.NUM_OBSERVATIONS * workConf.getScaleFactor());
+        this.num_observations = Math.round(OTMetricsConstants.NUM_OBSERVATIONS * workConf.getScaleFactor());
     }
 
     @Override

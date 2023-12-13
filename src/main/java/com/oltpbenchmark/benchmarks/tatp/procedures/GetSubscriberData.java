@@ -35,7 +35,7 @@ public class GetSubscriberData extends Procedure {
         try (PreparedStatement stmt = this.getPreparedStatement(conn, getSubscriber)) {
             stmt.setLong(1, s_id);
             try (ResultSet results = stmt.executeQuery()) {
-
+                assert results != null;
             }
         }
     }

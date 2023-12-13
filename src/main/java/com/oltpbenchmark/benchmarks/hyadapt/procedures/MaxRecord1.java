@@ -28,6 +28,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class MaxRecord1 extends Procedure {
+    @SuppressWarnings("unused")
     private static final Logger LOG = LoggerFactory.getLogger(MaxRecord1.class);
 
     public final SQLStmt maxStmt = new SQLStmt(
@@ -44,6 +45,7 @@ public class MaxRecord1 extends Procedure {
                 }
             }
         }
+        assert max != -1;
     }
 
 }

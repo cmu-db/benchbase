@@ -21,6 +21,7 @@ package com.oltpbenchmark.benchmarks.tpcc.pojo;
 import java.io.Serializable;
 
 public class NewOrder implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     public int no_w_id;
     public int no_d_id;

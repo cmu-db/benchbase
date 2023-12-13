@@ -313,7 +313,7 @@ public abstract class JSONUtil {
      * @param inner_classes
      * @throws Exception
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     protected static void readMapField(final JSONObject json_object, final Map map, final Stack<Class> inner_classes) throws Exception {
         Class<?> key_class = inner_classes.pop();
         Class<?> val_class = inner_classes.pop();
@@ -359,10 +359,10 @@ public abstract class JSONUtil {
      * @param inner_classes
      * @throws Exception
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     protected static void readCollectionField(final JSONArray json_array, final Collection collection, final Stack<Class> inner_classes) throws Exception {
         // We need to figure out what the inner type of the collection is
-        // If it's a Collection or a Map, then we need to instantiate it before 
+        // If it's a Collection or a Map, then we need to instantiate it before
         // we can call readFieldValue() again for it.
         Class inner_class = inner_classes.pop();
         Collection<Class<?>> inner_interfaces = ClassUtil.getInterfaces(inner_class);
@@ -404,7 +404,7 @@ public abstract class JSONUtil {
      * @param object
      * @throws Exception
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     public static void readFieldValue(final JSONObject json_object, final String json_key, Field field_handle, Object object) throws Exception {
 
         Class<?> field_class = field_handle.getType();

@@ -45,7 +45,7 @@ import java.util.concurrent.CountDownLatch;
  * @author pavlo
  * @author djellel
  */
-public class WikipediaLoader extends Loader<WikipediaBenchmark> {
+public final class WikipediaLoader extends Loader<WikipediaBenchmark> {
 
     /**
      * UserId -> # of Revisions

@@ -34,7 +34,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TwitterBenchmark extends BenchmarkModule {
+public final class TwitterBenchmark extends BenchmarkModule {
 
     private final TwitterConfiguration twitterConf;
 

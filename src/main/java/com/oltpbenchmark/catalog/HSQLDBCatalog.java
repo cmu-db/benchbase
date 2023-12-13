@@ -15,7 +15,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class HSQLDBCatalog implements AbstractCatalog {
+public final class HSQLDBCatalog implements AbstractCatalog {
 
     private static final String DB_CONNECTION = "jdbc:hsqldb:mem:";
     private static final String DB_JDBC = "org.hsqldb.jdbcDriver";
@@ -93,6 +93,7 @@ public class HSQLDBCatalog implements AbstractCatalog {
                 while (colRS.next()) {
                     String colName = colRS.getString(4);
                     int colType = colRS.getInt(5);
+                    @SuppressWarnings("unused")
                     String colTypeName = colRS.getString(6);
                     Integer colSize = colRS.getInt(7);
                     boolean colNullable = colRS.getString(18).equalsIgnoreCase("YES");

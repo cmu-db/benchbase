@@ -29,7 +29,7 @@ import java.util.List;
  * @author pavlo
  * @author eric-haibin-lin
  */
-public class NoOpLoader extends Loader<NoOpBenchmark> {
+public final class NoOpLoader extends Loader<NoOpBenchmark> {
     public NoOpLoader(NoOpBenchmark benchmark) {
         super(benchmark);
     }

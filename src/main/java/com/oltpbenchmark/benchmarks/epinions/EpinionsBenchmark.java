@@ -36,7 +36,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EpinionsBenchmark extends BenchmarkModule {
+public final class EpinionsBenchmark extends BenchmarkModule {
 
     private static final Logger LOG = LoggerFactory.getLogger(EpinionsBenchmark.class);
 

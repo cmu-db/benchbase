@@ -21,6 +21,7 @@ package com.oltpbenchmark.util;
 import java.util.Random;
 
 public class RandomGenerator extends Random {
+    static final long serialVersionUID = 0;
 
     /**
      * Constructor

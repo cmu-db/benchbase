@@ -29,7 +29,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Random;
 
-public class SIWorker extends Worker<SIBenchmark> {
+public final class SIWorker extends Worker<SIBenchmark> {
 
     private static Random updateRecordIdGenerator = null;
     private final int recordCount;
@@ -60,7 +60,7 @@ public class SIWorker extends Worker<SIBenchmark> {
     private void minRecord(Connection conn) throws SQLException {
         MinRecord proc = this.getProcedure(MinRecord.class);
 
-        int minId = proc.run(conn);
+        proc.run(conn);
     }
 
     private void updateRecord(Connection conn) throws SQLException {

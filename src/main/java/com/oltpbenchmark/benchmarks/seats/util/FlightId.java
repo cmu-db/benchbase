@@ -25,7 +25,7 @@ import java.sql.Timestamp;
 import java.util.Comparator;
 import java.util.Objects;
 
-public class FlightId extends CompositeId implements Comparable<FlightId> {
+public final class FlightId extends CompositeId implements Comparable<FlightId> {
 
     private static final int[] COMPOSITE_BITS = {
             LONG_MAX_DIGITS, // AIRLINE_ID

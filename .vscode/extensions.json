@@ -1,0 +1,8 @@
+{
+    "recommendations": [
+        "EditorConfig.EditorConfig",
+        "github.vscode-pull-request-github",
+        "huntertran.auto-markdown-toc",
+        "vscjava.vscode-java-pack"
+    ]
+}

@@ -56,7 +56,7 @@ public class InsertCallForwarding extends Procedure {
         try (PreparedStatement stmt = this.getPreparedStatement(conn, getSpecialFacility)) {
             stmt.setLong(1, s_id);
             try (ResultSet results = stmt.executeQuery()) {
-
+                assert results != null;
             }
         }
 

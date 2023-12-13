@@ -21,6 +21,7 @@ package com.oltpbenchmark.benchmarks.tpcc.pojo;
 import java.io.Serializable;
 
 public class Warehouse implements Serializable {
+    static final long serialVersionUID = 0;
 
     public int w_id; // PRIMARY KEY
     public float w_ytd;

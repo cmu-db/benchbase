@@ -24,7 +24,6 @@ import static org.junit.Assert.assertNotNull;
 import org.apache.commons.collections4.set.ListOrderedSet;
 
 import java.util.*;
-import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -122,6 +121,7 @@ public class TestCollectionUtil {
             expected[i] = rng.astring(1, 32);
         } // FOR
 
+        @SuppressWarnings("rawtypes")
         Collection<String>[] collections = new Collection[]{
                 CollectionUtil.addAll(new ListOrderedSet<String>(), expected),
                 CollectionUtil.addAll(new HashSet<String>(), expected),

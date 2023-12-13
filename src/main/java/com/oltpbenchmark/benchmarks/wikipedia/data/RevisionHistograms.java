@@ -291,11 +291,17 @@ public abstract class RevisionHistograms {
     public static final int[] REVISION_DELTA_SIZES = {1000, 10000, 100000};
 
     /**
+     * Simple generic class overload to avoid some cast warnings below.
+     */
+    public static class IntHistogram extends Histogram<Integer> {
+        private static final long serialVersionUID = 0L;
+    }
+
+    /**
      *
      */
-    @SuppressWarnings("unchecked")
-    public static final Histogram<Integer>[] REVISION_DELTAS = (Histogram<Integer>[]) new Histogram[]{
-            new Histogram<Integer>() {
+    public static final IntHistogram[] REVISION_DELTAS = new IntHistogram[]{
+            new IntHistogram() {
                 {
                     this.put(-1000, 237);
                     this.put(-900, 237);
@@ -499,7 +505,7 @@ public abstract class RevisionHistograms {
                     this.put(100000, 4);
                 }
             },
-            new Histogram<Integer>() {
+            new IntHistogram() {
                 {
                     this.put(-10000, 15);
                     this.put(-9900, 19);
@@ -776,7 +782,7 @@ public abstract class RevisionHistograms {
                     this.put(100000, 1);
                 }
             },
-            new Histogram<Integer>() {
+            new IntHistogram() {
                 {
                     this.put(-985000, 1);
                     this.put(-982000, 1);

@@ -102,7 +102,6 @@ public abstract class StringUtil {
      * @param maps
      * @return
      */
-    @SuppressWarnings("unchecked")
     public static String formatMaps(String delimiter, boolean upper, boolean box, boolean border_top,
             boolean border_bottom, boolean recursive, boolean first_element_title, Map<?, ?>... maps) {
         boolean need_divider = (maps.length > 1 || border_bottom || border_top);
@@ -110,6 +109,7 @@ public abstract class StringUtil {
         // Figure out the largest key size so we can get spacing right
         int max_key_size = 0;
         int max_title_size = 0;
+        @SuppressWarnings({"unchecked", "rawtypes"})
         final Map<Object, String[]>[] map_keys = (Map<Object, String[]>[]) new Map[maps.length];
         final boolean[] map_titles = new boolean[maps.length];
         for (int i = 0; i < maps.length; i++) {

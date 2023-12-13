@@ -34,6 +34,7 @@ public class GetUserTweets extends Procedure {
         try (PreparedStatement stmt = this.getPreparedStatement(conn, getTweets)) {
             stmt.setLong(1, uid);
             try (ResultSet rs = stmt.executeQuery()) {
+                assert rs != null;
             }
         }
     }

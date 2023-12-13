@@ -77,7 +77,7 @@ class YCSBLoader extends Loader<YCSBBenchmark> {
                 stmt.addBatch();
                 total++;
                 if (++batch >= workConf.getBatchSize()) {
-                    int[] result = stmt.executeBatch();
+                    stmt.executeBatch();
 
                     batch = 0;
                     if (LOG.isDebugEnabled()) {

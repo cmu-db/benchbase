@@ -27,7 +27,7 @@ import com.oltpbenchmark.benchmarks.tatp.procedures.DeleteCallForwarding;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TATPBenchmark extends BenchmarkModule {
+public final class TATPBenchmark extends BenchmarkModule {
 
     public TATPBenchmark(WorkloadConfiguration workConf) {
         super(workConf);

@@ -23,8 +23,9 @@ import org.json.JSONString;
 import org.json.JSONStringer;
 
 import java.io.IOException;
+import java.io.Serializable;
 
-public interface JSONSerializable extends JSONString {
+public interface JSONSerializable extends JSONString, Serializable {
     void save(String output_path) throws IOException;
 
     void load(String input_path) throws IOException;

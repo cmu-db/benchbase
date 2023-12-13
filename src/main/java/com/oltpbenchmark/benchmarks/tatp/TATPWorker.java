@@ -33,7 +33,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TATPWorker extends Worker<TATPBenchmark> {
+public final class TATPWorker extends Worker<TATPBenchmark> {
     private static final Logger LOG = LoggerFactory.getLogger(TATPWorker.class);
 
     /**

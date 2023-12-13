@@ -37,7 +37,7 @@ import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
+public final class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
     private static final Logger LOG = LoggerFactory.getLogger(AuctionMarkWorker.class);
 
     // -----------------------------------------------------------------
@@ -404,8 +404,10 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
     public ItemId processItemRecord(Object[] row) {
         int col = 0;
         ItemId i_id = new ItemId(SQLUtil.getString(row[col++]));  // i_id
-        String i_u_id = SQLUtil.getString(row[col++]);              // i_u_id
-        String i_name = (String) row[col++];                     // i_name
+        String i_u_id = SQLUtil.getString(row[col++]);          // i_u_id
+        assert i_u_id != null;
+        @SuppressWarnings("unused")
+        String i_name = (String) row[col++];                    // i_name
         double i_current_price = SQLUtil.getDouble(row[col++]); // i_current_price
         long i_num_bids = SQLUtil.getLong(row[col++]);          // i_num_bids
         Timestamp i_end_date = SQLUtil.getTimestamp(row[col++]);// i_end_date
@@ -452,7 +454,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
 
         for (Object[] row : results) {
             ItemId itemId = this.processItemRecord(row);
-
+            assert itemId != null;
         }
         profile.updateItemQueues();
 
@@ -476,7 +478,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
         // The first row will have our item data that we want
         // We don't care about the user information...
         ItemId itemId = this.processItemRecord(results[0]);
-
+        assert itemId != null;
 
         return (true);
     }
@@ -534,14 +536,17 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
 
         for (Object[] row : results.getSellerItems()) {
             ItemId itemId = this.processItemRecord(row);
+            assert itemId != null;
         }
 
         for (Object[] row : results.getBuyerItems()) {
             ItemId itemId = this.processItemRecord(row);
+            assert itemId != null;
         }
 
         for (Object[] row : results.getWatchedItems()) {
             ItemId itemId = this.processItemRecord(row);
+            assert itemId != null;
         }
 
 
@@ -614,7 +619,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
                 itemInfo.getEndDate());
 
         ItemId itemId = this.processItemRecord(results);
-
+        assert itemId != null;
 
         return (true);
     }
@@ -797,7 +802,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
                 buyer_credit);
 
         ItemId itemId = this.processItemRecord(results);
-
+        assert itemId != null;
 
         return (true);
     }
