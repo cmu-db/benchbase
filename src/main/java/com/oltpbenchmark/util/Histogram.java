@@ -64,6 +64,8 @@ public class Histogram<X extends Comparable<X>> implements JSONSerializable {
      * The Min/Max values are the smallest/greatest values we have seen based
      * on some natural ordering
      */
+    // Note: marked as transient to avoid serialization warnings due to missing
+    // explicit Serializable interface on base types like X == Integer
     protected transient Comparable<X> min_value;
     protected transient Comparable<X> max_value;
 
