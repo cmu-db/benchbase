@@ -28,7 +28,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VoterLoader extends Loader<VoterBenchmark> {
+public final class VoterLoader extends Loader<VoterBenchmark> {
 
     public VoterLoader(VoterBenchmark benchmark) {
         super(benchmark);

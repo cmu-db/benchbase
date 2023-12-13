@@ -36,7 +36,7 @@ import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 
-public class WikipediaWorker extends Worker<WikipediaBenchmark> {
+public final class WikipediaWorker extends Worker<WikipediaBenchmark> {
     private static final Logger LOG = LoggerFactory.getLogger(WikipediaWorker.class);
 
     private Set<Integer> addedWatchlistPages = new HashSet<>();

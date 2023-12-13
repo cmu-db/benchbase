@@ -39,7 +39,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 
-public class SEATSLoader extends Loader<SEATSBenchmark> {
+public final class SEATSLoader extends Loader<SEATSBenchmark> {
     // -----------------------------------------------------------------
     // INTERNAL DATA MEMBERS
     // -----------------------------------------------------------------

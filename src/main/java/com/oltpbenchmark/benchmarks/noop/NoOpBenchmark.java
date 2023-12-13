@@ -33,7 +33,7 @@ import java.util.List;
  * @author pavlo
  * @author eric-haibin-lin
  */
-public class NoOpBenchmark extends BenchmarkModule {
+public final class NoOpBenchmark extends BenchmarkModule {
 
     public NoOpBenchmark(WorkloadConfiguration workConf) {
         super(workConf);

@@ -29,7 +29,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ResourceStresserLoader extends Loader<ResourceStresserBenchmark> {
+public final class ResourceStresserLoader extends Loader<ResourceStresserBenchmark> {
 
     private final int numEmployees;
 

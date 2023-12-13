@@ -44,7 +44,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-public class TPCHLoader extends Loader<TPCHBenchmark> {
+public final class TPCHLoader extends Loader<TPCHBenchmark> {
     public TPCHLoader(TPCHBenchmark benchmark) {
         super(benchmark);
     }

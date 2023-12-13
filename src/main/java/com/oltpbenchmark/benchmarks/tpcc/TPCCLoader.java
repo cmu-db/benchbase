@@ -33,7 +33,7 @@ import java.util.concurrent.CountDownLatch;
 /**
  * TPC-C Benchmark Loader
  */
-public class TPCCLoader extends Loader<TPCCBenchmark> {
+public final class TPCCLoader extends Loader<TPCCBenchmark> {
 
     private static final int FIRST_UNPROCESSED_O_ID = 2101;
 

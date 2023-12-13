@@ -28,7 +28,7 @@ import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.types.TransactionStatus;
 
-public class TemplatedWorker extends Worker<TemplatedBenchmark> {
+public final class TemplatedWorker extends Worker<TemplatedBenchmark> {
 
     protected final Map<Class<? extends Procedure>, TraceTransactionGenerator> generators;
 

@@ -46,7 +46,7 @@ import com.oltpbenchmark.types.DatabaseType;
  * @author pavlo
  * @author visawee
  */
-public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
+public final class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
 
     // -----------------------------------------------------------------
     // INTERNAL DATA MEMBERS

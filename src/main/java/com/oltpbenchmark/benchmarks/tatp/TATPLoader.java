@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-public class TATPLoader extends Loader<TATPBenchmark> {
+public final class TATPLoader extends Loader<TATPBenchmark> {
     private final long subscriberSize;
 
     public TATPLoader(TATPBenchmark benchmark) {

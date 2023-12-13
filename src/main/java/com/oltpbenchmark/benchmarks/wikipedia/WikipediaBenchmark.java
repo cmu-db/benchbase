@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WikipediaBenchmark extends BenchmarkModule {
+public final class WikipediaBenchmark extends BenchmarkModule {
     private static final Logger LOG = LoggerFactory.getLogger(WikipediaBenchmark.class);
 
     protected final IntegerFlatHistogram commentLength;

@@ -38,7 +38,7 @@ import java.util.Map.Entry;
 /**
  * @author pavlo
  */
-public class StatementDialects {
+public final class StatementDialects {
     private static final Logger LOG = LoggerFactory.getLogger(StatementDialects.class);
 
     private static final DatabaseType DEFAULT_DB_TYPE = DatabaseType.MYSQL;

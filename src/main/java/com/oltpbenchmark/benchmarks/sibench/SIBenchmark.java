@@ -34,7 +34,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SIBenchmark extends BenchmarkModule {
+public final class SIBenchmark extends BenchmarkModule {
 
     private static final Logger LOG = LoggerFactory.getLogger(SIBenchmark.class);
 

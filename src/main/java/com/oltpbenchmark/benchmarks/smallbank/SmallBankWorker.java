@@ -38,7 +38,7 @@ import java.util.Arrays;
  *
  * @author pavlo
  */
-public class SmallBankWorker extends Worker<SmallBankBenchmark> {
+public final class SmallBankWorker extends Worker<SmallBankBenchmark> {
     private static final Logger LOG = LoggerFactory.getLogger(SmallBankWorker.class);
 
     private final Amalgamate procAmalgamate;

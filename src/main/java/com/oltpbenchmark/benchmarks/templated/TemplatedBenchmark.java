@@ -62,7 +62,7 @@ import jakarta.xml.bind.Unmarshaller;
  * about the structure of the expected template can be found in the local
  * readme file.
  */
-public class TemplatedBenchmark extends BenchmarkModule {
+public final class TemplatedBenchmark extends BenchmarkModule {
     private static final Logger LOG = LoggerFactory.getLogger(TemplatedBenchmark.class);
 
     public TemplatedBenchmark(WorkloadConfiguration workConf) {
