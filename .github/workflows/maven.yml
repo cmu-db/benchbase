@@ -54,7 +54,7 @@ jobs:
         run: mvn -B fmt:check --file pom.xml
 
       - name: Compile with Maven
-        run: mvn -B compile --file pom.xml
+        run: mvn -B compile test-compile --file pom.xml
 
       - name: Test with Maven
         run: mvn -B test --file pom.xml
