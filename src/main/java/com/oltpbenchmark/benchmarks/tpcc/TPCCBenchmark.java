@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class TPCCBenchmark extends BenchmarkModule {
+public final class TPCCBenchmark extends BenchmarkModule {
     private static final Logger LOG = LoggerFactory.getLogger(TPCCBenchmark.class);
 
     public TPCCBenchmark(WorkloadConfiguration workConf) {

@@ -34,8 +34,8 @@ import java.util.Objects;
 public class Table extends AbstractCatalogObject {
     private static final long serialVersionUID = 1L;
 
-    private final List<Column> columns = new ArrayList<>();
-    private final List<Index> indexes = new ArrayList<>();
+    private final ArrayList<Column> columns = new ArrayList<>();
+    private final ArrayList<Index> indexes = new ArrayList<>();
 
     public Table(String name, String separator) {
         super(name, separator);

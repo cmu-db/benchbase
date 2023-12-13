@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class HYADAPTLoader extends Loader<HYADAPTBenchmark> {
+public final class HYADAPTLoader extends Loader<HYADAPTBenchmark> {
     private final int num_record;
     private static final Random rand = new Random();
 
@@ -82,6 +82,7 @@ public class HYADAPTLoader extends Loader<HYADAPTBenchmark> {
                         total++;
                         if (++batch >= workConf.getBatchSize()) {
                             int[] result = stmt.executeBatch();
+                            assert result != null;
 
                             batch = 0;
                             LOG.info(String.format("Records Loaded %d / %d", total, num_record));

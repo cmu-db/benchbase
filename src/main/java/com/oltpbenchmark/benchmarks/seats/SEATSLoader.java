@@ -39,7 +39,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 
-public class SEATSLoader extends Loader<SEATSBenchmark> {
+public final class SEATSLoader extends Loader<SEATSBenchmark> {
     // -----------------------------------------------------------------
     // INTERNAL DATA MEMBERS
     // -----------------------------------------------------------------
@@ -1268,7 +1268,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         private Timestamp convertTimeString(Timestamp base_date, String code) {
             Matcher m = SEATSConstants.TIMECODE_PATTERN.matcher(code);
             boolean result = m.find();
-
+            assert result;
 
             int hour = -1;
             try {

@@ -27,7 +27,7 @@ import com.oltpbenchmark.util.RandomGenerator;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class TPCHWorker extends Worker<TPCHBenchmark> {
+public final class TPCHWorker extends Worker<TPCHBenchmark> {
 
     private final RandomGenerator rand;
 

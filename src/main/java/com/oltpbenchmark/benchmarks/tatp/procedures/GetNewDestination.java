@@ -49,7 +49,7 @@ public class GetNewDestination extends Procedure {
             stmt.setByte(3, start_time);
             stmt.setByte(4, end_time);
             try (ResultSet results = stmt.executeQuery()) {
-
+                assert results != null;
             }
         }
     }

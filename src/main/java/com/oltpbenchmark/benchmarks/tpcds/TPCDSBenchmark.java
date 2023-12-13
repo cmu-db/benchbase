@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TPCDSBenchmark extends BenchmarkModule {
+public final class TPCDSBenchmark extends BenchmarkModule {
     private static final Logger LOG = LoggerFactory.getLogger(TPCDSBenchmark.class);
 
     public TPCDSBenchmark(WorkloadConfiguration workConf) {

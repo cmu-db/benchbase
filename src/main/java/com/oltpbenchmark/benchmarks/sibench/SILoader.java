@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class SILoader extends Loader<SIBenchmark> {
+public final class SILoader extends Loader<SIBenchmark> {
     private final int num_record;
 
     public SILoader(SIBenchmark benchmark) {
@@ -77,7 +77,7 @@ public class SILoader extends Loader<SIBenchmark> {
                 stmt.addBatch();
 
                 if (++batch >= workConf.getBatchSize()) {
-                    int[] result = stmt.executeBatch();
+                    stmt.executeBatch();
 
                     batch = 0;
                 }

@@ -42,11 +42,13 @@
             "settings": {},
             // Add the IDs of extensions you want installed when the container is created.
             "extensions": [
-                "github.vscode-github-actions",
+                "EditorConfig.EditorConfig",
                 "GitHub.copilot",
                 "eamodio.gitlens",
-                "vscjava.vscode-java-pack",
-                "EditorConfig.EditorConfig"
+                "github.vscode-github-actions",
+                "github.vscode-pull-request-github",
+                "huntertran.auto-markdown-toc",
+                "vscjava.vscode-java-pack"
             ]
         }
     },

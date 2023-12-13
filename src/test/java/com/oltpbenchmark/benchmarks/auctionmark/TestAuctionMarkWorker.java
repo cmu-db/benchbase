@@ -23,7 +23,6 @@ import static org.junit.Assert.assertTrue;
 
 import com.oltpbenchmark.api.AbstractTestWorker;
 import com.oltpbenchmark.api.Procedure;
-import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.auctionmark.util.UserId;
 
 import java.io.IOException;
@@ -61,7 +60,7 @@ public class TestAuctionMarkWorker extends AbstractTestWorker<AuctionMarkBenchma
         Set<UserId> all_users = new HashSet<UserId>();
         Set<UserId> worker_users = new TreeSet<UserId>();
         Integer last_num_users = null;
-        for (Worker w : this.workers) {
+        for (var w : this.workers) {
             AuctionMarkWorker worker = (AuctionMarkWorker) w;
             assertNotNull(w);
 

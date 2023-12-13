@@ -25,7 +25,8 @@ import com.oltpbenchmark.util.Histogram;
  *
  * @author pavlo
  */
-public class NameHistogram extends Histogram<Integer> {
+public final class NameHistogram extends Histogram<Integer> {
+    private static final long serialVersionUID = 0L;
 
     {
         this.put(1, 2);

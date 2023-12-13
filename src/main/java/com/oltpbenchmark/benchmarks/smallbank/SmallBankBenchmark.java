@@ -29,7 +29,7 @@ import com.oltpbenchmark.util.SQLUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SmallBankBenchmark extends BenchmarkModule {
+public final class SmallBankBenchmark extends BenchmarkModule {
 
     protected final long numAccounts;
 

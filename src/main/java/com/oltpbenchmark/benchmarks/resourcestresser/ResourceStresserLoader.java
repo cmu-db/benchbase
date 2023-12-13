@@ -29,7 +29,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ResourceStresserLoader extends Loader<ResourceStresserBenchmark> {
+public final class ResourceStresserLoader extends Loader<ResourceStresserBenchmark> {
 
     private final int numEmployees;
 
@@ -97,6 +97,7 @@ public class ResourceStresserLoader extends Loader<ResourceStresserBenchmark> {
                 stmt.addBatch();
                 if (++batch >= workConf.getBatchSize()) {
                     int[] result = stmt.executeBatch();
+                    assert result != null;
 
                     batch = 0;
                     if (LOG.isDebugEnabled()) {

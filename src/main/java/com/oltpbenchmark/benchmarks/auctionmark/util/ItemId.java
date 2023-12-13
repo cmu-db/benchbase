@@ -30,7 +30,7 @@ import java.util.Objects;
  *
  * @author pavlo
  */
-public class ItemId extends CompositeId implements Comparable<ItemId> {
+public final class ItemId extends CompositeId implements Comparable<ItemId> {
 
     private static final int[] COMPOSITE_BITS = {
             UserId.ID_LENGTH, // SELLER_ID

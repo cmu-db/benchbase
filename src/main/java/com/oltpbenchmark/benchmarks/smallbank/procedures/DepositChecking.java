@@ -70,7 +70,7 @@ public class DepositChecking extends Procedure {
 
         // Then update their checking balance
         try (PreparedStatement stmt1 = this.getPreparedStatement(conn, UpdateCheckingBalance, amount, custId)) {
-            int status = stmt1.executeUpdate();
+            stmt1.executeUpdate();
         }
     }
 }

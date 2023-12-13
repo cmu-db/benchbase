@@ -27,7 +27,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 
-public class UserIdGenerator implements Iterator<UserId> {
+public final class UserIdGenerator implements Iterator<UserId> {
 
     private final int numClients;
     private final Integer clientId;

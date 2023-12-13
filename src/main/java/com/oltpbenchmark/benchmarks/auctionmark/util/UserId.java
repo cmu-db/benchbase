@@ -24,7 +24,7 @@ import java.util.Comparator;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
-public class UserId extends CompositeId implements Comparable<UserId> {
+public final class UserId extends CompositeId implements Comparable<UserId> {
 
     private static final int[] COMPOSITE_BITS = {
             INT_MAX_DIGITS, // ITEM_COUNT

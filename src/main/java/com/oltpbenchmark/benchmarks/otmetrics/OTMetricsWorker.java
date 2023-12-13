@@ -34,7 +34,7 @@ import java.util.List;
  * OtterTune Metrics Timeseries Benchmark
  * @author pavlo
  */
-public class OTMetricsWorker extends Worker<OTMetricsBenchmark> {
+public final class OTMetricsWorker extends Worker<OTMetricsBenchmark> {
 
     private static final Logger LOG = LoggerFactory.getLogger(OTMetricsWorker.class);
 

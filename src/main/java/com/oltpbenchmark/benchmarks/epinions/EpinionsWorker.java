@@ -30,15 +30,13 @@ import org.slf4j.LoggerFactory;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Random;
 
-public class EpinionsWorker extends Worker<EpinionsBenchmark> {
-
+public final class EpinionsWorker extends Worker<EpinionsBenchmark> {
+    @SuppressWarnings("unused")
     private static final Logger LOG = LoggerFactory.getLogger(EpinionsWorker.class);
 
     private final ArrayList<String> user_ids;
     private final ArrayList<String> item_ids;
-    private final Random rand = new Random(System.currentTimeMillis());
 
     public EpinionsWorker(EpinionsBenchmark benchmarkModule, int id, ArrayList<String> user_ids, ArrayList<String> item_ids) {
         super(benchmarkModule, id);

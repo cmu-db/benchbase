@@ -76,6 +76,7 @@ public class AuctionMarkProfile {
     // ----------------------------------------------------------------
     // SERIALIZABLE DATA MEMBERS
     // ----------------------------------------------------------------
+    static final long serialVersionUID = 0;
 
     /**
      * Database Scale Factor
@@ -109,6 +110,14 @@ public class AuctionMarkProfile {
     protected transient Histogram<Integer> items_per_category = new Histogram<>();
 
     /**
+     * Simple generic class overload to avoid some cast warnings below.
+     */
+    class ItemInfoList extends LinkedList<ItemInfo> {
+        // Required serialization field.
+        static final long serialVersionUID = 0;
+    }
+
+    /**
      * Three status types for an item:
      * (1) Available - The auction of this item is still open
      * (2) Ending Soon
@@ -117,13 +126,13 @@ public class AuctionMarkProfile {
      * (3) Complete (The auction is closed and (There is no bid winner or
      * the bid winner has already purchased the item)
      */
-    private transient final LinkedList<ItemInfo> items_available = new LinkedList<>();
-    private transient final LinkedList<ItemInfo> items_endingSoon = new LinkedList<>();
-    private transient final LinkedList<ItemInfo> items_waitingForPurchase = new LinkedList<>();
-    private transient final LinkedList<ItemInfo> items_completed = new LinkedList<>();
+    private transient final ItemInfoList items_available = new ItemInfoList();
+    private transient final ItemInfoList items_endingSoon = new ItemInfoList();
+    private transient final ItemInfoList items_waitingForPurchase = new ItemInfoList();
+    private transient final ItemInfoList items_completed = new ItemInfoList();
 
-    @SuppressWarnings("unchecked")
-    protected transient final LinkedList<ItemInfo>[] allItemSets = new LinkedList[]{
+
+    protected transient final ItemInfoList allItemSets[] = new ItemInfoList[]{
             this.items_available,
             this.items_endingSoon,
             this.items_waitingForPurchase,
@@ -286,7 +295,7 @@ public class AuctionMarkProfile {
         this.items_per_category = other.items_per_category;
         this.gag_ids = other.gag_ids;
 
-        // Initialize the UserIdGenerator so we can figure out whether our 
+        // Initialize the UserIdGenerator so we can figure out whether our
         // client should even have these ids
         this.initializeUserIdGenerator(this.client_id);
 
@@ -455,7 +464,6 @@ public class AuctionMarkProfile {
 
     private static void loadPendingItemComments(AuctionMarkProfile profile, List<Object[]> vt) {
         for (Object[] row : vt) {
-            int col = 1;
             long ic_id = SQLUtil.getLong(row[0]);
             String ic_i_id = SQLUtil.getString(row[1]);
             String ic_u_id = SQLUtil.getString(row[2]);
@@ -712,6 +720,7 @@ public class AuctionMarkProfile {
             // HACK: Always swap existing ItemInfos with our new one, since it will
             // more up-to-date information
             ItemInfo existing = items.set(idx, itemInfo);
+            assert existing != null;
 
             return (true);
         }
@@ -861,7 +870,7 @@ public class AuctionMarkProfile {
                 continue;
             }
 
-            // If they want an item that is ending in the future, then we compare it with 
+            // If they want an item that is ending in the future, then we compare it with
             // the current timestamp
             if (needFutureEndDate) {
                 boolean compareTo = (temp.getEndDate().compareTo(currentTime) < 0);

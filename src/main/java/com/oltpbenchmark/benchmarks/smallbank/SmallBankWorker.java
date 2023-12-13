@@ -38,7 +38,7 @@ import java.util.Arrays;
  *
  * @author pavlo
  */
-public class SmallBankWorker extends Worker<SmallBankBenchmark> {
+public final class SmallBankWorker extends Worker<SmallBankBenchmark> {
     private static final Logger LOG = LoggerFactory.getLogger(SmallBankWorker.class);
 
     private final Amalgamate procAmalgamate;
@@ -58,7 +58,7 @@ public class SmallBankWorker extends Worker<SmallBankBenchmark> {
         super(benchmarkModule, id);
 
         // This is a minor speed-up to avoid having to invoke the hashmap look-up
-        // everytime we want to execute a txn. This is important to do on 
+        // everytime we want to execute a txn. This is important to do on
         // a client machine with not a lot of cores
         this.procAmalgamate = this.getProcedure(Amalgamate.class);
         this.procBalance = this.getProcedure(Balance.class);

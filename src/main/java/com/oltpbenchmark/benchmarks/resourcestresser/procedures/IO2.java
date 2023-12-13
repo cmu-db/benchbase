@@ -43,7 +43,7 @@ public class IO2 extends Procedure {
 
         //int keyRange = (makeSureWorkerSetFitsInMemory ? 16777216 / 160 : 167772160 / 160); // FIXME
         int startingKey = myId * keyRange;
-        int lastKey = (myId + 1) * keyRange - 1;
+        //int lastKey = (myId + 1) * keyRange - 1;
 
         for (int up = 0; up < howManyUpdatesPerTransaction; ++up) {
             int key = ResourceStresserWorker.gen.nextInt(keyRange) + startingKey;

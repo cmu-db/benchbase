@@ -26,7 +26,7 @@ import com.oltpbenchmark.benchmarks.voter.procedures.Vote;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VoterBenchmark extends BenchmarkModule {
+public final class VoterBenchmark extends BenchmarkModule {
 
     public final int numContestants;
 

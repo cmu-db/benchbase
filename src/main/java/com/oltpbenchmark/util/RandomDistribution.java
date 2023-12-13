@@ -184,7 +184,7 @@ public class RandomDistribution {
     public static class FlatHistogram<T extends Comparable<T>> extends DiscreteRNG {
         private static final long serialVersionUID = 1L;
         private final Flat inner;
-        private final SortedMap<Long, T> value_rle = new TreeMap<>();
+        private final TreeMap<Long, T> value_rle = new TreeMap<>();
         private Histogram<T> history;
 
         /**
@@ -237,6 +237,17 @@ public class RandomDistribution {
                 return ((Integer) val);
             }
             return ((Long) val);
+        }
+    }
+
+    /**
+     * Simple generic class overload to avoid some cast warnings below.
+     */
+    public static class IntegerFlatHistogram extends FlatHistogram<Integer> {
+        // Required serialization field.
+        private static final long serialVersionUID = 1L;
+        public IntegerFlatHistogram(Random random, Histogram<Integer> histogram) {
+            super(random, histogram);
         }
     }
 

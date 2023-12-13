@@ -22,7 +22,6 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.List;
@@ -30,7 +29,8 @@ import java.util.Map;
 import java.util.TreeMap;
 
 
-public class CategoryParser {
+public final class CategoryParser {
+    @SuppressWarnings("unused")
     private static final Logger LOG = LoggerFactory.getLogger(CategoryParser.class);
 
     Map<String, Category> _categoryMap;

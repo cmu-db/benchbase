@@ -53,6 +53,7 @@ public class CPU1 extends Procedure {
 
                 // TODO: Is this the right place to sleep?  With rs open???
                 try (ResultSet rs = stmt.executeQuery()) {
+                    assert rs != null;
                     try {
                         Thread.sleep(sleepLength);
                     } catch (InterruptedException e) {

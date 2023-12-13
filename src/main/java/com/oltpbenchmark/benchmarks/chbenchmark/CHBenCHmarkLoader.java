@@ -26,8 +26,6 @@ import com.oltpbenchmark.benchmarks.chbenchmark.pojo.Supplier;
 import com.oltpbenchmark.util.RandomGenerator;
 import org.apache.commons.io.IOUtils;
 
-import java.io.BufferedReader;
-import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.sql.Connection;
@@ -39,7 +37,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.concurrent.CountDownLatch;
 
-public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
+public final class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
     private static final RandomGenerator ran = new RandomGenerator(0);
 
 
@@ -143,11 +141,7 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
     }
 
     private int loadRegions(Connection conn, PreparedStatement statement) throws SQLException {
-
         int k = 0;
-        int t = 0;
-        BufferedReader br = null;
-
 
         truncateTable(conn, "region");
         truncateTable(conn, "nation");
@@ -208,9 +202,7 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
     }
 
     private int loadNations(Connection conn, PreparedStatement statement) {
-
         int k = 0;
-        int t = 0;
 
         Nation nation = new Nation();
 
@@ -274,9 +266,7 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
     }
 
     private int loadSuppliers(Connection conn, PreparedStatement statement) {
-
         int k = 0;
-        int t = 0;
 
         try {
 

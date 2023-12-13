@@ -21,7 +21,7 @@ import com.oltpbenchmark.WorkloadConfiguration;
 import java.io.IOException;
 import java.util.List;
 
-public class MockBenchmark extends BenchmarkModule {
+public final class MockBenchmark extends BenchmarkModule {
     public MockBenchmark() {
         super(new WorkloadConfiguration());
         this.workConf.setBenchmarkName("mockbenchmark");

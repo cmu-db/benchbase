@@ -29,7 +29,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SEATSBenchmark extends BenchmarkModule {
+public final class SEATSBenchmark extends BenchmarkModule {
 
     private final RandomGenerator rng = new RandomGenerator((int) System.currentTimeMillis());
 

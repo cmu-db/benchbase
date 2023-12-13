@@ -20,7 +20,6 @@ package com.oltpbenchmark.api;
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.dialects.*;
 import com.oltpbenchmark.types.DatabaseType;
-import com.oltpbenchmark.types.State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -30,7 +29,6 @@ import jakarta.xml.bind.*;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
@@ -40,7 +38,7 @@ import java.util.Map.Entry;
 /**
  * @author pavlo
  */
-public class StatementDialects {
+public final class StatementDialects {
     private static final Logger LOG = LoggerFactory.getLogger(StatementDialects.class);
 
     private static final DatabaseType DEFAULT_DB_TYPE = DatabaseType.MYSQL;

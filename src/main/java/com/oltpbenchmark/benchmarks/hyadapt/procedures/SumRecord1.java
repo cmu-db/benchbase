@@ -41,6 +41,7 @@ public class SumRecord1 extends Procedure {
                     sum = r.getInt(1);
                 }
             }
+            assert sum != -1;
         }
     }
 
