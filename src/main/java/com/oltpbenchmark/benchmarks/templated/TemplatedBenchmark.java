@@ -67,11 +67,12 @@ public class TemplatedBenchmark extends BenchmarkModule {
 
     public TemplatedBenchmark(WorkloadConfiguration workConf) {
         super(workConf);
+        this.setClassLoader();
     }
 
     @Override
-    protected void initClassLoader() {
-        super.initClassLoader();
+    protected void setClassLoader() {
+        super.setClassLoader();
 
         if (workConf != null && workConf.getXmlConfig().containsKey("query_templates_file")) {
             this.classLoader = this.loadQueryTemplates(

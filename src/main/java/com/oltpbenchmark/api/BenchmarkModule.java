@@ -77,14 +77,15 @@ public abstract class BenchmarkModule {
     public BenchmarkModule(WorkloadConfiguration workConf) {
         this.workConf = workConf;
         this.dialects = new StatementDialects(workConf);
-        initClassLoader();
+        // setClassLoader();
+        this.classLoader = ClassLoader.getSystemClassLoader();
     }
 
     /**
      * Instantiates the classLoader variable, needs to be overwritten if
      * benchmark uses a custom implementation.
      */
-    protected void initClassLoader() {
+    protected void setClassLoader() {
         this.classLoader = ClassLoader.getSystemClassLoader();
     }
 
