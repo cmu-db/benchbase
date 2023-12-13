@@ -19,7 +19,6 @@ package com.oltpbenchmark.benchmarks.noop;
 
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.LoaderThread;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,13 +29,12 @@ import java.util.List;
  * @author eric-haibin-lin
  */
 public final class NoOpLoader extends Loader<NoOpBenchmark> {
-    public NoOpLoader(NoOpBenchmark benchmark) {
-        super(benchmark);
-    }
+  public NoOpLoader(NoOpBenchmark benchmark) {
+    super(benchmark);
+  }
 
-    @Override
-    public List<LoaderThread> createLoaderThreads() {
-        return new ArrayList<>();
-    }
-
+  @Override
+  public List<LoaderThread> createLoaderThreads() {
+    return new ArrayList<>();
+  }
 }

@@ -14,7 +14,6 @@
  *  limitations under the License.                                            *
  ******************************************************************************/
 
-
 package com.oltpbenchmark.benchmarks.twitter;
 
 import com.oltpbenchmark.api.AbstractTestBenchmarkModule;
@@ -23,25 +22,20 @@ import com.oltpbenchmark.benchmarks.twitter.procedures.GetFollowers;
 import com.oltpbenchmark.benchmarks.twitter.procedures.GetTweet;
 import com.oltpbenchmark.benchmarks.twitter.procedures.GetTweetsFromFollowing;
 import com.oltpbenchmark.benchmarks.twitter.procedures.InsertTweet;
-
 import java.util.List;
 
 public class TestTwitterBenchmark extends AbstractTestBenchmarkModule<TwitterBenchmark> {
 
-    public static final List<Class<? extends Procedure>> PROCEDURE_CLASSES = List.of(
-            GetFollowers.class,
-            GetTweet.class,
-            GetTweetsFromFollowing.class,
-            InsertTweet.class
-    );
+  public static final List<Class<? extends Procedure>> PROCEDURE_CLASSES =
+      List.of(GetFollowers.class, GetTweet.class, GetTweetsFromFollowing.class, InsertTweet.class);
 
-    @Override
-    public List<Class<? extends Procedure>> procedures() {
-        return TestTwitterBenchmark.PROCEDURE_CLASSES;
-    }
+  @Override
+  public List<Class<? extends Procedure>> procedures() {
+    return TestTwitterBenchmark.PROCEDURE_CLASSES;
+  }
 
-    @Override
-    public Class<TwitterBenchmark> benchmarkClass() {
-        return TwitterBenchmark.class;
-    }
+  @Override
+  public Class<TwitterBenchmark> benchmarkClass() {
+    return TwitterBenchmark.class;
+  }
 }

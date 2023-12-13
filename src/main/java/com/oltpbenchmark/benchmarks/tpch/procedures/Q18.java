@@ -19,14 +19,15 @@ package com.oltpbenchmark.benchmarks.tpch.procedures;
 
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.util.RandomGenerator;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class Q18 extends GenericQuery {
 
-    public final SQLStmt query_stmt = new SQLStmt("""
+  public final SQLStmt query_stmt =
+      new SQLStmt(
+          """
             SELECT
                c_name,
                c_custkey,
@@ -61,16 +62,16 @@ public class Q18 extends GenericQuery {
             ORDER BY
                o_totalprice DESC,
                o_orderdate LIMIT 100
-            """
-    );
+            """);
 
-    @Override
-    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
-        // QUANTITY is randomly selected within [312..315]
-        int quantity = rand.number(312, 315);
+  @Override
+  protected PreparedStatement getStatement(
+      Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
+    // QUANTITY is randomly selected within [312..315]
+    int quantity = rand.number(312, 315);
 
-        PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
-        stmt.setInt(1, quantity);
-        return stmt;
-    }
+    PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
+    stmt.setInt(1, quantity);
+    return stmt;
+  }
 }

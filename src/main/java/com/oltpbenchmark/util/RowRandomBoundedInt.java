@@ -1,6 +1,6 @@
 /*
  * Copyright 2020 Trino
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,22 +15,21 @@
  */
 package com.oltpbenchmark.util;
 
-public class RowRandomBoundedInt
-        extends RowRandomInt {
-    private final int lowValue;
-    private final int highValue;
+public class RowRandomBoundedInt extends RowRandomInt {
+  private final int lowValue;
+  private final int highValue;
 
-    public RowRandomBoundedInt(long seed, int lowValue, int highValue) {
-        this(seed, lowValue, highValue, 1);
-    }
+  public RowRandomBoundedInt(long seed, int lowValue, int highValue) {
+    this(seed, lowValue, highValue, 1);
+  }
 
-    public RowRandomBoundedInt(long seed, int lowValue, int highValue, int seedsPerRow) {
-        super(seed, seedsPerRow);
-        this.lowValue = lowValue;
-        this.highValue = highValue;
-    }
+  public RowRandomBoundedInt(long seed, int lowValue, int highValue, int seedsPerRow) {
+    super(seed, seedsPerRow);
+    this.lowValue = lowValue;
+    this.highValue = highValue;
+  }
 
-    public int nextValue() {
-        return nextInt(lowValue, highValue);
-    }
+  public int nextValue() {
+    return nextInt(lowValue, highValue);
+  }
 }

@@ -22,26 +22,23 @@ import java.time.Month;
 
 public abstract class OTMetricsConstants {
 
-    /**
-     * Table Names
-     */
-    public static final String TABLENAME_SOURCES = "sources";
-    public static final String TABLENAME_SESSIONS = "sessions";
-    public static final String TABLENAME_TYPES = "types";
-    public static final String TABLENAME_OBSERVATIONS = "observations";
+  /** Table Names */
+  public static final String TABLENAME_SOURCES = "sources";
 
-    /**
-     * Number of records per table.
-     * All of the tables in this benchmark will scale as you change the benchmark scalefactor
-     */
-    public static final int NUM_SOURCES = 100;
-    public static final int NUM_SESSIONS = 1000;
-    public static final int NUM_TYPES = 500; // FIXED SIZE
-    public static final int NUM_OBSERVATIONS = 10000;
+  public static final String TABLENAME_SESSIONS = "sessions";
+  public static final String TABLENAME_TYPES = "types";
+  public static final String TABLENAME_OBSERVATIONS = "observations";
 
-    /**
-     * All objects in the database will be created starting after this date
-     */
-    public static final LocalDateTime START_DATE = LocalDateTime.of(2022, Month.JANUARY, 1, 0, 0);
+  /**
+   * Number of records per table. All of the tables in this benchmark will scale as you change the
+   * benchmark scalefactor
+   */
+  public static final int NUM_SOURCES = 100;
 
+  public static final int NUM_SESSIONS = 1000;
+  public static final int NUM_TYPES = 500; // FIXED SIZE
+  public static final int NUM_OBSERVATIONS = 10000;
+
+  /** All objects in the database will be created starting after this date */
+  public static final LocalDateTime START_DATE = LocalDateTime.of(2022, Month.JANUARY, 1, 0, 0);
 }

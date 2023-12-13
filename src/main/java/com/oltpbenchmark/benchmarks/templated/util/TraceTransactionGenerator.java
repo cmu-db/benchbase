@@ -16,32 +16,30 @@
  */
 package com.oltpbenchmark.benchmarks.templated.util;
 
+import com.oltpbenchmark.api.TransactionGenerator;
+import com.oltpbenchmark.distributions.CyclicCounterGenerator;
 import java.util.Collections;
 import java.util.List;
 
-import com.oltpbenchmark.api.TransactionGenerator;
-import com.oltpbenchmark.distributions.CyclicCounterGenerator;
-
 public class TraceTransactionGenerator implements TransactionGenerator<GenericQueryOperation> {
 
-    private final List<GenericQueryOperation> transactions;
-    private final CyclicCounterGenerator nextInTrace;
+  private final List<GenericQueryOperation> transactions;
+  private final CyclicCounterGenerator nextInTrace;
 
-    /**
-     * @param transactions a list of transactions shared between threads.
-     */
-    public TraceTransactionGenerator(List<GenericQueryOperation> transactions) {
-        this.transactions = Collections.unmodifiableList(transactions);
-        this.nextInTrace = new CyclicCounterGenerator(transactions.size());
-    }
+  /**
+   * @param transactions a list of transactions shared between threads.
+   */
+  public TraceTransactionGenerator(List<GenericQueryOperation> transactions) {
+    this.transactions = Collections.unmodifiableList(transactions);
+    this.nextInTrace = new CyclicCounterGenerator(transactions.size());
+  }
 
-    @Override
-    public GenericQueryOperation nextTransaction() {
-        return transactions.get(nextInTrace.nextInt());
-    }
+  @Override
+  public GenericQueryOperation nextTransaction() {
+    return transactions.get(nextInTrace.nextInt());
+  }
 
-    public boolean isEmpty() {
-        return transactions.size() == 0;
-    }
-
+  public boolean isEmpty() {
+    return transactions.size() == 0;
+  }
 }

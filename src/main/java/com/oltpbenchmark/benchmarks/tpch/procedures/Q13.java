@@ -20,14 +20,15 @@ package com.oltpbenchmark.benchmarks.tpch.procedures;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.tpch.TPCHUtil;
 import com.oltpbenchmark.util.RandomGenerator;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class Q13 extends GenericQuery {
 
-    public final SQLStmt query_stmt = new SQLStmt("""
+  public final SQLStmt query_stmt =
+      new SQLStmt(
+          """
             SELECT
                c_count,
                COUNT(*) AS custdist
@@ -51,21 +52,22 @@ public class Q13 extends GenericQuery {
             ORDER BY
                custdist DESC,
                c_count DESC
-            """
-    );
+            """);
 
-    @Override
-    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
-        // WORD1 is randomly selected from 4 possible values: special, pending, unusual, express
-        String word1 = TPCHUtil.choice(new String[]{"special", "pending", "unusual", "express"}, rand);
+  @Override
+  protected PreparedStatement getStatement(
+      Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
+    // WORD1 is randomly selected from 4 possible values: special, pending, unusual, express
+    String word1 = TPCHUtil.choice(new String[] {"special", "pending", "unusual", "express"}, rand);
 
-        // WORD2 is randomly selected from 4 possible values: packages, requests, accounts, deposits
-        String word2 = TPCHUtil.choice(new String[]{"packages", "requests", "accounts", "deposits"}, rand);
+    // WORD2 is randomly selected from 4 possible values: packages, requests, accounts, deposits
+    String word2 =
+        TPCHUtil.choice(new String[] {"packages", "requests", "accounts", "deposits"}, rand);
 
-        String filter = "%" + word1 + "%" + word2 + "%";
+    String filter = "%" + word1 + "%" + word2 + "%";
 
-        PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
-        stmt.setString(1, filter);
-        return stmt;
-    }
+    PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
+    stmt.setString(1, filter);
+    return stmt;
+  }
 }

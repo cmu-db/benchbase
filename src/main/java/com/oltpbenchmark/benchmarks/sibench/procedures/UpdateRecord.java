@@ -17,25 +17,22 @@
 
 package com.oltpbenchmark.benchmarks.sibench.procedures;
 
+import static com.oltpbenchmark.benchmarks.sibench.SIConstants.TABLE_NAME;
+
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import static com.oltpbenchmark.benchmarks.sibench.SIConstants.TABLE_NAME;
-
 public class UpdateRecord extends Procedure {
-    public final SQLStmt updateStmt = new SQLStmt(
-            "UPDATE " + TABLE_NAME + " SET value = value + 1 WHERE id = ?"
-    );
+  public final SQLStmt updateStmt =
+      new SQLStmt("UPDATE " + TABLE_NAME + " SET value = value + 1 WHERE id = ?");
 
-    public void run(Connection conn, int id) throws SQLException {
-        try (PreparedStatement stmt = this.getPreparedStatement(conn, updateStmt)) {
-            stmt.setInt(1, id);
-            stmt.executeUpdate();
-        }
+  public void run(Connection conn, int id) throws SQLException {
+    try (PreparedStatement stmt = this.getPreparedStatement(conn, updateStmt)) {
+      stmt.setInt(1, id);
+      stmt.executeUpdate();
     }
-
+  }
 }

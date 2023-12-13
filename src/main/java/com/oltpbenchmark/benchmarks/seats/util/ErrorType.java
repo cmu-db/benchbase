@@ -15,7 +15,6 @@
  *
  */
 
-
 package com.oltpbenchmark.benchmarks.seats.util;
 
 /**
@@ -24,22 +23,22 @@ package com.oltpbenchmark.benchmarks.seats.util;
  * @author pavlo
  */
 public enum ErrorType {
-    INVALID_FLIGHT_ID,
-    INVALID_CUSTOMER_ID,
-    NO_MORE_SEATS,
-    SEAT_ALREADY_RESERVED,
-    CUSTOMER_ALREADY_HAS_SEAT,
-    VALIDITY_ERROR,
-    UNKNOWN;
+  INVALID_FLIGHT_ID,
+  INVALID_CUSTOMER_ID,
+  NO_MORE_SEATS,
+  SEAT_ALREADY_RESERVED,
+  CUSTOMER_ALREADY_HAS_SEAT,
+  VALIDITY_ERROR,
+  UNKNOWN;
 
-    private final String errorCode;
+  private final String errorCode;
 
-    ErrorType() {
-        this.errorCode = String.format("E%04d", this.ordinal());
-    }
+  ErrorType() {
+    this.errorCode = String.format("E%04d", this.ordinal());
+  }
 
-    @Override
-    public String toString() {
-        return this.errorCode;
-    }
+  @Override
+  public String toString() {
+    return this.errorCode;
+  }
 }

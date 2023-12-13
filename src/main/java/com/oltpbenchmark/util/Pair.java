@@ -37,68 +37,62 @@ package com.oltpbenchmark.util;
 import java.util.Objects;
 
 /**
- * Class representing a pair of generic-ized types. Supports equality, hashing
- * and all that other nice Java stuff. Based on STL's pair class in C++.
+ * Class representing a pair of generic-ized types. Supports equality, hashing and all that other
+ * nice Java stuff. Based on STL's pair class in C++.
  */
 public class Pair<T, U> implements Comparable<Pair<T, U>> {
 
-    public final T first;
-    public final U second;
-    private final transient Integer hash;
+  public final T first;
+  public final U second;
+  private final transient Integer hash;
 
-    public Pair(T first, U second, boolean precomputeHash) {
-        this.first = first;
-        this.second = second;
-        hash = (precomputeHash ? this.computeHashCode() : null);
+  public Pair(T first, U second, boolean precomputeHash) {
+    this.first = first;
+    this.second = second;
+    hash = (precomputeHash ? this.computeHashCode() : null);
+  }
+
+  public Pair(T first, U second) {
+    this(first, second, true);
+  }
+
+  private int computeHashCode() {
+    return (first == null ? 0 : first.hashCode() * 31) + (second == null ? 0 : second.hashCode());
+  }
+
+  public int hashCode() {
+    if (hash != null) {
+      return (hash);
+    }
+    return (this.computeHashCode());
+  }
+
+  public String toString() {
+    return String.format("<%s, %s>", first, second);
+  }
+
+  @Override
+  public int compareTo(Pair<T, U> other) {
+    return (other.hash - this.hash);
+  }
+
+  @SuppressWarnings("unchecked")
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
     }
 
-    public Pair(T first, U second) {
-        this(first, second, true);
+    if (o == null || !(o instanceof Pair)) {
+      return false;
     }
 
-    private int computeHashCode() {
-        return (first == null ? 0 : first.hashCode() * 31) +
-                (second == null ? 0 : second.hashCode());
-    }
+    Pair<T, U> other = (Pair<T, U>) o;
 
-    public int hashCode() {
-        if (hash != null) {
-            return (hash);
-        }
-        return (this.computeHashCode());
-    }
+    return (Objects.equals(first, other.first)) && (Objects.equals(second, other.second));
+  }
 
-    public String toString() {
-        return String.format("<%s, %s>", first, second);
-    }
-
-    @Override
-    public int compareTo(Pair<T, U> other) {
-        return (other.hash - this.hash);
-    }
-
-    @SuppressWarnings("unchecked")
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (o == null || !(o instanceof Pair)) {
-            return false;
-        }
-
-
-        Pair<T, U> other = (Pair<T, U>) o;
-
-        return (Objects.equals(first, other.first))
-                && (Objects.equals(second, other.second));
-    }
-
-    /**
-     * Convenience class method for constructing pairs using Java's generic type
-     * inference.
-     */
-    public static <T, U> Pair<T, U> of(T x, U y) {
-        return new Pair<>(x, y);
-    }
+  /** Convenience class method for constructing pairs using Java's generic type inference. */
+  public static <T, U> Pair<T, U> of(T x, U y) {
+    return new Pair<>(x, y);
+  }
 }
