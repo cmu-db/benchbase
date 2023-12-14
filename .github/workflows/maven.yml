@@ -474,7 +474,14 @@ jobs:
 
       - name: Run benchmark
         run: |
-          java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/cockroachdb/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
+          # For templated benchmarks, we need to preload some data for the test since by design, templated benchmarks do not support the 'load' operation
+          # In this case, we load the tpcc data.
+          if [[ ${{matrix.benchmark}} == templated ]]; then
+            java -jar benchbase.jar -b tpcc -c config/cockroachdb/sample_tpcc_config.xml --create=true --load=true --execute=false --json-histograms results/histograms.json
+            java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/cockroachdb/sample_${{matrix.benchmark}}_config.xml --create=false --load=false --execute=true --json-histograms results/histograms.json
+          else
+            java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/cockroachdb/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
+          fi
           # FIXME: Reduce the error rate so we don't need these overrides.
           # FIXME: Reduce the error rate so we don't need these overrides.
           results_benchmark=${{matrix.benchmark}}
