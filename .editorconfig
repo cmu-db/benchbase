@@ -19,3 +19,9 @@ end_of_line = lf
 
 [*.yml]
 indent_size = 2
+
+[*.java]
+# https://google.github.io/styleguide/javaguide.html#s4.2-block-indentation
+indent_size = 2
+# https://google.github.io/styleguide/javaguide.html#s4.4-column-limit
+max_line_length = 100

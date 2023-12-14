@@ -54,7 +54,10 @@ public abstract class GenericQuery extends Procedure {
       }
     } catch (Exception e) {
       e.printStackTrace();
-      throw new RuntimeException("Error when trying to execute statement");
+      throw new RuntimeException(
+          String.format(
+              "Error when trying to execute statement with params:\n%s\n%s",
+              this.getQueryTemplateInfo(), params));
     }
 
     conn.commit();
@@ -84,7 +87,8 @@ public abstract class GenericQuery extends Procedure {
       } else {
         try {
           // TODO: add support for nullable other types
-          // For instance, can we provide a <value /> tag in the XML file to represent a NULL value?
+          // For instance, can we provide a <value /> tag in the XML file to represent a
+          // NULL value?
           // Or does it need a special marker like "$null" to signify a NULL value?
           Object param = params.get(i);
           stmt.setObject(
