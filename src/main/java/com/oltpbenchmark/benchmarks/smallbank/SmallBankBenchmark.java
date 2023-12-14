@@ -25,55 +25,53 @@ import com.oltpbenchmark.benchmarks.smallbank.procedures.Amalgamate;
 import com.oltpbenchmark.catalog.Column;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
-
 import java.util.ArrayList;
 import java.util.List;
 
-public class SmallBankBenchmark extends BenchmarkModule {
+public final class SmallBankBenchmark extends BenchmarkModule {
 
-    protected final long numAccounts;
+  protected final long numAccounts;
 
-    public SmallBankBenchmark(WorkloadConfiguration workConf) {
-        super(workConf);
-        this.numAccounts = (int) Math.round(SmallBankConstants.NUM_ACCOUNTS * workConf.getScaleFactor());
+  public SmallBankBenchmark(WorkloadConfiguration workConf) {
+    super(workConf);
+    this.numAccounts =
+        (int) Math.round(SmallBankConstants.NUM_ACCOUNTS * workConf.getScaleFactor());
+  }
+
+  @Override
+  protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
+    List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
+    for (int i = 0; i < workConf.getTerminals(); ++i) {
+      workers.add(new SmallBankWorker(this, i));
+    }
+    return workers;
+  }
+
+  @Override
+  protected Loader<SmallBankBenchmark> makeLoaderImpl() {
+    return new SmallBankLoader(this);
+  }
+
+  @Override
+  protected Package getProcedurePackageImpl() {
+    return Amalgamate.class.getPackage();
+  }
+
+  /**
+   * For the given table, return the length of the first VARCHAR attribute
+   *
+   * @param acctsTbl
+   * @return
+   */
+  public static int getCustomerNameLength(Table acctsTbl) {
+    int acctNameLength = -1;
+    for (Column col : acctsTbl.getColumns()) {
+      if (SQLUtil.isStringType(col.getType())) {
+        acctNameLength = col.getSize();
+        break;
+      }
     }
 
-    @Override
-    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
-        List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
-        for (int i = 0; i < workConf.getTerminals(); ++i) {
-            workers.add(new SmallBankWorker(this, i));
-        }
-        return workers;
-    }
-
-    @Override
-    protected Loader<SmallBankBenchmark> makeLoaderImpl() {
-        return new SmallBankLoader(this);
-    }
-
-    @Override
-    protected Package getProcedurePackageImpl() {
-        return Amalgamate.class.getPackage();
-    }
-
-
-    /**
-     * For the given table, return the length of the first VARCHAR attribute
-     *
-     * @param acctsTbl
-     * @return
-     */
-    public static int getCustomerNameLength(Table acctsTbl) {
-        int acctNameLength = -1;
-        for (Column col : acctsTbl.getColumns()) {
-            if (SQLUtil.isStringType(col.getType())) {
-                acctNameLength = col.getSize();
-                break;
-            }
-        }
-
-        return (acctNameLength);
-    }
-
+    return (acctNameLength);
+  }
 }

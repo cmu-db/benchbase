@@ -7,6 +7,7 @@
     <url>jdbc:postgresql://localhost:26257/benchbase?sslmode=disable&amp;ApplicationName=otmetrics&amp;reWriteBatchedInserts=true</url>
     <username>admin</username>
     <password>password</password>
+    <reconnectOnConnectionFailure>true</reconnectOnConnectionFailure>
     <retries>4</retries>
 
     <batchsize>2048</batchsize>

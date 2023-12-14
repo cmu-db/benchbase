@@ -26,49 +26,47 @@ import java.util.Objects;
  * @author pavlo
  */
 public abstract class AbstractCatalogObject implements Serializable {
-    static final long serialVersionUID = 0;
+  static final long serialVersionUID = 0;
 
-    protected final String name;
-    protected final String separator;
+  protected final String name;
+  protected final String separator;
 
-    public AbstractCatalogObject(String name, String separator) {
-        this.name = name;
-        this.separator = separator;
+  public AbstractCatalogObject(String name, String separator) {
+    this.name = name;
+    this.separator = separator;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public String getSeparator() {
+    return separator;
+  }
+
+  public final String getEscapedName() {
+
+    if (separator != null) {
+      return separator + this.name + separator;
+    } else {
+      return this.name;
     }
+  }
 
-    public String getName() {
-        return name;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
     }
-
-    public String getSeparator() {
-        return separator;
+    if (o == null || getClass() != o.getClass()) {
+      return false;
     }
+    AbstractCatalogObject that = (AbstractCatalogObject) o;
+    return Objects.equals(name, that.name) && Objects.equals(separator, that.separator);
+  }
 
-    public final String getEscapedName() {
-
-        if (separator != null) {
-            return separator + this.name + separator;
-        } else {
-            return this.name;
-        }
-
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        AbstractCatalogObject that = (AbstractCatalogObject) o;
-        return Objects.equals(name, that.name) &&
-                Objects.equals(separator, that.separator);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, separator);
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(name, separator);
+  }
 }

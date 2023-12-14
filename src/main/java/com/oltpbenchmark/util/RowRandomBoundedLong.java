@@ -1,6 +1,6 @@
 /*
  * Copyright 2020 Trino
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,49 +16,50 @@
 package com.oltpbenchmark.util;
 
 public class RowRandomBoundedLong {
-    private final RowRandomLong randomLong;
-    private final RowRandomInt randomInt;
+  private final RowRandomLong randomLong;
+  private final RowRandomInt randomInt;
 
-    private final long lowValue;
-    private final long highValue;
+  private final long lowValue;
+  private final long highValue;
 
-    public RowRandomBoundedLong(long seed, boolean use64Bits, long lowValue, long highValue) {
-        this(seed, use64Bits, lowValue, highValue, 1);
+  public RowRandomBoundedLong(long seed, boolean use64Bits, long lowValue, long highValue) {
+    this(seed, use64Bits, lowValue, highValue, 1);
+  }
+
+  public RowRandomBoundedLong(
+      long seed, boolean use64Bits, long lowValue, long highValue, int seedsPerRow) {
+    if (use64Bits) {
+      this.randomLong = new RowRandomLong(seed, seedsPerRow);
+      this.randomInt = null;
+    } else {
+      this.randomLong = null;
+      this.randomInt = new RowRandomInt(seed, seedsPerRow);
     }
 
-    public RowRandomBoundedLong(long seed, boolean use64Bits, long lowValue, long highValue, int seedsPerRow) {
-        if (use64Bits) {
-            this.randomLong = new RowRandomLong(seed, seedsPerRow);
-            this.randomInt = null;
-        } else {
-            this.randomLong = null;
-            this.randomInt = new RowRandomInt(seed, seedsPerRow);
-        }
+    this.lowValue = lowValue;
+    this.highValue = highValue;
+  }
 
-        this.lowValue = lowValue;
-        this.highValue = highValue;
+  public long nextValue() {
+    if (randomLong != null) {
+      return randomLong.nextLong(lowValue, highValue);
     }
+    return randomInt.nextInt((int) lowValue, (int) highValue);
+  }
 
-    public long nextValue() {
-        if (randomLong != null) {
-            return randomLong.nextLong(lowValue, highValue);
-        }
-        return randomInt.nextInt((int) lowValue, (int) highValue);
+  public void rowFinished() {
+    if (randomLong != null) {
+      randomLong.rowFinished();
+    } else {
+      randomInt.rowFinished();
     }
+  }
 
-    public void rowFinished() {
-        if (randomLong != null) {
-            randomLong.rowFinished();
-        } else {
-            randomInt.rowFinished();
-        }
+  public void advanceRows(long rowCount) {
+    if (randomLong != null) {
+      randomLong.advanceRows(rowCount);
+    } else {
+      randomInt.advanceRows(rowCount);
     }
-
-    public void advanceRows(long rowCount) {
-        if (randomLong != null) {
-            randomLong.advanceRows(rowCount);
-        } else {
-            randomInt.advanceRows(rowCount);
-        }
-    }
+  }
 }

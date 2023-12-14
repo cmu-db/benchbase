@@ -19,43 +19,41 @@ package com.oltpbenchmark.distributions;
 
 import java.util.Random;
 
-/**
- * Utility functions.
- */
+/** Utility functions. */
 public class Utils {
-    private static final Random rand = new Random();
-    private static final ThreadLocal<Random> rng = new ThreadLocal<>();
+  private static final Random rand = new Random();
+  private static final ThreadLocal<Random> rng = new ThreadLocal<>();
 
-    public static Random random() {
-        Random ret = rng.get();
-        if (ret == null) {
-            ret = new Random(rand.nextLong());
-            rng.set(ret);
-        }
-        return ret;
+  public static Random random() {
+    Random ret = rng.get();
+    if (ret == null) {
+      ret = new Random(rand.nextLong());
+      rng.set(ret);
     }
+    return ret;
+  }
 
-    public static final long FNV_offset_basis_64 = 0xCBF29CE484222325L;
-    public static final long FNV_prime_64 = 1099511628211L;
+  public static final long FNV_offset_basis_64 = 0xCBF29CE484222325L;
+  public static final long FNV_prime_64 = 1099511628211L;
 
-    /**
-     * 64 bit FNV hash. Produces more "random" hashes than (say) String.hashCode().
-     *
-     * @param val The value to hash.
-     * @return The hash value
-     */
-    public static long FNVhash64(long val) {
-        //from http://en.wikipedia.org/wiki/Fowler_Noll_Vo_hash
-        long hashval = FNV_offset_basis_64;
+  /**
+   * 64 bit FNV hash. Produces more "random" hashes than (say) String.hashCode().
+   *
+   * @param val The value to hash.
+   * @return The hash value
+   */
+  public static long FNVhash64(long val) {
+    // from http://en.wikipedia.org/wiki/Fowler_Noll_Vo_hash
+    long hashval = FNV_offset_basis_64;
 
-        for (int i = 0; i < 8; i++) {
-            long octet = val & 0x00ff;
-            val = val >> 8;
+    for (int i = 0; i < 8; i++) {
+      long octet = val & 0x00ff;
+      val = val >> 8;
 
-            hashval = hashval ^ octet;
-            hashval = hashval * FNV_prime_64;
-            //hashval = hashval ^ octet;
-        }
-        return Math.abs(hashval);
+      hashval = hashval ^ octet;
+      hashval = hashval * FNV_prime_64;
+      // hashval = hashval ^ octet;
     }
+    return Math.abs(hashval);
+  }
 }

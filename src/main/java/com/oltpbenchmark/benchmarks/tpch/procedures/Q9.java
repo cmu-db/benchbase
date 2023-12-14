@@ -21,14 +21,15 @@ import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.tpch.TPCHConstants;
 import com.oltpbenchmark.benchmarks.tpch.TPCHUtil;
 import com.oltpbenchmark.util.RandomGenerator;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class Q9 extends GenericQuery {
 
-    public final SQLStmt query_stmt = new SQLStmt("""
+  public final SQLStmt query_stmt =
+      new SQLStmt(
+          """
             SELECT
                nation,
                o_year,
@@ -64,18 +65,19 @@ public class Q9 extends GenericQuery {
             ORDER BY
                nation,
                o_year DESC
-            """
-    );
+            """);
 
-    @Override
-    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
-        // COLOR is randomly selected within the list of values defined for the generation of P_NAME in Clause 4.2.3
-        String color = "%" + TPCHUtil.choice(TPCHConstants.P_NAME_GENERATOR, rand) + "%";
+  @Override
+  protected PreparedStatement getStatement(
+      Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
+    // COLOR is randomly selected within the list of values defined for the generation of P_NAME in
+    // Clause 4.2.3
+    String color = "%" + TPCHUtil.choice(TPCHConstants.P_NAME_GENERATOR, rand) + "%";
 
-        LOG.debug("attempting to execute sql [{}] for color [{}]", query_stmt.getSQL(), color);
+    LOG.debug("attempting to execute sql [{}] for color [{}]", query_stmt.getSQL(), color);
 
-        PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
-        stmt.setString(1, color);
-        return stmt;
-    }
+    PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
+    stmt.setString(1, color);
+    return stmt;
+  }
 }

@@ -15,33 +15,31 @@
  *
  */
 
-
 package com.oltpbenchmark.benchmarks.twitter.util;
 
 import com.oltpbenchmark.api.TransactionGenerator;
 import com.oltpbenchmark.distributions.CounterGenerator;
-
 import java.util.List;
 
 public class TraceTransactionGenerator implements TransactionGenerator<TwitterOperation> {
-    private static CounterGenerator nextInTrace;
-    private final List<TwitterOperation> transactions;
+  private static CounterGenerator nextInTrace;
+  private final List<TwitterOperation> transactions;
 
-    /**
-     * @param transactions a list of transactions shared between threads.
-     */
-    public TraceTransactionGenerator(List<TwitterOperation> transactions) {
-        this.transactions = transactions;
-        nextInTrace = new CounterGenerator(transactions.size());
-    }
+  /**
+   * @param transactions a list of transactions shared between threads.
+   */
+  public TraceTransactionGenerator(List<TwitterOperation> transactions) {
+    this.transactions = transactions;
+    nextInTrace = new CounterGenerator(transactions.size());
+  }
 
-    @Override
-    public TwitterOperation nextTransaction() {
-        try {
-            return transactions.get(nextInTrace.nextInt());
-        } catch (IndexOutOfBoundsException id) {
-            nextInTrace.reset();
-            return transactions.get(nextInTrace.nextInt());
-        }
+  @Override
+  public TwitterOperation nextTransaction() {
+    try {
+      return transactions.get(nextInTrace.nextInt());
+    } catch (IndexOutOfBoundsException id) {
+      nextInTrace.reset();
+      return transactions.get(nextInTrace.nextInt());
     }
+  }
 }

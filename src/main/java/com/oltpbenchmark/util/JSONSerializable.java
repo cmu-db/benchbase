@@ -17,19 +17,19 @@
 
 package com.oltpbenchmark.util;
 
+import java.io.IOException;
+import java.io.Serializable;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONString;
 import org.json.JSONStringer;
 
-import java.io.IOException;
+public interface JSONSerializable extends JSONString, Serializable {
+  void save(String output_path) throws IOException;
 
-public interface JSONSerializable extends JSONString {
-    void save(String output_path) throws IOException;
+  void load(String input_path) throws IOException;
 
-    void load(String input_path) throws IOException;
+  void toJSON(JSONStringer stringer) throws JSONException;
 
-    void toJSON(JSONStringer stringer) throws JSONException;
-
-    void fromJSON(JSONObject json_object) throws JSONException;
+  void fromJSON(JSONObject json_object) throws JSONException;
 }

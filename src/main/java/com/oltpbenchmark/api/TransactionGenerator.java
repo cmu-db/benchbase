@@ -17,10 +17,7 @@
 
 package com.oltpbenchmark.api;
 
-
 public interface TransactionGenerator<T extends Operation> {
-    /**
-     * Implementations *must* be thread-safe.
-     */
-    T nextTransaction();
+  /** Implementations *must* be thread-safe. */
+  T nextTransaction();
 }

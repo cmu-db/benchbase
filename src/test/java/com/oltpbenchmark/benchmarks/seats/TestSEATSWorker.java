@@ -18,19 +18,17 @@ package com.oltpbenchmark.benchmarks.seats;
 
 import com.oltpbenchmark.api.AbstractTestWorker;
 import com.oltpbenchmark.api.Procedure;
-
 import java.util.List;
 
 public class TestSEATSWorker extends AbstractTestWorker<SEATSBenchmark> {
 
-    @Override
-    public List<Class<? extends Procedure>> procedures() {
-        return TestSEATSBenchmark.PROCEDURE_CLASSES;
-    }
+  @Override
+  public List<Class<? extends Procedure>> procedures() {
+    return TestSEATSBenchmark.PROCEDURE_CLASSES;
+  }
 
-    @Override
-    public Class<SEATSBenchmark> benchmarkClass() {
-        return SEATSBenchmark.class;
-    }
-
+  @Override
+  public Class<SEATSBenchmark> benchmarkClass() {
+    return SEATSBenchmark.class;
+  }
 }

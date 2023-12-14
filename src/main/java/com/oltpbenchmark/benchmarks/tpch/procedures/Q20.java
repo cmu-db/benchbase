@@ -21,7 +21,6 @@ import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.tpch.TPCHConstants;
 import com.oltpbenchmark.benchmarks.tpch.TPCHUtil;
 import com.oltpbenchmark.util.RandomGenerator;
-
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -29,7 +28,9 @@ import java.sql.SQLException;
 
 public class Q20 extends GenericQuery {
 
-    public final SQLStmt query_stmt = new SQLStmt("""
+  public final SQLStmt query_stmt =
+      new SQLStmt(
+          """
             SELECT
                s_name,
                s_address
@@ -68,26 +69,26 @@ public class Q20 extends GenericQuery {
                AND n_name = ?
             ORDER BY
                s_name
-            """
-    );
+            """);
 
-    @Override
-    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
-        // COLOR is randomly selected within the list of values defined for the generation of P_NAME
-        String color = TPCHUtil.choice(TPCHConstants.P_NAME_GENERATOR, rand) + "%";
+  @Override
+  protected PreparedStatement getStatement(
+      Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
+    // COLOR is randomly selected within the list of values defined for the generation of P_NAME
+    String color = TPCHUtil.choice(TPCHConstants.P_NAME_GENERATOR, rand) + "%";
 
-        // DATE is the first of January of a randomly selected year within 1993..1997
-        int year = rand.number(1993, 1997);
-        String date = String.format("%d-01-01", year);
+    // DATE is the first of January of a randomly selected year within 1993..1997
+    int year = rand.number(1993, 1997);
+    String date = String.format("%d-01-01", year);
 
-        // NATION is randomly selected within the list of values defined for N_NAME in Clause 4.2.3
-        String nation = TPCHUtil.choice(TPCHConstants.N_NAME, rand);
+    // NATION is randomly selected within the list of values defined for N_NAME in Clause 4.2.3
+    String nation = TPCHUtil.choice(TPCHConstants.N_NAME, rand);
 
-        PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
-        stmt.setString(1, color);
-        stmt.setDate(2, Date.valueOf(date));
-        stmt.setDate(3, Date.valueOf(date));
-        stmt.setString(4, nation);
-        return stmt;
-    }
+    PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
+    stmt.setString(1, color);
+    stmt.setDate(2, Date.valueOf(date));
+    stmt.setDate(3, Date.valueOf(date));
+    stmt.setString(4, nation);
+    return stmt;
+  }
 }

@@ -22,25 +22,24 @@ import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.chbenchmark.queries.GenericQuery;
 import com.oltpbenchmark.types.TransactionStatus;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class CHBenCHmarkWorker extends Worker<CHBenCHmark> {
-    public CHBenCHmarkWorker(CHBenCHmark benchmarkModule, int id) {
-        super(benchmarkModule, id);
+public final class CHBenCHmarkWorker extends Worker<CHBenCHmark> {
+  public CHBenCHmarkWorker(CHBenCHmark benchmarkModule, int id) {
+    super(benchmarkModule, id);
+  }
+
+  @Override
+  protected TransactionStatus executeWork(Connection conn, TransactionType nextTransaction)
+      throws UserAbortException, SQLException {
+    try {
+      GenericQuery proc = (GenericQuery) this.getProcedure(nextTransaction.getProcedureClass());
+      proc.run(conn);
+    } catch (ClassCastException e) {
+      throw new RuntimeException(e);
     }
 
-    @Override
-    protected TransactionStatus executeWork(Connection conn, TransactionType nextTransaction) throws UserAbortException, SQLException {
-        try {
-            GenericQuery proc = (GenericQuery) this.getProcedure(nextTransaction.getProcedureClass());
-            proc.run(conn);
-        } catch (ClassCastException e) {
-            throw new RuntimeException(e);
-        }
-
-        return (TransactionStatus.SUCCESS);
-
-    }
+    return (TransactionStatus.SUCCESS);
+  }
 }

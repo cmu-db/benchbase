@@ -15,24 +15,19 @@
  *
  */
 
-
 package com.oltpbenchmark.benchmarks.twitter.util;
 
 import com.oltpbenchmark.api.Operation;
 
-/**
- * Immutable class containing information about transactions.
- */
+/** Immutable class containing information about transactions. */
 public final class TwitterOperation extends Operation {
 
-    public final int tweetid;
-    public int uid;
+  public final int tweetid;
+  public int uid;
 
-    public TwitterOperation(int tweetid, int uid) {
-        super();
-        this.tweetid = tweetid;
-        this.uid = uid;
-    }
-
-
+  public TwitterOperation(int tweetid, int uid) {
+    super();
+    this.tweetid = tweetid;
+    this.uid = uid;
+  }
 }

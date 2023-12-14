@@ -15,13 +15,10 @@
  *
  */
 
-
 package com.oltpbenchmark.util;
 
-
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.stream.IntStream;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Pack multiple values into a single long using bit-shifting
@@ -30,43 +27,41 @@ import java.util.stream.IntStream;
  */
 public abstract class CompositeId {
 
-    private static final String PAD_STRING = "0";
-    public static final int INT_MAX_DIGITS = 10;
-    public static final int LONG_MAX_DIGITS = 19;
+  private static final String PAD_STRING = "0";
+  public static final int INT_MAX_DIGITS = 10;
+  public static final int LONG_MAX_DIGITS = 19;
 
-    protected final String encode(int[] offset_bits) {
-        int encodedStringSize = IntStream.of(offset_bits).sum();
-        StringBuilder compositeBuilder = new StringBuilder(encodedStringSize);
+  protected final String encode(int[] offset_bits) {
+    int encodedStringSize = IntStream.of(offset_bits).sum();
+    StringBuilder compositeBuilder = new StringBuilder(encodedStringSize);
 
-        String[] decodedValues = this.toArray();
-        for (int i = 0; i < decodedValues.length; i++) {
-            String value = decodedValues[i];
-            int valueLength = offset_bits[i];
-            String encodedValue = StringUtils.leftPad(value, valueLength, PAD_STRING);
-            compositeBuilder.append(encodedValue);
-        }
-
-        return compositeBuilder.toString();
+    String[] decodedValues = this.toArray();
+    for (int i = 0; i < decodedValues.length; i++) {
+      String value = decodedValues[i];
+      int valueLength = offset_bits[i];
+      String encodedValue = StringUtils.leftPad(value, valueLength, PAD_STRING);
+      compositeBuilder.append(encodedValue);
     }
 
-    protected final String[] decode(String composite_id, int[] offset_bits) {
-        String[] decodedValues = new String[offset_bits.length];
+    return compositeBuilder.toString();
+  }
 
-        int start = 0;
-        for (int i = 0; i < decodedValues.length; i++) {
-            int valueLength = offset_bits[i];
-            int end = start + valueLength;
-            decodedValues[i] = StringUtils.substring(composite_id, start, end);
-            start = end;
-        }
-        return decodedValues;
+  protected final String[] decode(String composite_id, int[] offset_bits) {
+    String[] decodedValues = new String[offset_bits.length];
+
+    int start = 0;
+    for (int i = 0; i < decodedValues.length; i++) {
+      int valueLength = offset_bits[i];
+      int end = start + valueLength;
+      decodedValues[i] = StringUtils.substring(composite_id, start, end);
+      start = end;
     }
+    return decodedValues;
+  }
 
-    public abstract String encode();
+  public abstract String encode();
 
-    public abstract void decode(String composite_id);
+  public abstract void decode(String composite_id);
 
-    public abstract String[] toArray();
-
-
+  public abstract String[] toArray();
 }

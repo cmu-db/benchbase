@@ -21,42 +21,44 @@ import java.util.Objects;
 
 public class ItemCommentResponse {
 
-    private final Long commentId;
-    private final String itemId;
-    private final String sellerId;
+  private final Long commentId;
+  private final String itemId;
+  private final String sellerId;
 
-    public ItemCommentResponse(Long commentId, String itemId, String sellerId) {
-        this.commentId = commentId;
-        this.itemId = itemId;
-        this.sellerId = sellerId;
-    }
+  public ItemCommentResponse(Long commentId, String itemId, String sellerId) {
+    this.commentId = commentId;
+    this.itemId = itemId;
+    this.sellerId = sellerId;
+  }
 
-    public Long getCommentId() {
-        return commentId;
-    }
+  public Long getCommentId() {
+    return commentId;
+  }
 
-    public String getItemId() {
-        return itemId;
-    }
+  public String getItemId() {
+    return itemId;
+  }
 
-    public String getSellerId() {
-        return sellerId;
-    }
+  public String getSellerId() {
+    return sellerId;
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        ItemCommentResponse that = (ItemCommentResponse) o;
-        return Objects.equals(commentId, that.commentId) && Objects.equals(itemId, that.itemId) && Objects.equals(sellerId, that.sellerId);
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
     }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    ItemCommentResponse that = (ItemCommentResponse) o;
+    return Objects.equals(commentId, that.commentId)
+        && Objects.equals(itemId, that.itemId)
+        && Objects.equals(sellerId, that.sellerId);
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(commentId, itemId, sellerId);
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(commentId, itemId, sellerId);
+  }
 }

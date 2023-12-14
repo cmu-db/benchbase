@@ -18,27 +18,24 @@ package com.oltpbenchmark.benchmarks.otmetrics;
 
 import com.oltpbenchmark.api.AbstractTestLoader;
 import com.oltpbenchmark.api.Procedure;
-
 import java.util.List;
 
 public class TestOTMetricsLoader extends AbstractTestLoader<OTMetricsBenchmark> {
 
-    private static final String[] IGNORE = {
+  private static final String[] IGNORE = {};
 
-    };
+  @Override
+  public List<Class<? extends Procedure>> procedures() {
+    return TestOTMetricsBenchmark.PROCEDURE_CLASSES;
+  }
 
-    @Override
-    public List<Class<? extends Procedure>> procedures() {
-        return TestOTMetricsBenchmark.PROCEDURE_CLASSES;
-    }
+  @Override
+  public Class<OTMetricsBenchmark> benchmarkClass() {
+    return OTMetricsBenchmark.class;
+  }
 
-    @Override
-    public Class<OTMetricsBenchmark> benchmarkClass() {
-        return OTMetricsBenchmark.class;
-    }
-
-    @Override
-    public List<String> ignorableTables() {
-        return List.of(IGNORE);
-    }
+  @Override
+  public List<String> ignorableTables() {
+    return List.of(IGNORE);
+  }
 }

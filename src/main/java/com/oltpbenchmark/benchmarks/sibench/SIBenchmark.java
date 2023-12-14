@@ -24,59 +24,57 @@ import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.sibench.procedures.UpdateRecord;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class SIBenchmark extends BenchmarkModule {
+public final class SIBenchmark extends BenchmarkModule {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SIBenchmark.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SIBenchmark.class);
 
-    public SIBenchmark(WorkloadConfiguration workConf) {
-        super(workConf);
+  public SIBenchmark(WorkloadConfiguration workConf) {
+    super(workConf);
+  }
+
+  @Override
+  protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
+    List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
+
+    Table t = this.getCatalog().getTable("SITEST");
+
+    String recordCount = SQLUtil.getMaxColSQL(this.workConf.getDatabaseType(), t, "id");
+
+    try (Connection metaConn = this.makeConnection();
+        Statement stmt = metaConn.createStatement();
+        ResultSet res = stmt.executeQuery(recordCount)) {
+
+      int init_record_count = 0;
+      while (res.next()) {
+        init_record_count = res.getInt(1);
+      }
+
+      for (int i = 0; i < workConf.getTerminals(); ++i) {
+        workers.add(new SIWorker(this, i, init_record_count));
+      }
+
+    } catch (SQLException e) {
+      LOG.error(e.getMessage(), e);
     }
+    return workers;
+  }
 
-    @Override
-    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
-        List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
+  @Override
+  protected Loader<SIBenchmark> makeLoaderImpl() {
+    return new SILoader(this);
+  }
 
-        Table t = this.getCatalog().getTable("SITEST");
-
-        String recordCount = SQLUtil.getMaxColSQL(this.workConf.getDatabaseType(), t, "id");
-
-        try (Connection metaConn = this.makeConnection();
-             Statement stmt = metaConn.createStatement();
-             ResultSet res = stmt.executeQuery(recordCount)) {
-
-            int init_record_count = 0;
-            while (res.next()) {
-                init_record_count = res.getInt(1);
-            }
-
-            for (int i = 0; i < workConf.getTerminals(); ++i) {
-                workers.add(new SIWorker(this, i, init_record_count));
-            }
-
-        } catch (SQLException e) {
-            LOG.error(e.getMessage(), e);
-        }
-        return workers;
-    }
-
-    @Override
-    protected Loader<SIBenchmark> makeLoaderImpl() {
-        return new SILoader(this);
-    }
-
-    @Override
-    protected Package getProcedurePackageImpl() {
-        return UpdateRecord.class.getPackage();
-    }
-
+  @Override
+  protected Package getProcedurePackageImpl() {
+    return UpdateRecord.class.getPackage();
+  }
 }

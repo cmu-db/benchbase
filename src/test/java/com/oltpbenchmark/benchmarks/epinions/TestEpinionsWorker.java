@@ -14,24 +14,21 @@
  *  limitations under the License.                                            *
  ******************************************************************************/
 
-
 package com.oltpbenchmark.benchmarks.epinions;
 
 import com.oltpbenchmark.api.AbstractTestWorker;
 import com.oltpbenchmark.api.Procedure;
-
 import java.util.List;
 
 public class TestEpinionsWorker extends AbstractTestWorker<EpinionsBenchmark> {
 
-    @Override
-    public List<Class<? extends Procedure>> procedures() {
-        return TestEpinionsBenchmark.PROCEDURE_CLASSES;
-    }
+  @Override
+  public List<Class<? extends Procedure>> procedures() {
+    return TestEpinionsBenchmark.PROCEDURE_CLASSES;
+  }
 
-    @Override
-    public Class<EpinionsBenchmark> benchmarkClass() {
-        return EpinionsBenchmark.class;
-    }
-
+  @Override
+  public Class<EpinionsBenchmark> benchmarkClass() {
+    return EpinionsBenchmark.class;
+  }
 }
