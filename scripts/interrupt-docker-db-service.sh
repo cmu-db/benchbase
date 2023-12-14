@@ -15,6 +15,10 @@ DELAY=${4:-1}
 if [ -z "$SERVICE_NAME" ]; then
     echo "ERROR: Missing SERVICE_NAME (e.g., mysql, postgres, sqlserver, etc.)" >&2
     exit 1
+elif [ "$SERVICE_NAME" == 'cockroachdb' ]; then
+    # FIXME: TODO: Unclear how to do this for cockroachdb yet since it's multi node.
+    echo "ERROR: Not (currently) supported for cockroachdb." >&2
+    exit 1
 elif [ "$SERVICE_NAME" == 'sqlite' ]; then
     echo "ERROR: Not supported for sqlite." >&2
     exit 1
