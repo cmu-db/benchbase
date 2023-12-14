@@ -25,8 +25,10 @@ import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.types.State;
 import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.Histogram;
+import com.oltpbenchmark.util.SQLUtil;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.SQLRecoverableException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
@@ -397,6 +399,9 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
         if (this.conn == null) {
           try {
+            if (!this.configuration.getNewConnectionPerTxn()) {
+              LOG.info("(Re)connecting to database.");
+            }
             this.conn = this.benchmark.makeConnection();
             this.conn.setAutoCommit(false);
             this.conn.setTransactionIsolation(this.configuration.getIsolationMode());
@@ -432,7 +437,13 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
           break;
 
         } catch (UserAbortException ex) {
-          conn.rollback();
+          try {
+            conn.rollback();
+          } catch (SQLException ex2) {
+            LOG.error("SQLException caught while rolling back transaction.", ex2);
+            // force a reconnection
+            conn = null;
+          }
 
           ABORT_LOG.debug(String.format("%s Aborted", transactionType), ex);
 
@@ -441,9 +452,120 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
           break;
 
         } catch (SQLException ex) {
-          conn.rollback();
+          // check if we should attempt to ignore connection errors and reconnect
+          boolean isConnectionErrorException = SQLUtil.isConnectionErrorException(ex);
 
-          if (isRetryable(ex)) {
+          if (indicatesReadOnly(ex)) {
+            if (SQLUtil.isConnectionOK(conn)) {
+              conn.setReadOnly(true);
+            }
+          }
+
+          // if the connection is closed, we can't rollback
+          if (!isConnectionErrorException && SQLUtil.isConnectionOK(conn)) {
+            // if the error is that we're attempting a write transaction to a read-only secondary,
+            // then we can't rollback anyways, so don't bother trying
+            if (conn.isReadOnly()) {
+              // in that case, we should close the connection and possibly try again
+              LOG.debug(
+                  String.format(
+                      "Won't attempt a rollback since the SQL connection looks read-only during [%s]... current retry attempt [%d], max retry attempts [%d], sql state [%s], error code [%d].",
+                      transactionType,
+                      retryCount,
+                      maxRetryCount,
+                      ex.getSQLState(),
+                      ex.getErrorCode()),
+                  ex);
+              try {
+                conn.close();
+              } catch (SQLException ex2) {
+                LOG.error("SQLException caught while closing connection.", ex2);
+              }
+              // force a reconnection
+              conn = null;
+            }
+            // otherwise, we should attempt a rollback
+            else {
+              LOG.debug(
+                  String.format(
+                      "Attempting a rollback since a problem was detected during [%s]... current retry attempt [%d], max retry attempts [%d], sql state [%s], error code [%d].",
+                      transactionType,
+                      retryCount,
+                      maxRetryCount,
+                      ex.getSQLState(),
+                      ex.getErrorCode()),
+                  ex);
+              try {
+                conn.rollback();
+              } catch (SQLException ex2) {
+                LOG.error("SQLException caught while attempting to rollback transaction.", ex2);
+                // force a reconnection
+                conn = null;
+              }
+            }
+          }
+          // connection is closed, try a reconnect
+          else {
+            if (this.configuration.getReconnectOnConnectionFailure()) {
+              LOG.debug(
+                  String.format(
+                      "Won't attempt a rollback since a problem with the SQL connection was detected during [%s]... current retry attempt [%d], max retry attempts [%d], sql state [%s], error code [%d].",
+                      transactionType,
+                      retryCount,
+                      maxRetryCount,
+                      ex.getSQLState(),
+                      ex.getErrorCode()),
+                  ex);
+            } else {
+              // old behavior, will likley result in an exception thrown
+              // and an aborted benchmark due to the connection problem
+              LOG.debug(
+                  String.format(
+                      "Attempting a rollback since a problem was detected during [%s] (despite connection error detection - see reconnectOnConnectionFailure setting)... current retry attempt [%d], max retry attempts [%d], sql state [%s], error code [%d].",
+                      transactionType,
+                      retryCount,
+                      maxRetryCount,
+                      ex.getSQLState(),
+                      ex.getErrorCode()),
+                  ex);
+              try {
+                conn.rollback();
+              } catch (SQLException ex2) {
+                LOG.error("SQLException caught while attempting to rollback transaction.", ex2);
+                // force a reconnection
+                conn = null;
+              }
+            }
+          }
+
+          // check the connection (after possible reconnection) again
+          if ((isConnectionErrorException || !SQLUtil.isConnectionOK(conn))
+              && this.configuration.getReconnectOnConnectionFailure()) {
+            LOG.debug(
+                String.format(
+                    "Retryable SQL connection exception occurred during [%s]... current retry attempt [%d], max retry attempts [%d], sql state [%s], error code [%d].",
+                    transactionType,
+                    retryCount,
+                    maxRetryCount,
+                    ex.getSQLState(),
+                    ex.getErrorCode()),
+                ex);
+
+            // force a reconnection
+            try {
+              if (conn != null) {
+                conn.close();
+              }
+            } catch (Exception e) {
+              LOG.warn("Failed to close faulty connection (somewhat expected).", e);
+            } finally {
+              conn = null;
+            }
+
+            status = TransactionStatus.RETRY_DIFFERENT;
+
+            retryCount++;
+          } else if (isRetryable(ex)) {
             LOG.debug(
                 String.format(
                     "Retryable SQLException occurred during [%s]... current retry attempt [%d], max retry attempts [%d], sql state [%s], error code [%d].",
@@ -468,7 +590,6 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
             break;
           }
-
         } finally {
           if (this.configuration.getNewConnectionPerTxn() && this.conn != null) {
             try {
@@ -499,6 +620,43 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
     }
   }
 
+  /**
+   * Checks to see if the exception indicates that the current connection is read-only.
+   *
+   * @param ex
+   * @return
+   */
+  private boolean indicatesReadOnly(SQLException ex) {
+    String sqlState = ex.getSQLState();
+    int errorCode = ex.getErrorCode();
+
+    LOG.debug("sql state [{}] and error code [{}]", sqlState, errorCode);
+
+    if (sqlState == null) {
+      return false;
+    }
+
+    // ------------------
+    // SqlServer: "SELECT TOP 10 * FROM sys.messages"
+    // ------------------
+    if (errorCode == 3906 && sqlState.equals("S0002")) {
+      return true;
+    }
+
+    // ------------------
+    // MYSQL:
+    // https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-reference-error-sqlstates.html
+    // ------------------
+    // TODO
+
+    // ------------------
+    // POSTGRES: https://www.postgresql.org/docs/current/errcodes-appendix.html
+    // ------------------
+    // TODO
+
+    return false;
+  }
+
   private boolean isRetryable(SQLException ex) {
 
     String sqlState = ex.getSQLState();
@@ -508,6 +666,21 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
     if (sqlState == null) {
       return false;
+    }
+
+    if (ex instanceof SQLRecoverableException) {
+      return true;
+    }
+
+    // ------------------
+    // SqlServer: "SELECT TOP 10 * FROM sys.messages"
+    // ------------------
+    if (errorCode == 12222 && sqlState.equals("S0051")) {
+      // Lock request time out period exceeded.
+      return true;
+    } else if (errorCode == 0 && sqlState.equals("HY008")) {
+      // The query has timed out.
+      return true;
     }
 
     // ------------------
