@@ -42,16 +42,17 @@ if ! type xmllint 2>/dev/null; then
 fi
 
 # FIXME: Doesn't currently handle multiple workloads.
-runtime=$(xmllint --xpath '//works/work/time/text()' "$config_file" || true)
+expected_runtime=$(xmllint --xpath '//works/work/time/text()' "$config_file" || true)
 # TODO: include warmup?
 
-if [ -z "$runtime" ]; then
+if [ -z "$expected_runtime" ]; then
     # FIXME: Doesn't currently handle serial benchmarks.
     echo "ERROR: Failed to find expected runtime in config file: $config_file" >&2
     exit 1
 fi
 
-if ! cat "$summary_json" | jq -e '(.["Elapsed Time (nanoseconds)"] / 1000000000 | round) >= '$runtime; then
-    echo "ERROR: Benchmark runtime is too short or failed to parse output." >&2
+elapsed_time=$(cat "$summary_json" | jq -e '(.["Elapsed Time (nanoseconds)"] / 1000000000 | round)')
+if [ "$elapsed_time" -lt "$expected_runtime" ]; then
+    echo "ERROR: Benchmark elapsed runtime ($elapsed_time) was less than expected ($expected_runtime) or failed to parse output." >&2
     exit 1
 fi
