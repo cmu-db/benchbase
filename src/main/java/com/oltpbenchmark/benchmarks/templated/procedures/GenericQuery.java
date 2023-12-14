@@ -54,8 +54,10 @@ public abstract class GenericQuery extends Procedure {
       }
     } catch (Exception e) {
       e.printStackTrace();
-      throw new RuntimeException(String.format("Error when trying to execute statement with params:\n%s\n%s",
-          this.getQueryTemplateInfo(), params));
+      throw new RuntimeException(
+          String.format(
+              "Error when trying to execute statement with params:\n%s\n%s",
+              this.getQueryTemplateInfo(), params));
     }
 
     conn.commit();
