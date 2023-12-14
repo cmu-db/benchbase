@@ -19,7 +19,6 @@ package com.oltpbenchmark.benchmarks.epinions.procedures;
 
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -27,20 +26,19 @@ import java.sql.SQLException;
 
 public class GetReviewItemById extends Procedure {
 
-    public final SQLStmt getReviewItem = new SQLStmt(
-            "SELECT * FROM review r, item i WHERE i.i_id = r.i_id and r.i_id=? " +
-                    "ORDER BY rating DESC, r.creation_date DESC LIMIT 10;"
-    );
+  public final SQLStmt getReviewItem =
+      new SQLStmt(
+          "SELECT * FROM review r, item i WHERE i.i_id = r.i_id and r.i_id=? "
+              + "ORDER BY rating DESC, r.creation_date DESC LIMIT 10;");
 
-    public void run(Connection conn, long iid) throws SQLException {
-        try (PreparedStatement stmt = this.getPreparedStatement(conn, getReviewItem)) {
-            stmt.setLong(1, iid);
-            try (ResultSet r = stmt.executeQuery()) {
-                while (r.next()) {
-                    continue;
-                }
-            }
+  public void run(Connection conn, long iid) throws SQLException {
+    try (PreparedStatement stmt = this.getPreparedStatement(conn, getReviewItem)) {
+      stmt.setLong(1, iid);
+      try (ResultSet r = stmt.executeQuery()) {
+        while (r.next()) {
+          continue;
         }
+      }
     }
-
+  }
 }

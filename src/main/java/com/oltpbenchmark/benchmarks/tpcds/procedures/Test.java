@@ -17,13 +17,10 @@
 
 package com.oltpbenchmark.benchmarks.tpcds.procedures;
 
-
 import com.oltpbenchmark.api.Procedure;
-
 import java.sql.Connection;
 
 public class Test extends Procedure {
 
-    public void run(Connection conn, long incomeID) {
-    }
+  public void run(Connection conn, long incomeID) {}
 }

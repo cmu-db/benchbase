@@ -18,19 +18,17 @@ package com.oltpbenchmark.benchmarks.tatp;
 
 import com.oltpbenchmark.api.AbstractTestLoader;
 import com.oltpbenchmark.api.Procedure;
-
 import java.util.List;
 
 public class TestTATPLoader extends AbstractTestLoader<TATPBenchmark> {
 
-    @Override
-    public List<Class<? extends Procedure>> procedures() {
-        return TestTATPBenchmark.PROCEDURE_CLASSES;
-    }
+  @Override
+  public List<Class<? extends Procedure>> procedures() {
+    return TestTATPBenchmark.PROCEDURE_CLASSES;
+  }
 
-    @Override
-    public Class<TATPBenchmark> benchmarkClass() {
-        return TATPBenchmark.class;
-    }
-
+  @Override
+  public Class<TATPBenchmark> benchmarkClass() {
+    return TATPBenchmark.class;
+  }
 }

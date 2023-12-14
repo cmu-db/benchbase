@@ -14,34 +14,31 @@
  *  limitations under the License.                                            *
  ******************************************************************************/
 
-
 package com.oltpbenchmark.benchmarks.smallbank;
 
 import com.oltpbenchmark.api.AbstractTestBenchmarkModule;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.benchmarks.smallbank.procedures.*;
-
 import java.util.List;
 
 public class TestSmallBankBenchmark extends AbstractTestBenchmarkModule<SmallBankBenchmark> {
 
-    public static final List<Class<? extends Procedure>> PROCEDURE_CLASSES = List.of(
-            Amalgamate.class,
-            Balance.class,
-            DepositChecking.class,
-            SendPayment.class,
-            TransactSavings.class,
-            WriteCheck.class
-    );
+  public static final List<Class<? extends Procedure>> PROCEDURE_CLASSES =
+      List.of(
+          Amalgamate.class,
+          Balance.class,
+          DepositChecking.class,
+          SendPayment.class,
+          TransactSavings.class,
+          WriteCheck.class);
 
-    @Override
-    public List<Class<? extends Procedure>> procedures() {
-        return TestSmallBankBenchmark.PROCEDURE_CLASSES;
-    }
+  @Override
+  public List<Class<? extends Procedure>> procedures() {
+    return TestSmallBankBenchmark.PROCEDURE_CLASSES;
+  }
 
-    @Override
-    public Class<SmallBankBenchmark> benchmarkClass() {
-        return SmallBankBenchmark.class;
-    }
-
+  @Override
+  public Class<SmallBankBenchmark> benchmarkClass() {
+    return SmallBankBenchmark.class;
+  }
 }

@@ -7,6 +7,7 @@
     <url>jdbc:postgresql://localhost:26257/benchbase?sslmode=disable&amp;ApplicationName=voter&amp;reWriteBatchedInserts=true</url>
     <username>root</username>
     <password></password>
+    <reconnectOnConnectionFailure>true</reconnectOnConnectionFailure>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
     <batchsize>128</batchsize>
 

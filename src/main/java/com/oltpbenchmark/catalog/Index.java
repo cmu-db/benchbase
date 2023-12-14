@@ -18,85 +18,86 @@
 package com.oltpbenchmark.catalog;
 
 import com.oltpbenchmark.types.SortDirectionType;
-
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
 public class Index extends AbstractCatalogObject {
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private final Table table;
-    private final SortedMap<Integer, IndexColumn> columns = new TreeMap<>();
-    private final int type;
-    private final boolean unique;
+  private final Table table;
+  private final TreeMap<Integer, IndexColumn> columns = new TreeMap<>();
+  private final int type;
+  private final boolean unique;
 
-    static class IndexColumn implements Serializable {
-        private final String name;
-        private final SortDirectionType dir;
+  static class IndexColumn implements Serializable {
+    static final long serialVersionUID = 0;
 
-        IndexColumn(String name, SortDirectionType dir) {
-            this.name = name;
-            this.dir = dir;
-        }
+    private final String name;
+    private final SortDirectionType dir;
 
-        public String getName() {
-            return name;
-        }
-
-        public SortDirectionType getDir() {
-            return dir;
-        }
+    IndexColumn(String name, SortDirectionType dir) {
+      this.name = name;
+      this.dir = dir;
     }
 
-    public Index(String name, String separator, Table table, int type, boolean unique) {
-        super(name, separator);
-        this.table = table;
-        this.type = type;
-        this.unique = unique;
+    public String getName() {
+      return name;
     }
 
-    public void addColumn(String colName, SortDirectionType colOrder, int colPosition) {
-        this.columns.put(colPosition, new IndexColumn(colName, colOrder));
+    public SortDirectionType getDir() {
+      return dir;
     }
+  }
 
-    public Table getTable() {
-        return table;
-    }
+  public Index(String name, String separator, Table table, int type, boolean unique) {
+    super(name, separator);
+    this.table = table;
+    this.type = type;
+    this.unique = unique;
+  }
 
-    public SortedMap<Integer, IndexColumn> getColumns() {
-        return columns;
-    }
+  public void addColumn(String colName, SortDirectionType colOrder, int colPosition) {
+    this.columns.put(colPosition, new IndexColumn(colName, colOrder));
+  }
 
-    public int getType() {
-        return type;
-    }
+  public Table getTable() {
+    return table;
+  }
 
-    public boolean isUnique() {
-        return unique;
-    }
+  public SortedMap<Integer, IndexColumn> getColumns() {
+    return columns;
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
-        Index index = (Index) o;
-        return type == index.type &&
-                unique == index.unique &&
-                Objects.equals(table, index.table) &&
-                Objects.equals(columns, index.columns);
-    }
+  public int getType() {
+    return type;
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), table.name, columns, type, unique);
+  public boolean isUnique() {
+    return unique;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
     }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    if (!super.equals(o)) {
+      return false;
+    }
+    Index index = (Index) o;
+    return type == index.type
+        && unique == index.unique
+        && Objects.equals(table, index.table)
+        && Objects.equals(columns, index.columns);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), table.name, columns, type, unique);
+  }
 }

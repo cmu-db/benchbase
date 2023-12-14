@@ -28,77 +28,72 @@ package com.oltpbenchmark.benchmarks.smallbank.procedures;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.smallbank.SmallBankConstants;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- * TransactSavings Procedure
- * Original version by Mohammad Alomari and Michael Cahill
+ * TransactSavings Procedure Original version by Mohammad Alomari and Michael Cahill
  *
  * @author pavlo
  */
 public class TransactSavings extends Procedure {
 
-    public final SQLStmt GetAccount = new SQLStmt(
-            "SELECT * FROM " + SmallBankConstants.TABLENAME_ACCOUNTS +
-                    " WHERE name = ?"
-    );
+  public final SQLStmt GetAccount =
+      new SQLStmt("SELECT * FROM " + SmallBankConstants.TABLENAME_ACCOUNTS + " WHERE name = ?");
 
-    public final SQLStmt GetSavingsBalance = new SQLStmt(
-            "SELECT bal FROM " + SmallBankConstants.TABLENAME_SAVINGS +
-                    " WHERE custid = ?"
-    );
+  public final SQLStmt GetSavingsBalance =
+      new SQLStmt("SELECT bal FROM " + SmallBankConstants.TABLENAME_SAVINGS + " WHERE custid = ?");
 
-    public final SQLStmt UpdateSavingsBalance = new SQLStmt(
-            "UPDATE " + SmallBankConstants.TABLENAME_SAVINGS +
-                    "   SET bal = bal - ? " +
-                    " WHERE custid = ?"
-    );
+  public final SQLStmt UpdateSavingsBalance =
+      new SQLStmt(
+          "UPDATE "
+              + SmallBankConstants.TABLENAME_SAVINGS
+              + "   SET bal = bal - ? "
+              + " WHERE custid = ?");
 
-    public void run(Connection conn, String custName, double amount) throws SQLException {
-        // First convert the custName to the acctId
-        long custId;
+  public void run(Connection conn, String custName, double amount) throws SQLException {
+    // First convert the custName to the acctId
+    long custId;
 
-        try (PreparedStatement stmt = this.getPreparedStatement(conn, GetAccount, custName)) {
-            try (ResultSet result = stmt.executeQuery()) {
-                if (!result.next()) {
-                    String msg = "Invalid account '" + custName + "'";
-                    throw new UserAbortException(msg);
-                }
-                custId = result.getLong(1);
-            }
+    try (PreparedStatement stmt = this.getPreparedStatement(conn, GetAccount, custName)) {
+      try (ResultSet result = stmt.executeQuery()) {
+        if (!result.next()) {
+          String msg = "Invalid account '" + custName + "'";
+          throw new UserAbortException(msg);
         }
-
-        // Get Balance Information
-
-        double balance;
-
-        try (PreparedStatement stmt = this.getPreparedStatement(conn, GetSavingsBalance, custId)) {
-            try (ResultSet result = stmt.executeQuery()) {
-                if (!result.next()) {
-                    String msg = String.format("No %s for customer #%d",
-                            SmallBankConstants.TABLENAME_SAVINGS,
-                            custId);
-                    throw new UserAbortException(msg);
-                }
-                balance = result.getDouble(1) - amount;
-            }
-        }
-
-        // Make sure that they have enough
-        if (balance < 0) {
-            String msg = String.format("Negative %s balance for customer #%d",
-                    SmallBankConstants.TABLENAME_SAVINGS,
-                    custId);
-            throw new UserAbortException(msg);
-        }
-
-        // Then update their savings balance
-        try (PreparedStatement stmt = this.getPreparedStatement(conn, UpdateSavingsBalance, amount, custId)) {
-            int status = stmt.executeUpdate();
-        }
+        custId = result.getLong(1);
+      }
     }
+
+    // Get Balance Information
+
+    double balance;
+
+    try (PreparedStatement stmt = this.getPreparedStatement(conn, GetSavingsBalance, custId)) {
+      try (ResultSet result = stmt.executeQuery()) {
+        if (!result.next()) {
+          String msg =
+              String.format("No %s for customer #%d", SmallBankConstants.TABLENAME_SAVINGS, custId);
+          throw new UserAbortException(msg);
+        }
+        balance = result.getDouble(1) - amount;
+      }
+    }
+
+    // Make sure that they have enough
+    if (balance < 0) {
+      String msg =
+          String.format(
+              "Negative %s balance for customer #%d", SmallBankConstants.TABLENAME_SAVINGS, custId);
+      throw new UserAbortException(msg);
+    }
+
+    // Then update their savings balance
+    try (PreparedStatement stmt =
+        this.getPreparedStatement(conn, UpdateSavingsBalance, amount, custId)) {
+      stmt.executeUpdate();
+    }
+  }
 }

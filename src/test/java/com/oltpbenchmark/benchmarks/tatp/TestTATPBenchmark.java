@@ -14,35 +14,32 @@
  *  limitations under the License.                                            *
  ******************************************************************************/
 
-
 package com.oltpbenchmark.benchmarks.tatp;
 
 import com.oltpbenchmark.api.AbstractTestBenchmarkModule;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.benchmarks.tatp.procedures.*;
-
 import java.util.List;
 
 public class TestTATPBenchmark extends AbstractTestBenchmarkModule<TATPBenchmark> {
 
-    public static final List<Class<? extends Procedure>> PROCEDURE_CLASSES = List.of(
-            DeleteCallForwarding.class,
-            GetAccessData.class,
-            GetNewDestination.class,
-            GetSubscriberData.class,
-            InsertCallForwarding.class,
-            UpdateLocation.class,
-            UpdateSubscriberData.class
-    );
+  public static final List<Class<? extends Procedure>> PROCEDURE_CLASSES =
+      List.of(
+          DeleteCallForwarding.class,
+          GetAccessData.class,
+          GetNewDestination.class,
+          GetSubscriberData.class,
+          InsertCallForwarding.class,
+          UpdateLocation.class,
+          UpdateSubscriberData.class);
 
-    @Override
-    public List<Class<? extends Procedure>> procedures() {
-        return TestTATPBenchmark.PROCEDURE_CLASSES;
-    }
+  @Override
+  public List<Class<? extends Procedure>> procedures() {
+    return TestTATPBenchmark.PROCEDURE_CLASSES;
+  }
 
-    @Override
-    public Class<TATPBenchmark> benchmarkClass() {
-        return TATPBenchmark.class;
-    }
-
+  @Override
+  public Class<TATPBenchmark> benchmarkClass() {
+    return TATPBenchmark.class;
+  }
 }

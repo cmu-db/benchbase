@@ -22,38 +22,38 @@ import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.noop.procedures.NoOp;
 import com.oltpbenchmark.types.TransactionStatus;
+import java.sql.Connection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.sql.Connection;
 
 /**
  * @author pavlo
  * @author eric-haibin-lin
  */
-public class NoOpWorker extends Worker<NoOpBenchmark> {
-    private static final Logger LOG = LoggerFactory.getLogger(NoOpWorker.class);
+public final class NoOpWorker extends Worker<NoOpBenchmark> {
+  private static final Logger LOG = LoggerFactory.getLogger(NoOpWorker.class);
 
-    private final NoOp procNoOp;
+  private final NoOp procNoOp;
 
-    public NoOpWorker(NoOpBenchmark benchmarkModule, int id) {
-        super(benchmarkModule, id);
-        this.procNoOp = this.getProcedure(NoOp.class);
+  public NoOpWorker(NoOpBenchmark benchmarkModule, int id) {
+    super(benchmarkModule, id);
+    this.procNoOp = this.getProcedure(NoOp.class);
+  }
+
+  @Override
+  protected TransactionStatus executeWork(Connection conn, TransactionType nextTrans)
+      throws UserAbortException {
+
+    LOG.debug("Executing {}", this.procNoOp);
+    try {
+      this.procNoOp.run(conn);
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Successfully completed {} execution!", this.procNoOp);
+      }
+    } catch (Exception ex) {
+      LOG.error(ex.getMessage(), ex);
     }
 
-    @Override
-    protected TransactionStatus executeWork(Connection conn, TransactionType nextTrans) throws UserAbortException {
-
-        LOG.debug("Executing {}", this.procNoOp);
-        try {
-            this.procNoOp.run(conn);
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Successfully completed {} execution!", this.procNoOp);
-            }
-        } catch (Exception ex) {
-            LOG.error(ex.getMessage(), ex);
-        }
-
-        return (TransactionStatus.SUCCESS);
-    }
+    return (TransactionStatus.SUCCESS);
+  }
 }

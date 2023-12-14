@@ -23,31 +23,29 @@ import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.tpch.procedures.GenericQuery;
 import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.RandomGenerator;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class TPCHWorker extends Worker<TPCHBenchmark> {
+public final class TPCHWorker extends Worker<TPCHBenchmark> {
 
-    private final RandomGenerator rand;
+  private final RandomGenerator rand;
 
-    public TPCHWorker(TPCHBenchmark benchmarkModule, int id) {
-        super(benchmarkModule, id);
-        this.rng().setSeed(15721);
-        rand = new RandomGenerator(this.rng().nextInt());
+  public TPCHWorker(TPCHBenchmark benchmarkModule, int id) {
+    super(benchmarkModule, id);
+    this.rng().setSeed(15721);
+    rand = new RandomGenerator(this.rng().nextInt());
+  }
+
+  @Override
+  protected TransactionStatus executeWork(Connection conn, TransactionType nextTransaction)
+      throws UserAbortException, SQLException {
+    try {
+      GenericQuery proc = (GenericQuery) this.getProcedure(nextTransaction.getProcedureClass());
+      proc.run(conn, rand, this.configuration.getScaleFactor());
+    } catch (ClassCastException e) {
+      throw new RuntimeException(e);
     }
 
-    @Override
-    protected TransactionStatus executeWork(Connection conn, TransactionType nextTransaction) throws UserAbortException, SQLException {
-        try {
-            GenericQuery proc = (GenericQuery) this.getProcedure(nextTransaction.getProcedureClass());
-            proc.run(conn, rand, this.configuration.getScaleFactor());
-        } catch (ClassCastException e) {
-            throw new RuntimeException(e);
-        }
-
-        return (TransactionStatus.SUCCESS);
-
-    }
+    return (TransactionStatus.SUCCESS);
+  }
 }
-

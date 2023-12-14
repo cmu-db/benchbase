@@ -1,6 +1,6 @@
 /*
  * Copyright 2020 Trino
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,29 +15,29 @@
  */
 package com.oltpbenchmark.benchmarks.tpch.util;
 
-import com.oltpbenchmark.util.RowRandomInt;
-
 import static java.util.Locale.ENGLISH;
 
-public class TPCHRandomPhoneNumber
-        extends RowRandomInt {
-    // limited by country codes in phone numbers
-    private static final int NATIONS_MAX = 90;
+import com.oltpbenchmark.util.RowRandomInt;
 
-    public TPCHRandomPhoneNumber(long seed) {
-        this(seed, 1);
-    }
+public class TPCHRandomPhoneNumber extends RowRandomInt {
+  // limited by country codes in phone numbers
+  private static final int NATIONS_MAX = 90;
 
-    public TPCHRandomPhoneNumber(long seed, int seedsPerRow) {
-        super(seed, 3 * seedsPerRow);
-    }
+  public TPCHRandomPhoneNumber(long seed) {
+    this(seed, 1);
+  }
 
-    public String nextValue(long nationKey) {
-        return String.format(ENGLISH,
-                "%02d-%03d-%03d-%04d",
-                (10 + (nationKey % NATIONS_MAX)),
-                nextInt(100, 999),
-                nextInt(100, 999),
-                nextInt(1000, 9999));
-    }
+  public TPCHRandomPhoneNumber(long seed, int seedsPerRow) {
+    super(seed, 3 * seedsPerRow);
+  }
+
+  public String nextValue(long nationKey) {
+    return String.format(
+        ENGLISH,
+        "%02d-%03d-%03d-%04d",
+        (10 + (nationKey % NATIONS_MAX)),
+        nextInt(100, 999),
+        nextInt(100, 999),
+        nextInt(1000, 9999));
+  }
 }

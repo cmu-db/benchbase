@@ -19,12 +19,11 @@ package com.oltpbenchmark.benchmarks.hyadapt;
 
 public abstract class HYADAPTConstants {
 
-    public static final int RECORD_COUNT = 1000;
+  public static final int RECORD_COUNT = 1000;
 
-    public static final int FIELD_COUNT = 250;
+  public static final int FIELD_COUNT = 250;
 
-    public static final int RANGE = 1000000;
+  public static final int RANGE = 1000000;
 
-    static final int MAX_SCAN = 1000;
-
+  static final int MAX_SCAN = 1000;
 }

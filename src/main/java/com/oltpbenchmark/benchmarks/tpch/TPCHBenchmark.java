@@ -30,39 +30,37 @@ import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.tpch.procedures.Q1;
+import java.util.ArrayList;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
+public final class TPCHBenchmark extends BenchmarkModule {
+  private static final Logger LOG = LoggerFactory.getLogger(TPCHBenchmark.class);
 
-public class TPCHBenchmark extends BenchmarkModule {
-    private static final Logger LOG = LoggerFactory.getLogger(TPCHBenchmark.class);
+  public TPCHBenchmark(WorkloadConfiguration workConf) {
+    super(workConf);
+  }
 
-    public TPCHBenchmark(WorkloadConfiguration workConf) {
-        super(workConf);
+  @Override
+  protected Package getProcedurePackageImpl() {
+    return (Q1.class.getPackage());
+  }
+
+  @Override
+  protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
+    List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
+
+    int numTerminals = workConf.getTerminals();
+    LOG.info(String.format("Creating %d workers for TPC-H", numTerminals));
+    for (int i = 0; i < numTerminals; i++) {
+      workers.add(new TPCHWorker(this, i));
     }
+    return workers;
+  }
 
-    @Override
-    protected Package getProcedurePackageImpl() {
-        return (Q1.class.getPackage());
-    }
-
-    @Override
-    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
-        List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
-
-        int numTerminals = workConf.getTerminals();
-        LOG.info(String.format("Creating %d workers for TPC-H", numTerminals));
-        for (int i = 0; i < numTerminals; i++) {
-            workers.add(new TPCHWorker(this, i));
-        }
-        return workers;
-    }
-
-    @Override
-    protected Loader<TPCHBenchmark> makeLoaderImpl() {
-        return new TPCHLoader(this);
-    }
-
+  @Override
+  protected Loader<TPCHBenchmark> makeLoaderImpl() {
+    return new TPCHLoader(this);
+  }
 }

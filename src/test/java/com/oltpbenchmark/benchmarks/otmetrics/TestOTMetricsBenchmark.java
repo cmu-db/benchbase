@@ -20,23 +20,20 @@ package com.oltpbenchmark.benchmarks.otmetrics;
 import com.oltpbenchmark.api.AbstractTestBenchmarkModule;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.benchmarks.otmetrics.procedures.GetSessionRange;
-
 import java.util.List;
 
 public class TestOTMetricsBenchmark extends AbstractTestBenchmarkModule<OTMetricsBenchmark> {
 
-    public static final List<Class<? extends Procedure>> PROCEDURE_CLASSES = List.of(
-            GetSessionRange.class
-    );
+  public static final List<Class<? extends Procedure>> PROCEDURE_CLASSES =
+      List.of(GetSessionRange.class);
 
-    @Override
-    public List<Class<? extends Procedure>> procedures() {
-        return TestOTMetricsBenchmark.PROCEDURE_CLASSES;
-    }
+  @Override
+  public List<Class<? extends Procedure>> procedures() {
+    return TestOTMetricsBenchmark.PROCEDURE_CLASSES;
+  }
 
-    @Override
-    public Class<OTMetricsBenchmark> benchmarkClass() {
-        return OTMetricsBenchmark.class;
-    }
-
+  @Override
+  public Class<OTMetricsBenchmark> benchmarkClass() {
+    return OTMetricsBenchmark.class;
+  }
 }
