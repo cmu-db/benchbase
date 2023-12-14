@@ -79,6 +79,7 @@
          <value>255.0</value>
       </values>
    </template>
+   <!-- FIXME: This results in primary key failures due to duplicate keys.
    <template name="InsertItem">
       <query><![CDATA[INSERT INTO item VALUES(?,?,?,?,?)]]></query>
       <types>
@@ -96,4 +97,5 @@
          <value>1</value>
       </values>
    </template>
+   -->
 </templates>
