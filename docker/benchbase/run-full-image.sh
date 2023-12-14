@@ -4,6 +4,7 @@ set -eu
 
 # When we are running the full image we don't generally want to have to rebuild it repeatedly.
 CLEAN_BUILD=${CLEAN_BUILD:-false}
+BUILD_IMAGE=${BUILD_IMAGE:-true}
 
 scriptdir=$(dirname "$(readlink -f "$0")")
 rootdir=$(readlink -f "$scriptdir/../../")
@@ -15,9 +16,9 @@ if ! docker image ls --quiet benchbase-$BENCHBASE_PROFILE:latest | grep -q .; th
     CLEAN_BUILD=true
 fi
 
-#if [ "$CLEAN_BUILD" != 'false' ]; then
+if [ "$BUILD_IMAGE" != 'false' ]; then
     ./build-full-image.sh
-#fi
+fi
 
 if [ "$imagename" != 'benchbase' ]; then
     echo "ERROR: Unexpected imagename: $imagename" >&2
@@ -37,4 +38,3 @@ docker run -it --rm \
     --env BENCHBASE_PROFILE="$BENCHBASE_PROFILE" \
     --user "$CONTAINERUSER_UID:$CONTAINERUSER_GID" \
     -v "$SRC_DIR/results:/benchbase/results" benchbase-$BENCHBASE_PROFILE:latest $*
-set +x

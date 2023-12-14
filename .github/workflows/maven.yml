@@ -129,7 +129,9 @@ jobs:
           else
             java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/sqlite/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
           fi
+
           # FIXME: Reduce the error rate so we don't need these overrides.
+          results_benchmark=${{matrix.benchmark}}
           if [ ${{matrix.benchmark}} == auctionmark ]; then
               ERRORS_THRESHOLD=0.02
           elif [ ${{matrix.benchmark}} == resourcestresser ]; then
@@ -139,6 +141,7 @@ jobs:
           elif [ ${{matrix.benchmark}} == tatp ]; then
               ERRORS_THRESHOLD=0.05
           fi
+          ./scripts/check_latest_benchmark_results.sh $results_benchmark
           ./scripts/check_histogram_results.sh results/histograms.json $ERRORS_THRESHOLD
 
   ## ----------------------------------------------------------------------------------
@@ -203,11 +206,13 @@ jobs:
           fi
 
           # FIXME: Reduce the error rate so we don't need these overrides.
+          results_benchmark=${{matrix.benchmark}}
           if [ ${{matrix.benchmark}} == auctionmark ]; then
               ERRORS_THRESHOLD=0.02
           elif [ ${{matrix.benchmark}} == tatp ]; then
               ERRORS_THRESHOLD=0.05
           fi
+          ./scripts/check_latest_benchmark_results.sh $results_benchmark
           ./scripts/check_histogram_results.sh results/histograms.json $ERRORS_THRESHOLD
 
   ## ----------------------------------------------------------------------------------
@@ -271,11 +276,13 @@ jobs:
           fi
 
           # FIXME: Reduce the error rate so we don't need these overrides.
+          results_benchmark=${{matrix.benchmark}}
           if [ ${{matrix.benchmark}} == auctionmark ]; then
               ERRORS_THRESHOLD=0.02
           elif [ ${{matrix.benchmark}} == tatp ]; then
               ERRORS_THRESHOLD=0.05
           fi
+          ./scripts/check_latest_benchmark_results.sh $results_benchmark
           ./scripts/check_histogram_results.sh results/histograms.json $ERRORS_THRESHOLD
 
   ## ----------------------------------------------------------------------------------
@@ -341,7 +348,9 @@ jobs:
           else
             java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/oracle/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
           fi
+
           # FIXME: Reduce the error rate so we don't need these overrides.
+          results_benchmark=${{matrix.benchmark}}
           if [ ${{matrix.benchmark}} == auctionmark ]; then
               ERRORS_THRESHOLD=0.04
           elif [ ${{matrix.benchmark}} == tatp ]; then
@@ -353,6 +362,7 @@ jobs:
           elif [ ${{matrix.benchmark}} == wikipedia ]; then
               ERRORS_THRESHOLD=0.02
           fi
+          ./scripts/check_latest_benchmark_results.sh $results_benchmark
           ./scripts/check_histogram_results.sh results/histograms.json $ERRORS_THRESHOLD
 
   ## ----------------------------------------------------------------------------------
@@ -414,11 +424,13 @@ jobs:
           fi
 
           # FIXME: Reduce the error rate so we don't need these overrides.
+          results_benchmark=${{matrix.benchmark}}
           if [ ${{matrix.benchmark}} == auctionmark ]; then
               ERRORS_THRESHOLD=0.02
           elif [ ${{matrix.benchmark}} == tatp ]; then
               ERRORS_THRESHOLD=0.05
           fi
+          ./scripts/check_latest_benchmark_results.sh $results_benchmark
           ./scripts/check_histogram_results.sh results/histograms.json $ERRORS_THRESHOLD
 
   ## ----------------------------------------------------------------------------------
@@ -464,11 +476,13 @@ jobs:
           java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/cockroachdb/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
           # FIXME: Reduce the error rate so we don't need these overrides.
           # FIXME: Reduce the error rate so we don't need these overrides.
+          results_benchmark=${{matrix.benchmark}}
           if [ ${{matrix.benchmark}} == auctionmark ]; then
               ERRORS_THRESHOLD=0.02
           elif [ ${{matrix.benchmark}} == tatp ]; then
               ERRORS_THRESHOLD=0.05
           fi
+          ./scripts/check_latest_benchmark_results.sh $results_benchmark
           ./scripts/check_histogram_results.sh results/histograms.json $ERRORS_THRESHOLD
 
   ## ----------------------------------------------------------------------------------
@@ -553,9 +567,11 @@ jobs:
           fi
 
           # FIXME: Reduce the error rate so we don't need these overrides.
+          results_benchmark=${{matrix.benchmark}}
           if [ ${{matrix.benchmark}} == tatp ]; then
               ERRORS_THRESHOLD=0.05
           fi
+          ./scripts/check_latest_benchmark_results.sh $results_benchmark
           ./scripts/check_histogram_results.sh results/histograms.json $ERRORS_THRESHOLD
 
   ## ----------------------------------------------------------------------------------
@@ -632,6 +648,7 @@ jobs:
               "$image" -b "$benchmark" -c /tmp/config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
             # Test that the results files were produced.
             ls results/${benchmark}_*.csv
+            ./scripts/check_latest_benchmark_results.sh ${benchmark}
             ./scripts/check_histogram_results.sh results/histograms.json $ERRORS_THRESHOLD
           done
       # Publish the docker image if the build/test was successful.
