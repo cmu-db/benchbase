@@ -121,7 +121,7 @@ jobs:
         run: |
           # For templated benchmarks, we need to preload some data for the test since by design, templated benchmarks do not support the 'load' operation
           # In this case, we load the tpcc data.
-          if [[ ${{matrix.benchmark}} == templated ]]; then
+          if [[ ${{matrix.benchmark}} == templated ]] || [[ ${{matrix.benchmark}} == tpcc ]]; then
             # Disable synchronous mode for sqlite tpcc data loading to save some time.
             java -jar benchbase.jar -b tpcc -c config/sqlite/sample_tpcc_nosync_config.xml --create=true --load=true --execute=false --json-histograms results/histograms.json
             # Run the templated benchmark.
