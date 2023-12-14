@@ -49,8 +49,22 @@ if [ "${SKIP_LOAD_DB:-false}" != 'true' ]; then
     # For templated benchmarks, we need to preload some data for the test since by
     # design, templated benchmarks do not support the 'load' operation
     # In this case, we load the tpcc data.
+<<<<<<< HEAD
     if [ "$benchmark" == 'templated' ]; then
         load_benchmark='tpcc'
+=======
+    echo "INFO: Loading tpcc data for templated benchmark"
+    if [ "$BENCHBASE_PROFILE" == 'sqlite' ]; then
+        # Sqlite will load much faster if we disable sync.
+        tpcc_config="config/sample_tpcc_nosync_config.xml"
+    else
+        tpcc_config="config/sample_tpcc_config.xml"
+    fi
+    BUILD_IMAGE=false EXTRA_DOCKER_ARGS="--network=host $EXTRA_DOCKER_ARGS" \
+    ./docker/benchbase/run-full-image.sh \
+        --config "$tpcc_config" --bench tpcc \
+        $CREATE_DB_ARGS --execute=false
+>>>>>>> origin/improve-test-result-checking
 
         echo "INFO: Loading tpcc data for templated benchmark"
         if [ "$BENCHBASE_PROFILE" == 'sqlite' ]; then
@@ -72,12 +86,15 @@ else
     echo "INFO: Skipping load of $benchmark data"
 fi
 
+<<<<<<< HEAD
 if [ "${WITH_SERVICE_INTERRUPTIONS:-false}" == 'true' ]; then
     # Randomly interrupt the docker db service by killing it.
     # Used to test connection error handling during a benchmark.
     (sleep 10 && ./scripts/interrupt-docker-db-service.sh "$BENCHBASE_PROFILE") &
 fi
 
+=======
+>>>>>>> origin/improve-test-result-checking
 rm -f results/histograms.json
 BUILD_IMAGE=false EXTRA_DOCKER_ARGS="--network=host $EXTRA_DOCKER_ARGS" \
 ./docker/benchbase/run-full-image.sh \
