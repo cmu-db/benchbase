@@ -18,21 +18,19 @@ package com.oltpbenchmark.benchmarks.chbenchmark;
 
 import com.oltpbenchmark.api.AbstractTestLoader;
 import com.oltpbenchmark.api.Procedure;
-import org.junit.Ignore;
-
 import java.util.List;
+import org.junit.Ignore;
 
 @Ignore("the testcase is under development")
 public class TestCHBenCHmarkLoader extends AbstractTestLoader<CHBenCHmark> {
 
-    @Override
-    public List<Class<? extends Procedure>> procedures() {
-        return TestCHBenCHmark.PROCEDURE_CLASSES;
-    }
+  @Override
+  public List<Class<? extends Procedure>> procedures() {
+    return TestCHBenCHmark.PROCEDURE_CLASSES;
+  }
 
-    @Override
-    public Class<CHBenCHmark> benchmarkClass() {
-        return CHBenCHmark.class;
-    }
-
+  @Override
+  public Class<CHBenCHmark> benchmarkClass() {
+    return CHBenCHmark.class;
+  }
 }

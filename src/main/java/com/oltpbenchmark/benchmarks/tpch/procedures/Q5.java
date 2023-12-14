@@ -21,7 +21,6 @@ import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.tpch.TPCHConstants;
 import com.oltpbenchmark.benchmarks.tpch.TPCHUtil;
 import com.oltpbenchmark.util.RandomGenerator;
-
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -29,7 +28,9 @@ import java.sql.SQLException;
 
 public class Q5 extends GenericQuery {
 
-    public final SQLStmt query_stmt = new SQLStmt("""
+  public final SQLStmt query_stmt =
+      new SQLStmt(
+          """
             SELECT
                n_name,
                SUM(l_extendedprice * (1 - l_discount)) AS revenue
@@ -54,20 +55,20 @@ public class Q5 extends GenericQuery {
                n_name
             ORDER BY
                revenue DESC
-            """
-    );
+            """);
 
-    @Override
-    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
-        String region = TPCHUtil.choice(TPCHConstants.R_NAME, rand);
+  @Override
+  protected PreparedStatement getStatement(
+      Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
+    String region = TPCHUtil.choice(TPCHConstants.R_NAME, rand);
 
-        int year = rand.number(1993, 1997);
-        String date = String.format("%d-01-01", year);
+    int year = rand.number(1993, 1997);
+    String date = String.format("%d-01-01", year);
 
-        PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
-        stmt.setString(1, region);
-        stmt.setDate(2, Date.valueOf(date));
-        stmt.setDate(3, Date.valueOf(date));
-        return stmt;
-    }
+    PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
+    stmt.setString(1, region);
+    stmt.setDate(2, Date.valueOf(date));
+    stmt.setDate(3, Date.valueOf(date));
+    return stmt;
+  }
 }

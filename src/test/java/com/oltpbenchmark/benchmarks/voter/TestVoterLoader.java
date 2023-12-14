@@ -18,28 +18,24 @@ package com.oltpbenchmark.benchmarks.voter;
 
 import com.oltpbenchmark.api.AbstractTestLoader;
 import com.oltpbenchmark.api.Procedure;
-
 import java.util.List;
 
 public class TestVoterLoader extends AbstractTestLoader<VoterBenchmark> {
 
-    private static final String[] IGNORE = {
-            VoterConstants.TABLENAME_VOTES
-    };
+  private static final String[] IGNORE = {VoterConstants.TABLENAME_VOTES};
 
-    @Override
-    public List<Class<? extends Procedure>> procedures() {
-        return TestVoterBenchmark.PROCEDURE_CLASSES;
-    }
+  @Override
+  public List<Class<? extends Procedure>> procedures() {
+    return TestVoterBenchmark.PROCEDURE_CLASSES;
+  }
 
-    @Override
-    public Class<VoterBenchmark> benchmarkClass() {
-        return VoterBenchmark.class;
-    }
+  @Override
+  public Class<VoterBenchmark> benchmarkClass() {
+    return VoterBenchmark.class;
+  }
 
-    @Override
-    public List<String> ignorableTables() {
-        return List.of(IGNORE);
-    }
-
+  @Override
+  public List<String> ignorableTables() {
+    return List.of(IGNORE);
+  }
 }

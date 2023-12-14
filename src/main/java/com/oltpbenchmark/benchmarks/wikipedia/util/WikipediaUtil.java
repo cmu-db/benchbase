@@ -20,26 +20,25 @@ package com.oltpbenchmark.benchmarks.wikipedia.util;
 import com.oltpbenchmark.benchmarks.wikipedia.data.PageHistograms;
 import com.oltpbenchmark.util.RandomDistribution.FlatHistogram;
 import com.oltpbenchmark.util.TextGenerator;
-
 import java.util.Random;
 
 public abstract class WikipediaUtil {
 
-    public static String generatePageTitle(Random rand, int page_id) {
-        // Yo we need to do this to ensure that for a given page_id, we always get back the same title.
-        // This is a hack for now (as it will break the <randomSeed> option in the config file.
-        // But from what I can tell it works.
-        rand.setSeed(page_id);
-        FlatHistogram<Integer> h_titleLength = new FlatHistogram<>(rand, PageHistograms.TITLE_LENGTH);
-        // HACK: Always append the page id to the title
-        // so that it's guaranteed to be unique.
-        // Otherwise we can get collisions with larger scale factors.
-        int titleLength = h_titleLength.nextValue();
-        return TextGenerator.randomStr(rand, titleLength) + " [" + page_id + "]";
-    }
+  public static String generatePageTitle(Random rand, int page_id) {
+    // Yo we need to do this to ensure that for a given page_id, we always get back the same title.
+    // This is a hack for now (as it will break the <randomSeed> option in the config file.
+    // But from what I can tell it works.
+    rand.setSeed(page_id);
+    FlatHistogram<Integer> h_titleLength = new FlatHistogram<>(rand, PageHistograms.TITLE_LENGTH);
+    // HACK: Always append the page id to the title
+    // so that it's guaranteed to be unique.
+    // Otherwise we can get collisions with larger scale factors.
+    int titleLength = h_titleLength.nextValue();
+    return TextGenerator.randomStr(rand, titleLength) + " [" + page_id + "]";
+  }
 
-    public static int generatePageNamespace(Random rand, int page_id) {
-        FlatHistogram<Integer> h_namespace = new FlatHistogram<>(rand, PageHistograms.NAMESPACE);
-        return h_namespace.nextInt();
-    }
+  public static int generatePageNamespace(Random rand, int page_id) {
+    FlatHistogram<Integer> h_namespace = new FlatHistogram<>(rand, PageHistograms.NAMESPACE);
+    return h_namespace.nextInt();
+  }
 }

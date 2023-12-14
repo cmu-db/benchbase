@@ -19,23 +19,19 @@ package com.oltpbenchmark.benchmarks.noop;
 import com.oltpbenchmark.api.AbstractTestBenchmarkModule;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.benchmarks.noop.procedures.NoOp;
-
 import java.util.List;
 
 public class TestNoOpBenchmark extends AbstractTestBenchmarkModule<NoOpBenchmark> {
 
-    public static final List<Class<? extends Procedure>> PROCEDURE_CLASSES = List.of(
-            NoOp.class
-    );
+  public static final List<Class<? extends Procedure>> PROCEDURE_CLASSES = List.of(NoOp.class);
 
-    @Override
-    public List<Class<? extends Procedure>> procedures() {
-        return TestNoOpBenchmark.PROCEDURE_CLASSES;
-    }
+  @Override
+  public List<Class<? extends Procedure>> procedures() {
+    return TestNoOpBenchmark.PROCEDURE_CLASSES;
+  }
 
-    @Override
-    public Class<NoOpBenchmark> benchmarkClass() {
-        return NoOpBenchmark.class;
-    }
-
+  @Override
+  public Class<NoOpBenchmark> benchmarkClass() {
+    return NoOpBenchmark.class;
+  }
 }

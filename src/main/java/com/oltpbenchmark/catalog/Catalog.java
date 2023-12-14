@@ -15,7 +15,6 @@
  *
  */
 
-
 package com.oltpbenchmark.catalog;
 
 import java.sql.SQLException;
@@ -27,30 +26,29 @@ import java.util.Map;
  */
 public final class Catalog implements AbstractCatalog {
 
-    private final Map<String, Table> tables;
+  private final Map<String, Table> tables;
 
-    public Catalog(Map<String, Table> tables) {
-        this.tables = tables;
+  public Catalog(Map<String, Table> tables) {
+    this.tables = tables;
+  }
+
+  @Override
+  public Collection<Table> getTables() {
+    return (this.tables.values());
+  }
+
+  @Override
+  public Table getTable(String tableName) {
+    for (Table table : tables.values()) {
+      if (table.getName().equalsIgnoreCase(tableName)) {
+        return table;
+      }
     }
+    throw new IllegalArgumentException(String.format("no table found with name [%s]", tableName));
+  }
 
-    @Override
-    public Collection<Table> getTables() {
-        return (this.tables.values());
-    }
-
-    @Override
-    public Table getTable(String tableName) {
-        for (Table table : tables.values()) {
-            if (table.getName().equalsIgnoreCase(tableName)) {
-                return table;
-            }
-        }
-        throw new IllegalArgumentException(String.format("no table found with name [%s]", tableName));
-    }
-
-    @Override
-    public void close() throws SQLException {
-        // No-op.
-    }
-
+  @Override
+  public void close() throws SQLException {
+    // No-op.
+  }
 }

@@ -21,14 +21,15 @@ import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.tpch.TPCHConstants;
 import com.oltpbenchmark.benchmarks.tpch.TPCHUtil;
 import com.oltpbenchmark.util.RandomGenerator;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class Q17 extends GenericQuery {
 
-    public final SQLStmt query_stmt = new SQLStmt("""
+  public final SQLStmt query_stmt =
+      new SQLStmt(
+          """
             SELECT
                SUM(l_extendedprice) / 7.0 AS avg_yearly
             FROM
@@ -45,22 +46,23 @@ public class Q17 extends GenericQuery {
                   lineitem
                WHERE
                   l_partkey = p_partkey )
-            """
-    );
+            """);
 
-    @Override
-    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
-        String brand = TPCHUtil.randomBrand(rand);
+  @Override
+  protected PreparedStatement getStatement(
+      Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
+    String brand = TPCHUtil.randomBrand(rand);
 
-        // CONTAINER is randomly selected within the list of 2-syllable strings defined for Containers in Clause
-        // 4.2.2.13
-        String containerS1 = TPCHUtil.choice(TPCHConstants.CONTAINERS_S1, rand);
-        String containerS2 = TPCHUtil.choice(TPCHConstants.CONTAINERS_S2, rand);
-        String container = String.format("%s %s", containerS1, containerS2);
+    // CONTAINER is randomly selected within the list of 2-syllable strings defined for Containers
+    // in Clause
+    // 4.2.2.13
+    String containerS1 = TPCHUtil.choice(TPCHConstants.CONTAINERS_S1, rand);
+    String containerS2 = TPCHUtil.choice(TPCHConstants.CONTAINERS_S2, rand);
+    String container = String.format("%s %s", containerS1, containerS2);
 
-        PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
-        stmt.setString(1, brand);
-        stmt.setString(2, container);
-        return stmt;
-    }
+    PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
+    stmt.setString(1, brand);
+    stmt.setString(2, container);
+    return stmt;
+  }
 }

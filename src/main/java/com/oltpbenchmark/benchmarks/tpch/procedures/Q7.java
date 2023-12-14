@@ -21,14 +21,15 @@ import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.tpch.TPCHConstants;
 import com.oltpbenchmark.benchmarks.tpch.TPCHUtil;
 import com.oltpbenchmark.util.RandomGenerator;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class Q7 extends GenericQuery {
 
-    public final SQLStmt query_stmt = new SQLStmt("""
+  public final SQLStmt query_stmt =
+      new SQLStmt(
+          """
             SELECT
                supp_nation,
                cust_nation,
@@ -73,26 +74,26 @@ public class Q7 extends GenericQuery {
                supp_nation,
                cust_nation,
                l_year
-            """
-    );
+            """);
 
-    @Override
-    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
-        // NATION1 is randomly selected within the list of values defined for N_NAME in Clause 4.2.3
-        String nation1 = TPCHUtil.choice(TPCHConstants.N_NAME, rand);
+  @Override
+  protected PreparedStatement getStatement(
+      Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
+    // NATION1 is randomly selected within the list of values defined for N_NAME in Clause 4.2.3
+    String nation1 = TPCHUtil.choice(TPCHConstants.N_NAME, rand);
 
-        // NATION2 is randomly selected within the list of values defined for N_NAME in Clause 4.2.3
-        // and must be different from the value selected for NATION1 in item 1 above
-        String nation2 = nation1;
-        while (nation2.equals(nation1)) {
-            nation2 = TPCHUtil.choice(TPCHConstants.N_NAME, rand);
-        }
-
-        PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
-        stmt.setString(1, nation1);
-        stmt.setString(2, nation2);
-        stmt.setString(3, nation2);
-        stmt.setString(4, nation1);
-        return stmt;
+    // NATION2 is randomly selected within the list of values defined for N_NAME in Clause 4.2.3
+    // and must be different from the value selected for NATION1 in item 1 above
+    String nation2 = nation1;
+    while (nation2.equals(nation1)) {
+      nation2 = TPCHUtil.choice(TPCHConstants.N_NAME, rand);
     }
+
+    PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
+    stmt.setString(1, nation1);
+    stmt.setString(2, nation2);
+    stmt.setString(3, nation2);
+    stmt.setString(4, nation1);
+    return stmt;
+  }
 }

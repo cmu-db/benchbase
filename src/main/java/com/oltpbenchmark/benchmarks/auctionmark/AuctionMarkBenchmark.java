@@ -15,7 +15,6 @@
  *
  */
 
-
 package com.oltpbenchmark.benchmarks.auctionmark;
 
 import com.oltpbenchmark.WorkloadConfiguration;
@@ -27,49 +26,45 @@ import com.oltpbenchmark.benchmarks.auctionmark.procedures.GetItem;
 import com.oltpbenchmark.benchmarks.auctionmark.procedures.LoadConfig;
 import com.oltpbenchmark.benchmarks.auctionmark.procedures.ResetDatabase;
 import com.oltpbenchmark.util.RandomGenerator;
+import java.util.ArrayList;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
+public final class AuctionMarkBenchmark extends BenchmarkModule {
+  @SuppressWarnings("unused")
+  private static final Logger LOG = LoggerFactory.getLogger(AuctionMarkBenchmark.class);
 
-public class AuctionMarkBenchmark extends BenchmarkModule {
+  private final RandomGenerator rng = new RandomGenerator((int) System.currentTimeMillis());
 
-    private static final Logger LOG = LoggerFactory.getLogger(AuctionMarkBenchmark.class);
+  public AuctionMarkBenchmark(WorkloadConfiguration workConf) {
+    super(workConf);
 
+    this.registerSupplementalProcedure(LoadConfig.class);
+    this.registerSupplementalProcedure(CloseAuctions.class);
+    this.registerSupplementalProcedure(ResetDatabase.class);
+  }
 
-    private final RandomGenerator rng = new RandomGenerator((int) System.currentTimeMillis());
+  public RandomGenerator getRandomGenerator() {
+    return (this.rng);
+  }
 
-    public AuctionMarkBenchmark(WorkloadConfiguration workConf) {
-        super(workConf);
+  @Override
+  protected Package getProcedurePackageImpl() {
+    return (GetItem.class.getPackage());
+  }
 
-        this.registerSupplementalProcedure(LoadConfig.class);
-        this.registerSupplementalProcedure(CloseAuctions.class);
-        this.registerSupplementalProcedure(ResetDatabase.class);
+  @Override
+  protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
+    List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
+    for (int i = 0; i < workConf.getTerminals(); ++i) {
+      workers.add(new AuctionMarkWorker(i, this));
     }
+    return (workers);
+  }
 
-    public RandomGenerator getRandomGenerator() {
-        return (this.rng);
-    }
-
-    @Override
-    protected Package getProcedurePackageImpl() {
-        return (GetItem.class.getPackage());
-    }
-
-    @Override
-    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
-        List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
-        for (int i = 0; i < workConf.getTerminals(); ++i) {
-            workers.add(new AuctionMarkWorker(i, this));
-        }
-        return (workers);
-    }
-
-    @Override
-    protected Loader<AuctionMarkBenchmark> makeLoaderImpl() {
-        return new AuctionMarkLoader(this);
-    }
-
-
+  @Override
+  protected Loader<AuctionMarkBenchmark> makeLoaderImpl() {
+    return new AuctionMarkLoader(this);
+  }
 }

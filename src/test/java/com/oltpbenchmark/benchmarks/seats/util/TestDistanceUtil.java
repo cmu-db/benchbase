@@ -14,7 +14,6 @@
  *  limitations under the License.                                            *
  ******************************************************************************/
 
-
 package com.oltpbenchmark.benchmarks.seats.util;
 
 import static org.junit.Assert.assertEquals;
@@ -23,37 +22,34 @@ import org.junit.Test;
 
 public class TestDistanceUtil {
 
-    /**
-     * testDistance
-     */
-    @Test
-    public void testDistance() throws Exception {
-        // { latitude, longitude }
-        double[][] locations = {
-                {39.175278, -76.668333}, // Baltimore-Washington, USA (BWI)
-                {-22.808889, -43.243611}, // Rio de Janeiro, Brazil (GIG)
-                {40.633333, -73.783333}, // New York, USA (JFK)
-                {-33.946111, 151.177222}, // Syndey, Austrailia (SYD)
-        };
-        // expected distance in miles
-        double[] expected = {
-                4796,   // BWI->GIG
-                183,    // BWI->JFK
-                9787,   // BWI->SYD
-                4802,   // GIG->JFK
-                8402,   // GIG->SYD
-                9950,   // JFK->SYD
-        };
+  /** testDistance */
+  @Test
+  public void testDistance() throws Exception {
+    // { latitude, longitude }
+    double[][] locations = {
+      {39.175278, -76.668333}, // Baltimore-Washington, USA (BWI)
+      {-22.808889, -43.243611}, // Rio de Janeiro, Brazil (GIG)
+      {40.633333, -73.783333}, // New York, USA (JFK)
+      {-33.946111, 151.177222}, // Syndey, Austrailia (SYD)
+    };
+    // expected distance in miles
+    double[] expected = {
+      4796, // BWI->GIG
+      183, // BWI->JFK
+      9787, // BWI->SYD
+      4802, // GIG->JFK
+      8402, // GIG->SYD
+      9950, // JFK->SYD
+    };
 
-        int e = 0;
-        for (int i = 0; i < locations.length - 1; i++) {
-            double[] loc0 = locations[i];
-            for (int j = i + 1; j < locations.length; j++) {
-                double[] loc1 = locations[j];
-                double distance = Math.round(DistanceUtil.distance(loc0[0], loc0[1], loc1[0], loc1[1]));
-                assertEquals(expected[e++], distance, 0.0001f);
-            } // FOR
-        } // FOR
-    }
-
+    int e = 0;
+    for (int i = 0; i < locations.length - 1; i++) {
+      double[] loc0 = locations[i];
+      for (int j = i + 1; j < locations.length; j++) {
+        double[] loc1 = locations[j];
+        double distance = Math.round(DistanceUtil.distance(loc0[0], loc0[1], loc1[0], loc1[1]));
+        assertEquals(expected[e++], distance, 0.0001f);
+      } // FOR
+    } // FOR
+  }
 }

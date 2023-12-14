@@ -17,6 +17,4 @@
 
 package com.oltpbenchmark.api;
 
-public abstract class Operation {
-
-}
+public abstract class Operation {}
