@@ -7,6 +7,7 @@
     <url>jdbc:oracle:thin:@localhost:1521/xepdb1</url>
     <username>benchbase</username>
     <password>password</password>
+    <reconnectOnConnectionFailure>true</reconnectOnConnectionFailure>
     <!-- TRANSACTION_SERIALIZABLE/TRANSACTION_READ_COMMITTED -->
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
     <batchsize>128</batchsize>

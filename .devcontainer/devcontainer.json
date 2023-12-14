@@ -18,6 +18,8 @@
         ".devcontainer/scripts/initializeCommand"
     ],
     "runArgs": [
+        // Allow us to resolve the host network from inside the devcontainer.
+        "--add-host=host.docker.internal:host-gateway",
         // Secret injection as environment variables
         // https://code.visualstudio.com/remote/advancedcontainers/environment-variables#_option-2-use-an-env-file
         "--env-file=.env"
