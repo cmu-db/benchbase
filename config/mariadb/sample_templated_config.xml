@@ -25,7 +25,7 @@
         <work>
             <time>10</time>
             <rate>100</rate>
-            <weights>20,20,10,10,10,10,10,10</weights>
+            <weights>20,20,10,10,10,10,10<!-->,10--></weights>
         </work>
     </works>
 
@@ -52,8 +52,10 @@
         <transactiontype>
             <name>DeleteItem</name>
         </transactiontype>
+        <!-- FIXME:
         <transactiontype>
             <name>InsertItem</name>
         </transactiontype>
+        -->
     </transactiontypes>
 </parameters>
