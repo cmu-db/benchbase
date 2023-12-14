@@ -677,13 +677,21 @@ WHERE t.name='%s' AND c.name='%s'
       return (true);
     } else if (ex instanceof SQLException) {
       SQLException sqlEx = (SQLException) ex;
+      String sqlState = sqlEx.getSQLState();
+      String sqlMessage = sqlEx.getMessage();
 
       // POSTGRES
-      if (sqlEx.getSQLState().contains("23505")) {
+      if (sqlState != null && sqlState.contains("23505")) {
         return (true);
       }
       // SQLSERVER
-      else if (sqlEx.getSQLState().equals("23000") && sqlEx.getErrorCode() == 2627) {
+      else if (sqlState != null && sqlState.equals("23000") && sqlEx.getErrorCode() == 2627) {
+        return (true);
+      }
+      // SQLITE
+      else if (sqlEx.getErrorCode() == 19
+          && sqlMessage != null
+          && sqlMessage.contains("SQLITE_CONSTRAINT_UNIQUE")) {
         return (true);
       }
     }
