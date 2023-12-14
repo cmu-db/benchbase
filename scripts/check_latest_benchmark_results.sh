@@ -31,6 +31,15 @@ fi
 ts=$(basename "$config_file" | sed -e "s/^${benchmark}_//" -e 's/\.config\.xml//')
 summary_json="results/${benchmark}_${ts}.summary.json"
 
+if ! type xmllint 2>/dev/null; then
+    # Attempt to install xmllint.
+    sudo -n apt-get install -y libxml2-utils
+fi
+if ! type xmllint 2>/dev/null; then
+    echo "ERROR: Missign xmllint utility." >&2
+    exit 1
+fi
+
 # FIXME: Doesn't currently handle multiple workloads.
 runtime=$(xmllint --xpath '//works/work/time/text()' "$config_file" 2>/dev/null || true)
 # TODO: include warmup?
