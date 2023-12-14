@@ -105,6 +105,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
   }
 
   private Results runRateLimitedMultiPhase() {
+    boolean errorsThrown = false;
     List<WorkloadState> workStates = new ArrayList<>();
 
     for (WorkloadConfiguration workState : this.workConfs) {
@@ -116,7 +117,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
 
     // long measureStart = start;
 
-    long start_ts = System.currentTimeMillis();
+    long startTs = System.currentTimeMillis();
     long start = System.nanoTime();
     long warmupStart = System.nanoTime();
     long warmup = warmupStart;
@@ -210,6 +211,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
 
       // Go to next phase if this one is complete or enter if error was thrown
       boolean errorThrown = testState.getState() == State.ERROR;
+      errorsThrown = errorsThrown || errorThrown;
       if ((phaseComplete || errorThrown) && !lastEntry) {
         // enters here after each phase of the test
         // reset the queues so that the new phase is not affected by the
@@ -318,7 +320,16 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
       }
       DistributionStatistics stats = DistributionStatistics.computeStatistics(latencies);
 
-      Results results = new Results(start_ts, measureEnd - start, requests, stats, samples);
+      Results results =
+          new Results(
+              // If any errors were thrown during the execution, proprogate that fact to the
+              // final Results state so we can exit non-zero *after* we output the results.
+              errorsThrown ? State.ERROR : testState.getState(),
+              startTs,
+              measureEnd - start,
+              requests,
+              stats,
+              samples);
 
       // Compute transaction histogram
       Set<TransactionType> txnTypes = new HashSet<>();

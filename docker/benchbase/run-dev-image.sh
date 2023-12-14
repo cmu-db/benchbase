@@ -41,4 +41,3 @@ docker run ${INTERACTIVE_ARGS:-} --rm \
     --user "$CONTAINERUSER_UID:$CONTAINERUSER_GID" \
     -v "$MAVEN_CONFIG:/home/containeruser/.m2" \
     -v "$SRC_DIR:/benchbase" benchbase-dev:latest $*
-set +x
