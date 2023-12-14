@@ -22,6 +22,7 @@ import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.TransactionTypes;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.types.DatabaseType;
+import com.oltpbenchmark.types.State;
 import com.oltpbenchmark.util.*;
 import java.io.File;
 import java.io.IOException;
@@ -526,6 +527,10 @@ public class DBWorkload {
           String fileName = argsLine.getOptionValue("json-histograms");
           FileUtil.writeStringToFile(new File(fileName), histogram_json);
           LOG.info("Histograms JSON Data: " + fileName);
+        }
+
+        if (r.getState() == State.ERROR) {
+          throw new RuntimeException("Errors encountered during benchmark execution.");
         }
       } catch (Throwable ex) {
         LOG.error("Unexpected error when executing benchmarks.", ex);
