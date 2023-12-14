@@ -121,7 +121,7 @@ jobs:
         run: |
           # For templated benchmarks, we need to preload some data for the test since by design, templated benchmarks do not support the 'load' operation
           # In this case, we load the tpcc data.
-          if [[ ${{matrix.benchmark}} == templated ]]; then
+          if [[ ${{matrix.benchmark}} == templated ]] || [[ ${{matrix.benchmark}} == tpcc ]]; then
             # Disable synchronous mode for sqlite tpcc data loading to save some time.
             java -jar benchbase.jar -b tpcc -c config/sqlite/sample_tpcc_nosync_config.xml --create=true --load=true --execute=false --json-histograms results/histograms.json
             # Run the templated benchmark.
@@ -129,7 +129,9 @@ jobs:
           else
             java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/sqlite/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
           fi
+
           # FIXME: Reduce the error rate so we don't need these overrides.
+          results_benchmark=${{matrix.benchmark}}
           if [ ${{matrix.benchmark}} == auctionmark ]; then
               ERRORS_THRESHOLD=0.02
           elif [ ${{matrix.benchmark}} == resourcestresser ]; then
@@ -139,6 +141,7 @@ jobs:
           elif [ ${{matrix.benchmark}} == tatp ]; then
               ERRORS_THRESHOLD=0.05
           fi
+          ./scripts/check_latest_benchmark_results.sh $results_benchmark
           ./scripts/check_histogram_results.sh results/histograms.json $ERRORS_THRESHOLD
 
   ## ----------------------------------------------------------------------------------
@@ -150,6 +153,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # FIXME: Add tpch back in (#333).
         benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'templated', 'tpcc', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
     services:
       mariadb: # https://hub.docker.com/_/mariadb
@@ -203,11 +207,13 @@ jobs:
           fi
 
           # FIXME: Reduce the error rate so we don't need these overrides.
+          results_benchmark=${{matrix.benchmark}}
           if [ ${{matrix.benchmark}} == auctionmark ]; then
               ERRORS_THRESHOLD=0.02
           elif [ ${{matrix.benchmark}} == tatp ]; then
               ERRORS_THRESHOLD=0.05
           fi
+          ./scripts/check_latest_benchmark_results.sh $results_benchmark
           ./scripts/check_histogram_results.sh results/histograms.json $ERRORS_THRESHOLD
 
   ## ----------------------------------------------------------------------------------
@@ -219,7 +225,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'templated', 'tpcc', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
+        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'templated', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
     services:
       mysql: # https://hub.docker.com/_/mysql
         image: mysql:latest
@@ -271,11 +277,13 @@ jobs:
           fi
 
           # FIXME: Reduce the error rate so we don't need these overrides.
+          results_benchmark=${{matrix.benchmark}}
           if [ ${{matrix.benchmark}} == auctionmark ]; then
               ERRORS_THRESHOLD=0.02
           elif [ ${{matrix.benchmark}} == tatp ]; then
               ERRORS_THRESHOLD=0.05
           fi
+          ./scripts/check_latest_benchmark_results.sh $results_benchmark
           ./scripts/check_histogram_results.sh results/histograms.json $ERRORS_THRESHOLD
 
   ## ----------------------------------------------------------------------------------
@@ -287,7 +295,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'twitter', 'voter', 'wikipedia', 'ycsb', 'templated' ]
+        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb', 'templated' ]
     services:
       oracle:
         image: gvenzl/oracle-xe:21.3.0-slim-faststart
@@ -341,7 +349,9 @@ jobs:
           else
             java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/oracle/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
           fi
+
           # FIXME: Reduce the error rate so we don't need these overrides.
+          results_benchmark=${{matrix.benchmark}}
           if [ ${{matrix.benchmark}} == auctionmark ]; then
               ERRORS_THRESHOLD=0.04
           elif [ ${{matrix.benchmark}} == tatp ]; then
@@ -353,6 +363,7 @@ jobs:
           elif [ ${{matrix.benchmark}} == wikipedia ]; then
               ERRORS_THRESHOLD=0.02
           fi
+          ./scripts/check_latest_benchmark_results.sh $results_benchmark
           ./scripts/check_histogram_results.sh results/histograms.json $ERRORS_THRESHOLD
 
   ## ----------------------------------------------------------------------------------
@@ -414,11 +425,13 @@ jobs:
           fi
 
           # FIXME: Reduce the error rate so we don't need these overrides.
+          results_benchmark=${{matrix.benchmark}}
           if [ ${{matrix.benchmark}} == auctionmark ]; then
               ERRORS_THRESHOLD=0.02
           elif [ ${{matrix.benchmark}} == tatp ]; then
               ERRORS_THRESHOLD=0.05
           fi
+          ./scripts/check_latest_benchmark_results.sh $results_benchmark
           ./scripts/check_histogram_results.sh results/histograms.json $ERRORS_THRESHOLD
 
   ## ----------------------------------------------------------------------------------
@@ -430,7 +443,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
+        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'templated', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
     services:
       cockroach: # https://hub.docker.com/repository/docker/timveil/cockroachdb-single-node
         image: timveil/cockroachdb-single-node:latest
@@ -461,14 +474,23 @@ jobs:
 
       - name: Run benchmark
         run: |
-          java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/cockroachdb/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
+          # For templated benchmarks, we need to preload some data for the test since by design, templated benchmarks do not support the 'load' operation
+          # In this case, we load the tpcc data.
+          if [[ ${{matrix.benchmark}} == templated ]]; then
+            java -jar benchbase.jar -b tpcc -c config/cockroachdb/sample_tpcc_config.xml --create=true --load=true --execute=false --json-histograms results/histograms.json
+            java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/cockroachdb/sample_${{matrix.benchmark}}_config.xml --create=false --load=false --execute=true --json-histograms results/histograms.json
+          else
+            java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/cockroachdb/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
+          fi
           # FIXME: Reduce the error rate so we don't need these overrides.
           # FIXME: Reduce the error rate so we don't need these overrides.
+          results_benchmark=${{matrix.benchmark}}
           if [ ${{matrix.benchmark}} == auctionmark ]; then
               ERRORS_THRESHOLD=0.02
           elif [ ${{matrix.benchmark}} == tatp ]; then
               ERRORS_THRESHOLD=0.05
           fi
+          ./scripts/check_latest_benchmark_results.sh $results_benchmark
           ./scripts/check_histogram_results.sh results/histograms.json $ERRORS_THRESHOLD
 
   ## ----------------------------------------------------------------------------------
@@ -480,8 +502,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # TODO: add more benchmarks
-        #benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
+        # TODO: add auctionmark and seats benchmark
         benchmark: [ 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'sibench', 'smallbank', 'tatp', 'tpcc', 'templated', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
     services:
       sqlserver:
@@ -553,9 +574,11 @@ jobs:
           fi
 
           # FIXME: Reduce the error rate so we don't need these overrides.
+          results_benchmark=${{matrix.benchmark}}
           if [ ${{matrix.benchmark}} == tatp ]; then
               ERRORS_THRESHOLD=0.05
           fi
+          ./scripts/check_latest_benchmark_results.sh $results_benchmark
           ./scripts/check_histogram_results.sh results/histograms.json $ERRORS_THRESHOLD
 
   ## ----------------------------------------------------------------------------------
@@ -632,6 +655,7 @@ jobs:
               "$image" -b "$benchmark" -c /tmp/config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
             # Test that the results files were produced.
             ls results/${benchmark}_*.csv
+            ./scripts/check_latest_benchmark_results.sh ${benchmark}
             ./scripts/check_histogram_results.sh results/histograms.json $ERRORS_THRESHOLD
           done
       # Publish the docker image if the build/test was successful.

@@ -2,11 +2,11 @@
 <parameters>
 
     <!-- Connection details -->
-    <type>POSTGRES</type>
+    <type>COCKROACHDB</type>
     <driver>org.postgresql.Driver</driver>
-    <url>jdbc:postgresql://localhost:5432/benchbase?sslmode=disable&amp;ApplicationName=templated&amp;reWriteBatchedInserts=true</url>
-    <username>admin</username>
-    <password>password</password>
+    <url>jdbc:postgresql://localhost:26257/benchbase?sslmode=disable&amp;ApplicationName=templated&amp;reWriteBatchedInserts=true</url>
+    <username>root</username>
+    <password></password>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
     <batchsize>128</batchsize>
 

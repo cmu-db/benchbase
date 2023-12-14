@@ -19,6 +19,7 @@ package com.oltpbenchmark;
 
 import com.oltpbenchmark.LatencyRecord.Sample;
 import com.oltpbenchmark.api.TransactionType;
+import com.oltpbenchmark.types.State;
 import com.oltpbenchmark.util.Histogram;
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +27,7 @@ import java.util.Map;
 
 public final class Results {
 
+  private final State state;
   private final long startTimestampMs;
   private final long nanoseconds;
   private final int measuredRequests;
@@ -40,6 +42,7 @@ public final class Results {
   private final Map<TransactionType, Histogram<String>> abortMessages = new HashMap<>();
 
   public Results(
+      State state,
       long startTimestampMs,
       long elapsedNanoseconds,
       int measuredRequests,
@@ -49,6 +52,7 @@ public final class Results {
     this.nanoseconds = elapsedNanoseconds;
     this.measuredRequests = measuredRequests;
     this.distributionStatistics = distributionStatistics;
+    this.state = state;
 
     if (distributionStatistics == null) {
       this.latencySamples = null;
@@ -56,6 +60,10 @@ public final class Results {
       // defensive copy
       this.latencySamples = List.copyOf(latencySamples);
     }
+  }
+
+  public State getState() {
+    return state;
   }
 
   public DistributionStatistics getDistributionStatistics() {
@@ -117,7 +125,9 @@ public final class Results {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("Results(nanoSeconds=");
+    sb.append("Results(state=");
+    sb.append(state);
+    sb.append(", nanoSeconds=");
     sb.append(nanoseconds);
     sb.append(", measuredRequests=");
     sb.append(measuredRequests);

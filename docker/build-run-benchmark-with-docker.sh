@@ -18,6 +18,11 @@ scriptdir=$(dirname "$(readlink -f "$0")")
 rootdir=$(readlink -f "$scriptdir/..")
 cd "$rootdir"
 
+# Do the rebuild (if necessary) build first.
+if [ "${BUILD_IMAGE:-true}" != "false" ]; then
+    SKIP_TESTS=${SKIP_TESTS:-true} ./docker/benchbase/build-full-image.sh
+fi
+
 EXTRA_DOCKER_ARGS=''
 if [ "$BENCHBASE_PROFILE" == 'sqlite' ]; then
     # Map the sqlite db back to the host.
@@ -54,7 +59,7 @@ elif [ "$benchmark" == 'templated' ]; then
     else
         tpcc_config="config/sample_tpcc_config.xml"
     fi
-    SKIP_TESTS=${SKIP_TESTS:-true} EXTRA_DOCKER_ARGS="--network=host $EXTRA_DOCKER_ARGS" \
+    BUILD_IMAGE=false EXTRA_DOCKER_ARGS="--network=host $EXTRA_DOCKER_ARGS" \
     ./docker/benchbase/run-full-image.sh \
         --config "$tpcc_config" --bench tpcc \
         $CREATE_DB_ARGS --execute=false
@@ -64,10 +69,19 @@ elif [ "$benchmark" == 'templated' ]; then
     SKIP_TESTS=true
 fi
 
-SKIP_TESTS=${SKIP_TESTS:-true} EXTRA_DOCKER_ARGS="--network=host $EXTRA_DOCKER_ARGS" \
+rm -f results/histograms.json
+BUILD_IMAGE=false EXTRA_DOCKER_ARGS="--network=host $EXTRA_DOCKER_ARGS" \
 ./docker/benchbase/run-full-image.sh \
     --config "config/sample_${benchmark}_config.xml" --bench "$benchmark" \
     $CREATE_DB_ARGS --execute=true \
     --sample 1 --interval-monitor 1000 \
     --json-histograms results/histograms.json
+rc=$?
+wait    # for the interrupt script, if any
+if [ $rc -ne 0 ]; then
+    echo "ERROR: benchmark execution failed with exit code $rc" >&2
+    exit $rc
+fi
+# else, check that the results look ok
+./scripts/check_latest_benchmark_results.sh "$benchmark"
 ./scripts/check_histogram_results.sh results/histograms.json
