@@ -28,7 +28,6 @@ package com.oltpbenchmark.benchmarks.smallbank.procedures;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.smallbank.SmallBankConstants;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -36,63 +35,56 @@ import java.sql.SQLException;
 
 public class Balance extends Procedure {
 
-    public final SQLStmt GetAccount = new SQLStmt(
-            "SELECT * FROM " + SmallBankConstants.TABLENAME_ACCOUNTS +
-                    " WHERE name = ?"
-    );
+  public final SQLStmt GetAccount =
+      new SQLStmt("SELECT * FROM " + SmallBankConstants.TABLENAME_ACCOUNTS + " WHERE name = ?");
 
-    public final SQLStmt GetSavingsBalance = new SQLStmt(
-            "SELECT bal FROM " + SmallBankConstants.TABLENAME_SAVINGS +
-                    " WHERE custid = ?"
-    );
+  public final SQLStmt GetSavingsBalance =
+      new SQLStmt("SELECT bal FROM " + SmallBankConstants.TABLENAME_SAVINGS + " WHERE custid = ?");
 
-    public final SQLStmt GetCheckingBalance = new SQLStmt(
-            "SELECT bal FROM " + SmallBankConstants.TABLENAME_CHECKING +
-                    " WHERE custid = ?"
-    );
+  public final SQLStmt GetCheckingBalance =
+      new SQLStmt("SELECT bal FROM " + SmallBankConstants.TABLENAME_CHECKING + " WHERE custid = ?");
 
-    public double run(Connection conn, String custName) throws SQLException {
-        // First convert the acctName to the acctId
-        long custId;
+  public double run(Connection conn, String custName) throws SQLException {
+    // First convert the acctName to the acctId
+    long custId;
 
-        try (PreparedStatement stmt0 = this.getPreparedStatement(conn, GetAccount, custName)) {
-            try (ResultSet r0 = stmt0.executeQuery()) {
-                if (!r0.next()) {
-                    String msg = "Invalid account '" + custName + "'";
-                    throw new UserAbortException(msg);
-                }
-                custId = r0.getLong(1);
-            }
+    try (PreparedStatement stmt0 = this.getPreparedStatement(conn, GetAccount, custName)) {
+      try (ResultSet r0 = stmt0.executeQuery()) {
+        if (!r0.next()) {
+          String msg = "Invalid account '" + custName + "'";
+          throw new UserAbortException(msg);
         }
-
-        // Then get their account balances
-        double savingsBalance;
-        try (PreparedStatement balStmt0 = this.getPreparedStatement(conn, GetSavingsBalance, custId)) {
-            try (ResultSet balRes0 = balStmt0.executeQuery()) {
-                if (!balRes0.next()) {
-                    String msg = String.format("No %s for customer #%d",
-                            SmallBankConstants.TABLENAME_SAVINGS,
-                            custId);
-                    throw new UserAbortException(msg);
-                }
-                savingsBalance = balRes0.getDouble(1);
-            }
-        }
-
-        double checkingBalance;
-        try (PreparedStatement balStmt1 = this.getPreparedStatement(conn, GetCheckingBalance, custId)) {
-            try (ResultSet balRes1 = balStmt1.executeQuery()) {
-                if (!balRes1.next()) {
-                    String msg = String.format("No %s for customer #%d",
-                            SmallBankConstants.TABLENAME_CHECKING,
-                            custId);
-                    throw new UserAbortException(msg);
-                }
-
-                checkingBalance = balRes1.getDouble(1);
-            }
-        }
-
-        return checkingBalance + savingsBalance;
+        custId = r0.getLong(1);
+      }
     }
+
+    // Then get their account balances
+    double savingsBalance;
+    try (PreparedStatement balStmt0 = this.getPreparedStatement(conn, GetSavingsBalance, custId)) {
+      try (ResultSet balRes0 = balStmt0.executeQuery()) {
+        if (!balRes0.next()) {
+          String msg =
+              String.format("No %s for customer #%d", SmallBankConstants.TABLENAME_SAVINGS, custId);
+          throw new UserAbortException(msg);
+        }
+        savingsBalance = balRes0.getDouble(1);
+      }
+    }
+
+    double checkingBalance;
+    try (PreparedStatement balStmt1 = this.getPreparedStatement(conn, GetCheckingBalance, custId)) {
+      try (ResultSet balRes1 = balStmt1.executeQuery()) {
+        if (!balRes1.next()) {
+          String msg =
+              String.format(
+                  "No %s for customer #%d", SmallBankConstants.TABLENAME_CHECKING, custId);
+          throw new UserAbortException(msg);
+        }
+
+        checkingBalance = balRes1.getDouble(1);
+      }
+    }
+
+    return checkingBalance + savingsBalance;
+  }
 }

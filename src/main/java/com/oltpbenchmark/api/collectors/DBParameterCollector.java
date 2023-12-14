@@ -18,13 +18,13 @@
 package com.oltpbenchmark.api.collectors;
 
 public interface DBParameterCollector {
-    boolean hasParameters();
+  boolean hasParameters();
 
-    boolean hasMetrics();
+  boolean hasMetrics();
 
-    String collectParameters();
+  String collectParameters();
 
-    String collectMetrics();
+  String collectMetrics();
 
-    String collectVersion();
+  String collectVersion();
 }

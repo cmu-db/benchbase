@@ -15,83 +15,82 @@
  */
 package com.oltpbenchmark.benchmarks.tpch.util;
 
-import java.util.List;
+import static java.util.Objects.requireNonNull;
+
+import com.oltpbenchmark.util.RowRandomInt;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.oltpbenchmark.util.RowRandomInt;
-
-import static java.util.Objects.requireNonNull;
-
 public class Distribution {
-    @SuppressWarnings("unused") // never read
-    private final String name;
+  @SuppressWarnings("unused") // never read
+  private final String name;
 
-    private final List<String> values;
-    private final int[] weights;
-    private final String[] distribution;
-    private final int maxWeight;
+  private final List<String> values;
+  private final int[] weights;
+  private final String[] distribution;
+  private final int maxWeight;
 
-    public Distribution(String name, Map<String, Integer> distribution) {
-        this.name = requireNonNull(name, "name is null");
-        requireNonNull(distribution, "distribution is null");
+  public Distribution(String name, Map<String, Integer> distribution) {
+    this.name = requireNonNull(name, "name is null");
+    requireNonNull(distribution, "distribution is null");
 
-        List<String> values = new ArrayList<>();
-        this.weights = new int[distribution.size()];
+    List<String> values = new ArrayList<>();
+    this.weights = new int[distribution.size()];
 
-        int runningWeight = 0;
-        int index = 0;
-        boolean isValidDistribution = true;
-        for (Entry<String, Integer> entry : distribution.entrySet()) {
-            values.add(entry.getKey());
+    int runningWeight = 0;
+    int index = 0;
+    boolean isValidDistribution = true;
+    for (Entry<String, Integer> entry : distribution.entrySet()) {
+      values.add(entry.getKey());
 
-            runningWeight += entry.getValue();
-            weights[index] = runningWeight;
+      runningWeight += entry.getValue();
+      weights[index] = runningWeight;
 
-            isValidDistribution &= entry.getValue() > 0;
+      isValidDistribution &= entry.getValue() > 0;
 
-            index++;
+      index++;
+    }
+    this.values = values;
+
+    // "nations" is hack and not a valid distribution so we need to skip it
+    if (isValidDistribution) {
+      this.maxWeight = weights[weights.length - 1];
+      this.distribution = new String[maxWeight];
+
+      index = 0;
+      for (String value : this.values) {
+        int count = distribution.get(value);
+        for (int i = 0; i < count; i++) {
+          this.distribution[index] = value;
+          index++;
         }
-        this.values = values;
-
-        // "nations" is hack and not a valid distribution so we need to skip it
-        if (isValidDistribution) {
-            this.maxWeight = weights[weights.length - 1];
-            this.distribution = new String[maxWeight];
-
-            index = 0;
-            for (String value : this.values) {
-                int count = distribution.get(value);
-                for (int i = 0; i < count; i++) {
-                    this.distribution[index] = value;
-                    index++;
-                }
-            }
-        } else {
-            this.maxWeight = -1;
-            this.distribution = null;
-        }
+      }
+    } else {
+      this.maxWeight = -1;
+      this.distribution = null;
     }
+  }
 
-    public String getValue(int index) {
-        return values.get(index);
-    }
+  public String getValue(int index) {
+    return values.get(index);
+  }
 
-    public List<String> getValues() {
-        return values;
-    }
+  public List<String> getValues() {
+    return values;
+  }
 
-    public int getWeight(int index) {
-        return weights[index];
-    }
+  public int getWeight(int index) {
+    return weights[index];
+  }
 
-    public int size() {
-        return values.size();
-    }
+  public int size() {
+    return values.size();
+  }
 
-    public String randomValue(RowRandomInt randomInt) {
-        int randomValue = randomInt.nextInt(0, maxWeight - 1);
-        return distribution[randomValue];
-    }
+  public String randomValue(RowRandomInt randomInt) {
+    int randomValue = randomInt.nextInt(0, maxWeight - 1);
+    return distribution[randomValue];
+  }
 }

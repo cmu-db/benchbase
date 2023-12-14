@@ -15,7 +15,6 @@
  *
  */
 
-
 package com.oltpbenchmark.catalog;
 
 import java.util.Objects;
@@ -26,72 +25,73 @@ import java.util.Objects;
  * @author pavlo
  */
 public class Column extends AbstractCatalogObject {
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private final Table table;
-    private final int type;
-    private final Integer size;
-    private final boolean nullable;
+  private final Table table;
+  private final int type;
+  private final Integer size;
+  private final boolean nullable;
 
-    private Column foreignKey = null;
+  private Column foreignKey = null;
 
-    public Column(String name, String separator, Table table, int type, Integer size, boolean nullable) {
-        super(name, separator);
-        this.table = table;
-        this.type = type;
-        this.size = size;
-        this.nullable = nullable;
+  public Column(
+      String name, String separator, Table table, int type, Integer size, boolean nullable) {
+    super(name, separator);
+    this.table = table;
+    this.type = type;
+    this.size = size;
+    this.nullable = nullable;
+  }
+
+  public Table getTable() {
+    return table;
+  }
+
+  public int getType() {
+    return type;
+  }
+
+  public Integer getSize() {
+    return size;
+  }
+
+  public boolean isNullable() {
+    return nullable;
+  }
+
+  public Column getForeignKey() {
+    return foreignKey;
+  }
+
+  public void setForeignKey(Column foreignKey) {
+    this.foreignKey = foreignKey;
+  }
+
+  public int getIndex() {
+    return this.table.getColumnIndex(this);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
     }
-
-    public Table getTable() {
-        return table;
+    if (o == null || getClass() != o.getClass()) {
+      return false;
     }
-
-    public int getType() {
-        return type;
+    if (!super.equals(o)) {
+      return false;
     }
+    Column column = (Column) o;
+    return type == column.type
+        && nullable == column.nullable
+        && Objects.equals(table, column.table)
+        && Objects.equals(size, column.size)
+        && Objects.equals(foreignKey, column.foreignKey);
+  }
 
-    public Integer getSize() {
-        return size;
-    }
-
-    public boolean isNullable() {
-        return nullable;
-    }
-
-    public Column getForeignKey() {
-        return foreignKey;
-    }
-
-    public void setForeignKey(Column foreignKey) {
-        this.foreignKey = foreignKey;
-    }
-
-    public int getIndex() {
-        return this.table.getColumnIndex(this);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
-        Column column = (Column) o;
-        return type == column.type &&
-                nullable == column.nullable &&
-                Objects.equals(table, column.table) &&
-                Objects.equals(size, column.size) &&
-                Objects.equals(foreignKey, column.foreignKey);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), table.name, type, size, nullable, foreignKey);
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), table.name, type, size, nullable, foreignKey);
+  }
 }

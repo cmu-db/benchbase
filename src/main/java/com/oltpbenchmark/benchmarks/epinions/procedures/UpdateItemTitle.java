@@ -19,22 +19,19 @@ package com.oltpbenchmark.benchmarks.epinions.procedures;
 
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class UpdateItemTitle extends Procedure {
 
-    public final SQLStmt updateItem = new SQLStmt(
-            "UPDATE item SET title = ? WHERE i_id=?"
-    );
+  public final SQLStmt updateItem = new SQLStmt("UPDATE item SET title = ? WHERE i_id=?");
 
-    public void run(Connection conn, long iid, String title) throws SQLException {
-        try (PreparedStatement stmt = this.getPreparedStatement(conn, updateItem)) {
-            stmt.setString(1, title);
-            stmt.setLong(2, iid);
-            stmt.executeUpdate();
-        }
+  public void run(Connection conn, long iid, String title) throws SQLException {
+    try (PreparedStatement stmt = this.getPreparedStatement(conn, updateItem)) {
+      stmt.setString(1, title);
+      stmt.setLong(2, iid);
+      stmt.executeUpdate();
     }
+  }
 }

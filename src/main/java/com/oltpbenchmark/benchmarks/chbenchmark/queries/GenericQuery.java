@@ -19,7 +19,6 @@ package com.oltpbenchmark.benchmarks.chbenchmark.queries;
 
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -27,13 +26,14 @@ import java.sql.SQLException;
 
 public abstract class GenericQuery extends Procedure {
 
-    protected abstract SQLStmt get_query();
+  protected abstract SQLStmt get_query();
 
-    public void run(Connection conn) throws SQLException {
-        try (PreparedStatement stmt = this.getPreparedStatement(conn, get_query()); ResultSet rs = stmt.executeQuery()) {
-            while (rs.next()) {
-                //do nothing
-            }
-        }
+  public void run(Connection conn) throws SQLException {
+    try (PreparedStatement stmt = this.getPreparedStatement(conn, get_query());
+        ResultSet rs = stmt.executeQuery()) {
+      while (rs.next()) {
+        // do nothing
+      }
     }
+  }
 }

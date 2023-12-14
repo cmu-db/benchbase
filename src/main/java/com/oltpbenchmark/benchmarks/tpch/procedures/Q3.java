@@ -21,7 +21,6 @@ import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.tpch.TPCHConstants;
 import com.oltpbenchmark.benchmarks.tpch.TPCHUtil;
 import com.oltpbenchmark.util.RandomGenerator;
-
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -29,7 +28,9 @@ import java.sql.SQLException;
 
 public class Q3 extends GenericQuery {
 
-    public final SQLStmt query_stmt = new SQLStmt("""
+  public final SQLStmt query_stmt =
+      new SQLStmt(
+          """
             SELECT
                l_orderkey,
                SUM(l_extendedprice * (1 - l_discount)) AS revenue,
@@ -52,21 +53,21 @@ public class Q3 extends GenericQuery {
             ORDER BY
                revenue DESC,
                o_orderdate LIMIT 10
-            """
-    );
+            """);
 
-    @Override
-    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
-        String segment = TPCHUtil.choice(TPCHConstants.SEGMENTS, rand);
+  @Override
+  protected PreparedStatement getStatement(
+      Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
+    String segment = TPCHUtil.choice(TPCHConstants.SEGMENTS, rand);
 
-        // date must be randomly selected between [1995-03-01, 1995-03-31]
-        int day = rand.number(1, 31);
-        String date = String.format("1995-03-%02d", day);
+    // date must be randomly selected between [1995-03-01, 1995-03-31]
+    int day = rand.number(1, 31);
+    String date = String.format("1995-03-%02d", day);
 
-        PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
-        stmt.setString(1, segment);
-        stmt.setDate(2, Date.valueOf(date));
-        stmt.setDate(3, Date.valueOf(date));
-        return stmt;
-    }
+    PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
+    stmt.setString(1, segment);
+    stmt.setDate(2, Date.valueOf(date));
+    stmt.setDate(3, Date.valueOf(date));
+    return stmt;
+  }
 }

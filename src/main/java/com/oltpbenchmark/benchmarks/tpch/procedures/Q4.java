@@ -19,7 +19,6 @@ package com.oltpbenchmark.benchmarks.tpch.procedures;
 
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.util.RandomGenerator;
-
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -27,7 +26,9 @@ import java.sql.SQLException;
 
 public class Q4 extends GenericQuery {
 
-    public final SQLStmt query_stmt = new SQLStmt("""
+  public final SQLStmt query_stmt =
+      new SQLStmt(
+          """
             SELECT
                o_orderpriority,
                COUNT(*) AS order_count
@@ -50,18 +51,18 @@ public class Q4 extends GenericQuery {
                o_orderpriority
             ORDER BY
                o_orderpriority
-            """
-    );
+            """);
 
-    @Override
-    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
-        int year = rand.number(1993, 1997);
-        int month = rand.number(1, 10);
-        String date = String.format("%d-%02d-01", year, month);
+  @Override
+  protected PreparedStatement getStatement(
+      Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
+    int year = rand.number(1993, 1997);
+    int month = rand.number(1, 10);
+    String date = String.format("%d-%02d-01", year, month);
 
-        PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
-        stmt.setDate(1, Date.valueOf(date));
-        stmt.setDate(2, Date.valueOf(date));
-        return stmt;
-    }
+    PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
+    stmt.setDate(1, Date.valueOf(date));
+    stmt.setDate(2, Date.valueOf(date));
+    return stmt;
+  }
 }

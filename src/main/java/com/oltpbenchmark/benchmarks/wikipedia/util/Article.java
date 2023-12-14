@@ -15,25 +15,22 @@
  *
  */
 
-
 package com.oltpbenchmark.benchmarks.wikipedia.util;
 
 public class Article {
 
-    public String userText;
-    public int pageId;
-    public String oldText;
-    public long textId;
-    public long revisionId;
+  public String userText;
+  public int pageId;
+  public String oldText;
+  public long textId;
+  public long revisionId;
 
-    public Article(String userText, int pageId, String oldText, long textId,
-                   long revisionId) {
-        super();
-        this.userText = userText;
-        this.pageId = pageId;
-        this.oldText = oldText;
-        this.textId = textId;
-        this.revisionId = revisionId;
-    }
-
+  public Article(String userText, int pageId, String oldText, long textId, long revisionId) {
+    super();
+    this.userText = userText;
+    this.pageId = pageId;
+    this.oldText = oldText;
+    this.textId = textId;
+    this.revisionId = revisionId;
+  }
 }

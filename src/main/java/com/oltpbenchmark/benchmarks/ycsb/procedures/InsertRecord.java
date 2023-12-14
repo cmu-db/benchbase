@@ -17,29 +17,26 @@
 
 package com.oltpbenchmark.benchmarks.ycsb.procedures;
 
+import static com.oltpbenchmark.benchmarks.ycsb.YCSBConstants.TABLE_NAME;
+
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import static com.oltpbenchmark.benchmarks.ycsb.YCSBConstants.TABLE_NAME;
-
 public class InsertRecord extends Procedure {
-    public final SQLStmt insertStmt = new SQLStmt(
-            "INSERT INTO " + TABLE_NAME + " VALUES (?,?,?,?,?,?,?,?,?,?,?)"
-    );
+  public final SQLStmt insertStmt =
+      new SQLStmt("INSERT INTO " + TABLE_NAME + " VALUES (?,?,?,?,?,?,?,?,?,?,?)");
 
-    // FIXME: The value in ysqb is a byteiterator
-    public void run(Connection conn, int keyname, String[] vals) throws SQLException {
-        try (PreparedStatement stmt = this.getPreparedStatement(conn, this.insertStmt)) {
-            stmt.setInt(1, keyname);
-            for (int i = 0; i < vals.length; i++) {
-                stmt.setString(i + 2, vals[i]);
-            }
-            stmt.executeUpdate();
-        }
+  // FIXME: The value in ysqb is a byteiterator
+  public void run(Connection conn, int keyname, String[] vals) throws SQLException {
+    try (PreparedStatement stmt = this.getPreparedStatement(conn, this.insertStmt)) {
+      stmt.setInt(1, keyname);
+      for (int i = 0; i < vals.length; i++) {
+        stmt.setString(i + 2, vals[i]);
+      }
+      stmt.executeUpdate();
     }
-
+  }
 }

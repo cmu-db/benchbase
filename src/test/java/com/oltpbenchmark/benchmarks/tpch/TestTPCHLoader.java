@@ -18,19 +18,17 @@ package com.oltpbenchmark.benchmarks.tpch;
 
 import com.oltpbenchmark.api.AbstractTestLoader;
 import com.oltpbenchmark.api.Procedure;
-
 import java.util.List;
 
 public class TestTPCHLoader extends AbstractTestLoader<TPCHBenchmark> {
 
-    @Override
-    public List<Class<? extends Procedure>> procedures() {
-        return TestTPCHBenchmark.PROCEDURE_CLASSES;
-    }
+  @Override
+  public List<Class<? extends Procedure>> procedures() {
+    return TestTPCHBenchmark.PROCEDURE_CLASSES;
+  }
 
-    @Override
-    public Class<TPCHBenchmark> benchmarkClass() {
-        return TPCHBenchmark.class;
-    }
-
+  @Override
+  public Class<TPCHBenchmark> benchmarkClass() {
+    return TPCHBenchmark.class;
+  }
 }

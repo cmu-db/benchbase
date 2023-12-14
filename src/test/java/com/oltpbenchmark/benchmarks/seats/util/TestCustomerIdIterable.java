@@ -21,7 +21,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 import com.oltpbenchmark.util.Histogram;
-
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
@@ -30,36 +29,31 @@ import org.junit.Test;
 
 public class TestCustomerIdIterable {
 
-    final Random rand = new Random();
-    final Histogram<Long> airport_max_customer_id = new Histogram<Long>();
-    CustomerIdIterable customer_id_iterable;
+  final Random rand = new Random();
+  final Histogram<Long> airport_max_customer_id = new Histogram<Long>();
+  CustomerIdIterable customer_id_iterable;
 
-    @Before
-    public void setUp() throws Exception {
-        for (long airport = 0; airport <= 285; airport++) {
-            this.airport_max_customer_id.put(airport, rand.nextInt(100));
-        } // FOR
-        this.customer_id_iterable = new CustomerIdIterable(this.airport_max_customer_id);
-    }
+  @Before
+  public void setUp() throws Exception {
+    for (long airport = 0; airport <= 285; airport++) {
+      this.airport_max_customer_id.put(airport, rand.nextInt(100));
+    } // FOR
+    this.customer_id_iterable = new CustomerIdIterable(this.airport_max_customer_id);
+  }
 
-
-    /**
-     * testIterator
-     */
-    @Test
-    public void testIterator() throws Exception {
-        Set<String> seen_ids = new HashSet<>();
-        Histogram<Long> airport_ids = new Histogram<>();
-        for (CustomerId c_id : this.customer_id_iterable) {
-            assertNotNull(c_id);
-            String encoded = c_id.encode();
-            assertFalse(seen_ids.contains(encoded));
-            seen_ids.add(encoded);
-            airport_ids.put(c_id.getDepartAirportId());
-        } // FOR
-        assertEquals(this.airport_max_customer_id.getSampleCount(), seen_ids.size());
-        assertEquals(this.airport_max_customer_id, airport_ids);
-    }
-
-
+  /** testIterator */
+  @Test
+  public void testIterator() throws Exception {
+    Set<String> seen_ids = new HashSet<>();
+    Histogram<Long> airport_ids = new Histogram<>();
+    for (CustomerId c_id : this.customer_id_iterable) {
+      assertNotNull(c_id);
+      String encoded = c_id.encode();
+      assertFalse(seen_ids.contains(encoded));
+      seen_ids.add(encoded);
+      airport_ids.put(c_id.getDepartAirportId());
+    } // FOR
+    assertEquals(this.airport_max_customer_id.getSampleCount(), seen_ids.size());
+    assertEquals(this.airport_max_customer_id, airport_ids);
+  }
 }
