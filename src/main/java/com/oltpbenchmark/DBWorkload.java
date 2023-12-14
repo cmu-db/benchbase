@@ -530,7 +530,7 @@ public class DBWorkload {
         }
 
         if (r.getState() == State.ERROR) {
-          throw new RuntimeException("Errors encountered during benchmark execution.");
+          throw new RuntimeException("Errors encountered during benchmark execution. See output above for details.");
         }
       } catch (Throwable ex) {
         LOG.error("Unexpected error when executing benchmarks.", ex);
