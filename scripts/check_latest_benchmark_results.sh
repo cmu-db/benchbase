@@ -33,20 +33,21 @@ summary_json="results/${benchmark}_${ts}.summary.json"
 
 if ! type xmllint 2>/dev/null; then
     # Attempt to install xmllint.
-    sudo -n apt-get install -y libxml2-utils
+    # TODO: Add support for non apt based systems.
+    sudo -n /bin/bash -c "apt-get update && apt-get install -y libxml2-utils" || true
 fi
 if ! type xmllint 2>/dev/null; then
-    echo "ERROR: Missign xmllint utility." >&2
+    echo "ERROR: Missing xmllint utility." >&2
     exit 1
 fi
 
 # FIXME: Doesn't currently handle multiple workloads.
-runtime=$(xmllint --xpath '//works/work/time/text()' "$config_file" 2>/dev/null || true)
+runtime=$(xmllint --xpath '//works/work/time/text()' "$config_file" || true)
 # TODO: include warmup?
 
 if [ -z "$runtime" ]; then
     # FIXME: Doesn't currently handle serial benchmarks.
-    echo "ERROR: Failed to find runtime in config file: $config_file" >&2
+    echo "ERROR: Failed to find expected runtime in config file: $config_file" >&2
     exit 1
 fi
 
