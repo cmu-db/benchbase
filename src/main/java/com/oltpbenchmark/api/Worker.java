@@ -401,15 +401,17 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
         if (this.conn == null) {
           try {
             if (!this.configuration.getNewConnectionPerTxn()) {
-              LOG.info("(Re)connecting to database.");
               if (retryCount > 0) {
                 Duration delay = Duration.ofSeconds(Math.min(maxRetryCount, 5));
-                LOG.debug("Backing off {} seconds before reconnecting.", delay.toSeconds());
+                LOG.info("Backing off {} seconds before reconnecting.", delay.toSeconds());
                 try {
                   Thread.sleep(delay);
                 } catch (InterruptedException ex) {
                   // pass
                 }
+              }
+              else {
+                LOG.info("(Re)connecting to database.");
               }
             }
             this.conn = this.benchmark.makeConnection();
