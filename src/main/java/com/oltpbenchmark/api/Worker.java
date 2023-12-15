@@ -26,15 +26,18 @@ import com.oltpbenchmark.types.State;
 import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.Histogram;
 import com.oltpbenchmark.util.SQLUtil;
+import java.lang.Math;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.SQLRecoverableException;
 import java.sql.Statement;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -399,9 +402,18 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
         if (this.conn == null) {
           try {
-            // TODO: Implement reconnect backoff logic?
             if (!this.configuration.getNewConnectionPerTxn()) {
               LOG.debug("(Re)connecting to database.");
+              if (retryCount > 0) {
+                Duration delay = Duration.ofSeconds(Math.min(maxRetryCount, 5));
+                LOG.debug("Backing off %s seconds before reconnecting.", delay.toSeconds());
+                try {
+                  Thread.sleep(delay);
+                }
+                catch (InterruptedException ex) {
+                  // pass
+                }
+              }
             }
             this.conn = this.benchmark.makeConnection();
             this.conn.setAutoCommit(false);
