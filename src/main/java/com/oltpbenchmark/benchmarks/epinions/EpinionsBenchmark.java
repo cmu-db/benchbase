@@ -15,7 +15,6 @@
  *
  */
 
-
 package com.oltpbenchmark.benchmarks.epinions;
 
 import com.oltpbenchmark.WorkloadConfiguration;
@@ -26,87 +25,82 @@ import com.oltpbenchmark.benchmarks.epinions.procedures.GetAverageRatingByTruste
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.SQLUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class EpinionsBenchmark extends BenchmarkModule {
+public final class EpinionsBenchmark extends BenchmarkModule {
 
-    private static final Logger LOG = LoggerFactory.getLogger(EpinionsBenchmark.class);
+  private static final Logger LOG = LoggerFactory.getLogger(EpinionsBenchmark.class);
 
-    public EpinionsBenchmark(WorkloadConfiguration workConf) {
-        super(workConf);
-    }
+  public EpinionsBenchmark(WorkloadConfiguration workConf) {
+    super(workConf);
+  }
 
-    @Override
-    protected Package getProcedurePackageImpl() {
-        return GetAverageRatingByTrustedUser.class.getPackage();
-    }
+  @Override
+  protected Package getProcedurePackageImpl() {
+    return GetAverageRatingByTrustedUser.class.getPackage();
+  }
 
-    @Override
-    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
-        List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
-        DatabaseType databaseType = this.getWorkloadConfiguration().getDatabaseType();
+  @Override
+  protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
+    List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
+    DatabaseType databaseType = this.getWorkloadConfiguration().getDatabaseType();
 
-        try {
+    try {
 
+      // LOADING FROM THE DATABASE IMPORTANT INFORMATION
+      // LIST OF USERS
 
-            // LOADING FROM THE DATABASE IMPORTANT INFORMATION
-            // LIST OF USERS
+      Table t = this.getCatalog().getTable("USERACCT");
 
-            Table t = this.getCatalog().getTable("USERACCT");
+      ArrayList<String> user_ids = new ArrayList<>();
+      ArrayList<String> item_ids = new ArrayList<>();
+      String userCount = SQLUtil.selectColValues(databaseType, t, "u_id");
 
-
-            ArrayList<String> user_ids = new ArrayList<>();
-            ArrayList<String> item_ids = new ArrayList<>();
-            String userCount = SQLUtil.selectColValues(databaseType, t, "u_id");
-
-            try (Connection metaConn = this.makeConnection()) {
-                try (Statement stmt = metaConn.createStatement()) {
-                    try (ResultSet res = stmt.executeQuery(userCount)) {
-                        while (res.next()) {
-                            user_ids.add(res.getString(1));
-                        }
-                    }
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Loaded: {} User ids", user_ids.size());
-                    }
-                    // LIST OF ITEMS AND
-                    t = this.getCatalog().getTable("ITEM");
-
-
-                    String itemCount = SQLUtil.selectColValues(databaseType, t, "i_id");
-                    try (ResultSet res = stmt.executeQuery(itemCount)) {
-                        while (res.next()) {
-                            item_ids.add(res.getString(1));
-                        }
-                    }
-                }
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Loaded: {} Item ids", item_ids.size());
-                }
+      try (Connection metaConn = this.makeConnection()) {
+        try (Statement stmt = metaConn.createStatement()) {
+          try (ResultSet res = stmt.executeQuery(userCount)) {
+            while (res.next()) {
+              user_ids.add(res.getString(1));
             }
+          }
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Loaded: {} User ids", user_ids.size());
+          }
+          // LIST OF ITEMS AND
+          t = this.getCatalog().getTable("ITEM");
 
-            // Now create the workers.
-            for (int i = 0; i < workConf.getTerminals(); ++i) {
-                workers.add(new EpinionsWorker(this, i, user_ids, item_ids));
+          String itemCount = SQLUtil.selectColValues(databaseType, t, "i_id");
+          try (ResultSet res = stmt.executeQuery(itemCount)) {
+            while (res.next()) {
+              item_ids.add(res.getString(1));
             }
-
-        } catch (SQLException e) {
-            LOG.error(e.getMessage(), e);
+          }
         }
-        return workers;
-    }
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("Loaded: {} Item ids", item_ids.size());
+        }
+      }
 
-    @Override
-    protected Loader<EpinionsBenchmark> makeLoaderImpl() {
-        return new EpinionsLoader(this);
-    }
+      // Now create the workers.
+      for (int i = 0; i < workConf.getTerminals(); ++i) {
+        workers.add(new EpinionsWorker(this, i, user_ids, item_ids));
+      }
 
+    } catch (SQLException e) {
+      LOG.error(e.getMessage(), e);
+    }
+    return workers;
+  }
+
+  @Override
+  protected Loader<EpinionsBenchmark> makeLoaderImpl() {
+    return new EpinionsLoader(this);
+  }
 }

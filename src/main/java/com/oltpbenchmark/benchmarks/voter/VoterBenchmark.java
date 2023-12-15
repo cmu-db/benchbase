@@ -22,41 +22,40 @@ import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.voter.procedures.Vote;
-
 import java.util.ArrayList;
 import java.util.List;
 
-public class VoterBenchmark extends BenchmarkModule {
+public final class VoterBenchmark extends BenchmarkModule {
 
-    public final int numContestants;
+  public final int numContestants;
 
-    public VoterBenchmark(WorkloadConfiguration workConf) {
-        super(workConf);
+  public VoterBenchmark(WorkloadConfiguration workConf) {
+    super(workConf);
 
-        int contestants = Math.max(1, (int) Math.round(VoterConstants.NUM_CONTESTANTS * workConf.getScaleFactor()));
-        if (contestants > VoterConstants.CONTESTANT_NAMES.length) {
-            contestants = VoterConstants.CONTESTANT_NAMES.length;
-        }
-        this.numContestants = contestants;
+    int contestants =
+        Math.max(1, (int) Math.round(VoterConstants.NUM_CONTESTANTS * workConf.getScaleFactor()));
+    if (contestants > VoterConstants.CONTESTANT_NAMES.length) {
+      contestants = VoterConstants.CONTESTANT_NAMES.length;
     }
+    this.numContestants = contestants;
+  }
 
-    @Override
-    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
-        List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
-        for (int i = 0; i < workConf.getTerminals(); ++i) {
-            workers.add(new VoterWorker(this, i));
-        }
-        return workers;
+  @Override
+  protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
+    List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
+    for (int i = 0; i < workConf.getTerminals(); ++i) {
+      workers.add(new VoterWorker(this, i));
     }
+    return workers;
+  }
 
-    @Override
-    protected Loader<VoterBenchmark> makeLoaderImpl() {
-        return new VoterLoader(this);
-    }
+  @Override
+  protected Loader<VoterBenchmark> makeLoaderImpl() {
+    return new VoterLoader(this);
+  }
 
-    @Override
-    protected Package getProcedurePackageImpl() {
-        return Vote.class.getPackage();
-    }
-
+  @Override
+  protected Package getProcedurePackageImpl() {
+    return Vote.class.getPackage();
+  }
 }

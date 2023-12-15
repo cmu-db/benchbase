@@ -17,32 +17,31 @@
 package com.oltpbenchmark.api;
 
 import com.oltpbenchmark.WorkloadConfiguration;
-
 import java.io.IOException;
 import java.util.List;
 
-public class MockBenchmark extends BenchmarkModule {
-    public MockBenchmark() {
-        super(new WorkloadConfiguration());
-        this.workConf.setBenchmarkName("mockbenchmark");
-    }
+public final class MockBenchmark extends BenchmarkModule {
+  public MockBenchmark() {
+    super(new WorkloadConfiguration());
+    this.workConf.setBenchmarkName("mockbenchmark");
+  }
 
-    public MockBenchmark(WorkloadConfiguration workConf) {
-        super(workConf);
-    }
+  public MockBenchmark(WorkloadConfiguration workConf) {
+    super(workConf);
+  }
 
-    @Override
-    protected Package getProcedurePackageImpl() {
-        return null;
-    }
+  @Override
+  protected Package getProcedurePackageImpl() {
+    return null;
+  }
 
-    @Override
-    protected Loader<MockBenchmark> makeLoaderImpl() {
-        return null;
-    }
+  @Override
+  protected Loader<MockBenchmark> makeLoaderImpl() {
+    return null;
+  }
 
-    @Override
-    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() throws IOException {
-        return null;
-    }
+  @Override
+  protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() throws IOException {
+    return null;
+  }
 }

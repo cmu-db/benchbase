@@ -1,6 +1,5 @@
 # For the devcontainer we need a full JDK.
-#FROM --platform=linux maven:3.8.5-eclipse-temurin-17 AS devcontainer
-FROM maven:3.9.3-eclipse-temurin-17 AS devcontainer
+FROM maven:3.9.5-eclipse-temurin-21 AS devcontainer
 
 LABEL org.opencontainers.image.source = "https://github.com/cmu-db/benchbase/"
 
@@ -8,7 +7,7 @@ LABEL org.opencontainers.image.source = "https://github.com/cmu-db/benchbase/"
 # Also add a few nice cli tools.
 RUN apt-get update \
     && apt-get -y upgrade \
-    && apt-get -y install --no-install-recommends sudo vim-nox neovim less bash-completion colordiff git openssh-client jq \
+    && apt-get -y install --no-install-recommends sudo vim-nox neovim less bash-completion colordiff git openssh-client jq ripgrep libxml2-utils \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Add a containeruser that allows vscode/codespaces to map the local host user

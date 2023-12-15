@@ -17,31 +17,31 @@
 
 package com.oltpbenchmark.benchmarks.ycsb.procedures;
 
+import static com.oltpbenchmark.benchmarks.ycsb.YCSBConstants.TABLE_NAME;
+
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import static com.oltpbenchmark.benchmarks.ycsb.YCSBConstants.TABLE_NAME;
-
 public class UpdateRecord extends Procedure {
 
-    public final SQLStmt updateAllStmt = new SQLStmt(
-            "UPDATE " + TABLE_NAME + " SET FIELD1=?,FIELD2=?,FIELD3=?,FIELD4=?,FIELD5=?," +
-                    "FIELD6=?,FIELD7=?,FIELD8=?,FIELD9=?,FIELD10=? WHERE YCSB_KEY=?"
-    );
+  public final SQLStmt updateAllStmt =
+      new SQLStmt(
+          "UPDATE "
+              + TABLE_NAME
+              + " SET FIELD1=?,FIELD2=?,FIELD3=?,FIELD4=?,FIELD5=?,"
+              + "FIELD6=?,FIELD7=?,FIELD8=?,FIELD9=?,FIELD10=? WHERE YCSB_KEY=?");
 
-    public void run(Connection conn, int keyname, String[] vals) throws SQLException {
-        try (PreparedStatement stmt = this.getPreparedStatement(conn, updateAllStmt)) {
+  public void run(Connection conn, int keyname, String[] vals) throws SQLException {
+    try (PreparedStatement stmt = this.getPreparedStatement(conn, updateAllStmt)) {
 
-            stmt.setInt(11, keyname);
-            for (int i = 0; i < vals.length; i++) {
-                stmt.setString(i + 1, vals[i]);
-            }
-            stmt.executeUpdate();
-        }
+      stmt.setInt(11, keyname);
+      for (int i = 0; i < vals.length; i++) {
+        stmt.setString(i + 1, vals[i]);
+      }
+      stmt.executeUpdate();
     }
+  }
 }
-

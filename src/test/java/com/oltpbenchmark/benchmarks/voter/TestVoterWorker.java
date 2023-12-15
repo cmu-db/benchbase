@@ -18,18 +18,17 @@ package com.oltpbenchmark.benchmarks.voter;
 
 import com.oltpbenchmark.api.AbstractTestWorker;
 import com.oltpbenchmark.api.Procedure;
-
 import java.util.List;
 
 public class TestVoterWorker extends AbstractTestWorker<VoterBenchmark> {
 
-    @Override
-    public List<Class<? extends Procedure>> procedures() {
-        return TestVoterBenchmark.PROCEDURE_CLASSES;
-    }
+  @Override
+  public List<Class<? extends Procedure>> procedures() {
+    return TestVoterBenchmark.PROCEDURE_CLASSES;
+  }
 
-    @Override
-    public Class<VoterBenchmark> benchmarkClass() {
-        return VoterBenchmark.class;
-    }
+  @Override
+  public Class<VoterBenchmark> benchmarkClass() {
+    return VoterBenchmark.class;
+  }
 }

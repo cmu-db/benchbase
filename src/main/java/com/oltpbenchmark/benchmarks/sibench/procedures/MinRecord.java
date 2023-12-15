@@ -17,26 +17,27 @@
 
 package com.oltpbenchmark.benchmarks.sibench.procedures;
 
+import static com.oltpbenchmark.benchmarks.sibench.SIConstants.TABLE_NAME;
+
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import static com.oltpbenchmark.benchmarks.sibench.SIConstants.TABLE_NAME;
-
 public class MinRecord extends Procedure {
-    public final SQLStmt minStmt = new SQLStmt("SELECT id FROM " + TABLE_NAME + " ORDER BY value ASC LIMIT 1");
+  public final SQLStmt minStmt =
+      new SQLStmt("SELECT id FROM " + TABLE_NAME + " ORDER BY value ASC LIMIT 1");
 
-    public int run(Connection conn) throws SQLException {
-        int minId = 0;
-        try (PreparedStatement stmt = this.getPreparedStatement(conn, minStmt); ResultSet r = stmt.executeQuery()) {
-            while (r.next()) {
-                minId = r.getInt(1);
-            }
-        }
-        return minId;
+  public int run(Connection conn) throws SQLException {
+    int minId = 0;
+    try (PreparedStatement stmt = this.getPreparedStatement(conn, minStmt);
+        ResultSet r = stmt.executeQuery()) {
+      while (r.next()) {
+        minId = r.getInt(1);
+      }
     }
+    return minId;
+  }
 }

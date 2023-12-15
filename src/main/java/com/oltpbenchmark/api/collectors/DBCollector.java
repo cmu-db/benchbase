@@ -18,46 +18,43 @@
 package com.oltpbenchmark.api.collectors;
 
 import com.oltpbenchmark.util.JSONUtil;
+import java.util.Map;
+import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
-import java.util.TreeMap;
-
 public class DBCollector implements DBParameterCollector {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(DBCollector.class);
+  protected static final Logger LOG = LoggerFactory.getLogger(DBCollector.class);
 
-    protected final Map<String, String> dbParameters = new TreeMap<>();
+  protected final Map<String, String> dbParameters = new TreeMap<>();
 
-    protected final Map<String, String> dbMetrics = new TreeMap<>();
+  protected final Map<String, String> dbMetrics = new TreeMap<>();
 
-    protected String version = null;
+  protected String version = null;
 
-    @Override
-    public boolean hasParameters() {
-        return (!dbParameters.isEmpty());
-    }
+  @Override
+  public boolean hasParameters() {
+    return (!dbParameters.isEmpty());
+  }
 
-    @Override
-    public boolean hasMetrics() {
-        return (!dbMetrics.isEmpty());
-    }
+  @Override
+  public boolean hasMetrics() {
+    return (!dbMetrics.isEmpty());
+  }
 
-    @Override
-    public String collectParameters() {
-        return JSONUtil.format(JSONUtil.toJSONString(dbParameters));
-    }
+  @Override
+  public String collectParameters() {
+    return JSONUtil.format(JSONUtil.toJSONString(dbParameters));
+  }
 
-    @Override
-    public String collectMetrics() {
-        return JSONUtil.format(JSONUtil.toJSONString(dbMetrics));
-    }
+  @Override
+  public String collectMetrics() {
+    return JSONUtil.format(JSONUtil.toJSONString(dbMetrics));
+  }
 
-    @Override
-    public String collectVersion() {
-        return version;
-    }
-
-
+  @Override
+  public String collectVersion() {
+    return version;
+  }
 }

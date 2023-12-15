@@ -14,34 +14,26 @@
  *  limitations under the License.                                            *
  ******************************************************************************/
 
-
 package com.oltpbenchmark.benchmarks.resourcestresser;
 
 import com.oltpbenchmark.api.AbstractTestBenchmarkModule;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.benchmarks.resourcestresser.procedures.*;
-
 import java.util.List;
 
-public class TestResourceStresserBenchmark extends AbstractTestBenchmarkModule<ResourceStresserBenchmark> {
+public class TestResourceStresserBenchmark
+    extends AbstractTestBenchmarkModule<ResourceStresserBenchmark> {
 
-    public static final List<Class<? extends Procedure>> PROCEDURE_CLASSES = List.of(
-            Contention1.class,
-            Contention2.class,
-            CPU1.class,
-            CPU2.class,
-            IO1.class,
-            IO2.class
-    );
+  public static final List<Class<? extends Procedure>> PROCEDURE_CLASSES =
+      List.of(Contention1.class, Contention2.class, CPU1.class, CPU2.class, IO1.class, IO2.class);
 
-    @Override
-    public List<Class<? extends Procedure>> procedures() {
-        return TestResourceStresserBenchmark.PROCEDURE_CLASSES;
-    }
+  @Override
+  public List<Class<? extends Procedure>> procedures() {
+    return TestResourceStresserBenchmark.PROCEDURE_CLASSES;
+  }
 
-    @Override
-    public Class<ResourceStresserBenchmark> benchmarkClass() {
-        return ResourceStresserBenchmark.class;
-    }
-
+  @Override
+  public Class<ResourceStresserBenchmark> benchmarkClass() {
+    return ResourceStresserBenchmark.class;
+  }
 }

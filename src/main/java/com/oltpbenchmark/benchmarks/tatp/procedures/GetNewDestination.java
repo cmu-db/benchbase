@@ -15,13 +15,11 @@
  *
  */
 
-
 package com.oltpbenchmark.benchmarks.tatp.procedures;
 
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.tatp.TATPConstants;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -29,28 +27,33 @@ import java.sql.SQLException;
 
 public class GetNewDestination extends Procedure {
 
-    public final SQLStmt getNewDestination = new SQLStmt(
-            "SELECT cf.numberx " +
-                    "  FROM " + TATPConstants.TABLENAME_SPECIAL_FACILITY + " sf, " +
-                    "       " + TATPConstants.TABLENAME_CALL_FORWARDING + " cf " +
-                    " WHERE sf.s_id = ? " +
-                    "   AND sf.sf_type = ? " +
-                    "   AND sf.is_active = 1 " +
-                    "   AND cf.s_id = sf.s_id " +
-                    "   AND cf.sf_type = sf.sf_type " +
-                    "   AND cf.start_time <= ? " +
-                    "   AND cf.end_time > ?"
-    );
+  public final SQLStmt getNewDestination =
+      new SQLStmt(
+          "SELECT cf.numberx "
+              + "  FROM "
+              + TATPConstants.TABLENAME_SPECIAL_FACILITY
+              + " sf, "
+              + "       "
+              + TATPConstants.TABLENAME_CALL_FORWARDING
+              + " cf "
+              + " WHERE sf.s_id = ? "
+              + "   AND sf.sf_type = ? "
+              + "   AND sf.is_active = 1 "
+              + "   AND cf.s_id = sf.s_id "
+              + "   AND cf.sf_type = sf.sf_type "
+              + "   AND cf.start_time <= ? "
+              + "   AND cf.end_time > ?");
 
-    public void run(Connection conn, long s_id, byte sf_type, byte start_time, byte end_time) throws SQLException {
-        try (PreparedStatement stmt = this.getPreparedStatement(conn, getNewDestination)) {
-            stmt.setLong(1, s_id);
-            stmt.setByte(2, sf_type);
-            stmt.setByte(3, start_time);
-            stmt.setByte(4, end_time);
-            try (ResultSet results = stmt.executeQuery()) {
-
-            }
-        }
+  public void run(Connection conn, long s_id, byte sf_type, byte start_time, byte end_time)
+      throws SQLException {
+    try (PreparedStatement stmt = this.getPreparedStatement(conn, getNewDestination)) {
+      stmt.setLong(1, s_id);
+      stmt.setByte(2, sf_type);
+      stmt.setByte(3, start_time);
+      stmt.setByte(4, end_time);
+      try (ResultSet results = stmt.executeQuery()) {
+        assert results != null;
+      }
     }
+  }
 }

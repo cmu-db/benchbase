@@ -32,8 +32,8 @@ on:
         type: string
 
 env:
-  POM_VERSION: 2021-SNAPSHOT
-  JAVA_VERSION: 17
+  POM_VERSION: 2023-SNAPSHOT
+  JAVA_VERSION: 21
   ERRORS_THRESHOLD: 0.01
 
 jobs:
@@ -44,11 +44,17 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: ${{env.JAVA_VERSION}}
           cache: 'maven'
           distribution: 'temurin'
+
+      - name: Check formatting
+        run: mvn -B fmt:check --file pom.xml
+
+      - name: Compile with Maven
+        run: mvn -B compile test-compile --file pom.xml
 
       - name: Test with Maven
         run: mvn -B test --file pom.xml
@@ -58,20 +64,21 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        profile: [ 'cockroachdb', 'mariadb', 'mysql', 'postgres', 'spanner', 'phoenix', 'sqlserver', 'sqlite' ]
+        profile: [ 'cockroachdb', 'mariadb', 'mysql', 'oracle', 'phoenix', 'postgres', 'spanner', 'sqlite', 'sqlserver' ]
     steps:
     - name: Checkout repo
       uses: actions/checkout@v4
 
     - name: Set up JDK
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         java-version: ${{env.JAVA_VERSION}}
         cache: 'maven'
         distribution: 'temurin'
 
-    - name: Package with Maven
-      run: mvn -B package -P ${{matrix.profile}} --file pom.xml -DskipTests -D descriptors=src/main/assembly/tgz.xml
+    - name: Package and verify with Maven
+      run: |
+        mvn -B package verify -P ${{matrix.profile}} --file pom.xml -DskipTests -D descriptors=src/main/assembly/tgz.xml
 
     - name: Upload TGZ artifact
       uses: actions/upload-artifact@v3
@@ -105,7 +112,7 @@ jobs:
           rm -rf benchbase-sqlite.tgz
 
       - name: Set up JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: ${{env.JAVA_VERSION}}
           distribution: 'temurin'
@@ -114,15 +121,20 @@ jobs:
         run: |
           # For templated benchmarks, we need to preload some data for the test since by design, templated benchmarks do not support the 'load' operation
           # In this case, we load the tpcc data.
-          if [[ ${{matrix.benchmark}} == templated ]]; then
+          if [[ ${{matrix.benchmark}} == templated ]] || [[ ${{matrix.benchmark}} == tpcc ]]; then
             # Disable synchronous mode for sqlite tpcc data loading to save some time.
             java -jar benchbase.jar -b tpcc -c config/sqlite/sample_tpcc_nosync_config.xml --create=true --load=true --execute=false --json-histograms results/histograms.json
             # Run the templated benchmark.
             java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/sqlite/sample_${{matrix.benchmark}}_config.xml --create=false --load=false --execute=true --json-histograms results/histograms.json
+          elif [[ ${{matrix.benchmark}} == tpcc-with-reconnects ]]; then
+            echo "The ${{matrix.benchmark}} benchmark is not supported for sqlite."
+            exit 0
           else
             java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/sqlite/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
           fi
+
           # FIXME: Reduce the error rate so we don't need these overrides.
+          results_benchmark=${{matrix.benchmark}}
           if [ ${{matrix.benchmark}} == auctionmark ]; then
               ERRORS_THRESHOLD=0.02
           elif [ ${{matrix.benchmark}} == resourcestresser ]; then
@@ -131,7 +143,11 @@ jobs:
               ERRORS_THRESHOLD=0.03
           elif [ ${{matrix.benchmark}} == tatp ]; then
               ERRORS_THRESHOLD=0.05
+          elif [ ${{matrix.benchmark}} == tpcc-with-reconnects ]; then
+              ERRORS_THRESHOLD=0.02
+              results_benchmark=tpcc
           fi
+          ./scripts/check_latest_benchmark_results.sh $results_benchmark
           ./scripts/check_histogram_results.sh results/histograms.json $ERRORS_THRESHOLD
 
   ## ----------------------------------------------------------------------------------
@@ -143,7 +159,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'templated', 'tpcc', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
+        # FIXME: Add tpch back in (#333).
+        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'templated', 'tpcc', 'tpcc-with-reconnects', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
     services:
       mariadb: # https://hub.docker.com/_/mariadb
         image: mariadb:latest
@@ -175,7 +192,7 @@ jobs:
           rm -rf benchbase-mariadb.tgz
 
       - name: Set up JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: ${{env.JAVA_VERSION}}
           distribution: 'temurin'
@@ -191,16 +208,26 @@ jobs:
           if [[ ${{matrix.benchmark}} == templated ]]; then
             java -jar benchbase.jar -b tpcc -c config/mariadb/sample_tpcc_config.xml --create=true --load=true --execute=false --json-histograms results/histograms.json
             java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/mariadb/sample_${{matrix.benchmark}}_config.xml --create=false --load=false --execute=true --json-histograms results/histograms.json
+          elif [[ ${{matrix.benchmark}} == tpcc-with-reconnects ]]; then
+            # See Also: WITH_SERVICE_INTERRUPTIONS=true docker/build-run-benchmark-with-docker.sh
+            java -jar benchbase.jar -b tpcc -c config/mariadb/sample_tpcc_config.xml --create=true --load=true
+            (sleep 10 && ./scripts/interrupt-docker-db-service.sh mariadb) &
+            java -jar benchbase.jar -b tpcc -c config/mariadb/sample_tpcc_config.xml --execute=true --json-histograms results/histograms.json
           else
             java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/mariadb/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
           fi
 
           # FIXME: Reduce the error rate so we don't need these overrides.
+          results_benchmark=${{matrix.benchmark}}
           if [ ${{matrix.benchmark}} == auctionmark ]; then
               ERRORS_THRESHOLD=0.02
           elif [ ${{matrix.benchmark}} == tatp ]; then
               ERRORS_THRESHOLD=0.05
+          elif [ ${{matrix.benchmark}} == tpcc-with-reconnects ]; then
+              ERRORS_THRESHOLD=0.02
+              results_benchmark=tpcc
           fi
+          ./scripts/check_latest_benchmark_results.sh $results_benchmark
           ./scripts/check_histogram_results.sh results/histograms.json $ERRORS_THRESHOLD
 
   ## ----------------------------------------------------------------------------------
@@ -212,7 +239,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'templated', 'tpcc', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
+        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'templated', 'tpcc', 'tpcc-with-reconnects', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
     services:
       mysql: # https://hub.docker.com/_/mysql
         image: mysql:latest
@@ -243,7 +270,7 @@ jobs:
           rm -rf benchbase-mysql.tgz
 
       - name: Set up JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: ${{env.JAVA_VERSION}}
           distribution: 'temurin'
@@ -259,16 +286,114 @@ jobs:
           if [[ ${{matrix.benchmark}} == templated ]]; then
             java -jar benchbase.jar -b tpcc -c config/mysql/sample_tpcc_config.xml --create=true --load=true --execute=false --json-histograms results/histograms.json
             java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/mysql/sample_${{matrix.benchmark}}_config.xml --create=false --load=false --execute=true --json-histograms results/histograms.json
+          elif [[ ${{matrix.benchmark}} == tpcc-with-reconnects ]]; then
+            # See Also: WITH_SERVICE_INTERRUPTIONS=true docker/build-run-benchmark-with-docker.sh
+            java -jar benchbase.jar -b tpcc -c config/mysql/sample_tpcc_config.xml --create=true --load=true
+            (sleep 10 && ./scripts/interrupt-docker-db-service.sh mysql) &
+            java -jar benchbase.jar -b tpcc -c config/mysql/sample_tpcc_config.xml --execute=true --json-histograms results/histograms.json
           else
             java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/mysql/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
           fi
 
           # FIXME: Reduce the error rate so we don't need these overrides.
+          results_benchmark=${{matrix.benchmark}}
           if [ ${{matrix.benchmark}} == auctionmark ]; then
               ERRORS_THRESHOLD=0.02
           elif [ ${{matrix.benchmark}} == tatp ]; then
               ERRORS_THRESHOLD=0.05
+          elif [ ${{matrix.benchmark}} == tpcc-with-reconnects ]; then
+              ERRORS_THRESHOLD=0.02
+              results_benchmark=tpcc
           fi
+          ./scripts/check_latest_benchmark_results.sh $results_benchmark
+          ./scripts/check_histogram_results.sh results/histograms.json $ERRORS_THRESHOLD
+
+  ## ----------------------------------------------------------------------------------
+  ## ORACLE
+  ## ----------------------------------------------------------------------------------
+  oracle:
+    needs: package-and-upload
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'templated', 'tpcc', 'tpcc-with-reconnects', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
+    services:
+      oracle:
+        image: gvenzl/oracle-xe:21.3.0-slim-faststart
+        ports:
+          - "1521:1521"
+          - "5500:5500"
+        env:
+          ORACLE_PASSWORD: password
+          ORACLE_CHARACTERSET: AL32UTF8
+          APP_USER: benchbase
+          APP_USER_PASSWORD: password
+        options: >-
+          --name oracle
+          --health-cmd "echo exit | sqlplus benchbase/password@xepdb1 | grep Connected"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+          --health-start-period 5s
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: benchbase-oracle
+
+      - name: Extract artifact
+        run: |
+          tar xvzf benchbase-oracle.tgz --strip-components=1
+
+      - name: Delete artifact
+        run: |
+          rm -rf benchbase-oracle.tgz
+
+      - name: Set up user reset script
+        run: |
+          docker cp config/oracle/scripts/reset.sql oracle:/opt/oracle/reset.sql
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{env.JAVA_VERSION}}
+          distribution: 'temurin'
+
+      - name: Run benchmark
+        run: |
+          docker exec oracle sqlplus "sys/password@xepdb1 as sysdba" @reset.sql
+          # For templated benchmarks, we need to preload some data for the test since by design, templated benchmarks do not support the 'load' operation
+          # In this case, we load the tpcc data.
+          if [[ ${{matrix.benchmark}} == templated ]]; then
+            java -jar benchbase.jar -b tpcc -c config/oracle/sample_tpcc_config.xml --create=true --load=true --execute=false --json-histograms results/histograms.json
+            java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/oracle/sample_${{matrix.benchmark}}_config.xml --create=false --load=false --execute=true --json-histograms results/histograms.json
+          elif [[ ${{matrix.benchmark}} == tpcc-with-reconnects ]]; then
+            # See Also: WITH_SERVICE_INTERRUPTIONS=true docker/build-run-benchmark-with-docker.sh
+            java -jar benchbase.jar -b tpcc -c config/oracle/sample_tpcc_config.xml --create=true --load=true
+            (sleep 10 && ./scripts/interrupt-docker-db-service.sh oracle) &
+            java -jar benchbase.jar -b tpcc -c config/oracle/sample_tpcc_config.xml --execute=true --json-histograms results/histograms.json
+          else
+            java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/oracle/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
+          fi
+
+          # FIXME: Reduce the error rate so we don't need these overrides.
+          results_benchmark=${{matrix.benchmark}}
+          if [ ${{matrix.benchmark}} == auctionmark ]; then
+              ERRORS_THRESHOLD=0.04
+          elif [ ${{matrix.benchmark}} == resourcestresser ]; then
+              ERRORS_THRESHOLD=0.04
+          elif [ ${{matrix.benchmark}} == tatp ]; then
+              ERRORS_THRESHOLD=0.05
+          elif [ ${{matrix.benchmark}} == tpcc ]; then
+              ERRORS_THRESHOLD=0.03
+          elif [ ${{matrix.benchmark}} == tpcc-with-reconnects ]; then
+              ERRORS_THRESHOLD=0.02
+              results_benchmark=tpcc
+          elif [ ${{matrix.benchmark}} == wikipedia ]; then
+              ERRORS_THRESHOLD=0.02
+          fi
+          ./scripts/check_latest_benchmark_results.sh $results_benchmark
           ./scripts/check_histogram_results.sh results/histograms.json $ERRORS_THRESHOLD
 
   ## ----------------------------------------------------------------------------------
@@ -280,7 +405,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'templated', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
+        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'templated', 'tpcc', 'tpcc-with-reconnects', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
     services:
       postgres: # https://hub.docker.com/_/postgres
         image: postgres:latest
@@ -310,7 +435,7 @@ jobs:
           rm -rf benchbase-postgres.tgz
 
       - name: Set up JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: ${{env.JAVA_VERSION}}
           distribution: 'temurin'
@@ -325,16 +450,26 @@ jobs:
           if [[ ${{matrix.benchmark}} == templated ]]; then
             java -jar benchbase.jar -b tpcc -c config/postgres/sample_tpcc_config.xml --create=true --load=true --execute=false --json-histograms results/histograms.json
             java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/postgres/sample_${{matrix.benchmark}}_config.xml --create=false --load=false --execute=true --json-histograms results/histograms.json
+          elif [[ ${{matrix.benchmark}} == tpcc-with-reconnects ]]; then
+            # See Also: WITH_SERVICE_INTERRUPTIONS=true docker/build-run-benchmark-with-docker.sh
+            java -jar benchbase.jar -b tpcc -c config/postgres/sample_tpcc_config.xml --create=true --load=true
+            (sleep 10 && ./scripts/interrupt-docker-db-service.sh postgres) &
+            java -jar benchbase.jar -b tpcc -c config/postgres/sample_tpcc_config.xml --execute=true --json-histograms results/histograms.json
           else
             java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/postgres/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
           fi
 
           # FIXME: Reduce the error rate so we don't need these overrides.
+          results_benchmark=${{matrix.benchmark}}
           if [ ${{matrix.benchmark}} == auctionmark ]; then
               ERRORS_THRESHOLD=0.02
           elif [ ${{matrix.benchmark}} == tatp ]; then
               ERRORS_THRESHOLD=0.05
+          elif [ ${{matrix.benchmark}} == tpcc-with-reconnects ]; then
+              ERRORS_THRESHOLD=0.02
+              results_benchmark=tpcc
           fi
+          ./scripts/check_latest_benchmark_results.sh $results_benchmark
           ./scripts/check_histogram_results.sh results/histograms.json $ERRORS_THRESHOLD
 
   ## ----------------------------------------------------------------------------------
@@ -346,7 +481,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
+        # TODO: Add tpcc-with-reconnects benchmark support
+        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'templated', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
     services:
       cockroach: # https://hub.docker.com/repository/docker/timveil/cockroachdb-single-node
         image: timveil/cockroachdb-single-node:latest
@@ -370,21 +506,38 @@ jobs:
           rm -rf benchbase-cockroachdb.tgz
 
       - name: Set up JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: ${{env.JAVA_VERSION}}
           distribution: 'temurin'
 
       - name: Run benchmark
         run: |
-          java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/cockroachdb/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
+          # For templated benchmarks, we need to preload some data for the test since by design, templated benchmarks do not support the 'load' operation
+          # In this case, we load the tpcc data.
+          if [[ ${{matrix.benchmark}} == templated ]]; then
+            java -jar benchbase.jar -b tpcc -c config/cockroachdb/sample_tpcc_config.xml --create=true --load=true --execute=false --json-histograms results/histograms.json
+            java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/cockroachdb/sample_${{matrix.benchmark}}_config.xml --create=false --load=false --execute=true --json-histograms results/histograms.json
+          elif [[ ${{matrix.benchmark}} == tpcc-with-reconnects ]]; then
+            # See Also: WITH_SERVICE_INTERRUPTIONS=true docker/build-run-benchmark-with-docker.sh
+            java -jar benchbase.jar -b tpcc -c config/cockroachdb/sample_tpcc_config.xml --create=true --load=true
+            (sleep 10 && ./scripts/interrupt-docker-db-service.sh cockroachdb) &
+            java -jar benchbase.jar -b tpcc -c config/cockroachdb/sample_tpcc_config.xml --execute=true --json-histograms results/histograms.json
+          else
+            java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/cockroachdb/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
+          fi
+
           # FIXME: Reduce the error rate so we don't need these overrides.
-          # FIXME: Reduce the error rate so we don't need these overrides.
+          results_benchmark=${{matrix.benchmark}}
           if [ ${{matrix.benchmark}} == auctionmark ]; then
               ERRORS_THRESHOLD=0.02
           elif [ ${{matrix.benchmark}} == tatp ]; then
               ERRORS_THRESHOLD=0.05
+          elif [ ${{matrix.benchmark}} == tpcc-with-reconnects ]; then
+              ERRORS_THRESHOLD=0.02
+              results_benchmark=tpcc
           fi
+          ./scripts/check_latest_benchmark_results.sh $results_benchmark
           ./scripts/check_histogram_results.sh results/histograms.json $ERRORS_THRESHOLD
 
   ## ----------------------------------------------------------------------------------
@@ -396,9 +549,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # TODO: add more benchmarks
-        #benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
-        benchmark: [ 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'sibench', 'smallbank', 'tatp', 'tpcc', 'templated', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
+        # TODO: add auctionmark and seats benchmark
+        benchmark: [ 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'sibench', 'smallbank', 'tatp', 'templated', 'tpcc', 'tpcc-with-reconnects', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
     services:
       sqlserver:
         image: mcr.microsoft.com/mssql/server:latest
@@ -427,7 +579,7 @@ jobs:
           rm -rf benchbase-sqlserver.tgz
 
       - name: Set up JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: ${{env.JAVA_VERSION}}
           distribution: 'temurin'
@@ -464,14 +616,24 @@ jobs:
           if [[ ${{matrix.benchmark}} == templated ]]; then
             java -jar benchbase.jar -b tpcc -c config/sqlserver/sample_tpcc_config.xml --create=true --load=true --execute=false --json-histograms results/histograms.json
             java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/sqlserver/sample_${{matrix.benchmark}}_config.xml --create=false --load=false --execute=true --json-histograms results/histograms.json
+          elif [[ ${{matrix.benchmark}} == tpcc-with-reconnects ]]; then
+            # See Also: WITH_SERVICE_INTERRUPTIONS=true docker/build-run-benchmark-with-docker.sh
+            java -jar benchbase.jar -b tpcc -c config/sqlserver/sample_tpcc_config.xml --create=true --load=true
+            (sleep 10 && ./scripts/interrupt-docker-db-service.sh sqlserver) &
+            java -jar benchbase.jar -b tpcc -c config/sqlserver/sample_tpcc_config.xml --execute=true --json-histograms results/histograms.json
           else
             java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/sqlserver/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
           fi
 
           # FIXME: Reduce the error rate so we don't need these overrides.
+          results_benchmark=${{matrix.benchmark}}
           if [ ${{matrix.benchmark}} == tatp ]; then
               ERRORS_THRESHOLD=0.05
+          elif [ ${{matrix.benchmark}} == tpcc-with-reconnects ]; then
+              ERRORS_THRESHOLD=0.02
+              results_benchmark=tpcc
           fi
+          ./scripts/check_latest_benchmark_results.sh $results_benchmark
           ./scripts/check_histogram_results.sh results/histograms.json $ERRORS_THRESHOLD
 
   ## ----------------------------------------------------------------------------------
@@ -481,7 +643,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DOCKER_BUILDKIT: 1
-      BENCHBASE_PROFILES: 'cockroachdb mariadb mysql postgres spanner phoenix sqlserver sqlite'
+      BENCHBASE_PROFILES: 'cockroachdb mariadb mysql oracle phoenix postgres spanner sqlite sqlserver'
       CONTAINER_REGISTRY_NAME: ${{ secrets.ACR_LOGINURL }}
     services:
       postgres: # https://hub.docker.com/_/postgres
@@ -528,6 +690,7 @@ jobs:
       - name: Build the benchbase docker image with all profiles using the dev image
         env:
           SKIP_TESTS: 'false'
+          DO_FORMAT_CHECKS: 'true'
         run: |
           ./docker/benchbase/build-full-image.sh
       - name: Run a basic test from the docker image against postgres test DB
@@ -547,6 +710,7 @@ jobs:
               "$image" -b "$benchmark" -c /tmp/config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
             # Test that the results files were produced.
             ls results/${benchmark}_*.csv
+            ./scripts/check_latest_benchmark_results.sh ${benchmark}
             ./scripts/check_histogram_results.sh results/histograms.json $ERRORS_THRESHOLD
           done
       # Publish the docker image if the build/test was successful.

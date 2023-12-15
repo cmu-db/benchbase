@@ -15,14 +15,12 @@
  *
  */
 
-
 package com.oltpbenchmark.benchmarks.auctionmark.procedures;
 
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkConstants;
 import com.oltpbenchmark.benchmarks.auctionmark.util.AuctionMarkUtil;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -36,36 +34,49 @@ import java.sql.Timestamp;
  */
 public class NewCommentResponse extends Procedure {
 
-    // -----------------------------------------------------------------
-    // STATEMENTS
-    // -----------------------------------------------------------------
+  // -----------------------------------------------------------------
+  // STATEMENTS
+  // -----------------------------------------------------------------
 
-    public final SQLStmt updateComment = new SQLStmt(
-            "UPDATE " + AuctionMarkConstants.TABLENAME_ITEM_COMMENT + " " +
-                    "SET ic_response = ?, " +
-                    "    ic_updated = ? " +
-                    "WHERE ic_id = ? AND ic_i_id = ? AND ic_u_id = ? "
-    );
+  public final SQLStmt updateComment =
+      new SQLStmt(
+          "UPDATE "
+              + AuctionMarkConstants.TABLENAME_ITEM_COMMENT
+              + " "
+              + "SET ic_response = ?, "
+              + "    ic_updated = ? "
+              + "WHERE ic_id = ? AND ic_i_id = ? AND ic_u_id = ? ");
 
-    public final SQLStmt updateUser = new SQLStmt(
-            "UPDATE " + AuctionMarkConstants.TABLENAME_USERACCT + " " +
-                    "SET u_comments = u_comments - 1, " +
-                    "    u_updated = ? " +
-                    " WHERE u_id = ?"
-    );
+  public final SQLStmt updateUser =
+      new SQLStmt(
+          "UPDATE "
+              + AuctionMarkConstants.TABLENAME_USERACCT
+              + " "
+              + "SET u_comments = u_comments - 1, "
+              + "    u_updated = ? "
+              + " WHERE u_id = ?");
 
-    // -----------------------------------------------------------------
-    // RUN METHOD
-    // -----------------------------------------------------------------
+  // -----------------------------------------------------------------
+  // RUN METHOD
+  // -----------------------------------------------------------------
 
-    public void run(Connection conn, Timestamp[] benchmarkTimes,
-                    String item_id, String seller_id, long comment_id, String response) throws SQLException {
-        final Timestamp currentTime = AuctionMarkUtil.getProcTimestamp(benchmarkTimes);
-        try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, updateComment, response, currentTime, comment_id, item_id, seller_id)) {
-            preparedStatement.executeUpdate();
-        }
-        try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, updateUser, currentTime, seller_id)) {
-            preparedStatement.executeUpdate();
-        }
+  public void run(
+      Connection conn,
+      Timestamp[] benchmarkTimes,
+      String item_id,
+      String seller_id,
+      long comment_id,
+      String response)
+      throws SQLException {
+    final Timestamp currentTime = AuctionMarkUtil.getProcTimestamp(benchmarkTimes);
+    try (PreparedStatement preparedStatement =
+        this.getPreparedStatement(
+            conn, updateComment, response, currentTime, comment_id, item_id, seller_id)) {
+      preparedStatement.executeUpdate();
     }
+    try (PreparedStatement preparedStatement =
+        this.getPreparedStatement(conn, updateUser, currentTime, seller_id)) {
+      preparedStatement.executeUpdate();
+    }
+  }
 }

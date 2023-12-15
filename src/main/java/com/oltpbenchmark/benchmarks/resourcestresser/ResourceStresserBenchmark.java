@@ -15,7 +15,6 @@
  *
  */
 
-
 package com.oltpbenchmark.benchmarks.resourcestresser;
 
 import com.oltpbenchmark.WorkloadConfiguration;
@@ -23,39 +22,38 @@ import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.resourcestresser.procedures.CPU1;
+import java.util.ArrayList;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
+public final class ResourceStresserBenchmark extends BenchmarkModule {
+  private static final Logger LOG = LoggerFactory.getLogger(ResourceStresserBenchmark.class);
 
-public class ResourceStresserBenchmark extends BenchmarkModule {
-    private static final Logger LOG = LoggerFactory.getLogger(ResourceStresserBenchmark.class);
+  public ResourceStresserBenchmark(WorkloadConfiguration workConf) {
+    super(workConf);
+  }
 
-    public ResourceStresserBenchmark(WorkloadConfiguration workConf) {
-        super(workConf);
+  @Override
+  protected Package getProcedurePackageImpl() {
+    return CPU1.class.getPackage();
+  }
+
+  @Override
+  protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
+    List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
+    int numKeys = (int) (workConf.getScaleFactor() * ResourceStresserConstants.RECORD_COUNT);
+    int keyRange = numKeys / workConf.getTerminals();
+    LOG.warn("numkeys={}, keyRange={}", numKeys, keyRange);
+    for (int i = 0; i < workConf.getTerminals(); i++) {
+      workers.add(new ResourceStresserWorker(this, i, numKeys, keyRange));
     }
 
-    @Override
-    protected Package getProcedurePackageImpl() {
-        return CPU1.class.getPackage();
-    }
+    return workers;
+  }
 
-    @Override
-    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
-        List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
-        int numKeys = (int) (workConf.getScaleFactor() * ResourceStresserConstants.RECORD_COUNT);
-        int keyRange = numKeys / workConf.getTerminals();
-        LOG.warn("numkeys={}, keyRange={}", numKeys, keyRange);
-        for (int i = 0; i < workConf.getTerminals(); i++) {
-            workers.add(new ResourceStresserWorker(this, i, numKeys, keyRange));
-        }
-
-        return workers;
-    }
-
-    @Override
-    protected Loader<ResourceStresserBenchmark> makeLoaderImpl() {
-        return new ResourceStresserLoader(this);
-    }
+  @Override
+  protected Loader<ResourceStresserBenchmark> makeLoaderImpl() {
+    return new ResourceStresserLoader(this);
+  }
 }

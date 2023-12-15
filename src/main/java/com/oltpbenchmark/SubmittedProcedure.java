@@ -18,25 +18,25 @@
 package com.oltpbenchmark;
 
 /**
- * This class is used for keeping track of the procedures that have been
- * submitted to the system when running a rate-limited benchmark.
+ * This class is used for keeping track of the procedures that have been submitted to the system
+ * when running a rate-limited benchmark.
  *
  * @author breilly
  */
 public class SubmittedProcedure {
-    private final int type;
-    private final long startTime;
+  private final int type;
+  private final long startTime;
 
-    SubmittedProcedure(int type) {
-        this.type = type;
-        this.startTime = System.nanoTime();
-    }
+  SubmittedProcedure(int type) {
+    this.type = type;
+    this.startTime = System.nanoTime();
+  }
 
-    public int getType() {
-        return type;
-    }
+  public int getType() {
+    return type;
+  }
 
-    public long getStartTime() {
-        return startTime;
-    }
+  public long getStartTime() {
+    return startTime;
+  }
 }

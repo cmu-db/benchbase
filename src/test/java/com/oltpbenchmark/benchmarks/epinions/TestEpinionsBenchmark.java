@@ -14,36 +14,33 @@
  *  limitations under the License.                                            *
  ******************************************************************************/
 
-
 package com.oltpbenchmark.benchmarks.epinions;
 
 import com.oltpbenchmark.api.AbstractTestBenchmarkModule;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.benchmarks.epinions.procedures.*;
-
 import java.util.List;
 
 public class TestEpinionsBenchmark extends AbstractTestBenchmarkModule<EpinionsBenchmark> {
 
-    public static final List<Class<? extends Procedure>> PROCEDURE_CLASSES = List.of(
-            GetAverageRatingByTrustedUser.class,
-            GetItemAverageRating.class,
-            GetItemReviewsByTrustedUser.class,
-            GetReviewItemById.class,
-            GetReviewsByUser.class,
-            UpdateItemTitle.class,
-            UpdateTrustRating.class,
-            UpdateUserName.class
-    );
+  public static final List<Class<? extends Procedure>> PROCEDURE_CLASSES =
+      List.of(
+          GetAverageRatingByTrustedUser.class,
+          GetItemAverageRating.class,
+          GetItemReviewsByTrustedUser.class,
+          GetReviewItemById.class,
+          GetReviewsByUser.class,
+          UpdateItemTitle.class,
+          UpdateTrustRating.class,
+          UpdateUserName.class);
 
-    @Override
-    public List<Class<? extends Procedure>> procedures() {
-        return TestEpinionsBenchmark.PROCEDURE_CLASSES;
-    }
+  @Override
+  public List<Class<? extends Procedure>> procedures() {
+    return TestEpinionsBenchmark.PROCEDURE_CLASSES;
+  }
 
-    @Override
-    public Class<EpinionsBenchmark> benchmarkClass() {
-        return EpinionsBenchmark.class;
-    }
-
+  @Override
+  public Class<EpinionsBenchmark> benchmarkClass() {
+    return EpinionsBenchmark.class;
+  }
 }

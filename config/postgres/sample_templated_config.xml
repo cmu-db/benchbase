@@ -7,6 +7,7 @@
     <url>jdbc:postgresql://localhost:5432/benchbase?sslmode=disable&amp;ApplicationName=templated&amp;reWriteBatchedInserts=true</url>
     <username>admin</username>
     <password>password</password>
+    <reconnectOnConnectionFailure>true</reconnectOnConnectionFailure>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
     <batchsize>128</batchsize>
 
@@ -24,7 +25,7 @@
         <work>
             <time>10</time>
             <rate>100</rate>
-            <weights>30,20,10,30,10</weights>
+            <weights>20,20,10,10,10,10,10<!-- FIXME: ,10 --></weights>
         </work>
     </works>
 
@@ -45,5 +46,16 @@
         <transactiontype>
             <name>GetItemByPrice</name>
         </transactiontype>
+        <transactiontype>
+            <name>UpdateItemPrice</name>
+        </transactiontype>
+        <transactiontype>
+            <name>DeleteItem</name>
+        </transactiontype>
+        <!-- FIXME:
+        <transactiontype>
+            <name>InsertItem</name>
+        </transactiontype>
+        -->
     </transactiontypes>
 </parameters>

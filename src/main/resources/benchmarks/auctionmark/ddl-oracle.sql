@@ -1,4 +1,3 @@
--- Drop all tables
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE CONFIG_PROFILE'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;;
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE REGION CASCADE CONSTRAINTS'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;;
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE USERACCT CASCADE CONSTRAINTS'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;;
@@ -18,7 +17,7 @@ BEGIN EXECUTE IMMEDIATE 'DROP TABLE USERACCT_ITEM CASCADE CONSTRAINTS'; EXCEPTIO
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE USERACCT_WATCH CASCADE CONSTRAINTS'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;;
 
 -- Create tables
--- ================================================================ 
+-- ================================================================
 -- CONFIG_PROFILE
 -- ================================================================
 CREATE TABLE CONFIG_PROFILE (
@@ -35,14 +34,14 @@ CREATE TABLE CONFIG_PROFILE (
 -- r_name           Region's name
 -- ================================================================
 CREATE TABLE REGION (
-    r_id                INT NOT NULL,
-    r_name              VARCHAR(32),
+    r_id                NUMBER(19, 0) NOT NULL,
+    r_name              VARCHAR2(32),
     PRIMARY KEY (r_id)
 );
 
 -- ================================================================
 -- USERACCT
--- Represents user accounts 
+-- Represents user accounts
 -- u_id             User ID
 -- u_firstname      User's first name
 -- u_lastname       User's last name
@@ -54,42 +53,42 @@ CREATE TABLE REGION (
 -- u_r_id           User's region ID
 -- ================================================================
 CREATE TABLE USERACCT (
-    u_id                INT NOT NULL,
-    u_rating            INT NOT NULL,
+    u_id                VARCHAR2(128) NOT NULL,
+    u_rating            NUMBER(19, 0) NOT NULL,
     u_balance           FLOAT NOT NULL,
     u_comments			INTEGER DEFAULT 0,
-    u_r_id              INT NOT NULL REFERENCES REGION (r_id),
+    u_r_id              NUMBER(19, 0) NOT NULL REFERENCES REGION (r_id),
     u_created           TIMESTAMP,
     u_updated           TIMESTAMP,
-    u_sattr0            VARCHAR(64),
-    u_sattr1            VARCHAR(64),
-    u_sattr2            VARCHAR(64),
-    u_sattr3            VARCHAR(64),
-    u_sattr4            VARCHAR(64),
-    u_sattr5            VARCHAR(64),
-    u_sattr6            VARCHAR(64),
-    u_sattr7            VARCHAR(64),
-    u_iattr0            INT DEFAULT NULL,
-    u_iattr1            INT DEFAULT NULL,
-    u_iattr2			INT DEFAULT NULL,
-    u_iattr3            INT DEFAULT NULL,
-    u_iattr4            INT DEFAULT NULL,
-    u_iattr5            INT DEFAULT NULL,
-    u_iattr6            INT DEFAULT NULL,
-    u_iattr7            INT DEFAULT NULL, 
+    u_sattr0            VARCHAR2(64),
+    u_sattr1            VARCHAR2(64),
+    u_sattr2            VARCHAR2(64),
+    u_sattr3            VARCHAR2(64),
+    u_sattr4            VARCHAR2(64),
+    u_sattr5            VARCHAR2(64),
+    u_sattr6            VARCHAR2(64),
+    u_sattr7            VARCHAR2(64),
+    u_iattr0            NUMBER(19, 0) DEFAULT NULL,
+    u_iattr1            NUMBER(19, 0) DEFAULT NULL,
+    u_iattr2            NUMBER(19, 0) DEFAULT NULL,
+    u_iattr3            NUMBER(19, 0) DEFAULT NULL,
+    u_iattr4            NUMBER(19, 0) DEFAULT NULL,
+    u_iattr5            NUMBER(19, 0) DEFAULT NULL,
+    u_iattr6            NUMBER(19, 0) DEFAULT NULL,
+    u_iattr7            NUMBER(19, 0) DEFAULT NULL,
     PRIMARY KEY (u_id)
 );
 CREATE INDEX IDX_USERACCT_REGION ON USERACCT (u_id, u_r_id);
 
 -- ================================================================
 -- USERACCT_ATTRIBUTES
--- Represents user's attributes 
+-- Represents user's attributes
 -- ================================================================
 CREATE TABLE USERACCT_ATTRIBUTES (
-    ua_id               INT NOT NULL,
-    ua_u_id             INT NOT NULL REFERENCES USERACCT (u_id),
-    ua_name             VARCHAR(32) NOT NULL,
-    ua_value            VARCHAR(32) NOT NULL,
+    ua_id               NUMBER(19, 0) NOT NULL,
+    ua_u_id             VARCHAR2(128) NOT NULL REFERENCES USERACCT (u_id),
+    ua_name             VARCHAR2(32) NOT NULL,
+    ua_value            VARCHAR2(32) NOT NULL,
     u_created           TIMESTAMP,
     PRIMARY KEY (ua_id, ua_u_id)
 );
@@ -102,9 +101,9 @@ CREATE TABLE USERACCT_ATTRIBUTES (
 -- c_parent_id        Parent category's ID
 -- ================================================================
 CREATE TABLE CATEGORY (
-    c_id                INT NOT NULL,
-    c_name              VARCHAR(50),
-    c_parent_id         INT REFERENCES CATEGORY (c_id),
+    c_id                NUMBER(19, 0) NOT NULL,
+    c_name              VARCHAR2(50),
+    c_parent_id         NUMBER(19, 0) REFERENCES CATEGORY (c_id),
     PRIMARY KEY (c_id)
 );
 
@@ -116,9 +115,9 @@ CREATE TABLE CATEGORY (
 -- gag_name            Global attribute group's name
 -- ================================================================
 CREATE TABLE GLOBAL_ATTRIBUTE_GROUP (
-    gag_id              INT NOT NULL,
-    gag_c_id            INT NOT NULL REFERENCES CATEGORY (c_id),
-    gag_name            VARCHAR(100) NOT NULL,
+    gag_id              VARCHAR2(128) NOT NULL,
+    gag_c_id            NUMBER(19, 0) NOT NULL REFERENCES CATEGORY (c_id),
+    gag_name            VARCHAR2(100) NOT NULL,
     PRIMARY KEY (gag_id)
 );
 
@@ -131,9 +130,9 @@ CREATE TABLE GLOBAL_ATTRIBUTE_GROUP (
 -- gav_name            Global attribute value's name
 -- ================================================================
 CREATE TABLE GLOBAL_ATTRIBUTE_VALUE (
-    gav_id              INT NOT NULL,
-    gav_gag_id          INT NOT NULL REFERENCES GLOBAL_ATTRIBUTE_GROUP (gag_id),
-    gav_name            VARCHAR(100) NOT NULL,
+    gav_id              VARCHAR2(128) NOT NULL,
+    gav_gag_id          VARCHAR2(128) NOT NULL REFERENCES GLOBAL_ATTRIBUTE_GROUP (gag_id),
+    gav_name            VARCHAR2(100) NOT NULL,
     PRIMARY KEY (gav_id, gav_gag_id)
 );
 
@@ -156,31 +155,31 @@ CREATE TABLE GLOBAL_ATTRIBUTE_VALUE (
 -- i_status	        Items' status (0 = open, 1 = wait for purchase, 2 = close)
 -- ================================================================
 CREATE TABLE ITEM (
-    i_id                INT NOT NULL,
-    i_u_id              INT NOT NULL REFERENCES USERACCT (u_id),
-    i_c_id              INT NOT NULL REFERENCES CATEGORY (c_id),
-    i_name              VARCHAR(100),
-    i_description       VARCHAR(1024),
-    i_user_attributes   VARCHAR(255) DEFAULT NULL,
+    i_id                VARCHAR2(128) NOT NULL,
+    i_u_id              VARCHAR2(128) NOT NULL REFERENCES USERACCT (u_id),
+    i_c_id              NUMBER(19, 0) NOT NULL REFERENCES CATEGORY (c_id),
+    i_name              VARCHAR2(100),
+    i_description       VARCHAR2(1024),
+    i_user_attributes   VARCHAR2(255) DEFAULT NULL,
     i_initial_price     FLOAT NOT NULL,
     i_current_price     FLOAT NOT NULL,
-    i_num_bids          INT,
-    i_num_images        INT,
-    i_num_global_attrs  INT,
-    i_num_comments      INT,
+    i_num_bids          NUMBER(19, 0),
+    i_num_images        NUMBER(19, 0),
+    i_num_global_attrs  NUMBER(19, 0),
+    i_num_comments      NUMBER(19, 0),
     i_start_date        TIMESTAMP,
     i_end_date          TIMESTAMP,
     i_status		    INT DEFAULT 0,
     i_created           TIMESTAMP,
     i_updated           TIMESTAMP,
-    i_iattr0            INT DEFAULT NULL,
-    i_iattr1            INT DEFAULT NULL,
-    i_iattr2			INT DEFAULT NULL,
-    i_iattr3            INT DEFAULT NULL,
-    i_iattr4            INT DEFAULT NULL,
-    i_iattr5            INT DEFAULT NULL,
-    i_iattr6            INT DEFAULT NULL,
-    i_iattr7            INT DEFAULT NULL, 
+    i_iattr0            NUMBER(19, 0) DEFAULT NULL,
+    i_iattr1            NUMBER(19, 0) DEFAULT NULL,
+    i_iattr2			NUMBER(19, 0) DEFAULT NULL,
+    i_iattr3            NUMBER(19, 0) DEFAULT NULL,
+    i_iattr4            NUMBER(19, 0) DEFAULT NULL,
+    i_iattr5            NUMBER(19, 0) DEFAULT NULL,
+    i_iattr6            NUMBER(19, 0) DEFAULT NULL,
+    i_iattr7            NUMBER(19, 0) DEFAULT NULL,
     PRIMARY KEY (i_id, i_u_id)
 );
 CREATE INDEX IDX_ITEM_SELLER ON ITEM (i_u_id);
@@ -193,12 +192,12 @@ CREATE INDEX IDX_ITEM_SELLER ON ITEM (i_u_id);
 -- ia_gav_id        Global attribute value's ID
 -- ================================================================
 CREATE TABLE ITEM_ATTRIBUTE (
-    ia_id               INT NOT NULL,
-    ia_i_id             INT NOT NULL,
-    ia_u_id             INT NOT NULL,
-    ia_gav_id           INT NOT NULL,
-    ia_gag_id           INT NOT NULL,
-    ia_sattr0			VARCHAR(64) DEFAULT NULL,
+    ia_id               VARCHAR2(128) NOT NULL,
+    ia_i_id             VARCHAR2(128) NOT NULL,
+    ia_u_id             VARCHAR2(128) NOT NULL,
+    ia_gav_id           VARCHAR2(128) NOT NULL,
+    ia_gag_id           VARCHAR2(128) NOT NULL,
+    ia_sattr0			VARCHAR2(64) DEFAULT NULL,
     FOREIGN KEY (ia_i_id, ia_u_id) REFERENCES ITEM (i_id, i_u_id),
     FOREIGN KEY (ia_gav_id, ia_gag_id) REFERENCES GLOBAL_ATTRIBUTE_VALUE (gav_id, gav_gag_id),
     PRIMARY KEY (ia_id, ia_i_id, ia_u_id)
@@ -212,10 +211,10 @@ CREATE TABLE ITEM_ATTRIBUTE (
 -- ii_path            Image's path
 -- ================================================================
 CREATE TABLE ITEM_IMAGE (
-    ii_id               INT NOT NULL,
-    ii_i_id             INT NOT NULL,
-    ii_u_id             INT NOT NULL,
-    ii_sattr0			VARCHAR(128) NOT NULL,
+    ii_id               VARCHAR2(128) NOT NULL,
+    ii_i_id             VARCHAR2(128) NOT NULL,
+    ii_u_id             VARCHAR2(128) NOT NULL,
+    ii_sattr0			VARCHAR2(128) NOT NULL,
     FOREIGN KEY (ii_i_id, ii_u_id) REFERENCES ITEM (i_id, i_u_id),
     PRIMARY KEY (ii_id, ii_i_id, ii_u_id)
 );
@@ -231,17 +230,17 @@ CREATE TABLE ITEM_IMAGE (
 -- ic_response        Response from seller
 -- ================================================================
 CREATE TABLE ITEM_COMMENT (
-    ic_id               INT NOT NULL,
-    ic_i_id             INT NOT NULL,
-    ic_u_id             INT NOT NULL,
-    ic_buyer_id         INT NOT NULL REFERENCES USERACCT (u_id),
-    ic_question         VARCHAR(128) NOT NULL,
-    ic_response         VARCHAR(128) DEFAULT NULL,
+    ic_id               NUMBER(19, 0) NOT NULL,
+    ic_i_id             VARCHAR2(128) NOT NULL,
+    ic_u_id             VARCHAR2(128) NOT NULL,
+    ic_buyer_id         VARCHAR2(128) NOT NULL REFERENCES USERACCT (u_id),
+    ic_question         VARCHAR2(128) NOT NULL,
+    ic_response         VARCHAR2(128) DEFAULT NULL,
     ic_created          TIMESTAMP,
     ic_updated          TIMESTAMP,
     FOREIGN KEY (ic_i_id, ic_u_id) REFERENCES ITEM (i_id, i_u_id),
     PRIMARY KEY (ic_id, ic_i_id, ic_u_id)
-); 
+);
 -- CREATE INDEX IDX_ITEM_COMMENT ON ITEM_COMMENT (ic_i_id, ic_u_id);
 
 -- ================================================================
@@ -256,10 +255,10 @@ CREATE TABLE ITEM_COMMENT (
 -- ib_date            Bid's date
 -- ================================================================
 CREATE TABLE ITEM_BID (
-    ib_id               INT NOT NULL,
-    ib_i_id             INT NOT NULL,
-    ib_u_id             INT NOT NULL,
-    ib_buyer_id         INT NOT NULL REFERENCES USERACCT (u_id),
+    ib_id               NUMBER(19, 0) NOT NULL,
+    ib_i_id             VARCHAR2(128) NOT NULL,
+    ib_u_id             VARCHAR2(128) NOT NULL,
+    ib_buyer_id         VARCHAR2(128) NOT NULL REFERENCES USERACCT (u_id),
     ib_bid		        FLOAT NOT NULL,
     ib_max_bid          FLOAT NOT NULL,
     ib_created          TIMESTAMP,
@@ -273,11 +272,11 @@ CREATE TABLE ITEM_BID (
 -- Cross-reference table to the current max bid for an auction
 -- ================================================================
 CREATE TABLE ITEM_MAX_BID (
-    imb_i_id            INT NOT NULL,
-    imb_u_id            INT NOT NULL,
-    imb_ib_id           INT NOT NULL,
-    imb_ib_i_id         INT NOT NULL,
-    imb_ib_u_id         INT NOT NULL,
+    imb_i_id            VARCHAR2(128) NOT NULL,
+    imb_u_id            VARCHAR2(128) NOT NULL,
+    imb_ib_id           NUMBER(19, 0) NOT NULL,
+    imb_ib_i_id         VARCHAR2(128) NOT NULL,
+    imb_ib_u_id         VARCHAR2(128) NOT NULL,
     imb_created         TIMESTAMP,
     imb_updated         TIMESTAMP,
     FOREIGN KEY (imb_i_id, imb_u_id) REFERENCES ITEM (i_id, i_u_id),
@@ -293,15 +292,15 @@ CREATE TABLE ITEM_MAX_BID (
 -- ip_date            Purchase's date
 -- ================================================================
 CREATE TABLE ITEM_PURCHASE (
-    ip_id               INT NOT NULL,
-    ip_ib_id            INT NOT NULL,
-    ip_ib_i_id          INT NOT NULL,
-    ip_ib_u_id          INT NOT NULL,
+    ip_id               NUMBER(19, 0) NOT NULL,
+    ip_ib_id            NUMBER(19, 0) NOT NULL,
+    ip_ib_i_id          VARCHAR2(128) NOT NULL,
+    ip_ib_u_id          VARCHAR2(128) NOT NULL,
     ip_date             TIMESTAMP,
     FOREIGN KEY (ip_ib_id, ip_ib_i_id, ip_ib_u_id) REFERENCES ITEM_BID (ib_id, ib_i_id, ib_u_id),
-    PRIMARY KEY (ip_id, ip_ib_id, ip_ib_i_id, ip_ib_u_id),
-    UNIQUE (ip_ib_id, ip_ib_i_id, ip_ib_u_id)
+    PRIMARY KEY (ip_id, ip_ib_id, ip_ib_i_id, ip_ib_u_id)
 );
+CREATE UNIQUE INDEX ids_item_purchase ON item_purchase(ip_ib_id, ip_ib_i_id, ip_ib_u_id);
 
 -- ================================================================
 -- USERACCT_FEEDBACK
@@ -315,13 +314,13 @@ CREATE TABLE ITEM_PURCHASE (
 -- uf_comment        Feedback by other user
 -- ================================================================
 CREATE TABLE USERACCT_FEEDBACK (
-    uf_u_id             INT NOT NULL REFERENCES USERACCT (u_id),
-    uf_i_id             INT NOT NULL,
-    uf_i_u_id           INT NOT NULL,
-    uf_from_id          INT NOT NULL REFERENCES USERACCT (u_id),
+    uf_u_id             VARCHAR2(128) NOT NULL REFERENCES USERACCT (u_id),
+    uf_i_id             VARCHAR2(128) NOT NULL,
+    uf_i_u_id           VARCHAR2(128) NOT NULL,
+    uf_from_id          VARCHAR2(128) NOT NULL REFERENCES USERACCT (u_id),
     uf_rating           NUMBER(5,0) NOT NULL,
     uf_date             TIMESTAMP,
-    uf_sattr0           VARCHAR(80) NOT NULL,
+    uf_sattr0           VARCHAR2(80) NOT NULL,
     FOREIGN KEY (uf_i_id, uf_i_u_id) REFERENCES ITEM (i_id, i_u_id),
     PRIMARY KEY (uf_u_id, uf_i_id, uf_i_u_id, uf_from_id),
     CHECK (uf_u_id <> uf_from_id)
@@ -332,13 +331,13 @@ CREATE TABLE USERACCT_FEEDBACK (
 -- The items that a user has recently purchased
 -- ================================================================
 CREATE TABLE USERACCT_ITEM (
-    ui_u_id             INT NOT NULL REFERENCES USERACCT (u_id),
-    ui_i_id             INT NOT NULL,
-    ui_i_u_id           INT NOT NULL,
-    ui_ip_id            INT,
-    ui_ip_ib_id         INT,
-    ui_ip_ib_i_id       INT,
-    ui_ip_ib_u_id       INT,
+    ui_u_id             VARCHAR2(128) NOT NULL REFERENCES USERACCT (u_id),
+    ui_i_id             VARCHAR2(128) NOT NULL,
+    ui_i_u_id           VARCHAR2(128) NOT NULL,
+    ui_ip_id            NUMBER(19, 0),
+    ui_ip_ib_id         NUMBER(19, 0),
+    ui_ip_ib_i_id       VARCHAR2(128),
+    ui_ip_ib_u_id       VARCHAR2(128),
     ui_created          TIMESTAMP,
     FOREIGN KEY (ui_i_id, ui_i_u_id) REFERENCES ITEM (i_id, i_u_id),
     FOREIGN KEY (ui_ip_id, ui_ip_ib_id, ui_ip_ib_i_id, ui_ip_ib_u_id) REFERENCES ITEM_PURCHASE (ip_id, ip_ib_id, ip_ib_i_id, ip_ib_u_id),
@@ -351,9 +350,9 @@ CREATE TABLE USERACCT_ITEM (
 -- The items that a user is watching
 -- ================================================================
 CREATE TABLE USERACCT_WATCH (
-    uw_u_id             INT NOT NULL REFERENCES USERACCT (u_id),
-    uw_i_id             INT NOT NULL,
-    uw_i_u_id           INT NOT NULL,
+    uw_u_id             VARCHAR2(128) NOT NULL REFERENCES USERACCT (u_id),
+    uw_i_id             VARCHAR2(128) NOT NULL,
+    uw_i_u_id           VARCHAR2(128) NOT NULL,
     uw_created          TIMESTAMP,
     FOREIGN KEY (uw_i_id, uw_i_u_id) REFERENCES ITEM (i_id, i_u_id),
     PRIMARY KEY (uw_u_id, uw_i_id, uw_i_u_id)
