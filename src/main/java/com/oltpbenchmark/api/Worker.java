@@ -399,8 +399,9 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
         if (this.conn == null) {
           try {
+            // TODO: Implement reconnect backoff logic?
             if (!this.configuration.getNewConnectionPerTxn()) {
-              LOG.info("(Re)connecting to database.");
+              LOG.debug("(Re)connecting to database.");
             }
             this.conn = this.benchmark.makeConnection();
             this.conn.setAutoCommit(false);
