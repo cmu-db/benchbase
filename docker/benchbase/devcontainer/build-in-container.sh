@@ -32,7 +32,7 @@ function build_profile() {
     mkdir -p target/$profile
     # Build the profile without tests (we did that separately).
     mvn -T 2C -B --file pom.xml package -D descriptors=src/main/assembly/dir.xml -P $profile \
-        $SKIP_TEST_ARGS $EXTRA_MAVEN_ARGS -D buildDirectory=target/$profile
+        -Dfmt.skip $SKIP_TEST_ARGS $EXTRA_MAVEN_ARGS -D buildDirectory=target/$profile
     # Copy the resultant output to the profiles directory.
     cp -rlv target/$profile/benchbase-$profile/benchbase-$profile profiles/$profile
     # Later the container entrypoint will move into this directory to run it, so
@@ -105,7 +105,7 @@ fi
 # Fetch resources serially to work around mvn races with downloading the same
 # file in multiple processes (mvn uses *.part instead of use tmpfile naming).
 for profile in ${BENCHBASE_PROFILES}; do
-    mvn -T2C -B --file pom.xml -D buildDirectory=target/$profile $EXTRA_MAVEN_ARGS process-resources dependency:copy-dependencies
+    mvn -T2C -B --file pom.xml -Dfmt.skip -D buildDirectory=target/$profile $EXTRA_MAVEN_ARGS process-resources dependency:copy-dependencies
 done
 
 # Make sure that we've built the base stuff (and test) before we build individual profiles.
