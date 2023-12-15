@@ -120,7 +120,13 @@ for profile in ${BENCHBASE_PROFILES}; do
 done
 wait
 
-deduplicate_profile_files
+FIRST_BENCHBASE_PROFILE=$(echo "$BENCHBASE_PROFILES" | awk '{ print $1 }')
+if [ "$FIRST_BENCHBASE_PROFILE" == "$BENCHBASE_PROFILES" ]; then
+    echo "INFO: Single profile build: $FIRST_BENCHBASE_PROFILE. Skipping file dedup."
+else
+    echo "INFO: deduplicating files in combo build."
+    deduplicate_profile_files
+fi
 
 for profile in ${BENCHBASE_PROFILES}; do
     test_profile_build "$profile" || exit 1
