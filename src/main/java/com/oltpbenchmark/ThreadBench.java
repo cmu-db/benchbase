@@ -37,23 +37,27 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
   private final List<WorkloadConfiguration> workConfs;
   private final ArrayList<LatencyRecord.Sample> samples = new ArrayList<>();
   private final int intervalMonitor;
+  private final Boolean useVirtualThreads;
 
   private ThreadBench(
       List<? extends Worker<? extends BenchmarkModule>> workers,
       List<WorkloadConfiguration> workConfs,
-      int intervalMonitoring) {
+      int intervalMonitoring,
+      Boolean useVirtualThreads) {
     this.workers = workers;
     this.workConfs = workConfs;
     this.workerThreads = new ArrayList<>(workers.size());
     this.intervalMonitor = intervalMonitoring;
     this.testState = new BenchmarkState(workers.size() + 1);
+    this.useVirtualThreads = useVirtualThreads;
   }
 
   public static Results runRateLimitedBenchmark(
       List<Worker<? extends BenchmarkModule>> workers,
       List<WorkloadConfiguration> workConfs,
-      int intervalMonitoring) {
-    ThreadBench bench = new ThreadBench(workers, workConfs, intervalMonitoring);
+      int intervalMonitoring,
+      Boolean useVirtualThreads) {
+    ThreadBench bench = new ThreadBench(workers, workConfs, intervalMonitoring, useVirtualThreads);
     return bench.runRateLimitedMultiPhase();
   }
 
@@ -61,7 +65,14 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
 
     for (Worker<?> worker : workers) {
       worker.initializeState();
-      Thread thread = new Thread(worker);
+
+      Thread thread;
+      if (useVirtualThreads) {
+        thread = Thread.ofVirtual().unstarted(worker);
+      } else {
+        thread = new Thread(worker);
+      }
+
       thread.setUncaughtExceptionHandler(this);
       thread.start();
       this.workerThreads.add(thread);

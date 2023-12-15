@@ -85,6 +85,11 @@ public class DBWorkload {
       intervalMonitor = Integer.parseInt(argsLine.getOptionValue("im"));
     }
 
+    Boolean useVirtualThreads = false;
+    if (argsLine.hasOption("vt")) {
+      useVirtualThreads = Boolean.parseBoolean(argsLine.getOptionValue("vt"));
+    }
+
     // -------------------------------------------------------------------
     // GET PLUGIN LIST
     // -------------------------------------------------------------------
@@ -518,7 +523,7 @@ public class DBWorkload {
     if (isBooleanOptionSet(argsLine, "execute")) {
       // Bombs away!
       try {
-        Results r = runWorkload(benchList, intervalMonitor);
+        Results r = runWorkload(benchList, intervalMonitor, useVirtualThreads);
         writeOutputs(r, activeTXTypes, argsLine, xmlConfig);
         writeHistograms(r);
 
@@ -567,6 +572,7 @@ public class DBWorkload {
         "Base directory for the result files, default is current directory");
     options.addOption(null, "dialects-export", true, "Export benchmark SQL to a dialects file");
     options.addOption("jh", "json-histograms", true, "Export histograms to JSON file");
+    options.addOption("vt", "virtual-threads", true, "Use virtual threads instead of real threads");
     return options;
   }
 
@@ -733,7 +739,8 @@ public class DBWorkload {
     bench.loadDatabase();
   }
 
-  private static Results runWorkload(List<BenchmarkModule> benchList, int intervalMonitor)
+  private static Results runWorkload(
+      List<BenchmarkModule> benchList, int intervalMonitor, Boolean useVirtualThreads)
       throws IOException {
     List<Worker<?>> workers = new ArrayList<>();
     List<WorkloadConfiguration> workConfs = new ArrayList<>();
@@ -748,7 +755,8 @@ public class DBWorkload {
               bench.getBenchmarkName().toUpperCase(), num_phases, (num_phases > 1 ? "s" : "")));
       workConfs.add(bench.getWorkloadConfiguration());
     }
-    Results r = ThreadBench.runRateLimitedBenchmark(workers, workConfs, intervalMonitor);
+    Results r =
+        ThreadBench.runRateLimitedBenchmark(workers, workConfs, intervalMonitor, useVirtualThreads);
     LOG.info(SINGLE_LINE);
     LOG.info("Rate limited reqs/s: {}", r);
     return r;
