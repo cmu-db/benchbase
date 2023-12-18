@@ -30,6 +30,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.SQLRecoverableException;
 import java.sql.Statement;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -400,7 +401,17 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
         if (this.conn == null) {
           try {
             if (!this.configuration.getNewConnectionPerTxn()) {
-              LOG.info("(Re)connecting to database.");
+              if (retryCount > 0) {
+                Duration delay = Duration.ofSeconds(Math.min(retryCount, 5));
+                LOG.info("Backing off {} seconds before reconnecting.", delay.toSeconds());
+                try {
+                  Thread.sleep(delay);
+                } catch (InterruptedException ex) {
+                  // pass
+                }
+              } else {
+                LOG.info("(Re)connecting to database.");
+              }
             }
             this.conn = this.benchmark.makeConnection();
             this.conn.setAutoCommit(false);
@@ -598,6 +609,8 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
             } catch (SQLException e) {
               LOG.error("Connection couldn't be closed.", e);
             }
+          } else if (this.conn == null) {
+            LOG.warn("Connection error detected.");
           }
 
           switch (status) {
