@@ -715,7 +715,7 @@ WHERE t.name='%s' AND c.name='%s'
         || ex.getMessage().endsWith("connection was unexpectedly lost.")
         || ex.getMessage().endsWith("Command could not be timed out. Reason: Socket closed")
         || ex.getMessage().endsWith("No operations allowed after connection closed")
-        || ex.getMessage().endsWith("Communications link failure")) {
+        || ex.getMessage().contains("Communications link failure")) {
       return true;
     }
 
