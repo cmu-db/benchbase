@@ -734,9 +734,9 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
   }
 
   /**
-   * Set up the session by running a set of statements before benchmark execution begins.
-   * The path of the file where a set of statements defined should be added
-   * in  &lt;sessionsetupfile&gt; &lt;/sessionsetupfile&gt;
+   * Set up the session by running a set of statements before benchmark execution begins. The path
+   * of the file where a set of statements defined should be added in &lt;sessionsetupfile&gt;
+   * &lt;/sessionsetupfile&gt;
    */
   protected void setupSession() {
     try {
