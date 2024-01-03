@@ -405,7 +405,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                 Duration delay = Duration.ofSeconds(Math.min(retryCount, 5));
                 LOG.info("Backing off {} seconds before reconnecting.", delay.toSeconds());
                 try {
-                  Thread.sleep(delay);
+                  Thread.sleep(delay.toMillis());
                 } catch (InterruptedException ex) {
                   // pass
                 }
