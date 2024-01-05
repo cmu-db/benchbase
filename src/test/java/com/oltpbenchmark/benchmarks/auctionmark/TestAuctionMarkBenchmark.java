@@ -14,7 +14,6 @@
  *  limitations under the License.                                            *
  ******************************************************************************/
 
-
 package com.oltpbenchmark.benchmarks.auctionmark;
 
 import static org.junit.Assert.assertNotNull;
@@ -25,7 +24,6 @@ import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.benchmarks.auctionmark.procedures.*;
 import com.oltpbenchmark.benchmarks.auctionmark.util.CategoryParser;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -33,49 +31,47 @@ import org.junit.Test;
 
 public class TestAuctionMarkBenchmark extends AbstractTestBenchmarkModule<AuctionMarkBenchmark> {
 
-    public static final List<Class<? extends Procedure>> PROCEDURE_CLASSES = List.of(GetItem.class,
-            GetUserInfo.class,
-            NewBid.class,
-            NewComment.class,
-            NewCommentResponse.class,
-            NewFeedback.class,
-            NewItem.class,
-            NewPurchase.class,
-            UpdateItem.class);
+  public static final List<Class<? extends Procedure>> PROCEDURE_CLASSES =
+      List.of(
+          GetItem.class,
+          GetUserInfo.class,
+          NewBid.class,
+          NewComment.class,
+          NewCommentResponse.class,
+          NewFeedback.class,
+          NewItem.class,
+          NewPurchase.class,
+          UpdateItem.class);
 
-    @Override
-    public List<Class<? extends Procedure>> procedures() {
-        return PROCEDURE_CLASSES;
-    }
+  @Override
+  public List<Class<? extends Procedure>> procedures() {
+    return PROCEDURE_CLASSES;
+  }
 
-    @Override
-    public Class<AuctionMarkBenchmark> benchmarkClass() {
-        return AuctionMarkBenchmark.class;
-    }
+  @Override
+  public Class<AuctionMarkBenchmark> benchmarkClass() {
+    return AuctionMarkBenchmark.class;
+  }
 
-    @Override
-    protected void postCreateDatabaseSetup() throws IOException {
-        super.postCreateDatabaseSetup();
-        AuctionMarkProfile.clearCachedProfile();
-    }
+  @Override
+  protected void postCreateDatabaseSetup() throws IOException {
+    super.postCreateDatabaseSetup();
+    AuctionMarkProfile.clearCachedProfile();
+  }
 
-    /**
-     * testCategoryParser
-     */
-    @Test
-    public void testCategoryParser() throws Exception {
-        CategoryParser categoryParser = new CategoryParser();
-        assertNotNull(categoryParser.getCategoryMap());
-        assertTrue(categoryParser.getCategoryMap().size() > 0);
-    }
+  /** testCategoryParser */
+  @Test
+  public void testCategoryParser() throws Exception {
+    CategoryParser categoryParser = new CategoryParser();
+    assertNotNull(categoryParser.getCategoryMap());
+    assertTrue(categoryParser.getCategoryMap().size() > 0);
+  }
 
-    /**
-     * testSupplementalClasses
-     */
-    @Test
-    public void testSupplementalClasses() throws Exception {
-        // Check to make sure that we have something...
-        Map<TransactionType, Procedure> procs = this.benchmark.getProcedures();
-        assertNotNull(procs);
-    }
+  /** testSupplementalClasses */
+  @Test
+  public void testSupplementalClasses() throws Exception {
+    // Check to make sure that we have something...
+    Map<TransactionType, Procedure> procs = this.benchmark.getProcedures();
+    assertNotNull(procs);
+  }
 }

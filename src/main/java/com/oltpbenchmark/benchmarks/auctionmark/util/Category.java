@@ -15,60 +15,64 @@
  *
  */
 
-
 package com.oltpbenchmark.benchmarks.auctionmark.util;
 
 import java.util.Objects;
 
 public class Category {
-    private final int categoryID;
-    private final Integer parentCategoryID;
-    private final int itemCount;
-    private final String name;
-    private final boolean isLeaf;
+  private final int categoryID;
+  private final Integer parentCategoryID;
+  private final int itemCount;
+  private final String name;
+  private final boolean isLeaf;
 
-    public Category(int categoryID, String name, Integer parentCategoryID, int itemCount, boolean isLeaf) {
-        this.categoryID = categoryID;
-        this.name = name;
-        this.parentCategoryID = parentCategoryID;
-        this.itemCount = itemCount;
-        this.isLeaf = isLeaf;
-    }
+  public Category(
+      int categoryID, String name, Integer parentCategoryID, int itemCount, boolean isLeaf) {
+    this.categoryID = categoryID;
+    this.name = name;
+    this.parentCategoryID = parentCategoryID;
+    this.itemCount = itemCount;
+    this.isLeaf = isLeaf;
+  }
 
-    public String getName() {
-        return this.name;
-    }
+  public String getName() {
+    return this.name;
+  }
 
-    public int getCategoryID() {
-        return this.categoryID;
-    }
+  public int getCategoryID() {
+    return this.categoryID;
+  }
 
-    public Integer getParentCategoryID() {
-        return this.parentCategoryID;
-    }
+  public Integer getParentCategoryID() {
+    return this.parentCategoryID;
+  }
 
-    public int getItemCount() {
-        return this.itemCount;
-    }
+  public int getItemCount() {
+    return this.itemCount;
+  }
 
-    public boolean isLeaf() {
-        return this.isLeaf;
-    }
+  public boolean isLeaf() {
+    return this.isLeaf;
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Category category = (Category) o;
-        return categoryID == category.categoryID && itemCount == category.itemCount && isLeaf == category.isLeaf && Objects.equals(parentCategoryID, category.parentCategoryID) && Objects.equals(name, category.name);
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
     }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Category category = (Category) o;
+    return categoryID == category.categoryID
+        && itemCount == category.itemCount
+        && isLeaf == category.isLeaf
+        && Objects.equals(parentCategoryID, category.parentCategoryID)
+        && Objects.equals(name, category.name);
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(categoryID, parentCategoryID, itemCount, name, isLeaf);
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(categoryID, parentCategoryID, itemCount, name, isLeaf);
+  }
 }

@@ -21,14 +21,15 @@ import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.tpch.TPCHConstants;
 import com.oltpbenchmark.benchmarks.tpch.TPCHUtil;
 import com.oltpbenchmark.util.RandomGenerator;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class Q2 extends GenericQuery {
 
-    public final SQLStmt query_stmt = new SQLStmt("""
+  public final SQLStmt query_stmt =
+      new SQLStmt(
+          """
              SELECT
                 s_acctbal,
                 s_name,
@@ -73,20 +74,20 @@ public class Q2 extends GenericQuery {
                 n_name,
                 s_name,
                 p_partkey LIMIT 100
-            """
-    );
+            """);
 
-    @Override
-    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
-        int size = rand.number(1, 50);
-        String type = TPCHUtil.choice(TPCHConstants.TYPE_S3, rand);
-        String region = TPCHUtil.choice(TPCHConstants.R_NAME, rand);
+  @Override
+  protected PreparedStatement getStatement(
+      Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
+    int size = rand.number(1, 50);
+    String type = TPCHUtil.choice(TPCHConstants.TYPE_S3, rand);
+    String region = TPCHUtil.choice(TPCHConstants.R_NAME, rand);
 
-        PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
-        stmt.setInt(1, size);
-        stmt.setString(2, "%" + type);
-        stmt.setString(3, region);
-        stmt.setString(4, region);
-        return stmt;
-    }
+    PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
+    stmt.setInt(1, size);
+    stmt.setString(2, "%" + type);
+    stmt.setString(3, region);
+    stmt.setString(4, region);
+    return stmt;
+  }
 }

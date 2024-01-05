@@ -79,6 +79,7 @@
          <value dist="scrambled" min="1000" max="300000"></value>
       </values>
    </template>
+   <!-- FIXME: This results in primary key failures due to duplicate keys.
    <template name="InsertItem">
       <query><![CDATA[INSERT INTO item VALUES(?,?,?,?,?)]]></query>
       <types>
@@ -96,4 +97,5 @@
          <value dist="zipf" min="0" max="10" />
       </values>
    </template>
+   -->
 </templates>

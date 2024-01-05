@@ -17,34 +17,30 @@
 
 package com.oltpbenchmark.benchmarks.ycsb.procedures;
 
+import static com.oltpbenchmark.benchmarks.ycsb.YCSBConstants.TABLE_NAME;
+
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.ycsb.YCSBConstants;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import static com.oltpbenchmark.benchmarks.ycsb.YCSBConstants.TABLE_NAME;
-
 public class ReadRecord extends Procedure {
-    public final SQLStmt readStmt = new SQLStmt(
-            "SELECT * FROM " + TABLE_NAME + " WHERE YCSB_KEY=?"
-    );
+  public final SQLStmt readStmt = new SQLStmt("SELECT * FROM " + TABLE_NAME + " WHERE YCSB_KEY=?");
 
-    //FIXME: The value in ysqb is a byteiterator
-    public void run(Connection conn, int keyname, String[] results) throws SQLException {
-        try (PreparedStatement stmt = this.getPreparedStatement(conn, readStmt)) {
-            stmt.setInt(1, keyname);
-            try (ResultSet r = stmt.executeQuery()) {
-                while (r.next()) {
-                    for (int i = 0; i < YCSBConstants.NUM_FIELDS; i++) {
-                        results[i] = r.getString(i + 1);
-                    }
-                }
-            }
+  // FIXME: The value in ysqb is a byteiterator
+  public void run(Connection conn, int keyname, String[] results) throws SQLException {
+    try (PreparedStatement stmt = this.getPreparedStatement(conn, readStmt)) {
+      stmt.setInt(1, keyname);
+      try (ResultSet r = stmt.executeQuery()) {
+        while (r.next()) {
+          for (int i = 0; i < YCSBConstants.NUM_FIELDS; i++) {
+            results[i] = r.getString(i + 1);
+          }
         }
+      }
     }
-
+  }
 }

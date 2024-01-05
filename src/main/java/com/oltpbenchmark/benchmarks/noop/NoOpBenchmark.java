@@ -22,40 +22,38 @@ import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.noop.procedures.NoOp;
-
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The NoOp Benchmark doesn't have any tables or execute any queries.
- * It's just how fast the DBMS can process NoOps
+ * The NoOp Benchmark doesn't have any tables or execute any queries. It's just how fast the DBMS
+ * can process NoOps
  *
  * @author pavlo
  * @author eric-haibin-lin
  */
-public class NoOpBenchmark extends BenchmarkModule {
+public final class NoOpBenchmark extends BenchmarkModule {
 
-    public NoOpBenchmark(WorkloadConfiguration workConf) {
-        super(workConf);
+  public NoOpBenchmark(WorkloadConfiguration workConf) {
+    super(workConf);
+  }
+
+  @Override
+  protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
+    List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
+    for (int i = 0; i < workConf.getTerminals(); ++i) {
+      workers.add(new NoOpWorker(this, i));
     }
+    return workers;
+  }
 
-    @Override
-    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
-        List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
-        for (int i = 0; i < workConf.getTerminals(); ++i) {
-            workers.add(new NoOpWorker(this, i));
-        }
-        return workers;
-    }
+  @Override
+  protected Loader<NoOpBenchmark> makeLoaderImpl() {
+    return new NoOpLoader(this);
+  }
 
-    @Override
-    protected Loader<NoOpBenchmark> makeLoaderImpl() {
-        return new NoOpLoader(this);
-    }
-
-    @Override
-    protected Package getProcedurePackageImpl() {
-        return NoOp.class.getPackage();
-    }
-
+  @Override
+  protected Package getProcedurePackageImpl() {
+    return NoOp.class.getPackage();
+  }
 }

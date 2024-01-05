@@ -21,14 +21,15 @@ import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.tpch.TPCHConstants;
 import com.oltpbenchmark.benchmarks.tpch.TPCHUtil;
 import com.oltpbenchmark.util.RandomGenerator;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class Q8 extends GenericQuery {
 
-    public final SQLStmt query_stmt = new SQLStmt("""
+  public final SQLStmt query_stmt =
+      new SQLStmt(
+          """
             SELECT
                o_year,
                SUM(
@@ -75,29 +76,30 @@ public class Q8 extends GenericQuery {
                o_year
             ORDER BY
                o_year
-            """
-    );
+            """);
 
-    @Override
-    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
-        // NATION is randomly selected within the list of values defined for N_NAME in Clause 4.2.3
-        String nation = TPCHUtil.choice(TPCHConstants.N_NAME, rand);
+  @Override
+  protected PreparedStatement getStatement(
+      Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
+    // NATION is randomly selected within the list of values defined for N_NAME in Clause 4.2.3
+    String nation = TPCHUtil.choice(TPCHConstants.N_NAME, rand);
 
-        // REGION is the value defined in Clause 4.2.3 for R_NAME where R_REGIONKEY corresponds to
-        // N_REGIONKEY for the selected NATION in item 1 above
-        int n_regionkey = TPCHUtil.getRegionKeyFromNation(nation);
-        String region = TPCHUtil.getRegionFromRegionKey(n_regionkey);
+    // REGION is the value defined in Clause 4.2.3 for R_NAME where R_REGIONKEY corresponds to
+    // N_REGIONKEY for the selected NATION in item 1 above
+    int n_regionkey = TPCHUtil.getRegionKeyFromNation(nation);
+    String region = TPCHUtil.getRegionFromRegionKey(n_regionkey);
 
-        // TYPE is randomly selected within the list of 3-syllable strings defined for Types in Clause 4.2.2.13
-        String syllable1 = TPCHUtil.choice(TPCHConstants.TYPE_S1, rand);
-        String syllable2 = TPCHUtil.choice(TPCHConstants.TYPE_S2, rand);
-        String syllable3 = TPCHUtil.choice(TPCHConstants.TYPE_S3, rand);
-        String type = String.format("%s %s %s", syllable1, syllable2, syllable3);
+    // TYPE is randomly selected within the list of 3-syllable strings defined for Types in Clause
+    // 4.2.2.13
+    String syllable1 = TPCHUtil.choice(TPCHConstants.TYPE_S1, rand);
+    String syllable2 = TPCHUtil.choice(TPCHConstants.TYPE_S2, rand);
+    String syllable3 = TPCHUtil.choice(TPCHConstants.TYPE_S3, rand);
+    String type = String.format("%s %s %s", syllable1, syllable2, syllable3);
 
-        PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
-        stmt.setString(1, nation);
-        stmt.setString(2, region);
-        stmt.setString(3, type);
-        return stmt;
-    }
+    PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
+    stmt.setString(1, nation);
+    stmt.setString(2, region);
+    stmt.setString(3, type);
+    return stmt;
+  }
 }

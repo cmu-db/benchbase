@@ -19,34 +19,33 @@ package com.oltpbenchmark.benchmarks.tpch.procedures;
 
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.util.RandomGenerator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLSyntaxErrorException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class GenericQuery extends Procedure {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(GenericQuery.class);
+  protected static final Logger LOG = LoggerFactory.getLogger(GenericQuery.class);
 
-    protected abstract PreparedStatement getStatement(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException;
+  protected abstract PreparedStatement getStatement(
+      Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException;
 
-    public void run(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
-        try (PreparedStatement stmt = getStatement(conn, rand, scaleFactor)) {
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    //do nothing
-                }
-            }
-            catch (SQLSyntaxErrorException ex) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug(this.getClass().getName() + ": stmt: " + stmt.toString());
-                }
-                throw ex;
-            }
+  public void run(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
+    try (PreparedStatement stmt = getStatement(conn, rand, scaleFactor)) {
+      try (ResultSet rs = stmt.executeQuery()) {
+        while (rs.next()) {
+          // do nothing
         }
+      } catch (SQLSyntaxErrorException ex) {
+        if (LOG.isDebugEnabled()) {
+          LOG.debug(this.getClass().getName() + ": stmt: " + stmt.toString());
+        }
+        throw ex;
+      }
     }
+  }
 }

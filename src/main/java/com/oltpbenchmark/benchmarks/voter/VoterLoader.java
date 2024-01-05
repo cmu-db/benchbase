@@ -21,65 +21,68 @@ import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.LoaderThread;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VoterLoader extends Loader<VoterBenchmark> {
+public final class VoterLoader extends Loader<VoterBenchmark> {
 
-    public VoterLoader(VoterBenchmark benchmark) {
-        super(benchmark);
-    }
+  public VoterLoader(VoterBenchmark benchmark) {
+    super(benchmark);
+  }
 
-    @Override
-    public List<LoaderThread> createLoaderThreads() {
-        List<LoaderThread> threads = new ArrayList<>();
+  @Override
+  public List<LoaderThread> createLoaderThreads() {
+    List<LoaderThread> threads = new ArrayList<>();
 
-        // CONTESTANTS
-        threads.add(new LoaderThread(this.benchmark) {
-            @Override
-            public void load(Connection conn) throws SQLException {
-                loadContestants(conn);
-            }
+    // CONTESTANTS
+    threads.add(
+        new LoaderThread(this.benchmark) {
+          @Override
+          public void load(Connection conn) throws SQLException {
+            loadContestants(conn);
+          }
         });
 
-        // LOCATIONS
-        threads.add(new LoaderThread(this.benchmark) {
-            @Override
-            public void load(Connection conn) throws SQLException {
-                loadLocations(conn);
-            }
+    // LOCATIONS
+    threads.add(
+        new LoaderThread(this.benchmark) {
+          @Override
+          public void load(Connection conn) throws SQLException {
+            loadLocations(conn);
+          }
         });
 
-        return threads;
+    return threads;
+  }
+
+  private void loadContestants(Connection conn) throws SQLException {
+    Table catalog_tbl = benchmark.getCatalog().getTable(VoterConstants.TABLENAME_CONTESTANTS);
+    try (PreparedStatement ps =
+        conn.prepareStatement(SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType()))) {
+
+      for (int i = 0; i < this.benchmark.numContestants; i++) {
+        ps.setInt(1, i + 1);
+        ps.setString(2, VoterConstants.CONTESTANT_NAMES[i]);
+        ps.addBatch();
+      }
+      ps.executeBatch();
     }
+  }
 
-    private void loadContestants(Connection conn) throws SQLException {
-        Table catalog_tbl = benchmark.getCatalog().getTable(VoterConstants.TABLENAME_CONTESTANTS);
-        try (PreparedStatement ps = conn.prepareStatement(SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType()))) {
+  private void loadLocations(Connection conn) throws SQLException {
+    Table catalog_tbl = benchmark.getCatalog().getTable(VoterConstants.TABLENAME_LOCATIONS);
+    try (PreparedStatement ps =
+        conn.prepareStatement(SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType()))) {
 
-            for (int i = 0; i < this.benchmark.numContestants; i++) {
-                ps.setInt(1, i + 1);
-                ps.setString(2, VoterConstants.CONTESTANT_NAMES[i]);
-                ps.addBatch();
-            }
-            ps.executeBatch();
-        }
+      for (int i = 0; i < VoterConstants.AREA_CODES.length; i++) {
+        ps.setShort(1, VoterConstants.AREA_CODES[i]);
+        ps.setString(2, VoterConstants.STATE_CODES[i]);
+        ps.addBatch();
+      }
+      ps.executeBatch();
     }
-
-    private void loadLocations(Connection conn) throws SQLException {
-        Table catalog_tbl = benchmark.getCatalog().getTable(VoterConstants.TABLENAME_LOCATIONS);
-        try (PreparedStatement ps = conn.prepareStatement(SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType()))) {
-
-            for (int i = 0; i < VoterConstants.AREA_CODES.length; i++) {
-                ps.setShort(1, VoterConstants.AREA_CODES[i]);
-                ps.setString(2, VoterConstants.STATE_CODES[i]);
-                ps.addBatch();
-            }
-            ps.executeBatch();
-        }
-    }
+  }
 }

@@ -15,7 +15,6 @@
  *
  */
 
-
 package com.oltpbenchmark.benchmarks.tatp;
 
 import com.oltpbenchmark.WorkloadConfiguration;
@@ -23,32 +22,31 @@ import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.tatp.procedures.DeleteCallForwarding;
-
 import java.util.ArrayList;
 import java.util.List;
 
-public class TATPBenchmark extends BenchmarkModule {
+public final class TATPBenchmark extends BenchmarkModule {
 
-    public TATPBenchmark(WorkloadConfiguration workConf) {
-        super(workConf);
-    }
+  public TATPBenchmark(WorkloadConfiguration workConf) {
+    super(workConf);
+  }
 
-    @Override
-    protected Package getProcedurePackageImpl() {
-        return (DeleteCallForwarding.class.getPackage());
-    }
+  @Override
+  protected Package getProcedurePackageImpl() {
+    return (DeleteCallForwarding.class.getPackage());
+  }
 
-    @Override
-    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
-        List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
-        for (int i = 0; i < workConf.getTerminals(); ++i) {
-            workers.add(new TATPWorker(this, i));
-        }
-        return (workers);
+  @Override
+  protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
+    List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
+    for (int i = 0; i < workConf.getTerminals(); ++i) {
+      workers.add(new TATPWorker(this, i));
     }
+    return (workers);
+  }
 
-    @Override
-    protected Loader<TATPBenchmark> makeLoaderImpl() {
-        return (new TATPLoader(this));
-    }
+  @Override
+  protected Loader<TATPBenchmark> makeLoaderImpl() {
+    return (new TATPLoader(this));
+  }
 }

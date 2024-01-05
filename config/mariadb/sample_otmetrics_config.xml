@@ -7,6 +7,7 @@
     <url>jdbc:mariadb://localhost:3306/benchbase?useServerPrepStmts</url>
     <username>admin</username>
     <password>password</password>
+    <reconnectOnConnectionFailure>true</reconnectOnConnectionFailure>
 
     <batchsize>10000</batchsize>
     <scalefactor>0.1</scalefactor>

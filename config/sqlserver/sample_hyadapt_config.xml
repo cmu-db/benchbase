@@ -6,6 +6,7 @@
     <url>jdbc:sqlserver://localhost:1433;encrypt=false;database=benchbase;</url>
     <username>benchuser01</username>
     <password>P@ssw0rd</password>
+    <reconnectOnConnectionFailure>true</reconnectOnConnectionFailure>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
     <batchsize>128</batchsize>
 
@@ -114,6 +115,6 @@
         <transactiontype>
             <name>SumRecord10</name>
         </transactiontype>
-        
+
     </transactiontypes>
 </parameters>

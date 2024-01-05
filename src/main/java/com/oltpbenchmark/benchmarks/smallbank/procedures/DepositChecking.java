@@ -28,49 +28,47 @@ package com.oltpbenchmark.benchmarks.smallbank.procedures;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.smallbank.SmallBankConstants;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- * DepositChecking Procedure
- * Original version by Mohammad Alomari and Michael Cahill
+ * DepositChecking Procedure Original version by Mohammad Alomari and Michael Cahill
  *
  * @author pavlo
  */
 public class DepositChecking extends Procedure {
 
-    public final SQLStmt GetAccount = new SQLStmt(
-            "SELECT * FROM " + SmallBankConstants.TABLENAME_ACCOUNTS +
-                    " WHERE name = ?"
-    );
+  public final SQLStmt GetAccount =
+      new SQLStmt("SELECT * FROM " + SmallBankConstants.TABLENAME_ACCOUNTS + " WHERE name = ?");
 
-    public final SQLStmt UpdateCheckingBalance = new SQLStmt(
-            "UPDATE " + SmallBankConstants.TABLENAME_CHECKING +
-                    "   SET bal = bal + ? " +
-                    " WHERE custid = ?"
-    );
+  public final SQLStmt UpdateCheckingBalance =
+      new SQLStmt(
+          "UPDATE "
+              + SmallBankConstants.TABLENAME_CHECKING
+              + "   SET bal = bal + ? "
+              + " WHERE custid = ?");
 
-    public void run(Connection conn, String custName, double amount) throws SQLException {
-        // First convert the custName to the custId
+  public void run(Connection conn, String custName, double amount) throws SQLException {
+    // First convert the custName to the custId
 
-        long custId;
+    long custId;
 
-        try (PreparedStatement stmt0 = this.getPreparedStatement(conn, GetAccount, custName)) {
-            try (ResultSet r0 = stmt0.executeQuery()) {
-                if (!r0.next()) {
-                    String msg = "Invalid account '" + custName + "'";
-                    throw new UserAbortException(msg);
-                }
-                custId = r0.getLong(1);
-            }
+    try (PreparedStatement stmt0 = this.getPreparedStatement(conn, GetAccount, custName)) {
+      try (ResultSet r0 = stmt0.executeQuery()) {
+        if (!r0.next()) {
+          String msg = "Invalid account '" + custName + "'";
+          throw new UserAbortException(msg);
         }
-
-        // Then update their checking balance
-        try (PreparedStatement stmt1 = this.getPreparedStatement(conn, UpdateCheckingBalance, amount, custId)) {
-            int status = stmt1.executeUpdate();
-        }
+        custId = r0.getLong(1);
+      }
     }
+
+    // Then update their checking balance
+    try (PreparedStatement stmt1 =
+        this.getPreparedStatement(conn, UpdateCheckingBalance, amount, custId)) {
+      stmt1.executeUpdate();
+    }
+  }
 }

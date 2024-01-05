@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    <type>ORACLE</type>
+    <driver>oracle.jdbc.OracleDriver</driver>
+    <url>jdbc:oracle:thin:@localhost:1521/xepdb1</url>
+    <username>benchbase</username>
+    <password>password</password>
+    <reconnectOnConnectionFailure>true</reconnectOnConnectionFailure>
+    <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    <batchsize>128</batchsize>
+
+    <scalefactor>1</scalefactor>
+
+    <!-- The workload -->
+    <terminals>1</terminals>
+    <works>
+        <work>
+            <time>60</time>
+            <rate>10000</rate>
+            <weights>100</weights>
+        </work>
+    </works>
+
+    <!-- Voter Procedures declaration -->
+    <transactiontypes>
+        <transactiontype>
+            <name>Vote</name>
+        </transactiontype>
+    </transactiontypes>
+</parameters>

@@ -21,39 +21,39 @@ import java.sql.*;
 
 public class MySQLCollector extends DBCollector {
 
-    private static final String VERSION_SQL = "SELECT @@GLOBAL.version;";
+  private static final String VERSION_SQL = "SELECT @@GLOBAL.version;";
 
-    private static final String PARAMETERS_SQL = "SHOW VARIABLES;";
+  private static final String PARAMETERS_SQL = "SHOW VARIABLES;";
 
-    private static final String METRICS_SQL = "SHOW STATUS";
+  private static final String METRICS_SQL = "SHOW STATUS";
 
-    public MySQLCollector(String oriDBUrl, String username, String password) {
-        try (Connection conn = DriverManager.getConnection(oriDBUrl, username, password)) {
-            try (Statement s = conn.createStatement()) {
+  public MySQLCollector(String oriDBUrl, String username, String password) {
+    try (Connection conn = DriverManager.getConnection(oriDBUrl, username, password)) {
+      try (Statement s = conn.createStatement()) {
 
-                // Collect DBMS version
-                try (ResultSet out = s.executeQuery(VERSION_SQL)) {
-                    if (out.next()) {
-                        this.version = out.getString(1);
-                    }
-                }
-
-                // Collect DBMS parameters
-                try (ResultSet out = s.executeQuery(PARAMETERS_SQL)) {
-                    while (out.next()) {
-                        dbParameters.put(out.getString(1).toLowerCase(), out.getString(2));
-                    }
-                }
-
-                // Collect DBMS internal metrics
-                try (ResultSet out = s.executeQuery(METRICS_SQL)) {
-                    while (out.next()) {
-                        dbMetrics.put(out.getString(1).toLowerCase(), out.getString(2));
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            LOG.error("Error while collecting DB parameters: {}", e.getMessage());
+        // Collect DBMS version
+        try (ResultSet out = s.executeQuery(VERSION_SQL)) {
+          if (out.next()) {
+            this.version = out.getString(1);
+          }
         }
+
+        // Collect DBMS parameters
+        try (ResultSet out = s.executeQuery(PARAMETERS_SQL)) {
+          while (out.next()) {
+            dbParameters.put(out.getString(1).toLowerCase(), out.getString(2));
+          }
+        }
+
+        // Collect DBMS internal metrics
+        try (ResultSet out = s.executeQuery(METRICS_SQL)) {
+          while (out.next()) {
+            dbMetrics.put(out.getString(1).toLowerCase(), out.getString(2));
+          }
+        }
+      }
+    } catch (SQLException e) {
+      LOG.error("Error while collecting DB parameters: {}", e.getMessage());
     }
+  }
 }

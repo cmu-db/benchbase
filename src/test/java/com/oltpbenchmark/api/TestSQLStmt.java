@@ -14,7 +14,6 @@
  *  limitations under the License.                                            *
  ******************************************************************************/
 
-
 package com.oltpbenchmark.api;
 
 import static org.junit.Assert.assertEquals;
@@ -24,40 +23,33 @@ import org.junit.Test;
 
 public class TestSQLStmt {
 
-    /**
-     * testSubstitution
-     */
-    @Test
-    public void testSubstitution() throws Exception {
-        int ctr = 25;
-        SQLStmt stmt = new SQLStmt(
-                "SELECT * FROM tweets WHERE uid IN (??)", ctr
-        );
+  /** testSubstitution */
+  @Test
+  public void testSubstitution() throws Exception {
+    int ctr = 25;
+    SQLStmt stmt = new SQLStmt("SELECT * FROM tweets WHERE uid IN (??)", ctr);
 
-        String sql = stmt.getSQL();
-        assertFalse(sql.isEmpty());
-        assertFalse(sql.contains("\\?\\?"));
-    }
+    String sql = stmt.getSQL();
+    assertFalse(sql.isEmpty());
+    assertFalse(sql.contains("\\?\\?"));
+  }
 
-    /**
-     * testSetSQL
-     */
-    @Test
-    public void testSetSQL() throws Exception {
-        int expected = 99;
-        SQLStmt stmt = new SQLStmt("SELECT * FROM tweets", expected);
-        stmt.setSQL("SELECT * FROM tweets WHERE uid IN (??)");
+  /** testSetSQL */
+  @Test
+  public void testSetSQL() throws Exception {
+    int expected = 99;
+    SQLStmt stmt = new SQLStmt("SELECT * FROM tweets", expected);
+    stmt.setSQL("SELECT * FROM tweets WHERE uid IN (??)");
 
-        String sql = stmt.getSQL();
-        assertFalse(sql.isEmpty());
-        assertFalse(sql.contains("\\?\\?"));
+    String sql = stmt.getSQL();
+    assertFalse(sql.isEmpty());
+    assertFalse(sql.contains("\\?\\?"));
 
-        // Count the number of times '?' appears
-        int actual = 0;
-        for (int i = 0; i < sql.length(); i++) {
-            if (sql.charAt(i) == '?') actual++;
-        } // FOR
-        assertEquals(expected, actual);
-    }
-
+    // Count the number of times '?' appears
+    int actual = 0;
+    for (int i = 0; i < sql.length(); i++) {
+      if (sql.charAt(i) == '?') actual++;
+    } // FOR
+    assertEquals(expected, actual);
+  }
 }

@@ -45,27 +45,28 @@
 
 package com.oltpbenchmark.util;
 
+import java.util.concurrent.CountDownLatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.CountDownLatch;
-
 public class LatchedExceptionHandler implements Thread.UncaughtExceptionHandler {
-    private final Logger LOG = LoggerFactory.getLogger(getClass());
+  private final Logger LOG = LoggerFactory.getLogger(getClass());
 
-    private final CountDownLatch latch;
+  private final CountDownLatch latch;
 
-    public LatchedExceptionHandler(CountDownLatch latch) {
-        this.latch = latch;
+  public LatchedExceptionHandler(CountDownLatch latch) {
+    this.latch = latch;
+  }
+
+  @Override
+  public void uncaughtException(Thread t, Throwable e) {
+    LOG.error(
+        String.format(
+            "Uncaught Exception in thread with message: [%s]; will count down latch with count %d",
+            e.getMessage(), this.latch.getCount()),
+        e);
+    while (this.latch.getCount() > 0) {
+      this.latch.countDown();
     }
-
-    @Override
-    public void uncaughtException(Thread t, Throwable e) {
-        LOG.error(String.format("Uncaught Exception in thread with message: [%s]; will count down latch with count %d", e.getMessage(), this.latch.getCount()), e);
-        while (this.latch.getCount() > 0) {
-            this.latch.countDown();
-        }
-    }
-
-
+  }
 }

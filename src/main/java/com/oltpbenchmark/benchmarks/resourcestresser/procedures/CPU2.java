@@ -21,7 +21,6 @@ import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.resourcestresser.ResourceStresserConstants;
 import com.oltpbenchmark.benchmarks.resourcestresser.ResourceStresserWorker;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -29,37 +28,43 @@ import java.sql.SQLException;
 
 public class CPU2 extends Procedure {
 
-    public final SQLStmt cpuSelect;
+  public final SQLStmt cpuSelect;
 
-    {
-        String complexClause = "passwd";
-        for (int i = 1; i <= ResourceStresserWorker.CPU2_nestedLevel; ++i) {
-            complexClause = "md5(concat(" + complexClause + ",?))";
-        }
-        cpuSelect = new SQLStmt("SELECT count(*) FROM (SELECT " + complexClause + " FROM " + ResourceStresserConstants.TABLENAME_CPUTABLE + " WHERE empid >= 0 AND empid < 100) AS T2");
+  {
+    String complexClause = "passwd";
+    for (int i = 1; i <= ResourceStresserWorker.CPU2_nestedLevel; ++i) {
+      complexClause = "md5(concat(" + complexClause + ",?))";
     }
+    cpuSelect =
+        new SQLStmt(
+            "SELECT count(*) FROM (SELECT "
+                + complexClause
+                + " FROM "
+                + ResourceStresserConstants.TABLENAME_CPUTABLE
+                + " WHERE empid >= 0 AND empid < 100) T2");
+  }
 
-    public void run(Connection conn, int howManyPerTransaction, int sleepLength, int nestedLevel) throws SQLException {
+  public void run(Connection conn, int howManyPerTransaction, int sleepLength, int nestedLevel)
+      throws SQLException {
 
+    for (int tranIdx = 0; tranIdx < howManyPerTransaction; ++tranIdx) {
+      double randNoise = ResourceStresserWorker.gen.nextDouble();
 
-        for (int tranIdx = 0; tranIdx < howManyPerTransaction; ++tranIdx) {
-            double randNoise = ResourceStresserWorker.gen.nextDouble();
-
-            try (PreparedStatement stmt = this.getPreparedStatement(conn, cpuSelect)) {
-                for (int i = 1; i <= nestedLevel; ++i) {
-                    stmt.setString(i, Double.toString(randNoise));
-                }
-
-                // TODO: Is this the right place to sleep?  With rs open???
-                try (ResultSet rs = stmt.executeQuery()) {
-                    try {
-                        Thread.sleep(sleepLength);
-                    } catch (InterruptedException e) {
-                        throw new SQLException("Unexpected interupt while sleeping!");
-                    }
-                }
-            }
+      try (PreparedStatement stmt = this.getPreparedStatement(conn, cpuSelect)) {
+        for (int i = 1; i <= nestedLevel; ++i) {
+          stmt.setString(i, Double.toString(randNoise));
         }
-    }
 
+        // TODO: Is this the right place to sleep?  With rs open???
+        try (ResultSet rs = stmt.executeQuery()) {
+          assert rs != null;
+          try {
+            Thread.sleep(sleepLength);
+          } catch (InterruptedException e) {
+            throw new SQLException("Unexpected interupt while sleeping!");
+          }
+        }
+      }
+    }
+  }
 }

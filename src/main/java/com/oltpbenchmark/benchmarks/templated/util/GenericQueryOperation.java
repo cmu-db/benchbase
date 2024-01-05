@@ -16,25 +16,22 @@
  */
 package com.oltpbenchmark.benchmarks.templated.util;
 
+import com.oltpbenchmark.api.Operation;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import com.oltpbenchmark.api.Operation;
-
-/**
- * Immutable class containing information about transactions.
- */
+/** Immutable class containing information about transactions. */
 public class GenericQueryOperation extends Operation {
 
-    public final List<TemplatedValue> params;
+  public final List<TemplatedValue> params;
 
-    public GenericQueryOperation(TemplatedValue[] params) {
-        super();
-        this.params = Collections.unmodifiableList(Arrays.asList(params));
-    }
+  public GenericQueryOperation(TemplatedValue[] params) {
+    super();
+    this.params = Collections.unmodifiableList(Arrays.asList(params));
+  }
 
-    public List<TemplatedValue> getParams() {
-        return params;
-    }
+  public List<TemplatedValue> getParams() {
+    return params;
+  }
 }
