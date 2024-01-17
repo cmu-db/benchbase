@@ -79,23 +79,27 @@
          <value>255.0</value>
       </values>
    </template>
-   <!-- FIXME: This results in primary key failures due to duplicate keys.
    <template name="InsertItem">
-      <query><![CDATA[INSERT INTO item VALUES(?,?,?,?,?)]]></query>
+      <query><![CDATA[INSERT INTO history VALUES(?,?,?,?,?,?,?,?)]]></query>
       <types>
          <type>INTEGER</type>
-         <type>VARCHAR</type>
+         <type>INTEGER</type>
+         <type>INTEGER</type>
+         <type>INTEGER</type>
+         <type>INTEGER</type>
+         <type>TIMESTAMP</type>
          <type>FLOAT</type>
          <type>VARCHAR</type>
-         <type>INTEGER</type>
       </types>
       <values>
-         <value>100001</value>
-         <value>Testname</value>
-         <value>255.1</value>
-         <value>Testdata</value>
          <value>1</value>
+         <value>1</value>
+         <value>1</value>
+         <value>1</value>
+         <value>1</value>
+         <value>2022-10-10 11:30:30</value>
+         <value>1.0</value>
+         <value>Test</value>
       </values>
    </template>
-   -->
 </templates>
