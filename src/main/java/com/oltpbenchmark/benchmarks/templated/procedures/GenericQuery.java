@@ -91,7 +91,7 @@ public abstract class GenericQuery extends Procedure {
 
       TemplatedValue param = params.get(i);
       boolean hasDist = param.getDistribution() != null;
-      boolean hasValue = param.getValue().length() > 0;
+      boolean hasValue = param.getValue() != null;
 
       if ((!hasDist && !hasValue) || paramsTypes[i].equalsIgnoreCase("NULL")) {
         stmt.setNull(i + 1, Types.NULL);

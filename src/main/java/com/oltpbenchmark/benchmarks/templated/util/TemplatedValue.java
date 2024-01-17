@@ -17,8 +17,14 @@ public class TemplatedValue {
   String value;
   String minS;
   String maxS;
+  Object generatorObject;
 
-  public final Object generatorObject;
+  /**
+   * @param value Value that is used if no distribution is given
+   */
+  public TemplatedValue(String value) {
+    this.value = value;
+  }
 
   /**
    * @param distribution The desired value distribution
@@ -27,11 +33,24 @@ public class TemplatedValue {
    * @param seed The seed for the random generator. Default is 0
    * @param value Value that is used if no distribution is given
    */
-  public TemplatedValue(String distribution, String min, String max, String seed, String value) {
-    this.min = min == null ? 0 : Long.parseLong(min);
-    this.max = max == null ? 1 : Long.parseLong(max);
-    this.seed = seed == null ? 0 : Long.parseLong(seed);
-    this.value = value;
+  public TemplatedValue(String distribution, String min, String max, String seed) {
+    try {
+      this.min = Long.parseLong(min);
+    } catch (Exception e) {
+      this.min = 0L;
+    }
+
+    try {
+      this.max = Long.parseLong(max);
+    } catch (Exception e) {
+      this.max = 1L;
+    }
+
+    try {
+      this.seed = Long.parseLong(seed);
+    } catch (Exception e) {
+      this.seed = 0L;
+    }
 
     this.generatorObject = createGenerator(distribution, this.min, this.max, this.seed);
 
@@ -95,14 +114,6 @@ public class TemplatedValue {
 
   public String getValue() {
     return this.value;
-  }
-
-  public String getMinString() {
-    return this.minS;
-  }
-
-  public String getMaxString() {
-    return this.maxS;
   }
 
   public Object getGenerator() {

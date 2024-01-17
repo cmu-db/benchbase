@@ -190,13 +190,16 @@ public final class TemplatedBenchmark extends BenchmarkModule {
 
         for (ValuesType paramValue : template.getValuesList()) {
           for (ValueType value : paramValue.getValueList()) {
-            b.addParamsValues(
-                new TemplatedValue(
-                    value.getDist(),
-                    value.getMin(),
-                    value.getMax(),
-                    value.getSeed(),
-                    value.getValue()));
+            /* Lightweight constructor used if no distribution is present */
+            if (value.getDist() == null
+                || value.getDist().length() < 1
+                || value.getDist().equals("null")) {
+              b.addParamsValues(new TemplatedValue(value.getValue()));
+            } else {
+              b.addParamsValues(
+                  new TemplatedValue(
+                      value.getDist(), value.getMin(), value.getMax(), value.getSeed()));
+            }
           }
         }
 
@@ -253,28 +256,33 @@ public final class TemplatedBenchmark extends BenchmarkModule {
   private String buildTemplatedValueString(List<TemplatedValue> params) {
     String result = "";
     for (TemplatedValue param : params) {
-      result +=
-          "new TemplatedValue("
-              + "\""
-              + param.getDistribution()
-              + "\""
-              + ","
-              + "\""
-              + param.getMin()
-              + "\""
-              + ","
-              + "\""
-              + param.getMax()
-              + "\""
-              + ","
-              + "\""
-              + param.getSeed()
-              + "\""
-              + ","
-              + "\""
-              + StringEscapeUtils.escapeJava(param.getValue())
-              + "\""
-              + "),";
+      if (param.getDistribution() != null) {
+        result +=
+            "new TemplatedValue("
+                + "\""
+                + param.getDistribution()
+                + "\""
+                + ","
+                + "\""
+                + param.getMin()
+                + "\""
+                + ","
+                + "\""
+                + param.getMax()
+                + "\""
+                + ","
+                + "\""
+                + param.getSeed()
+                + "\""
+                + "),";
+      } else {
+        result +=
+            "new TemplatedValue("
+                + "\""
+                + StringEscapeUtils.escapeJava(param.getValue())
+                + "\""
+                + "),";
+      }
     }
     return result.isEmpty() ? "" : result.substring(0, result.length() - 1);
   }
