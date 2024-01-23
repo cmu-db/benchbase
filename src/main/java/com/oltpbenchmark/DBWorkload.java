@@ -514,6 +514,11 @@ public class DBWorkload {
       LOG.debug("Skipping loading benchmark database records");
     }
 
+    // Handle anonymization after data loading
+    if (xmlConfig.configurationsAt("/anon/anonTable").size() > 0) {
+      applyAnonymization(xmlConfig, configFile);
+    }
+
     // Execute Workload
     if (isBooleanOptionSet(argsLine, "execute")) {
       // Bombs away!
@@ -774,5 +779,40 @@ public class DBWorkload {
       return (val != null && val.equalsIgnoreCase("true"));
     }
     return (false);
+  }
+
+  /**
+   * Handles the anonymization of specified tables with differential privacy and automatically
+   * creates an anonymized copy of the table. Adapts templated query file if sensitive values are
+   * present
+   *
+   * @param xmlConfig
+   * @param configFile
+   */
+  private static void applyAnonymization(XMLConfiguration xmlConfig, String configFile) {
+
+    String templatesPath = "";
+    if (xmlConfig.containsKey("query_templates_file")) {
+      templatesPath = xmlConfig.getString("query_templates_file");
+    }
+
+    LOG.info("Starting the Anonymization process");
+    LOG.info(SINGLE_LINE);
+    ProcessBuilder processBuilder =
+        new ProcessBuilder("python3", "scripts/anonymizer.py", configFile, templatesPath);
+    try {
+      // Redirect Output stream of the script to get live feedback
+      processBuilder.inheritIO();
+      Process process = processBuilder.start();
+      int exitCode = process.waitFor();
+      if (exitCode != 0) {
+        throw new Exception("Anonymization program exited with a non-zero status code");
+      }
+      LOG.info("Finished the Anonymization process for all tables");
+      LOG.info(SINGLE_LINE);
+    } catch (Exception e) {
+      LOG.error(e.getMessage());
+      return;
+    }
   }
 }

@@ -19,6 +19,22 @@
 
     <query_templates_file>data/templated/example.xml</query_templates_file>
 
+    <anon>
+        <anonTable>
+            <tablename>item</tablename>
+            <droppable>i_id</droppable>
+            <categorical>i_name,i_data,i_im_id</categorical>
+            <continuous>i_price</continuous>
+            <ordinal></ordinal>
+            <eps>1.0</eps>
+            <preEps>0.5</preEps>
+            <algorithm>aim</algorithm>
+            <sensitive>
+                <colName method="name" locales="en_US" seed="0">i_name</colName>
+            </sensitive>
+        </anonTable>
+    </anon>
+
     <!-- The workload -->
     <terminals>1</terminals>
     <works>
