@@ -54,7 +54,7 @@
       </types>
       <values>
          <value dist="normal" min="10" max="12.5"/>
-         <valu dist="uniform" min="15.1" max="20.0"/>
+         <valuw dist="uniform" min="15.1" max="20.0"/>
       </values>
       <values>
          <value>10.50</value>
