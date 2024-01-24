@@ -514,7 +514,6 @@ public class DBWorkload {
       LOG.debug("Skipping loading benchmark database records");
     }
 
-
     // Anonymize Datasets
     if (isBooleanOptionSet(argsLine, "anonymize")) {
       try {
@@ -522,7 +521,7 @@ public class DBWorkload {
           applyAnonymization(xmlConfig, configFile);
         }
       } catch (Throwable ex) {
-        LOG.error("Unexpected error when anonymizing datasets",ex);
+        LOG.error("Unexpected error when anonymizing datasets", ex);
         System.exit(1);
       }
     }
@@ -568,6 +567,8 @@ public class DBWorkload {
     options.addOption(null, "create", true, "Initialize the database for this benchmark");
     options.addOption(null, "clear", true, "Clear all records in the database for this benchmark");
     options.addOption(null, "load", true, "Load data using the benchmark's data loader");
+    options.addOption(
+        null, "anonymize", true, "Anonymize specified datasets using differential privacy");
     options.addOption(null, "execute", true, "Execute the benchmark workload");
     options.addOption("h", "help", false, "Print this help");
     options.addOption("s", "sample", true, "Sampling window");
