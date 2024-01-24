@@ -29,7 +29,7 @@ public class TemplatedValue {
   /**
    * @param distribution The desired value distribution
    * @param min Minimum value. Default is 0
-   * @param max Maximum value. Default is 1
+   * @param max Maximum value. Default is min + 1
    * @param seed The seed for the random generator. Default is 0
    * @param value Value that is used if no distribution is given
    */
@@ -43,8 +43,10 @@ public class TemplatedValue {
     try {
       this.max = Long.parseLong(max);
     } catch (Exception e) {
-      this.max = 1L;
+      this.max = this.min + 1L;
     }
+
+    assert this.max > this.min;
 
     try {
       this.seed = Long.parseLong(seed);
