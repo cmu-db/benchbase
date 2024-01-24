@@ -9,7 +9,7 @@
          <type>INTEGER</type>
       </types>
       <values>
-         <value dist="uniform" min="1" max="3" />
+         <value dist="uniform" min="1" max="3"/>
          <value dist="zipf" min="1"/>
       </values>
        <values>
@@ -54,7 +54,7 @@
       </types>
       <values>
          <value dist="normal" min="10" max="12.5"/>
-         <valuw dist="uniform" min="15.1" max="20.0"/>
+         <value dist="uniform" min="15.1" max="20.0"/>
       </values>
       <values>
          <value>10.50</value>
