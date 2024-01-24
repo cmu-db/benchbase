@@ -514,9 +514,17 @@ public class DBWorkload {
       LOG.debug("Skipping loading benchmark database records");
     }
 
-    // Handle anonymization after data loading
-    if (xmlConfig.configurationsAt("/anon/anonTable").size() > 0) {
-      applyAnonymization(xmlConfig, configFile);
+
+    // Anonymize Datasets
+    if (isBooleanOptionSet(argsLine, "anonymize")) {
+      try {
+        if (xmlConfig.configurationsAt("/anon/anonTable").size() > 0) {
+          applyAnonymization(xmlConfig, configFile);
+        }
+      } catch (Throwable ex) {
+        LOG.error("Unexpected error when anonymizing datasets",ex);
+        System.exit(1);
+      }
     }
 
     // Execute Workload
