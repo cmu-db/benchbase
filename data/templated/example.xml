@@ -9,11 +9,11 @@
          <type>INTEGER</type>
       </types>
       <values>
-         <value>3</value>
-         <value>4</value>
+         <value dist="uniform" min="1" max="3" />
+         <value dist="zipf" min="1"/>
       </values>
        <values>
-         <value>5</value>
+         <value dist="scrambled" seed="999"/>
          <value>6</value>
       </values>
    </template>
@@ -53,8 +53,8 @@
          <type>FLOAT</type>
       </types>
       <values>
-         <value>10</value>
-         <value>10.49</value>
+         <value dist="normal" min="10" max="12.5"/>
+         <valu dist="uniform" min="15.1" max="20.0"/>
       </values>
       <values>
          <value>10.50</value>
@@ -92,10 +92,10 @@
          <type>VARCHAR</type>
       </types>
       <values>
-         <value dist="uniform" min="1" max="3000"/>
-         <value dist="binomial" min="1" max="10"/>
-         <value dist="zipf" min="1" seed="10"/>
-         <value dist="scrambled" min="1" max="10" seed="2"/>
+         <value>1</value>
+         <value>1</value>
+         <value>1</value>
+         <value>1</value>
          <value>1</value>
          <value dist="uniform" min="1674477220000" max="1706013220000"/>
          <value dist="normal" min="0.5" max="12.5"/>
