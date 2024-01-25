@@ -2,6 +2,7 @@ package com.oltpbenchmark.benchmarks.templated.util;
 
 import com.oltpbenchmark.distributions.ScrambledZipfianGenerator;
 import com.oltpbenchmark.distributions.ZipfianGenerator;
+import com.oltpbenchmark.util.JDBCSupportedType;
 import com.oltpbenchmark.util.TextGenerator;
 import java.util.Random;
 
@@ -23,7 +24,11 @@ public class TemplatedValue {
    * @param value Value that is used if no distribution is given
    */
   public TemplatedValue(String value) {
-    this.value = value;
+    if (value.equals("null") || value.length() < 1) {
+      this.value = null;
+    } else {
+      this.value = value;
+    }
   }
 
   /**
@@ -59,6 +64,8 @@ public class TemplatedValue {
     // String values are kept for the construction of Floating Point bounds
     this.minS = min;
     this.maxS = max;
+
+    this.value = null;
   }
 
   /**
@@ -74,27 +81,26 @@ public class TemplatedValue {
       return null;
     }
 
-    switch (distribution.toLowerCase()) {
-      case "uniform":
+    this.distribution = ValueGenerator.valueOf(distribution.toUpperCase());
+
+    switch (this.distribution) {
+      case UNIFORM:
         this.distribution = ValueGenerator.UNIFORM;
         return new Random(seed);
-      case "binomial":
-      case "normal":
-        this.distribution = ValueGenerator.BINOMIAL;
+      case NORMAL:
+        this.distribution = ValueGenerator.NORMAL;
         return new Random(seed);
-      case "zipf":
-      case "zipfian":
+      case ZIPFIAN:
         this.distribution = ValueGenerator.ZIPFIAN;
         return new ZipfianGenerator(new Random(seed), min, max);
-      case "scrambled":
-      case "scramzipf":
+      case SCRAMBLED:
         this.distribution = ValueGenerator.SCRAMBLED;
         return new ScrambledZipfianGenerator(min, max);
       default:
         throw new RuntimeException(
             "The distribution: '"
                 + distribution
-                + "' is not supported. Currently supported are 'uniform' | 'binomial' | 'zipfian' | 'scrambled'");
+                + "' is not supported. Currently supported are 'uniform' | 'normal' | 'zipfian' | 'scrambled'");
     }
   }
 
@@ -171,8 +177,8 @@ public class TemplatedValue {
     return generatedFloat;
   }
 
-  public RuntimeException createRuntimeException(String paramType) {
+  public RuntimeException createRuntimeException(JDBCSupportedType paramType) {
     return new RuntimeException(
-        "Distribution: " + this.distribution + " not supported for type: " + paramType);
+        "Distribution: " + this.distribution + " not supported for type: " + paramType.toString());
   }
 }

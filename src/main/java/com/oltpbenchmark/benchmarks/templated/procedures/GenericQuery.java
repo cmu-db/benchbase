@@ -20,6 +20,7 @@ import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.templated.util.TemplatedValue;
 import com.oltpbenchmark.benchmarks.templated.util.ValueGenerator;
+import com.oltpbenchmark.util.JDBCSupportedType;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -95,18 +96,17 @@ public abstract class GenericQuery extends Procedure {
 
       if ((!hasDist && !hasValue) || paramsTypes[i].equalsIgnoreCase("NULL")) {
         stmt.setNull(i + 1, Types.NULL);
-
       } else if (hasDist) {
         ValueGenerator distribution = param.getDistribution();
-        String paramType = paramsTypes[i].toLowerCase();
+        JDBCSupportedType paramType = JDBCSupportedType.valueOf(paramsTypes[i].toUpperCase());
         switch (paramType) {
-          case "integer":
+          case INTEGER:
             int generatedInt;
             switch (distribution) {
               case UNIFORM:
                 generatedInt = param.getNextLongUniform().intValue();
                 break;
-              case BINOMIAL:
+              case NORMAL:
                 generatedInt = param.getNextLongBinomial().intValue();
                 break;
               case ZIPFIAN:
@@ -120,14 +120,14 @@ public abstract class GenericQuery extends Procedure {
             }
             stmt.setInt(i + 1, generatedInt);
             break;
-          case "float":
-          case "real":
+          case FLOAT:
+          case REAL:
             float generatedFloat;
             switch (distribution) {
               case UNIFORM:
                 generatedFloat = param.getNextFloatUniform();
                 break;
-              case BINOMIAL:
+              case NORMAL:
                 generatedFloat = param.getNextFloatBinomial();
                 break;
               default:
@@ -135,13 +135,13 @@ public abstract class GenericQuery extends Procedure {
             }
             stmt.setFloat(i + 1, generatedFloat);
             break;
-          case "bigint":
+          case BIGINT:
             Long generatedLong;
             switch (distribution) {
               case UNIFORM:
                 generatedLong = param.getNextLongUniform();
                 break;
-              case BINOMIAL:
+              case NORMAL:
                 generatedLong = param.getNextLongBinomial();
                 break;
               case ZIPFIAN:
@@ -155,8 +155,7 @@ public abstract class GenericQuery extends Procedure {
             }
             stmt.setLong(i + 1, generatedLong);
             break;
-          case "varchar":
-          case "string":
+          case VARCHAR:
             switch (distribution) {
               case UNIFORM:
                 stmt.setString(i + 1, param.getNextString());
@@ -165,15 +164,15 @@ public abstract class GenericQuery extends Procedure {
                 throw param.createRuntimeException(paramType);
             }
             break;
-          case "timestamp":
-          case "date":
-          case "time":
+          case TIMESTAMP:
+          case DATE:
+          case TIME:
             Long generatedTimestamp;
             switch (distribution) {
               case UNIFORM:
                 generatedTimestamp = param.getNextLongUniform();
                 break;
-              case BINOMIAL:
+              case NORMAL:
                 generatedTimestamp = param.getNextLongBinomial();
                 break;
               case ZIPFIAN:
@@ -185,9 +184,9 @@ public abstract class GenericQuery extends Procedure {
               default:
                 throw param.createRuntimeException(paramType);
             }
-            if (paramType.equals("timestamp")) {
+            if (paramType == JDBCSupportedType.TIMESTAMP) {
               stmt.setTimestamp(i + 1, new Timestamp(generatedTimestamp));
-            } else if (paramType.equals("date")) {
+            } else if (paramType == JDBCSupportedType.DATE) {
               stmt.setDate(i + 1, new Date(generatedTimestamp));
             } else {
               stmt.setTime(i + 1, new Time(generatedTimestamp));
@@ -197,7 +196,7 @@ public abstract class GenericQuery extends Procedure {
             throw new RuntimeException(
                 "Support for distributions for the type: "
                     + paramType
-                    + " is current not implemented");
+                    + " is not currently implemented");
         }
 
       } else {
