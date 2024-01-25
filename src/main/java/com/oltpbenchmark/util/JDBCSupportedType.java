@@ -12,6 +12,7 @@ public enum JDBCSupportedType {
   FLOAT,
   INTEGER,
   NUMERIC,
+  NULL,
   REAL,
   SMALLINT,
   TIME,

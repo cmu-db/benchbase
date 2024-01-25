@@ -81,12 +81,12 @@ Each time the query is run, a different value will substitute the `?`.
 ```
 
 The distributions are dependent on the type of the value. Currently, the following type-distributions pairs are supported:
-| Type             | uniform | binomial | zipfian | scrambled zipfian |
+| Type             | uniform | binomial | zipfian | scrambled |
 | ---------------- | :-----: | :------: | :-----: | :---------------: |
 | INTEGER          |    X    |    X     |    X    |         X         |
 | FLOAT / REAL     |    X    |    X     |    -    |         -         |
 | BIGINT           |    X    |    X     |    X    |         X         |
-| VARCHAR / STRING |    X    |    -     |    -    |         -         |
+| VARCHAR          |    X    |    -     |    -    |         -         |
 | TIMESTAMP        |    X    |    X     |    X    |         X         |
 | DATE             |    X    |    X     |    X    |         X         |
 | TIME             |    X    |    X     |    X    |         X         |
@@ -97,4 +97,20 @@ The following properties can be set on the value:
 -   `max`: The maximum value the generator can produce. Defaults to 1
 -   `seed`: A seed for the generator to ensure consistency
 
-For Timestamps, Dates and Times, the min and max values must be converted to a long (milliseconds)
+*NOTE:* For `Timestamp`, `Date`, and `Time` types, the min and max values must be converted to UNIX time (milliseconds).
+The value is interpreted as the milliseconds since January 1, 1970, 00:00:00 GMT/UTC.
+```xml
+<value 
+    dist="uniform" 
+    min="1674477220000" // Mon Jan 23 2023 12:33:40 
+    max="1706013220000" // Tue Jan 23 2024 12:33:40 
+    seed="0"
+/>
+```
+To get the current UNIX time in milliseconds, use the following bash command:
+```bash
+date +%s%3N
+```
+or use a web services like [www.currentmillis.com](www.currentmillis.com)
+
+

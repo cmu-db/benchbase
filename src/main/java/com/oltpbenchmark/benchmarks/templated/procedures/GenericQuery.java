@@ -94,11 +94,12 @@ public abstract class GenericQuery extends Procedure {
       boolean hasDist = param.getDistribution() != null;
       boolean hasValue = param.getValue() != null;
 
-      if ((!hasDist && !hasValue) || paramsTypes[i].equalsIgnoreCase("NULL")) {
+      JDBCSupportedType paramType = JDBCSupportedType.valueOf(paramsTypes[i].toUpperCase());
+
+      if ((!hasDist && !hasValue) || paramType == JDBCSupportedType.NULL) {
         stmt.setNull(i + 1, Types.NULL);
       } else if (hasDist) {
         ValueGenerator distribution = param.getDistribution();
-        JDBCSupportedType paramType = JDBCSupportedType.valueOf(paramsTypes[i].toUpperCase());
         switch (paramType) {
           case INTEGER:
             int generatedInt;
