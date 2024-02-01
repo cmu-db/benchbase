@@ -155,7 +155,7 @@ def configFromXML(table):
 
     # Additional information
 
-    anonConfig["hide"] = listFromElement(table.find("droppable"))
+    anonConfig["hide"] = listFromElement(table.find("drop"))
 
     anonConfig["cat"] = listFromElement(table.find("categorical"))
 
