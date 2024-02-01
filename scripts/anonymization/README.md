@@ -1,5 +1,7 @@
 # Anonymization
 
+<span style="color:orange"> ANONYMIZATION IS A WORK IN PROGRESS AND DOES CURRENTLY NOT ACTUALLY ANONYMIZE THE DATA. THIS FEATURE WILL BE ADDED LATER </span>
+
 The anonymization module allows to apply privacy mechanisms such as differential privacy or column faking to the data. 
 The system will pull data from the JDBC connection, anonymize the data and push it back to the DBMS by creating a new table.
 
