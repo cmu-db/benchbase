@@ -515,9 +515,11 @@ public class DBWorkload {
     }
 
     // Anonymize Datasets
+    // Currently, the system only parses the config but does not run any anonymization!
+    // Will be added in the future
     if (isBooleanOptionSet(argsLine, "anonymize")) {
       try {
-        if (xmlConfig.configurationsAt("/anon/anonTable").size() > 0) {
+        if (xmlConfig.configurationsAt("/anonymization/table").size() > 0) {
           applyAnonymization(xmlConfig, configFile);
         }
       } catch (Throwable ex) {
@@ -808,7 +810,8 @@ public class DBWorkload {
     LOG.info("Starting the Anonymization process");
     LOG.info(SINGLE_LINE);
     ProcessBuilder processBuilder =
-        new ProcessBuilder("python3", "scripts/anonymizer.py", configFile, templatesPath);
+        new ProcessBuilder(
+            "python3", "scripts/anonymization/anonymizer.py", configFile, templatesPath);
     try {
       // Redirect Output stream of the script to get live feedback
       processBuilder.inheritIO();
