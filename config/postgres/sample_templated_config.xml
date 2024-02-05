@@ -19,12 +19,19 @@
 
     <query_templates_file>data/templated/example.xml</query_templates_file>
 
+    <!-- The anonymization configuration -->
     <anonymization>
         <table name="item" epsilon="1.0" pre_epsilon="0.0" algorithm="aim">
+            <!-- Column categorization -->
             <droppable>i_id</droppable>
             <categorical>i_name,i_data,i_im_id</categorical>
             <continuous>i_price</continuous>
             <ordinal></ordinal>
+            <!-- Continuous column fine-tuning -->
+            <continuousConfig>
+                <column name="i_price" bins="1000" lower="2.0" upper="100.0"> 
+            <continuousConfig>
+            <!-- Sensitive value handling -->
             <sensitive>
                 <column name="i_name" method="name" locales="en_US" seed="0" />
             </sensitive>

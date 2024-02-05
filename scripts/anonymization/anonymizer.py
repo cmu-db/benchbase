@@ -1,5 +1,6 @@
 """Module that handles the full Anonymization pipeline
 """
+
 import sys
 import xml.etree.ElementTree as ET
 
@@ -80,13 +81,52 @@ def getDroppableInfo(dropCols, dataset):
     # TODO
 
 
-def anonymize(dataset: str, anonConfig: dict, sensConfig: dict, templatesPath: str):
+def getTransformer(
+    dataset, algorithm, categorical, continuous, ordinal, continuousConfig
+):
+    """Function that creates a custom transformer for the dp-mechanism
+
+    Args:
+        dataset (DataFrame): The actual dataset
+        algorithm (str): The name of the DP-algorithm
+        categorical (str[]): A list of all categorical columns
+        continuous (str[]): A list of all continuous columns
+        ordinal (str[]): A list of all ordinal columns
+        continuousConfig (dict[]): A list of detailed information about how to handle certain continuous columns
+
+    Returns:
+        TableTransformer: A transformer for the specific dataset
+    """
+
+    # TODO
+
+
+def getConstraints(objects):
+    """A helper method that builds constraints that are used by a TableTransformer
+
+    Args:
+        objects (dict): Entries of the continuous column config
+
+    Returns:
+        dict: A constraint
+    """
+    # TODO
+
+
+def anonymize(
+    dataset: str,
+    anonConfig: dict,
+    sensConfig: dict,
+    contConfig: dict,
+    templatesPath: str,
+):
     """Function that handles the data anonymization step
 
     Args:
         dataset (DataFrame): A pandas DataFrame containing the data
         anonConfig (dict): Anonymization config
         sensConfig (dict): Sensitive value config
+        contConfig (dict): Continuous value config
         templatesPath (str): The path pointing to the query templates
 
     Returns:
@@ -96,7 +136,11 @@ def anonymize(dataset: str, anonConfig: dict, sensConfig: dict, templatesPath: s
 
 
 def anonymizeDB(
-    jdbcConfig: dict, anonConfig: dict, sensConfig: dict, templatesPath: str
+    jdbcConfig: dict,
+    anonConfig: dict,
+    sensConfig: dict,
+    contConfig: dict,
+    templatesPath: str,
 ):
     """Function that handles the necessary steps for anonymization.
     Includes starting the JVM, Anonymizing and pushing data to the DB
@@ -105,6 +149,7 @@ def anonymizeDB(
         jdbcConfig (dict): JDBC connection information
         anonConfig (dict): Anonymization config
         sensConfig (dict): Sensitive value config
+        contConfig (dict): Continuous value config
         templatesPath (str): The path pointing to the query templates
     """
     # TODO
@@ -132,11 +177,12 @@ def configFromXML(table):
         table (Element): The XML element that describes the table
 
     Returns:
-        (dict,dict): The configuration for the anonymization and sensitive value handling
+        (dict,dict,dict): The configurations for the anonymization, sensitive and continuous value handling
     """
 
     anonConfig = {}
     sensConfig = {}
+    contConfig = []
 
     # Necessary information
     tableName = table.get("name")
@@ -163,6 +209,19 @@ def configFromXML(table):
 
     anonConfig["ord"] = listFromElement(table.find("ordinal"))
 
+    cont = table.find("continuousConfig")
+
+    if cont:
+        for contCol in cont.findall("column"):
+            contConfig.append(
+                {
+                    "name": contCol.get("name"),
+                    "bins": contCol.get("bins"),
+                    "lower": contCol.get("bins"),
+                    "upper": contCol.get("bins"),
+                }
+            )
+
     sens = table.find("sensitive")
     if sens:
         sensList = []
@@ -177,7 +236,7 @@ def configFromXML(table):
             )
         sensConfig["cols"] = sensList
 
-    return anonConfig, sensConfig
+    return anonConfig, sensConfig, contConfig
 
 
 def main():
@@ -208,8 +267,8 @@ def main():
 
     # Loop over all specified tables and anonymize them one-by-one
     for table in parameters.find("anonymization").findall("table"):
-        anonConfig, sensConfig = configFromXML(table)
-        anonymizeDB(jdbcConfig, anonConfig, sensConfig, templatesPath)
+        anonConfig, sensConfig, contConfig = configFromXML(table)
+        anonymizeDB(jdbcConfig, anonConfig, sensConfig, contConfig, templatesPath)
 
 
 if __name__ == "__main__":

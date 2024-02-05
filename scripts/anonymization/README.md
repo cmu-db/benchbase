@@ -2,7 +2,7 @@
 
 <span style="color:orange"> ANONYMIZATION IS A WORK IN PROGRESS AND DOES CURRENTLY NOT ACTUALLY ANONYMIZE THE DATA. THIS FEATURE WILL BE ADDED LATER </span>
 
-The anonymization module allows to apply privacy mechanisms such as differential privacy or column faking to the data. 
+The anonymization module allows to apply privacy mechanisms such as differential privacy or column faking to the data.
 The system will pull data from the JDBC connection, anonymize the data and push it back to the DBMS by creating a new table.
 
 ## Config
@@ -71,6 +71,46 @@ The ID-column will be removed from the anonymization process and be added back t
 ```
 
 <span style="color:red"> **Disclaimer**: As soon as the column types are defined by hand, all columns must be defined. It is not possible to only specify some of the categorical columns and let the algorithm do the rest!</span>
+
+### Continuous Columns
+
+The continuous columns will automatically be preprocessed by the algorithm. The lower and upper bounds of the values are inferred in a differentially private way and therefore use some of the preprocessing epsilon budget. Further, values will be binned in order to be applicable to the DP-mechanism. Automatically, the system uses only 10 bins. In order to achieve better data utility, we suggest to manually fine-tune the settings in the config
+
+In the following example, the amount of bins is now 1000 and the lower and upper bounds are given by hand such that no preprocessing epsilon must be spent!
+
+```xml
+<continuousConfig>
+    <column name="i_price" bins="1000" lower="2.0" upper="100.0">
+<continuousConfig>
+```
+
+The default parameters must be added inside of the `<column>`-tag. (See below)
+
+| Name  | Default | Possible Value    | Description                                 |
+| ----- | ------- | ----------------- | ------------------------------------------- |
+| name  | -       | Any string        | The name of the column                      |
+| bins  | 10      | Any value         | The amount of distinct values in the output |
+| lower | -       | Any value         | Lower bound of the values                   |
+| upper | -       | Any value > lower | Upper bound of the values                   |
+
+---
+
+A full working example could look like this:
+
+```xml
+<anonymization>
+    <table name="item" epsilon="1.0" pre_epsilon="0.0" algorithm="aim">
+        <!-- Column categorization -->
+        <droppable>i_id</droppable>
+        <categorical>i_name,i_data,i_im_id</categorical>
+        <continuous>i_price</continuous>
+        <!-- Continuous column fine-tuning -->
+        <continuousConfig>
+            <column name="i_price" bins="1000" lower="2.0" upper="100.0">
+        <continuousConfig>
+    </table>
+</anonymization>
+```
 
 ### Sensitive Values
 
