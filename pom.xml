@@ -347,7 +347,7 @@
             <!-- Used by the templated benchmark for internal compiling proceedures. -->
             <groupId>org.codehaus.janino</groupId>
             <artifactId>janino</artifactId>
-            <version>3.1.11</version>
+            <version>3.1.12</version>
         </dependency>
     </dependencies>
 
