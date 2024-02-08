@@ -20,6 +20,8 @@ RUN groupadd --non-unique --gid ${CONTAINERUSER_GID} containergroup \
     && echo 'containeruser ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 RUN mkdir -p /benchbase/results && chown -R containeruser:containergroup /benchbase/
 USER containeruser
+# Unset the upstream MVN_CONFIG value - it interacts poorly with the mvnw wrapper.
+ENV MAVEN_CONFIG=
 ENV MAVEN_CONFIG_DIR=/home/containeruser/.m2
 WORKDIR /benchbase
 VOLUME /benchbase/results
