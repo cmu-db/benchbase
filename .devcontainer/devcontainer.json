@@ -32,7 +32,7 @@
         "http_proxy": "${localEnv:http_proxy}",
         "https_proxy": "${localEnv:https_proxy}",
         "no_proxy": "${localEnv:no_proxy}",
-        "MAVEN_CONFIG": "${localEnv:HOME}/.m2",
+        "MAVEN_CONFIG_DIR": "${localEnv:HOME}/.m2",
         "LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}",
         "CONTAINER_WORKSPACE_FOLDER": "${containerWorkspaceFolder}"
     },
