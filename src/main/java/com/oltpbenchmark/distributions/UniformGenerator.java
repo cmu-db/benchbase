@@ -3,7 +3,8 @@ package com.oltpbenchmark.distributions;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class UniformGenerator extends IntegerGenerator {
-  int min, max;
+  int min;
+  int max;
 
   /**
    * Create a uniformly distributed random number generator for items.
