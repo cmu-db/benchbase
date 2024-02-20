@@ -23,6 +23,7 @@ import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.ycsb.procedures.*;
 import com.oltpbenchmark.distributions.CounterGenerator;
+import com.oltpbenchmark.distributions.UniformGenerator;
 import com.oltpbenchmark.distributions.ZipfianGenerator;
 import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.TextGenerator;
@@ -39,7 +40,7 @@ class YCSBWorker extends Worker<YCSBBenchmark> {
 
   private final ZipfianGenerator readRecord;
   private static CounterGenerator insertRecord;
-  private final ZipfianGenerator randScan;
+  private final UniformGenerator randScan;
 
   private final char[] data;
   private final String[] params = new String[YCSBConstants.NUM_FIELDS];
@@ -58,7 +59,7 @@ class YCSBWorker extends Worker<YCSBBenchmark> {
     this.readRecord =
         new ZipfianGenerator(
             rng(), init_record_count, benchmarkModule.skewFactor); // pool for read keys
-    this.randScan = new ZipfianGenerator(rng(), YCSBConstants.MAX_SCAN, benchmarkModule.skewFactor);
+    this.randScan = new UniformGenerator(1, YCSBConstants.MAX_SCAN);
 
     synchronized (YCSBWorker.class) {
       // We must know where to start inserting
@@ -100,41 +101,35 @@ class YCSBWorker extends Worker<YCSBBenchmark> {
   }
 
   private void updateRecord(Connection conn) throws SQLException {
-
     int keyname = readRecord.nextInt();
     this.buildParameters();
     this.procUpdateRecord.run(conn, keyname, this.params);
   }
 
   private void scanRecord(Connection conn) throws SQLException {
-
     int keyname = readRecord.nextInt();
     int count = randScan.nextInt();
     this.procScanRecord.run(conn, keyname, count, new ArrayList<>());
   }
 
   private void readRecord(Connection conn) throws SQLException {
-
     int keyname = readRecord.nextInt();
     this.procReadRecord.run(conn, keyname, this.results);
   }
 
   private void readModifyWriteRecord(Connection conn) throws SQLException {
-
     int keyname = readRecord.nextInt();
     this.buildParameters();
     this.procReadModifyWriteRecord.run(conn, keyname, this.params, this.results);
   }
 
   private void insertRecord(Connection conn) throws SQLException {
-
     int keyname = insertRecord.nextInt();
     this.buildParameters();
     this.procInsertRecord.run(conn, keyname, this.params);
   }
 
   private void deleteRecord(Connection conn) throws SQLException {
-
     int keyname = readRecord.nextInt();
     this.procDeleteRecord.run(conn, keyname);
   }
