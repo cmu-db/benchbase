@@ -1,5 +1,5 @@
 #TEST FOR YUGABYTE REGULAR TABLES
-#GOAL13 from tab Scan queries of doc https://docs.google.com/spreadsheets/d/1-M1i5tWJQJdbmtv7mz_20MZsT2Oqh_T3-6m12qKAMcA/edit#gid=796784261:
+#GOAL11 from tab Scan queries of doc https://docs.google.com/spreadsheets/d/1-M1i5tWJQJdbmtv7mz_20MZsT2Oqh_T3-6m12qKAMcA/edit#gid=796784261:
 # Primary key IN scan with additional projected column - Varying number of IN options
 #TESTS:
 #   Range scan time to fetch 1 rows
