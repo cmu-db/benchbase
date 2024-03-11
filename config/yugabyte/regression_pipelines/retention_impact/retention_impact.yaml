@@ -1,0 +1,138 @@
+type: YUGABYTE
+driver: com.yugabyte.Driver
+url: jdbc:yugabytedb://{{endpoint}}:5433/yugabyte?sslmode=require&ApplicationName=featurebench&reWriteBatchedInserts=true&load-balance=false
+username: {{username}}
+password: {{password}}
+batchsize: 128
+isolation: TRANSACTION_REPEATABLE_READ
+loaderthreads: 1
+terminals: 25
+collect_pg_stat_statements: true
+yaml_version: v1.0
+use_dist_in_explain : true
+works:
+    work:
+        time_secs: 7200
+        rate: unlimited
+        warmup: 60
+microbenchmark:
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
+    properties:
+        setAutoCommit: true
+        create:
+            - drop table IF EXISTS nets_1;
+            - create table nets_1(op_id_1 text,work_type_1 text,work_id_1 text,sequence_id_1 text,source_1 text,owner_1 text,state_1 text,resource_id_1 text,tracing_data_1 text,created_1 timestamp with time zone,modified_1 timestamp with time zone,timeout_1 timestamp with time zone,retry_count_1 bigint,db_user_id_1 text,shard_id_1 smallint,ingest_time_1 timestamp with time zone,label_1 text,metadata_1 text,primary key ((db_user_id_1, shard_id_1) HASH, op_id_1 ASC));
+
+        cleanup:
+            - drop table IF EXISTS nets_1;
+
+        loadRules:
+            - table: nets_
+              count: 1
+              rows: 50000000
+              columns:
+                    - name: op_id_
+                      count: 1
+                      util: PrimaryStringGen
+                      params: [ 1, 50 ]
+                    - name: work_type_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: work_id_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: sequence_id_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: source_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: owner_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: state_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: resource_id_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: tracing_data_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: created_
+                      count: 1
+                      util: CurrentTime
+                    - name: modified_
+                      count: 1
+                      util: CurrentTime
+                    - name: timeout_
+                      count: 1
+                      util: CurrentTime
+                    - name: retry_count_
+                      count: 1
+                      util: RandomInt
+                      params: [ 1, 50 ]
+                    - name: db_user_id_
+                      count: 1
+                      util: OneStringFromArray
+                      params: [ 'Yds9u85','G9TEkhK','wri04A4','4A57Hwy98U','F8H6vCg56S','u284J8jaCC','X7q11Fjl96','lJzUXsdNN8','8f3AcE3','emV5PrN','tq201oqmGf','4fjiHYgok2','kaVC018','Vha4TXj7JT','x71c89P','Iw5wxM8','OoB4iM7','t5P8DJ6','g0g0m1s8g2','v28SJe8','smE5HTgQL9','6Em8eV2','33w08P7','hX1OLBiI0b','4Oq3aP3','D55xH2wHC5','Loz9R4n9pP','h3io28fya5','UPOi80A','Ed64P8T','8Y4vLp7','Nif2cQzfjp','1PRC4k3','3HUE8Zbl66','A30b54B','266u27z5nP','5xLr5Nm2ve','0QiKk4A','ry961Yp8x8','2GsBXhI','rYW3uvdFsH','M5yGZS8','Lu9eJ2sa26','B43lSQC','d9I1ZuF','K9pPTH4','a3M9K26','Yu4vwA7','LzUL9K1','fC1601W','1nxT0ptb8G','HI7wS0tn39','gH6C7XfJ9f','vqopgTC','85Oo0xzv31','4yM5mS2','1ez3vOwcK6','3rqGtZhVss','h0WdyZO','k01FD8C','U5F70oI','3oYs5SL','3XW6o3U','9yM9uZ6','Oqdol64','y3P5361','67g39EvA2K','8N2sI13','gQ9puw3','eX9p428','3Z89ndqZdi','Y4V9rmJ','go98J45','x26a4i9','H2Grz7A','uxn3kkk0tE','g60aeK4','tAzz4yW','5Y7CqChXP9','TSGL44vl7h','RlZVs71','CFR91ZgSZ4','Kw4m695','5WHlBTvKl0','0P2OS3L','e9Ly14w98W','e5rNxtP','Ovl1Y88','5r5llxo9sP','1e9P5A0','p1dyAqH','6nWCdl5','JWRD96L','bu9RtK5','k71eWbuzU1','rd053gV','qPYykfuIT5','Fk25rx8','dxtVO9F','K7Q72b1','HSL3fVje8k','9lkc9HZ','gmo20fbuwQ','uSxVzh5','19FxXegzf9','1cb6p37','oDbzFG8','ztVl3dzvbE','v2JQyg7','c0WxIeciaq','428nsAqoI6','vGw5f6i5o0','R0PVi7qrQ5','R6PvZAO','Y7528h2','7o72O3xAgI','S0S2GmV','mdpvUQZ','8nr85hW','744xlEsxX1','E7oOyLK','yy6Ro86','XtggaqnV7C','WR2kSx8','ANU0lbzrpv','0Tj830zSWz','2K7eUucYq5','aR77fNqQ26','8tYfVrT','00sm5gH','p04yx5S','6w0Say9','FNV49Rov28','XtHooBD','8bt9aelmRi','7pYu4TL','brn4kLE','rRVV5sfJ9G','TD6q7IoJL8','198sj61','30Y6381','msn15FdNSQ','0p084gzw4f','hyvW1fT','w3u433D','jys98p7','8c11z30','W9BiJ6e5LC','MuNza89','pBCC11k4et','EKmNWsxQFd','28X76XD','2jNaM4Q','P384617','V0Lxh0vW8x','w8Dugug6mZ','CZFb50S','182Goe3','Ujt4r14','aQoRY88','RAQIcaN','gdj1MN1','3eg1rsK','yC66xP2','8z5p2So7sU','s6u3o92','8nNG8yx50M','9QmJS89','0wDRGkm139','726gp86','nld9GpG','ORuKY32','14W8k9jo7J','vKwV8qK','04EJiyV','Pkk5yOC','LF18I14','1jIgBBT','FrbR7p6','Rbpz2z4','NupzBJT','LH4FbFdWMN','Mv1iIg6','jZ81EZmfVt','XGRw4NP','42VzQeX','K4cg6D3','Z46KlPb1gc','L44MM84','x0kdeO7','oV4X230','3SX7ACj1qz','5ACG0Klb1i','TG57H0T','h5E10hyH9x','4O8bof7','Qq7gm6v1Ys','Fnn467g3gf','1Uc1LC1','8kA8FpM','j4k549g6Ej','MSbtrBA','X1SUcVbOp4','B57XprgH2W','07JbT2X','0GLv2aQ','gGOZxXC','3hMkF48','6u739zsn4z','JUGot94','d5mc7eR','tlZUM1ek8t','9t49a0nYAV','Q79w67uGF0','n41TOUF','xjwG7PS','KQF99MB','9ZomCcA','D7bqvaZ','lA8k9UI','23bMdd8','p1mGBWg13W','T59wGHS','sWpf1fW','i7m0r7g0L1','f2Hl23j60T','3qrei0V','ED2ZDN8','dL5IUaE','1u3xA2zH9t','PQO7iy2','tSu97ZI','cZJlkCd9f7','76wCv9hAGW','eOUZ252','Q340d1T','0yXGcWk4or','t426N44','dKj05g5','5OAn1Wixgs','01MRtS8','968G2h5','qRZyKLO','MrA8MN8','0AK3YIjezg','uNE7003','GE178NZ','2u76i2r6To','jIMCu0H','RfRc06T','wGc1qi5','Wg52Q7S','WcPu6U9','2eGTK47','kdeSPaI','qxGo8Cvd79','4AH305S','7J5OEy9','J3BZ0amD27','nMasJ5eele','E9xY0z7','I4aqdPvdZv','C9Lw2x1','ky7BzA1','69l7tu4','Skk2jM6','OiRNyp2','97DF3SZ','Wq6gUNeZn8','6U76pEK','2JTdKBK','Fx1wveW','LKxHH3cw6q','rzkMAm6','120L50m6D4','8qw3N5a0f8','uca3UN8','bL8i5WH','0xlTgNO','Q4PAroG','8PBLh6N','A47HYGF','HuMn7zgQ4D','63AAkVS','Mc7yM14','4vM8il5','M027M5D','pZMT8kn189','061BuSphBi','X0zI29t172','4kP13qfRHa','jltqMegIA9','wP54K83','57b23odk2d','m8B8F2rxkU','BWzsJw8','Q6y1L00','6WM34wO','u6tE103','3osHd62','YLW9JvU','o27P8R2','vC46Fm0','ffi568ztE9','PGT0nIamT2','m4Qxl37','5A63VnL','X1QAvk2','CX8qRl2','83xZvf4','1z7r6gL','158JZF4','1Y5nkksb6D','ql33Af7','itfEsEsl6W','ttSphkN','k63MQxW','7VISDC3','r0QvXjM','l1KEQvqS1b','ySP1J0h2sD','7X6YBHE','Vey2XnnEDX','LQ4gZ4fO7G','64RK675','z62St3b4v5','H41sc51','Tnoe3mU','Gun18F1','RIy64b0','ab7fUi0','3OFCd0Q','Tbv5Ir2','Y4vfKaR','G7594w7','EfQDVbtCDP','20woaN7','Yo2Cwhy52M','645goVV','9LYtA7gcV2','iSwRl21','dEp3eazTGS','AqxZlg3','h7B5w12','JATV3b0','UgE92RvJfp','dw8wH3sb5C','DZzkAT8','a2rYn81','Cd5RPuhKeq','3y7vD7a5OC','l040o3jA3n','4rRALn4','GjmWcq9','BmIRkajT3Q','YPtuLCnuY9','3e6J5E3','32x565pG3B','WU71cpP','5GAM8i8','0YP264Y','rplyAx1','htroNT3','1227EUB','035Jb60','bS8xQ91','3G69pCS','DHPydDK','8xz824X','Ym1y1X5','kmkrk21','3J4Z32K','ImL0pOmW0T','5vc9O18','QbpfZ81','0kfT54E','f9i182ddre','9hXHaIhezi','35J18EQ','Fz7x9Y6','FqW7R19','8BHKg33','7SOY1OgQ80','alVmh96','33A0wG5','68Mg1UhjYv','L479HNA','Bx6W1U3','rm0H9dZ','HhHT0saa2s','59d0491','Xzv1r7zdAw','0nEQFBtOMo','NotMMIn2O1','u4gEKAI','s1IY2s1','d7ABeLJ','g21039P','8Q4Q001','a8CYV8P','u2JW2O9','rhjKnK6','fDKO3Y7','SuU2plE','fH0FCh9','3Ge1Ojgq68','b7PuYhrVA1','4Ghx60cQ0s','ExKrAqyOQ6','00h7Vy0','e7GO4Oe6zD','v2tjWcvDhu','5GK86H2','p7ZD5AG','OB1WEHT','I28tOCw8BW','lU71XhF','N155eiP','QrEvc7m9k3','4jJ2QhB','q1o5fwK','58nO4G0','UC3e41vDDn','51U4X43','T5hk9jh6kI','2VqAo5lDYI','ouaDcC2','6kK4de0','i4Uhus2','fWTUFtA','59Qn2cbI66','vF37OllvsR','i2wW375','TdNt3l7','tJ9eR3E','H1bwIQF','dry1L7yaH0','BQ7PUPsgoP','G70Wm0P','67U7oRtwTl','09XKzcD','m4JO5LH','je943GQ','u4rO3bucN9','d4VA03C','F71YE35','c4v1aX5','U1dydlb0XW','XVdzD1B','hb9X52F','4yycgb2','pG595Jvj8Y','ne87m54','s84Zl85','25ByY6kmo0','y3ON54S','9Qg0Qwcn38','dGSyGNO','U8notFt7nD','Go4kvee671','6s5Q70sPNZ','bU2BHNJ','ZZ85xpt301','s54ziX3','U3WgZo4','HedxOYx73A','2GPN9O5','HzAVCj4','J2HMA9E','i3001CV','Y5v1CCX','gw7Wkrxjk3','0cjl5cH','10JWT8E','Yuh1JDnfz9','lC7TaiL','zizUn1kL3q','ohvjENp2wk','i070SVK','K7go9Y8','n9SBCvb7SO','wd8Mv22','duk0KQm6FB','O1NAkywK60','C0Ke68Y','DF9R1yS','Sk1WHb0','Hwwb5nd1by','7zZ0e9zIXZ','ds55kDrnEe','M8cKEr0','uzwO69dd46','2029D2xD46','aI441DN','fwiphJbPYn','jq95QWT','N50lhxY','1D4IV2vgpH','8A852b2','j7T3FY0','I8b8ZML','98Kk0JdAwD','4si197S','bCFG3Fue7d','1wfb9KG','T98SRt4','AEmVF58','v8X3vlw29S','q19O7o4','z189G9w42d','ZG3IV4B','Z7mrukN','u27E9K3','2mekoxI','dRDdViF','AsSEv3M','f4BC186','DFvNB12','5WGB7a1','sVRL49oS75','H6T32QC','EXOwH4hf1Y' ]
+                    - name: shard_id_
+                      count: 1
+                      util: RandomNumber
+                      params: [ 1, 50 ]
+                    - name: ingest_time_
+                      count: 1
+                      util: CurrentTime
+                    - name: label_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: metadata_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+
+        executeRules:
+            - workload: NetG1_query1
+              run:
+                  - name: NetG1_1_update_query
+                    weight: 50
+                    queries:
+                        - query: UPDATE nets_1 SET shard_id_1 = shard_id_1 + 1 WHERE db_user_id_1 = ? and shard_id_1 = ?
+                          bindings:
+                            - util: OneStringFromArray
+                              params: [ 'Yds9u85','G9TEkhK','wri04A4','4A57Hwy98U','F8H6vCg56S','u284J8jaCC','X7q11Fjl96','lJzUXsdNN8','8f3AcE3','emV5PrN','tq201oqmGf','4fjiHYgok2','kaVC018','Vha4TXj7JT','x71c89P','Iw5wxM8','OoB4iM7','t5P8DJ6','g0g0m1s8g2','v28SJe8','smE5HTgQL9','6Em8eV2','33w08P7','hX1OLBiI0b','4Oq3aP3','D55xH2wHC5','Loz9R4n9pP','h3io28fya5','UPOi80A','Ed64P8T','8Y4vLp7','Nif2cQzfjp','1PRC4k3','3HUE8Zbl66','A30b54B','266u27z5nP','5xLr5Nm2ve','0QiKk4A','ry961Yp8x8','2GsBXhI','rYW3uvdFsH','M5yGZS8','Lu9eJ2sa26','B43lSQC','d9I1ZuF','K9pPTH4','a3M9K26','Yu4vwA7','LzUL9K1','fC1601W','1nxT0ptb8G','HI7wS0tn39','gH6C7XfJ9f','vqopgTC','85Oo0xzv31','4yM5mS2','1ez3vOwcK6','3rqGtZhVss','h0WdyZO','k01FD8C','U5F70oI','3oYs5SL','3XW6o3U','9yM9uZ6','Oqdol64','y3P5361','67g39EvA2K','8N2sI13','gQ9puw3','eX9p428','3Z89ndqZdi','Y4V9rmJ','go98J45','x26a4i9','H2Grz7A','uxn3kkk0tE','g60aeK4','tAzz4yW','5Y7CqChXP9','TSGL44vl7h','RlZVs71','CFR91ZgSZ4','Kw4m695','5WHlBTvKl0','0P2OS3L','e9Ly14w98W','e5rNxtP','Ovl1Y88','5r5llxo9sP','1e9P5A0','p1dyAqH','6nWCdl5','JWRD96L','bu9RtK5','k71eWbuzU1','rd053gV','qPYykfuIT5','Fk25rx8','dxtVO9F','K7Q72b1','HSL3fVje8k','9lkc9HZ','gmo20fbuwQ','uSxVzh5','19FxXegzf9','1cb6p37','oDbzFG8','ztVl3dzvbE','v2JQyg7','c0WxIeciaq','428nsAqoI6','vGw5f6i5o0','R0PVi7qrQ5','R6PvZAO','Y7528h2','7o72O3xAgI','S0S2GmV','mdpvUQZ','8nr85hW','744xlEsxX1','E7oOyLK','yy6Ro86','XtggaqnV7C','WR2kSx8','ANU0lbzrpv','0Tj830zSWz','2K7eUucYq5','aR77fNqQ26','8tYfVrT','00sm5gH','p04yx5S','6w0Say9','FNV49Rov28','XtHooBD','8bt9aelmRi','7pYu4TL','brn4kLE','rRVV5sfJ9G','TD6q7IoJL8','198sj61','30Y6381','msn15FdNSQ','0p084gzw4f','hyvW1fT','w3u433D','jys98p7','8c11z30','W9BiJ6e5LC','MuNza89','pBCC11k4et','EKmNWsxQFd','28X76XD','2jNaM4Q','P384617','V0Lxh0vW8x','w8Dugug6mZ','CZFb50S','182Goe3','Ujt4r14','aQoRY88','RAQIcaN','gdj1MN1','3eg1rsK','yC66xP2','8z5p2So7sU','s6u3o92','8nNG8yx50M','9QmJS89','0wDRGkm139','726gp86','nld9GpG','ORuKY32','14W8k9jo7J','vKwV8qK','04EJiyV','Pkk5yOC','LF18I14','1jIgBBT','FrbR7p6','Rbpz2z4','NupzBJT','LH4FbFdWMN','Mv1iIg6','jZ81EZmfVt','XGRw4NP','42VzQeX','K4cg6D3','Z46KlPb1gc','L44MM84','x0kdeO7','oV4X230','3SX7ACj1qz','5ACG0Klb1i','TG57H0T','h5E10hyH9x','4O8bof7','Qq7gm6v1Ys','Fnn467g3gf','1Uc1LC1','8kA8FpM','j4k549g6Ej','MSbtrBA','X1SUcVbOp4','B57XprgH2W','07JbT2X','0GLv2aQ','gGOZxXC','3hMkF48','6u739zsn4z','JUGot94','d5mc7eR','tlZUM1ek8t','9t49a0nYAV','Q79w67uGF0','n41TOUF','xjwG7PS','KQF99MB','9ZomCcA','D7bqvaZ','lA8k9UI','23bMdd8','p1mGBWg13W','T59wGHS','sWpf1fW','i7m0r7g0L1','f2Hl23j60T','3qrei0V','ED2ZDN8','dL5IUaE','1u3xA2zH9t','PQO7iy2','tSu97ZI','cZJlkCd9f7','76wCv9hAGW','eOUZ252','Q340d1T','0yXGcWk4or','t426N44','dKj05g5','5OAn1Wixgs','01MRtS8','968G2h5','qRZyKLO','MrA8MN8','0AK3YIjezg','uNE7003','GE178NZ','2u76i2r6To','jIMCu0H','RfRc06T','wGc1qi5','Wg52Q7S','WcPu6U9','2eGTK47','kdeSPaI','qxGo8Cvd79','4AH305S','7J5OEy9','J3BZ0amD27','nMasJ5eele','E9xY0z7','I4aqdPvdZv','C9Lw2x1','ky7BzA1','69l7tu4','Skk2jM6','OiRNyp2','97DF3SZ','Wq6gUNeZn8','6U76pEK','2JTdKBK','Fx1wveW','LKxHH3cw6q','rzkMAm6','120L50m6D4','8qw3N5a0f8','uca3UN8','bL8i5WH','0xlTgNO','Q4PAroG','8PBLh6N','A47HYGF','HuMn7zgQ4D','63AAkVS','Mc7yM14','4vM8il5','M027M5D','pZMT8kn189','061BuSphBi','X0zI29t172','4kP13qfRHa','jltqMegIA9','wP54K83','57b23odk2d','m8B8F2rxkU','BWzsJw8','Q6y1L00','6WM34wO','u6tE103','3osHd62','YLW9JvU','o27P8R2','vC46Fm0','ffi568ztE9','PGT0nIamT2','m4Qxl37','5A63VnL','X1QAvk2','CX8qRl2','83xZvf4','1z7r6gL','158JZF4','1Y5nkksb6D','ql33Af7','itfEsEsl6W','ttSphkN','k63MQxW','7VISDC3','r0QvXjM','l1KEQvqS1b','ySP1J0h2sD','7X6YBHE','Vey2XnnEDX','LQ4gZ4fO7G','64RK675','z62St3b4v5','H41sc51','Tnoe3mU','Gun18F1','RIy64b0','ab7fUi0','3OFCd0Q','Tbv5Ir2','Y4vfKaR','G7594w7','EfQDVbtCDP','20woaN7','Yo2Cwhy52M','645goVV','9LYtA7gcV2','iSwRl21','dEp3eazTGS','AqxZlg3','h7B5w12','JATV3b0','UgE92RvJfp','dw8wH3sb5C','DZzkAT8','a2rYn81','Cd5RPuhKeq','3y7vD7a5OC','l040o3jA3n','4rRALn4','GjmWcq9','BmIRkajT3Q','YPtuLCnuY9','3e6J5E3','32x565pG3B','WU71cpP','5GAM8i8','0YP264Y','rplyAx1','htroNT3','1227EUB','035Jb60','bS8xQ91','3G69pCS','DHPydDK','8xz824X','Ym1y1X5','kmkrk21','3J4Z32K','ImL0pOmW0T','5vc9O18','QbpfZ81','0kfT54E','f9i182ddre','9hXHaIhezi','35J18EQ','Fz7x9Y6','FqW7R19','8BHKg33','7SOY1OgQ80','alVmh96','33A0wG5','68Mg1UhjYv','L479HNA','Bx6W1U3','rm0H9dZ','HhHT0saa2s','59d0491','Xzv1r7zdAw','0nEQFBtOMo','NotMMIn2O1','u4gEKAI','s1IY2s1','d7ABeLJ','g21039P','8Q4Q001','a8CYV8P','u2JW2O9','rhjKnK6','fDKO3Y7','SuU2plE','fH0FCh9','3Ge1Ojgq68','b7PuYhrVA1','4Ghx60cQ0s','ExKrAqyOQ6','00h7Vy0','e7GO4Oe6zD','v2tjWcvDhu','5GK86H2','p7ZD5AG','OB1WEHT','I28tOCw8BW','lU71XhF','N155eiP','QrEvc7m9k3','4jJ2QhB','q1o5fwK','58nO4G0','UC3e41vDDn','51U4X43','T5hk9jh6kI','2VqAo5lDYI','ouaDcC2','6kK4de0','i4Uhus2','fWTUFtA','59Qn2cbI66','vF37OllvsR','i2wW375','TdNt3l7','tJ9eR3E','H1bwIQF','dry1L7yaH0','BQ7PUPsgoP','G70Wm0P','67U7oRtwTl','09XKzcD','m4JO5LH','je943GQ','u4rO3bucN9','d4VA03C','F71YE35','c4v1aX5','U1dydlb0XW','XVdzD1B','hb9X52F','4yycgb2','pG595Jvj8Y','ne87m54','s84Zl85','25ByY6kmo0','y3ON54S','9Qg0Qwcn38','dGSyGNO','U8notFt7nD','Go4kvee671','6s5Q70sPNZ','bU2BHNJ','ZZ85xpt301','s54ziX3','U3WgZo4','HedxOYx73A','2GPN9O5','HzAVCj4','J2HMA9E','i3001CV','Y5v1CCX','gw7Wkrxjk3','0cjl5cH','10JWT8E','Yuh1JDnfz9','lC7TaiL','zizUn1kL3q','ohvjENp2wk','i070SVK','K7go9Y8','n9SBCvb7SO','wd8Mv22','duk0KQm6FB','O1NAkywK60','C0Ke68Y','DF9R1yS','Sk1WHb0','Hwwb5nd1by','7zZ0e9zIXZ','ds55kDrnEe','M8cKEr0','uzwO69dd46','2029D2xD46','aI441DN','fwiphJbPYn','jq95QWT','N50lhxY','1D4IV2vgpH','8A852b2','j7T3FY0','I8b8ZML','98Kk0JdAwD','4si197S','bCFG3Fue7d','1wfb9KG','T98SRt4','AEmVF58','v8X3vlw29S','q19O7o4','z189G9w42d','ZG3IV4B','Z7mrukN','u27E9K3','2mekoxI','dRDdViF','AsSEv3M','f4BC186','DFvNB12','5WGB7a1','sVRL49oS75','H6T32QC','EXOwH4hf1Y' ]
+                            - util: RandomInt
+                              params: [ 21, 50 ]
+                  - name: NetG1_2_delete_query
+                    weight: 10
+                    queries:
+                        - query: delete from nets_1 where db_user_id_1 = ? and shard_id_1 = ?
+                          bindings:
+                            - util: OneStringFromArray
+                              params: [ 'Yds9u85','G9TEkhK','wri04A4','4A57Hwy98U','F8H6vCg56S','u284J8jaCC','X7q11Fjl96','lJzUXsdNN8','8f3AcE3','emV5PrN','tq201oqmGf','4fjiHYgok2','kaVC018','Vha4TXj7JT','x71c89P','Iw5wxM8','OoB4iM7','t5P8DJ6','g0g0m1s8g2','v28SJe8','smE5HTgQL9','6Em8eV2','33w08P7','hX1OLBiI0b','4Oq3aP3','D55xH2wHC5','Loz9R4n9pP','h3io28fya5','UPOi80A','Ed64P8T','8Y4vLp7','Nif2cQzfjp','1PRC4k3','3HUE8Zbl66','A30b54B','266u27z5nP','5xLr5Nm2ve','0QiKk4A','ry961Yp8x8','2GsBXhI','rYW3uvdFsH','M5yGZS8','Lu9eJ2sa26','B43lSQC','d9I1ZuF','K9pPTH4','a3M9K26','Yu4vwA7','LzUL9K1','fC1601W','1nxT0ptb8G','HI7wS0tn39','gH6C7XfJ9f','vqopgTC','85Oo0xzv31','4yM5mS2','1ez3vOwcK6','3rqGtZhVss','h0WdyZO','k01FD8C','U5F70oI','3oYs5SL','3XW6o3U','9yM9uZ6','Oqdol64','y3P5361','67g39EvA2K','8N2sI13','gQ9puw3','eX9p428','3Z89ndqZdi','Y4V9rmJ','go98J45','x26a4i9','H2Grz7A','uxn3kkk0tE','g60aeK4','tAzz4yW','5Y7CqChXP9','TSGL44vl7h','RlZVs71','CFR91ZgSZ4','Kw4m695','5WHlBTvKl0','0P2OS3L','e9Ly14w98W','e5rNxtP','Ovl1Y88','5r5llxo9sP','1e9P5A0','p1dyAqH','6nWCdl5','JWRD96L','bu9RtK5','k71eWbuzU1','rd053gV','qPYykfuIT5','Fk25rx8','dxtVO9F','K7Q72b1','HSL3fVje8k','9lkc9HZ','gmo20fbuwQ','uSxVzh5','19FxXegzf9','1cb6p37','oDbzFG8','ztVl3dzvbE','v2JQyg7','c0WxIeciaq','428nsAqoI6','vGw5f6i5o0','R0PVi7qrQ5','R6PvZAO','Y7528h2','7o72O3xAgI','S0S2GmV','mdpvUQZ','8nr85hW','744xlEsxX1','E7oOyLK','yy6Ro86','XtggaqnV7C','WR2kSx8','ANU0lbzrpv','0Tj830zSWz','2K7eUucYq5','aR77fNqQ26','8tYfVrT','00sm5gH','p04yx5S','6w0Say9','FNV49Rov28','XtHooBD','8bt9aelmRi','7pYu4TL','brn4kLE','rRVV5sfJ9G','TD6q7IoJL8','198sj61','30Y6381','msn15FdNSQ','0p084gzw4f','hyvW1fT','w3u433D','jys98p7','8c11z30','W9BiJ6e5LC','MuNza89','pBCC11k4et']
+                            - util: RandomInt
+                              params: [ 1, 20 ]
+                  - name: NetG1_3_scan_query_pointselect
+                    weight: 40
+                    queries:
+                        - query: select work_id_1,owner_1,state_1,sequence_id_1 from nets_1 where db_user_id_1 = ? and shard_id_1 = ANY(ARRAY[?,?,?,?])
+                          bindings:
+                            - util: OneStringFromArray
+                              params: [ 'Yds9u85','G9TEkhK','wri04A4','4A57Hwy98U','F8H6vCg56S','u284J8jaCC','X7q11Fjl96','lJzUXsdNN8','8f3AcE3','emV5PrN','tq201oqmGf','4fjiHYgok2','kaVC018','Vha4TXj7JT','x71c89P','Iw5wxM8','OoB4iM7','t5P8DJ6','g0g0m1s8g2','v28SJe8','smE5HTgQL9','6Em8eV2','33w08P7','hX1OLBiI0b','4Oq3aP3','D55xH2wHC5','Loz9R4n9pP','h3io28fya5','UPOi80A','Ed64P8T','8Y4vLp7','Nif2cQzfjp','1PRC4k3','3HUE8Zbl66','A30b54B','266u27z5nP','5xLr5Nm2ve','0QiKk4A','ry961Yp8x8','2GsBXhI','rYW3uvdFsH','M5yGZS8','Lu9eJ2sa26','B43lSQC','d9I1ZuF','K9pPTH4','a3M9K26','Yu4vwA7','LzUL9K1','fC1601W','1nxT0ptb8G','HI7wS0tn39','gH6C7XfJ9f','vqopgTC','85Oo0xzv31','4yM5mS2','1ez3vOwcK6','3rqGtZhVss','h0WdyZO','k01FD8C','U5F70oI','3oYs5SL','3XW6o3U','9yM9uZ6','Oqdol64','y3P5361','67g39EvA2K','8N2sI13','gQ9puw3','eX9p428','3Z89ndqZdi','Y4V9rmJ','go98J45','x26a4i9','H2Grz7A','uxn3kkk0tE','g60aeK4','tAzz4yW','5Y7CqChXP9','TSGL44vl7h','RlZVs71','CFR91ZgSZ4','Kw4m695','5WHlBTvKl0','0P2OS3L','e9Ly14w98W','e5rNxtP','Ovl1Y88','5r5llxo9sP','1e9P5A0','p1dyAqH','6nWCdl5','JWRD96L','bu9RtK5','k71eWbuzU1','rd053gV','qPYykfuIT5','Fk25rx8','dxtVO9F','K7Q72b1','HSL3fVje8k','9lkc9HZ','gmo20fbuwQ','uSxVzh5','19FxXegzf9','1cb6p37','oDbzFG8','ztVl3dzvbE','v2JQyg7','c0WxIeciaq','428nsAqoI6','vGw5f6i5o0','R0PVi7qrQ5','R6PvZAO','Y7528h2','7o72O3xAgI','S0S2GmV','mdpvUQZ','8nr85hW','744xlEsxX1','E7oOyLK','yy6Ro86','XtggaqnV7C','WR2kSx8','ANU0lbzrpv','0Tj830zSWz','2K7eUucYq5','aR77fNqQ26','8tYfVrT','00sm5gH','p04yx5S','6w0Say9','FNV49Rov28','XtHooBD','8bt9aelmRi','7pYu4TL','brn4kLE','rRVV5sfJ9G','TD6q7IoJL8','198sj61','30Y6381','msn15FdNSQ','0p084gzw4f','hyvW1fT','w3u433D','jys98p7','8c11z30','W9BiJ6e5LC','MuNza89','pBCC11k4et','EKmNWsxQFd','28X76XD','2jNaM4Q','P384617','V0Lxh0vW8x','w8Dugug6mZ','CZFb50S','182Goe3','Ujt4r14','aQoRY88','RAQIcaN','gdj1MN1','3eg1rsK','yC66xP2','8z5p2So7sU','s6u3o92','8nNG8yx50M','9QmJS89','0wDRGkm139','726gp86','nld9GpG','ORuKY32','14W8k9jo7J','vKwV8qK','04EJiyV','Pkk5yOC','LF18I14','1jIgBBT','FrbR7p6','Rbpz2z4','NupzBJT','LH4FbFdWMN','Mv1iIg6','jZ81EZmfVt','XGRw4NP','42VzQeX','K4cg6D3','Z46KlPb1gc','L44MM84','x0kdeO7','oV4X230','3SX7ACj1qz','5ACG0Klb1i','TG57H0T','h5E10hyH9x','4O8bof7','Qq7gm6v1Ys','Fnn467g3gf','1Uc1LC1','8kA8FpM','j4k549g6Ej','MSbtrBA','X1SUcVbOp4','B57XprgH2W','07JbT2X','0GLv2aQ','gGOZxXC','3hMkF48','6u739zsn4z','JUGot94','d5mc7eR','tlZUM1ek8t','9t49a0nYAV','Q79w67uGF0','n41TOUF','xjwG7PS','KQF99MB','9ZomCcA','D7bqvaZ','lA8k9UI','23bMdd8','p1mGBWg13W','T59wGHS','sWpf1fW','i7m0r7g0L1','f2Hl23j60T','3qrei0V','ED2ZDN8','dL5IUaE','1u3xA2zH9t','PQO7iy2','tSu97ZI','cZJlkCd9f7','76wCv9hAGW','eOUZ252','Q340d1T','0yXGcWk4or','t426N44','dKj05g5','5OAn1Wixgs','01MRtS8','968G2h5','qRZyKLO','MrA8MN8','0AK3YIjezg','uNE7003','GE178NZ','2u76i2r6To','jIMCu0H','RfRc06T','wGc1qi5','Wg52Q7S','WcPu6U9','2eGTK47','kdeSPaI','qxGo8Cvd79','4AH305S','7J5OEy9','J3BZ0amD27','nMasJ5eele','E9xY0z7','I4aqdPvdZv','C9Lw2x1','ky7BzA1','69l7tu4','Skk2jM6','OiRNyp2','97DF3SZ','Wq6gUNeZn8','6U76pEK','2JTdKBK','Fx1wveW','LKxHH3cw6q','rzkMAm6','120L50m6D4','8qw3N5a0f8','uca3UN8','bL8i5WH','0xlTgNO','Q4PAroG','8PBLh6N','A47HYGF','HuMn7zgQ4D','63AAkVS','Mc7yM14','4vM8il5','M027M5D','pZMT8kn189','061BuSphBi','X0zI29t172','4kP13qfRHa','jltqMegIA9','wP54K83','57b23odk2d','m8B8F2rxkU','BWzsJw8','Q6y1L00','6WM34wO','u6tE103','3osHd62','YLW9JvU','o27P8R2','vC46Fm0','ffi568ztE9','PGT0nIamT2','m4Qxl37','5A63VnL','X1QAvk2','CX8qRl2','83xZvf4','1z7r6gL','158JZF4','1Y5nkksb6D','ql33Af7','itfEsEsl6W','ttSphkN','k63MQxW','7VISDC3','r0QvXjM','l1KEQvqS1b','ySP1J0h2sD','7X6YBHE','Vey2XnnEDX','LQ4gZ4fO7G','64RK675','z62St3b4v5','H41sc51','Tnoe3mU','Gun18F1','RIy64b0','ab7fUi0','3OFCd0Q','Tbv5Ir2','Y4vfKaR','G7594w7','EfQDVbtCDP','20woaN7','Yo2Cwhy52M','645goVV','9LYtA7gcV2','iSwRl21','dEp3eazTGS','AqxZlg3','h7B5w12','JATV3b0','UgE92RvJfp','dw8wH3sb5C','DZzkAT8','a2rYn81','Cd5RPuhKeq','3y7vD7a5OC','l040o3jA3n','4rRALn4','GjmWcq9','BmIRkajT3Q','YPtuLCnuY9','3e6J5E3','32x565pG3B','WU71cpP','5GAM8i8','0YP264Y','rplyAx1','htroNT3','1227EUB','035Jb60','bS8xQ91','3G69pCS','DHPydDK','8xz824X','Ym1y1X5','kmkrk21','3J4Z32K','ImL0pOmW0T','5vc9O18','QbpfZ81','0kfT54E','f9i182ddre','9hXHaIhezi','35J18EQ','Fz7x9Y6','FqW7R19','8BHKg33','7SOY1OgQ80','alVmh96','33A0wG5','68Mg1UhjYv','L479HNA','Bx6W1U3','rm0H9dZ','HhHT0saa2s','59d0491','Xzv1r7zdAw','0nEQFBtOMo','NotMMIn2O1','u4gEKAI','s1IY2s1','d7ABeLJ','g21039P','8Q4Q001','a8CYV8P','u2JW2O9','rhjKnK6','fDKO3Y7','SuU2plE','fH0FCh9','3Ge1Ojgq68','b7PuYhrVA1','4Ghx60cQ0s','ExKrAqyOQ6','00h7Vy0','e7GO4Oe6zD','v2tjWcvDhu','5GK86H2','p7ZD5AG','OB1WEHT','I28tOCw8BW','lU71XhF','N155eiP','QrEvc7m9k3','4jJ2QhB','q1o5fwK','58nO4G0','UC3e41vDDn','51U4X43','T5hk9jh6kI','2VqAo5lDYI','ouaDcC2','6kK4de0','i4Uhus2','fWTUFtA','59Qn2cbI66','vF37OllvsR','i2wW375','TdNt3l7','tJ9eR3E','H1bwIQF','dry1L7yaH0','BQ7PUPsgoP','G70Wm0P','67U7oRtwTl','09XKzcD','m4JO5LH','je943GQ','u4rO3bucN9','d4VA03C','F71YE35','c4v1aX5','U1dydlb0XW','XVdzD1B','hb9X52F','4yycgb2','pG595Jvj8Y','ne87m54','s84Zl85','25ByY6kmo0','y3ON54S','9Qg0Qwcn38','dGSyGNO','U8notFt7nD','Go4kvee671','6s5Q70sPNZ','bU2BHNJ','ZZ85xpt301','s54ziX3','U3WgZo4','HedxOYx73A','2GPN9O5','HzAVCj4','J2HMA9E','i3001CV','Y5v1CCX','gw7Wkrxjk3','0cjl5cH','10JWT8E','Yuh1JDnfz9','lC7TaiL','zizUn1kL3q','ohvjENp2wk','i070SVK','K7go9Y8','n9SBCvb7SO','wd8Mv22','duk0KQm6FB','O1NAkywK60','C0Ke68Y','DF9R1yS','Sk1WHb0','Hwwb5nd1by','7zZ0e9zIXZ','ds55kDrnEe','M8cKEr0','uzwO69dd46','2029D2xD46','aI441DN','fwiphJbPYn','jq95QWT','N50lhxY','1D4IV2vgpH','8A852b2','j7T3FY0','I8b8ZML','98Kk0JdAwD','4si197S','bCFG3Fue7d','1wfb9KG','T98SRt4','AEmVF58','v8X3vlw29S','q19O7o4','z189G9w42d','ZG3IV4B','Z7mrukN','u27E9K3','2mekoxI','dRDdViF','AsSEv3M','f4BC186','DFvNB12','5WGB7a1','sVRL49oS75','H6T32QC','EXOwH4hf1Y' ]
+                            - util: RandomInt
+                              params: [ 1, 20 ]
+                            - util: RandomInt
+                              params: [ 21, 30 ]
+                            - util: RandomInt
+                              params: [ 31, 40 ]
+                            - util: RandomInt
+                              params: [ 41, 50 ]
