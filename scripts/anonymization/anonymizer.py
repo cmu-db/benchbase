@@ -7,76 +7,36 @@ import xml.etree.ElementTree as ET
 
 def rewriteFakeQueries(fakeValues, path):
     """Method that rewrites existing query templates based on sensitive value replacements
-
-    Args:
-        fakeValues (dict): Key-Value pairs of replacement values
-        path (str): Path pointing to the query template
     """
     # TODO
 
 
 def fakeColumn(dataset, col, locales, method, seed=0):
     """Method that generates fake values for columns that are considered sensitive
-
-    Args:
-        dataset (DataFrame): A Pandas dataframe holding anonymized data
-        col (str): The name of the column
-        locales (str[]): A list of locales
-        method (str): A string matching the desired faker method
-        seed (int, optional): Seed for the fake values. Defaults to 0.
-
-    Returns:
-        dict: Mapping from original to fake values
     """
     # TODO
 
 
 def getTimestampColumns(dbTypeList):
     """A helper function that returns a list of indexes of timestamp-type columns
-
-    Args:
-        dbTypeList (any): A list of Database column metadata
-
-    Returns:
-        int[]: A list of indexes of timestamp-type columns
     """
     # TODO
 
 
 def dfFromTable(curs, table):
     """Helper function that creates a pandas DataFrame from a jaydebe connection
-
-    Args:
-        curs (cursor): The connection cursor
-        table (str): The name of the table
-
-    Returns:
-        Dataframe,int[]: The table as a DataFrame and the indexes of timestamp columns
     """
     # TODO
 
 
 def populateAnonFromDF(curs, df, table, timestampIndexes):
     """Helper function to fill a DB table from a DataFrame
-
-    Args:
-        curs (cursor): The connection cursor
-        df (DataFrame): Pandas DataFrame
-        table (str): The name of the table
-        timestampIndexes (int[]): A list of indexes of timestamp-type columns
     """
     # TODO
 
 
 def getDroppableInfo(dropCols, dataset):
     """Helper function that saves droppable columns from anonymization
-
-    Args:
-        dropCols (str[]): A list of column names
-        dataset (DataFrame): The dataset
-
-    Returns:
-        DataFrame,int[]: The saved columns as a DataFrame and a list of the original indexes of the columns
     """
     # TODO
 
@@ -85,17 +45,6 @@ def getTransformer(
     dataset, algorithm, categorical, continuous, ordinal, continuousConfig
 ):
     """Function that creates a custom transformer for the dp-mechanism
-
-    Args:
-        dataset (DataFrame): The actual dataset
-        algorithm (str): The name of the DP-algorithm
-        categorical (str[]): A list of all categorical columns
-        continuous (str[]): A list of all continuous columns
-        ordinal (str[]): A list of all ordinal columns
-        continuousConfig (dict[]): A list of detailed information about how to handle certain continuous columns
-
-    Returns:
-        TableTransformer: A transformer for the specific dataset
     """
 
     # TODO
@@ -103,12 +52,6 @@ def getTransformer(
 
 def getConstraints(objects):
     """A helper method that builds constraints that are used by a TableTransformer
-
-    Args:
-        objects (dict): Entries of the continuous column config
-
-    Returns:
-        dict: A constraint
     """
     # TODO
 
@@ -116,21 +59,11 @@ def getConstraints(objects):
 def anonymize(
     dataset: str,
     anonConfig: dict,
-    sensConfig: dict,
-    contConfig: dict,
+    sensConfig: list,
+    contConfig: list,
     templatesPath: str,
 ):
     """Function that handles the data anonymization step
-
-    Args:
-        dataset (DataFrame): A pandas DataFrame containing the data
-        anonConfig (dict): Anonymization config
-        sensConfig (dict): Sensitive value config
-        contConfig (dict): Continuous value config
-        templatesPath (str): The path pointing to the query templates
-
-    Returns:
-        DataFrame: An anonymized version of the original data
     """
     # TODO
 
@@ -138,31 +71,18 @@ def anonymize(
 def anonymizeDB(
     jdbcConfig: dict,
     anonConfig: dict,
-    sensConfig: dict,
-    contConfig: dict,
+    sensConfig: list,
+    contConfig: list,
     templatesPath: str,
 ):
     """Function that handles the necessary steps for anonymization.
     Includes starting the JVM, Anonymizing and pushing data to the DB
-
-    Args:
-        jdbcConfig (dict): JDBC connection information
-        anonConfig (dict): Anonymization config
-        sensConfig (dict): Sensitive value config
-        contConfig (dict): Continuous value config
-        templatesPath (str): The path pointing to the query templates
     """
     # TODO
 
 
 def listFromElement(element):
     """Helper function creating an array of values from a XML Element
-
-    Args:
-        string (str): A string of values separated by comma (,)
-
-    Returns:
-        str[]: A list of values
     """
     if element and element.text:
         return list(element.text.split(","))
@@ -181,7 +101,7 @@ def configFromXML(table):
     """
 
     anonConfig = {}
-    sensConfig = {}
+    sensConfig = []
     contConfig = []
 
     # Necessary information
@@ -212,29 +132,28 @@ def configFromXML(table):
     cont = table.find("continuousConfig")
 
     if cont:
-        for contCol in cont.findall("column"):
+        for col in cont.findall("column"):
             contConfig.append(
                 {
-                    "name": contCol.get("name"),
-                    "bins": contCol.get("bins"),
-                    "lower": contCol.get("bins"),
-                    "upper": contCol.get("bins"),
+                    "name": col.get("name"),
+                    "bins": col.get("bins"),
+                    "lower": col.get("lower"),
+                    "upper": col.get("upper"),
                 }
             )
 
     sens = table.find("sensitive")
     if sens:
-        sensList = []
         for sensCol in sens.findall("column"):
-            sensList.append(
+            sensConfig.append(
                 {
                     "name": sensCol.get("name"),
                     "method": sensCol.get("method"),
+                    "mode": sensCol.get("mode"),
                     "locales": sensCol.get("locales"),
                     "seed": sensCol.get("seed", 0),
                 }
             )
-        sensConfig["cols"] = sensList
 
     return anonConfig, sensConfig, contConfig
 
