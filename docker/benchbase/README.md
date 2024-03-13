@@ -75,9 +75,9 @@ docker pull benchbase.azurecr.io/benchbase-dev
 docker run -it --rm -v /path/to/src:/benchbase benchbase.azurecr.io/benchbase-dev
 ```
 
-> Optional: also reuse the local `MAVEN_CONFIG` and it's repository download cache with the following argument:
+> Optional: also reuse the local `MAVEN_CONFIG_DIR` and it's repository download cache with the following argument:
 >
-> `-v "${MAVEN_CONFIG:-$HOME/.m2}:/home/containeruser/.m2"`
+> `-v "${MAVEN_CONFIG_DIR:-$HOME/.m2}:/home/containeruser/.m2"`
 
 ```sh
 docker pull benchbase.azurecr.io/benchbase
