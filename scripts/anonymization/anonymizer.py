@@ -149,7 +149,6 @@ def configFromXML(table):
                 {
                     "name": sensCol.get("name"),
                     "method": sensCol.get("method"),
-                    "mode": sensCol.get("mode"),
                     "locales": sensCol.get("locales"),
                     "seed": sensCol.get("seed", 0),
                 }
