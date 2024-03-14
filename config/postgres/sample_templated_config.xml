@@ -28,7 +28,7 @@
             <continuous>i_price</continuous>
             <!-- Continuous column fine-tuning -->
             <continuousConfig>
-                <column name="i_price" bins="1000" lower="2.0" upper="100.0"> 
+                <column name="i_price" bins="1000" lower="2.0" upper="100.0" /> 
             </continuousConfig>
             <!-- Sensitive value handling -->
             <sensitive>
