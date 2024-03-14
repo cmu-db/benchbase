@@ -426,7 +426,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.6.0</version>
+                <version>3.7.0</version>
                 <configuration>
                     <appendAssemblyId>false</appendAssemblyId>
                     <finalName>${project.artifactId}-${classifier}</finalName>
@@ -533,7 +533,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
-                <version>3.1.1</version>
+                <version>3.2.0</version>
                 <configuration>
                     <mainClass>com.oltpbenchmark.DBWorkload</mainClass>
                 </configuration>
