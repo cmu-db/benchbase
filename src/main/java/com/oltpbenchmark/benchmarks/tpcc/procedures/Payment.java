@@ -38,7 +38,7 @@ public class Payment extends TPCCProcedure {
 
   public SQLStmt payUpdateWhseSQL =
       new SQLStmt(
-          """
+              """
         UPDATE %s
            SET W_YTD = W_YTD + ?
          WHERE W_ID = ?
@@ -47,7 +47,7 @@ public class Payment extends TPCCProcedure {
 
   public SQLStmt payGetWhseSQL =
       new SQLStmt(
-          """
+              """
         SELECT W_STREET_1, W_STREET_2, W_CITY, W_STATE, W_ZIP, W_NAME
           FROM %s
          WHERE W_ID = ?
@@ -56,7 +56,7 @@ public class Payment extends TPCCProcedure {
 
   public SQLStmt payUpdateDistSQL =
       new SQLStmt(
-          """
+              """
         UPDATE %s
            SET D_YTD = D_YTD + ?
          WHERE D_W_ID = ?
@@ -66,7 +66,7 @@ public class Payment extends TPCCProcedure {
 
   public SQLStmt payGetDistSQL =
       new SQLStmt(
-          """
+              """
         SELECT D_STREET_1, D_STREET_2, D_CITY, D_STATE, D_ZIP, D_NAME
           FROM %s
          WHERE D_W_ID = ?
@@ -76,7 +76,7 @@ public class Payment extends TPCCProcedure {
 
   public SQLStmt payGetCustSQL =
       new SQLStmt(
-          """
+              """
         SELECT C_FIRST, C_MIDDLE, C_LAST, C_STREET_1, C_STREET_2,
                C_CITY, C_STATE, C_ZIP, C_PHONE, C_CREDIT, C_CREDIT_LIM,
                C_DISCOUNT, C_BALANCE, C_YTD_PAYMENT, C_PAYMENT_CNT, C_SINCE
@@ -89,7 +89,7 @@ public class Payment extends TPCCProcedure {
 
   public SQLStmt payGetCustCdataSQL =
       new SQLStmt(
-          """
+              """
         SELECT C_DATA
           FROM %s
          WHERE C_W_ID = ?
@@ -100,7 +100,7 @@ public class Payment extends TPCCProcedure {
 
   public SQLStmt payUpdateCustBalCdataSQL =
       new SQLStmt(
-          """
+              """
         UPDATE %s
            SET C_BALANCE = ?,
                C_YTD_PAYMENT = ?,
@@ -114,7 +114,7 @@ public class Payment extends TPCCProcedure {
 
   public SQLStmt payUpdateCustBalSQL =
       new SQLStmt(
-          """
+              """
         UPDATE %s
            SET C_BALANCE = ?,
                C_YTD_PAYMENT = ?,
@@ -127,7 +127,7 @@ public class Payment extends TPCCProcedure {
 
   public SQLStmt payInsertHistSQL =
       new SQLStmt(
-          """
+              """
         INSERT INTO %s
          (H_C_D_ID, H_C_W_ID, H_C_ID, H_D_ID, H_W_ID, H_DATE, H_AMOUNT, H_DATA)
          VALUES (?,?,?,?,?,?,?,?)
@@ -136,7 +136,7 @@ public class Payment extends TPCCProcedure {
 
   public SQLStmt customerByNameSQL =
       new SQLStmt(
-          """
+              """
         SELECT C_FIRST, C_MIDDLE, C_ID, C_STREET_1, C_STREET_2, C_CITY,
                C_STATE, C_ZIP, C_PHONE, C_CREDIT, C_CREDIT_LIM, C_DISCOUNT,
                C_BALANCE, C_YTD_PAYMENT, C_PAYMENT_CNT, C_SINCE
