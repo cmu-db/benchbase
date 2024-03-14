@@ -165,7 +165,7 @@
                 <dependency>
                     <groupId>com.google.cloud</groupId>
                     <artifactId>google-cloud-spanner-jdbc</artifactId>
-                    <version>2.15.5</version>
+                    <version>2.16.0</version>
                     <scope>runtime</scope>
                 </dependency>
             </dependencies>
@@ -426,7 +426,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.6.0</version>
+                <version>3.7.0</version>
                 <configuration>
                     <appendAssemblyId>false</appendAssemblyId>
                     <finalName>${project.artifactId}-${classifier}</finalName>
@@ -533,7 +533,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
-                <version>3.1.1</version>
+                <version>3.2.0</version>
                 <configuration>
                     <mainClass>com.oltpbenchmark.DBWorkload</mainClass>
                 </configuration>
