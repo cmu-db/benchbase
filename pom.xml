@@ -312,7 +312,7 @@
             <!-- Used for (currently manual) code generation from xml schema files. -->
             <groupId>org.glassfish.jaxb</groupId>
             <artifactId>jaxb-runtime</artifactId>
-            <version>4.0.4</version>
+            <version>4.0.5</version>
             <scope>compile</scope>
         </dependency>
 
