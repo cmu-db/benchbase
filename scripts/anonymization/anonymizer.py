@@ -58,9 +58,9 @@ def getConstraints(objects):
 
 def anonymize(
     dataset: str,
-    anonConfig: dict,
-    sensConfig: list,
-    contConfig: list,
+    anon_config: dict,
+    sens_config: list,
+    cont_config: list,
     templatesPath: str,
 ):
     """Function that handles the data anonymization step
@@ -70,9 +70,9 @@ def anonymize(
 
 def anonymizeDB(
     jdbcConfig: dict,
-    anonConfig: dict,
-    sensConfig: list,
-    contConfig: list,
+    anon_config: dict,
+    sens_config: list,
+    cont_config: list,
     templatesPath: str,
 ):
     """Function that handles the necessary steps for anonymization.
@@ -100,61 +100,78 @@ def configFromXML(table):
         (dict,dict,dict): The configurations for the anonymization, sensitive and continuous value handling
     """
 
-    anonConfig = {}
-    sensConfig = []
-    contConfig = []
+    anon_config = {}
+    sens_config = []
+    cont_config = []
 
-    # Necessary information
     tableName = table.get("name")
 
+    #Exit the program if not enough basic information (name of a table) is available
     if tableName == None:
         sys.exit(
             "There was no name provided for the table that should be anonymized. Program is exiting now!"
         )
 
-    anonConfig["table"] = tableName
+    anon_config["table"] = tableName
     print(f"Parsing config for table: {tableName}")
 
-    anonConfig["eps"] = table.get("epsilon", 1.0)
-    anonConfig["preEps"] = table.get("pre_epsilon", 0.5)
-    anonConfig["alg"] = table.get("algorithm", "mst")
+    dp_info = table.find("differential_privacy")
 
-    # Additional information
+    if(dp_info):
 
-    anonConfig["hide"] = listFromElement(table.find("drop"))
+        cat = []
+        cont = []
+        ord = []
+        ignore = []
+        
+        anon_config["eps"] = dp_info.get("epsilon", 1.0)
+        anon_config["preEps"] = dp_info.get("pre_epsilon", 0.5)
+        anon_config["alg"] = dp_info.get("algorithm", "mst")
 
-    anonConfig["cat"] = listFromElement(table.find("categorical"))
+        if(dp_info.find("ignore")):
+            for column in dp_info.find("ignore").findall("column"):
+                ignore.append(column.get("name"))
 
-    anonConfig["cont"] = listFromElement(table.find("continuous"))
+        if(dp_info.find("categorical")):
+            for column in dp_info.find("categorical").findall("column"):
+                cat.append(column.get("name"))
 
-    anonConfig["ord"] = listFromElement(table.find("ordinal"))
+        if(dp_info.find("ordinal")):
+            for column in dp_info.find("ordinal").findall("column"):
+                ord.append(column.get("name"))
 
-    cont = table.find("continuousConfig")
+        if(dp_info.find("continuous")):
+            for column in dp_info.find("continuous").findall("column"):
+                cont.append(column.get("name"))
 
-    if cont:
-        for col in cont.findall("column"):
-            contConfig.append(
-                {
-                    "name": col.get("name"),
-                    "bins": col.get("bins"),
-                    "lower": col.get("lower"),
-                    "upper": col.get("upper"),
-                }
-            )
+            if(column.get("bins") or column.get("lower") or column.get("upper")):
+                cont_config.append(
+                    {
+                    "name": column.get("name"),
+                    "bins": column.get("bins",10),
+                    "lower": column.get("lower"),
+                    "upper": column.get("upper"),
+                    }
+                )
 
-    sens = table.find("sensitive")
+        anon_config["hide"] = ignore
+        anon_config["cat"] = cat
+        anon_config["cont"] = cont
+        anon_config["ord"] = ord
+
+    sens = table.find("value_faking")
     if sens:
-        for sensCol in sens.findall("column"):
-            sensConfig.append(
+        for column in sens.findall("column"):
+            sens_config.append(
                 {
-                    "name": sensCol.get("name"),
-                    "method": sensCol.get("method"),
-                    "locales": sensCol.get("locales"),
-                    "seed": sensCol.get("seed", 0),
+                    "name": column.get("name"),
+                    "method": column.get("method"),
+                    "locales": column.get("locales"),
+                    "seed": column.get("seed", 0),
                 }
             )
 
-    return anonConfig, sensConfig, contConfig
+    return anon_config, sens_config, cont_config
 
 
 def main():
@@ -185,8 +202,8 @@ def main():
 
     # Loop over all specified tables and anonymize them one-by-one
     for table in parameters.find("anonymization").findall("table"):
-        anonConfig, sensConfig, contConfig = configFromXML(table)
-        anonymizeDB(jdbcConfig, anonConfig, sensConfig, contConfig, templatesPath)
+        anon_config, sens_config, cont_config = configFromXML(table)
+        anonymizeDB(jdbcConfig, anon_config, sens_config, cont_config, templatesPath)
 
 
 if __name__ == "__main__":

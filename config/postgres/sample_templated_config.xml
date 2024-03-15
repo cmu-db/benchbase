@@ -21,19 +21,26 @@
 
     <!-- The anonymization configuration -->
     <anonymization>
-        <table name="item" epsilon="1.0" pre_epsilon="0.0" algorithm="aim">
+        <table name="item">
+            <differential_privacy epsilon="1.0" pre_epsilon="0.0" algorithm="aim">
             <!-- Column categorization -->
-            <droppable>i_id</droppable>
-            <categorical>i_name,i_data,i_im_id</categorical>
-            <continuous>i_price</continuous>
+                <ignore>
+                    <column name="i_id"/>
+                </ignore>
+                <categorical>
+                    <column name="i_name" />
+                    <column name="i_data" />
+                    <column name="i_im_id" />
+                </categorical>
             <!-- Continuous column fine-tuning -->
-            <continuousConfig>
-                <column name="i_price" bins="1000" lower="2.0" upper="100.0" /> 
-            </continuousConfig>
+                <continuous>
+                    <column name="i_price" bins="1000" lower="2.0" upper="100.0" /> 
+                </continuous>
+            </differential_privacy>
             <!-- Sensitive value handling -->
-            <sensitive>
-                <column name="i_name" method="name" locales="en_US" seed="0" />
-            </sensitive>
+            <value_faking>
+                <column name="i_name" method="name" locales="en_US" seed="0"/>
+            </value_faking>
         </table>
     </anonymization>
 
