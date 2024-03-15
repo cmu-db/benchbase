@@ -1,0 +1,167 @@
+type: POSTGRES
+driver: org.postgresql.Driver
+url: jdbc:postgresql://{{ endpoint }}:5432/postgres?sslmode=require
+username: {{ username }}
+password: {{ password }}
+isolation: TRANSACTION_REPEATABLE_READ
+batchsize: 128
+terminals: 1
+collect_pg_stat_statements: true
+works:
+    work:
+        time_secs: 120
+        active_terminals: 1
+        rate: unlimited
+        warmup: 30
+microbenchmark:
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
+    properties:
+        setAutoCommit: true
+        create:
+          - DROP TABLE IF EXISTS pkeyBigint1M1_1;
+          - DROP TABLE IF EXISTS pkeyBigint1M1_2;
+          - DROP TABLE IF EXISTS pkeyBigint1M1_3;
+          - DROP TABLE IF EXISTS pkeyBigint1Mr_1;
+          - DROP TABLE IF EXISTS pkeyBigint1Mr_2;
+          - CREATE TABLE pkeyBigint1M1_1(col_bigint_card1_1 bigint, col_bigint_card2_1 bigint, col_bigint_card3_1 bigint, col_bigint_id_1 bigint, col_bigint_id_2 bigint, col_bigint_id_3 bigint, col_float2_1 float(2), col_float2_2 float(2), col_float5_1 float(5), col_float5_2 float(5), col_boolean_1 boolean, col_varchar10_id_1 varchar(10), col_varchar100_id_1 varchar(100), col_varchar100_id_2 varchar(100), col_varchar500_id_1 varchar(500), PRIMARY KEY(col_bigint_id_1));
+          - CREATE TABLE pkeyBigint1M1_2(col_bigint_card1_1 bigint, col_bigint_card2_1 bigint, col_bigint_card3_1 bigint, col_bigint_id_1 bigint, col_bigint_id_2 bigint, col_bigint_id_3 bigint, col_float2_1 float(2), col_float2_2 float(2), col_float5_1 float(5), col_float5_2 float(5), col_boolean_1 boolean, col_varchar10_id_1 varchar(10), col_varchar100_id_1 varchar(100), col_varchar100_id_2 varchar(100), col_varchar500_id_1 varchar(500), PRIMARY KEY(col_bigint_id_1));
+          - CREATE TABLE pkeyBigint1M1_3(col_bigint_card1_1 bigint, col_bigint_card2_1 bigint, col_bigint_card3_1 bigint, col_bigint_id_1 bigint, col_bigint_id_2 bigint, col_bigint_id_3 bigint, col_float2_1 float(2), col_float2_2 float(2), col_float5_1 float(5), col_float5_2 float(5), col_boolean_1 boolean, col_varchar10_id_1 varchar(10), col_varchar100_id_1 varchar(100), col_varchar100_id_2 varchar(100), col_varchar500_id_1 varchar(500), PRIMARY KEY(col_bigint_id_1));
+          - CREATE TABLE pkeyBigint1Mr_1(col_bigint_card1_1 bigint, col_bigint_card2_1 bigint, col_bigint_card3_1 bigint, col_bigint_id_1 bigint, col_bigint_id_2 bigint, col_bigint_id_3 bigint, col_float2_1 float(2), col_float2_2 float(2), col_float5_1 float(5), col_float5_2 float(5), col_boolean_1 boolean, col_varchar10_id_1 varchar(10), col_varchar100_id_1 varchar(100), col_varchar100_id_2 varchar(100), col_varchar500_id_1 varchar(500), PRIMARY KEY(col_bigint_id_1 ));
+          - CREATE TABLE pkeyBigint1Mr_2(col_bigint_card1_1 bigint, col_bigint_card2_1 bigint, col_bigint_card3_1 bigint, col_bigint_id_1 bigint, col_bigint_id_2 bigint, col_bigint_id_3 bigint, col_float2_1 float(2), col_float2_2 float(2), col_float5_1 float(5), col_float5_2 float(5), col_boolean_1 boolean, col_varchar10_id_1 varchar(10), col_varchar100_id_1 varchar(100), col_varchar100_id_2 varchar(100), col_varchar500_id_1 varchar(500), PRIMARY KEY(col_bigint_id_1 ));
+        cleanup:
+            - DROP TABLE IF EXISTS pkeyBigint1M1_1;
+            - DROP TABLE IF EXISTS pkeyBigint1M1_2;
+            - DROP TABLE IF EXISTS pkeyBigint1M1_3;
+            - DROP TABLE IF EXISTS pkeyBigint1Mr_1;
+            - DROP TABLE IF EXISTS pkeyBigint1Mr_2;
+        loadRules:
+              - table: pkeyBigint1M1_
+                count: 3
+                rows: 1000000
+                columns:
+                    - name: col_bigint_card1_
+                      count: 1
+                      util: RandomInt
+                      params: [ 1000001, 1001000 ]
+                    - name: col_bigint_card2_
+                      count: 1
+                      util: RandomInt
+                      params: [ 1000001, 1010001 ]
+                    - name: col_bigint_card3_
+                      count: 1
+                      util: OneNumberFromArray
+                      params: [ 1000000 ]
+                    - name: col_bigint_id_
+                      count: 3
+                      util: PrimaryIntGen
+                      params: [ 1, 1000000 ]
+                    - name: col_float2_
+                      count: 2
+                      util: RandomNoWithDecimalPoints
+                      params: [ 1, 1000000, 2 ]
+                    - name: col_float5_
+                      count: 2
+                      util: RandomNoWithDecimalPoints
+                      params: [ 1, 1000000, 5 ]
+                    - name: col_boolean_
+                      count: 1
+                      util: RandomBoolean
+                    - name: col_varchar10_id_
+                      count: 1
+                      util: PrimaryStringGen
+                      params: [1, 10]
+                    - name: col_varchar100_id_
+                      count: 2
+                      util: PrimaryStringGen
+                      params: [1, 100]
+                    - name: col_varchar500_id_
+                      count: 1
+                      util: PrimaryStringGen
+                      params: [1, 500]
+
+              - table: pkeyBigint1Mr_
+                count: 2
+                rows: 1000000
+                columns:
+                    - name: col_bigint_card1_
+                      count: 1
+                      util: RandomInt
+                      params: [ 1000001, 1001000 ]
+                    - name: col_bigint_card2_
+                      count: 1
+                      util: RandomInt
+                      params: [ 1000001, 1010001 ]
+                    - name: col_bigint_card3_
+                      count: 1
+                      util: OneNumberFromArray
+                      params: [ 1000000 ]
+                    - name: col_bigint_id_
+                      count: 3
+                      util: PrimaryIntGen
+                      params: [ 1, 1000000 ]
+                    - name: col_float2_
+                      count: 2
+                      util: RandomNoWithDecimalPoints
+                      params: [ 1, 1000000, 2 ]
+                    - name: col_float5_
+                      count: 2
+                      util: RandomNoWithDecimalPoints
+                      params: [ 1, 1000000, 5 ]
+                    - name: col_boolean_
+                      count: 1
+                      util: RandomBoolean
+                    - name: col_varchar10_id_
+                      count: 1
+                      util: PrimaryStringGen
+                      params: [1, 10]
+                    - name: col_varchar100_id_
+                      count: 2
+                      util: PrimaryStringGen
+                      params: [1, 100]
+                    - name: col_varchar500_id_
+                      count: 1
+                      util: PrimaryStringGen
+                      params: [1, 500]
+
+        executeRules:
+            -   workload: JOING11_1_join_on_2tbls_withfilter_onpkey_grpby_1col_10k_loops
+                run:
+                    -   name: join_on_pk_3tbl
+                        weight: 100
+                        queries:
+                            -   query: select a.col_bigint_card2_1, count(a.col_bigint_id_2) from pkeyBigint1M1_1 as a,pkeyBigint1M1_2 as b where a.col_bigint_id_1=b.col_bigint_id_1 and a.col_bigint_id_2<10000 GROUP BY a.col_bigint_card2_1
+
+            - workload: JOING11_2_join_on_2tbls_withfilter_onpkey_grpby_1col_30k_loops
+              run:
+                  - name: join_on_pk_3tbl
+                    weight: 100
+                    queries:
+                        - query: select a.col_bigint_card2_1, count(a.col_bigint_id_2) from pkeyBigint1M1_1 as a,pkeyBigint1M1_2 as b where a.col_bigint_id_1=b.col_bigint_id_1 and a.col_bigint_id_2<30000 GROUP BY a.col_bigint_card2_1
+
+            -   workload: JOING11_3_join_on_2tbls_withfilter_onpkey_grpby_ordby_1col_10k_loops
+                run:
+                    -   name: join_on_pk_3tbl
+                        weight: 100
+                        queries:
+                            -   query: select a.col_bigint_card2_1, count(a.col_bigint_id_2) from pkeyBigint1M1_1 as a,pkeyBigint1M1_2 as b where a.col_bigint_id_1=b.col_bigint_id_1 and a.col_bigint_id_2<10000 GROUP BY a.col_bigint_card2_1 ORDER BY col_bigint_card2_1
+
+            -   workload: JOING11_4_join_on_3tbls_withfilter_onpkey_grpby_ordby_1col_10k_loops
+                run:
+                    -   name: join_on_pk_3tbl
+                        weight: 100
+                        queries:
+                            -   query: select a.col_bigint_card2_1, count(a.col_bigint_id_2) from pkeyBigint1M1_1 as a,pkeyBigint1M1_2 as b,pkeyBigint1M1_2 as c  where a.col_bigint_id_1=b.col_bigint_id_1 and a.col_bigint_id_1=c.col_bigint_id_1 and a.col_bigint_id_2<10000  GROUP BY a.col_bigint_card2_1 order by a.col_bigint_card2_1
+
+            -   workload: JOING11_5_join_on_2tbls_range_withfilter_onpkey_grpby_1col_10k_loops
+                run:
+                    -   name: join_on_pk_2tbl
+                        weight: 100
+                        queries:
+                            -   query: select a.col_bigint_card2_1, count(a.col_bigint_id_2) from pkeyBigint1Mr_1 as a,pkeyBigint1Mr_2 as b where a.col_bigint_id_1=b.col_bigint_id_1 and a.col_bigint_id_2<10000 GROUP BY a.col_bigint_card2_1
+
+            -   workload: JOING11_6_join_on_2tbls_range_withfilter_onpkey_grpby_ordby_1col_10k_loops
+                run:
+                    -   name: join_on_pk_2tbl
+                        weight: 100
+                        queries:
+                            -   query: select a.col_bigint_card2_1, count(a.col_bigint_id_2) from pkeyBigint1Mr_1 as a,pkeyBigint1Mr_2 as b where a.col_bigint_id_1=b.col_bigint_id_1 and a.col_bigint_id_2<10000 GROUP BY a.col_bigint_card2_1 ORDER BY col_bigint_card2_1
