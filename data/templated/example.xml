@@ -10,10 +10,10 @@
       </types>
       <values>
          <value dist="uniform" min="1" max="3"/>
-         <value dist="zipfian" min="1"/>
+         <value dist="zipfian" min="1" max="2"/>
       </values>
        <values>
-         <value dist="scrambled" seed="999"/>
+         <value dist="scrambled" min="0" max="4" seed="999"/>
          <value dist="normal" min="1" max="3" seed="1"/>
       </values>
    </template>
@@ -54,7 +54,7 @@
       </types>
       <values>
          <value dist="normal" min="10" max="12.5"/>
-         <value dist="uniform" min="15.1"/>
+         <value dist="uniform" min="15.1" max="100.22"/>
       </values>
       <values>
          <value>10.50</value>
@@ -106,9 +106,9 @@
          <value>1</value>
          <value>1</value>
          <value>1</value>
-         <value dist="uniform" min="1674477220000" max="1706013220000"/>
+         <value dist="uniform" min="1999-12-12 01:01:55" max="1706013220000"/>
          <value dist="normal" min="0.5" max="12.5"/>
-         <value dist="uniform" max="23"/>
+         <value dist="uniform" min="0" max="23"/>
       </values>
    </template>
 </templates>

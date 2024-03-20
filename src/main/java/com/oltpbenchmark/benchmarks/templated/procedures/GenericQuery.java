@@ -117,7 +117,7 @@ public abstract class GenericQuery extends Procedure {
                 generatedInt = param.getNextLongScrambled().intValue();
                 break;
               default:
-                throw param.createRuntimeException(paramType);
+                throw param.createRuntimeException();
             }
             stmt.setInt(i + 1, generatedInt);
             break;
@@ -132,7 +132,7 @@ public abstract class GenericQuery extends Procedure {
                 generatedFloat = param.getNextFloatBinomial();
                 break;
               default:
-                throw param.createRuntimeException(paramType);
+                throw param.createRuntimeException();
             }
             stmt.setFloat(i + 1, generatedFloat);
             break;
@@ -152,7 +152,7 @@ public abstract class GenericQuery extends Procedure {
                 generatedLong = param.getNextLongScrambled();
                 break;
               default:
-                throw param.createRuntimeException(paramType);
+                throw param.createRuntimeException();
             }
             stmt.setLong(i + 1, generatedLong);
             break;
@@ -162,7 +162,7 @@ public abstract class GenericQuery extends Procedure {
                 stmt.setString(i + 1, param.getNextString());
                 break;
               default:
-                throw param.createRuntimeException(paramType);
+                throw param.createRuntimeException();
             }
             break;
           case TIMESTAMP:
@@ -183,7 +183,7 @@ public abstract class GenericQuery extends Procedure {
                 generatedTimestamp = param.getNextLongScrambled();
                 break;
               default:
-                throw param.createRuntimeException(paramType);
+                throw param.createRuntimeException();
             }
             if (paramType == JDBCSupportedType.TIMESTAMP) {
               stmt.setTimestamp(i + 1, new Timestamp(generatedTimestamp));

@@ -184,11 +184,14 @@ public final class TemplatedBenchmark extends BenchmarkModule {
 
       for (TemplateType template : templates.getTemplateList()) {
         ImmutableParsedQueryTemplate.Builder b = ImmutableParsedQueryTemplate.builder();
+        List<String> templateTypes = template.getTypes().getTypeList();
+
         b.name(template.getName());
         b.query(template.getQuery());
-        b.paramsTypes(template.getTypes().getTypeList());
+        b.paramsTypes(templateTypes);
 
         for (ValuesType paramValue : template.getValuesList()) {
+          int typeIndex = 0;
           for (ValueType value : paramValue.getValueList()) {
             /* Lightweight constructor used if no distribution is present */
             if (value.getDist() == null
@@ -198,8 +201,13 @@ public final class TemplatedBenchmark extends BenchmarkModule {
             } else {
               b.addParamsValues(
                   new TemplatedValue(
-                      value.getDist(), value.getMin(), value.getMax(), value.getSeed()));
+                      value.getDist(),
+                      value.getMin(),
+                      value.getMax(),
+                      value.getSeed(),
+                      templateTypes.get(typeIndex)));
             }
+            typeIndex++;
           }
         }
 
@@ -273,6 +281,10 @@ public final class TemplatedBenchmark extends BenchmarkModule {
                 + ","
                 + "\""
                 + param.getSeed()
+                + "\""
+                + ","
+                + "\""
+                + param.getValueType()
                 + "\""
                 + "),";
       } else {

@@ -4,6 +4,8 @@ import com.oltpbenchmark.distributions.ScrambledZipfianGenerator;
 import com.oltpbenchmark.distributions.ZipfianGenerator;
 import com.oltpbenchmark.util.JDBCSupportedType;
 import com.oltpbenchmark.util.TextGenerator;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Random;
 
 /**
@@ -11,13 +13,15 @@ import java.util.Random;
  * hold static values but also generators for value distributions
  */
 public class TemplatedValue {
+  static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
   ValueGenerator distribution;
   Long min;
   Long max;
   Long seed;
   String value;
-  String minS;
-  String maxS;
+  JDBCSupportedType valueType;
+  Float minF;
+  Float maxF;
   Object generatorObject;
 
   /**
@@ -33,39 +37,97 @@ public class TemplatedValue {
 
   /**
    * @param distribution The desired value distribution
-   * @param min Minimum value. Default is 0
-   * @param max Maximum value. Default is min + 1
+   * @param min Minimum value
+   * @param max Maximum value
    * @param seed The seed for the random generator. Default is 0
    * @param value Value that is used if no distribution is given
    */
-  public TemplatedValue(String distribution, String min, String max, String seed) {
-    try {
-      this.min = Long.parseLong(min);
-    } catch (Exception e) {
-      this.min = 0L;
+  public TemplatedValue(
+      String distribution, String min, String max, String seed, String valueType) {
+    this.valueType = JDBCSupportedType.valueOf(valueType.toUpperCase());
+
+    switch (this.valueType) {
+      case DATE:
+      case TIME:
+      case TIMESTAMP:
+        this.min = parseDateTime(min);
+        this.max = parseDateTime(max);
+        assert this.max > this.min;
+        break;
+      case FLOAT:
+      case REAL:
+        this.minF = parseBoundaryFloat(min);
+        this.maxF = parseBoundaryFloat(max);
+        assert this.maxF > this.minF;
+        break;
+      default:
+        this.min = parseBoundary(min);
+        this.max = parseBoundary(max);
+        assert this.max > this.min;
+        break;
     }
 
-    try {
-      this.max = Long.parseLong(max);
-    } catch (Exception e) {
-      this.max = this.min + 1L;
-    }
-
-    assert this.max > this.min;
-
+    // Parse seed with fallback of 0L
     try {
       this.seed = Long.parseLong(seed);
-    } catch (Exception e) {
+    } catch (NumberFormatException e) {
       this.seed = 0L;
     }
 
+    assert this.seed >= 0L;
+
     this.generatorObject = createGenerator(distribution, this.min, this.max, this.seed);
 
-    // String values are kept for the construction of Floating Point bounds
-    this.minS = min;
-    this.maxS = max;
-
     this.value = null;
+  }
+
+  /**
+   * @param boundary A string signifying a numerical bondary
+   * @return The numerical value parsed to a Long
+   */
+  private Long parseBoundary(String boundary) {
+    Long lBound;
+    try {
+      lBound = Long.parseLong(boundary);
+    } catch (NumberFormatException e) {
+      throw new RuntimeException(
+          String.format("Error occurred while trying to parse %s to a Long", boundary));
+    }
+    return lBound;
+  }
+
+  /**
+   * @param boundary A string signifying a numerical bondary
+   * @return The numerical value parsed to a float
+   */
+  private Float parseBoundaryFloat(String boundary) {
+    Float fBound;
+    try {
+      fBound = Float.parseFloat(boundary);
+    } catch (NumberFormatException e) {
+      throw new RuntimeException(
+          String.format("Error occurred while trying to parse %s to a Float", boundary));
+    }
+    return fBound;
+  }
+
+  /**
+   * @param timeSource A String in a specific time format (yyyy-MM-dd HH:mm:ss) or UNIX timestamp
+   * @return The UNIX timestamp of the value
+   */
+  private Long parseDateTime(String timeSource) {
+    long timestamp;
+    try {
+      timestamp = Long.parseLong(timeSource);
+    } catch (NumberFormatException ex) {
+      try {
+        timestamp = dateFormat.parse(timeSource).getTime();
+      } catch (ParseException e) {
+        throw new RuntimeException(
+            String.format("Error occurred while trying to parse date: %s", timeSource));
+      }
+    }
+    return timestamp;
   }
 
   /**
@@ -108,20 +170,24 @@ public class TemplatedValue {
     return this.distribution;
   }
 
-  public Long getMin() {
-    return this.min;
+  public String getMin() {
+    return (this.min != null) ? this.min.toString() : this.minF.toString();
   }
 
-  public Long getMax() {
-    return this.max;
+  public String getMax() {
+    return (this.max != null) ? this.max.toString() : this.maxF.toString();
   }
 
-  public Long getSeed() {
-    return this.seed;
+  public String getSeed() {
+    return this.seed.toString();
   }
 
   public String getValue() {
     return this.value;
+  }
+
+  public String getValueType() {
+    return this.valueType.toString();
   }
 
   public Object getGenerator() {
@@ -129,6 +195,10 @@ public class TemplatedValue {
   }
 
   public Long getNextLongBinomial() {
+    assert !this.valueType.equals(JDBCSupportedType.REAL)
+        && !this.valueType.equals(JDBCSupportedType.FLOAT)
+        && !this.valueType.equals(JDBCSupportedType.VARCHAR)
+        && !this.valueType.equals(JDBCSupportedType.CHAR);
     Random binomialGenerator = (Random) this.generatorObject;
     Long generatedValue;
     do {
@@ -141,44 +211,60 @@ public class TemplatedValue {
   }
 
   public Long getNextLongUniform() {
+    assert !this.valueType.equals(JDBCSupportedType.REAL)
+        && !this.valueType.equals(JDBCSupportedType.FLOAT)
+        && !this.valueType.equals(JDBCSupportedType.VARCHAR)
+        && !this.valueType.equals(JDBCSupportedType.CHAR);
     Random uniformGenerator = (Random) this.generatorObject;
     return uniformGenerator.nextLong(this.min, this.max);
   }
 
   public Long getNextLongZipf() {
+    assert !this.valueType.equals(JDBCSupportedType.REAL)
+        && !this.valueType.equals(JDBCSupportedType.FLOAT)
+        && !this.valueType.equals(JDBCSupportedType.VARCHAR)
+        && !this.valueType.equals(JDBCSupportedType.CHAR);
     ZipfianGenerator zipfianGenerator = (ZipfianGenerator) this.generatorObject;
     return zipfianGenerator.nextLong();
   }
 
   public Long getNextLongScrambled() {
+    assert !this.valueType.equals(JDBCSupportedType.REAL)
+        && !this.valueType.equals(JDBCSupportedType.FLOAT)
+        && !this.valueType.equals(JDBCSupportedType.VARCHAR)
+        && !this.valueType.equals(JDBCSupportedType.CHAR);
     ScrambledZipfianGenerator scrambledGenerator = (ScrambledZipfianGenerator) this.generatorObject;
     return scrambledGenerator.nextLong();
   }
 
   public String getNextString() {
+    assert this.valueType.equals(JDBCSupportedType.VARCHAR)
+        || this.valueType.equals(JDBCSupportedType.CHAR);
     Random stringGenerator = (Random) this.generatorObject;
     return TextGenerator.randomStr(stringGenerator, this.max.intValue());
   }
 
   public Float getNextFloatUniform() {
+    assert this.valueType.equals(JDBCSupportedType.REAL)
+        || this.valueType.equals(JDBCSupportedType.FLOAT);
     Random floatGenerator = (Random) this.generatorObject;
-    return floatGenerator.nextFloat(Float.parseFloat(this.minS), Float.parseFloat(this.maxS));
+    return floatGenerator.nextFloat(this.minF, this.maxF);
   }
 
   public Float getNextFloatBinomial() {
-    Float minF = Float.parseFloat(this.minS);
-    Float maxF = Float.parseFloat(this.maxS);
+    assert this.valueType.equals(JDBCSupportedType.REAL)
+        || this.valueType.equals(JDBCSupportedType.FLOAT);
     Random floatGenerator = (Random) this.generatorObject;
     Float generatedFloat;
     do {
-      generatedFloat = (float) (minF + Math.abs(floatGenerator.nextGaussian()) * maxF);
-    } while (generatedFloat > maxF || generatedFloat < minF);
+      generatedFloat = (float) (this.minF + Math.abs(floatGenerator.nextGaussian()) * this.maxF);
+    } while (generatedFloat > this.maxF || generatedFloat < this.minF);
 
     return generatedFloat;
   }
 
-  public RuntimeException createRuntimeException(JDBCSupportedType paramType) {
+  public RuntimeException createRuntimeException() {
     return new RuntimeException(
-        "Distribution: " + this.distribution + " not supported for type: " + paramType.toString());
+        "Distribution: " + this.distribution + " not supported for type: " + getValueType());
   }
 }
