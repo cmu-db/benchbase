@@ -206,7 +206,7 @@ public final class TemplatedBenchmark extends BenchmarkModule {
         ParsedQueryTemplate qt = b.build();
         // Create and compile class.
         final String s =
-            """
+                """
                         package %s ;
                         import %s ;
                         public final class %s extends %s {
