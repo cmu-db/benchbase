@@ -64,7 +64,7 @@
                 <dependency>
                     <groupId>org.xerial</groupId>
                     <artifactId>sqlite-jdbc</artifactId>
-                    <version>3.42.0.0</version>
+                    <version>3.45.2.0</version>
                 </dependency>
             </dependencies>
         </profile>
@@ -376,7 +376,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.12.1</version>
+                <version>3.13.0</version>
                 <configuration>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
@@ -431,7 +431,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.7.0</version>
+                <version>3.7.1</version>
                 <configuration>
                     <appendAssemblyId>false</appendAssemblyId>
                     <finalName>${project.artifactId}-${classifier}</finalName>
