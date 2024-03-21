@@ -35,7 +35,7 @@ public class StockLevel extends TPCCProcedure {
 
   public SQLStmt stockGetDistOrderIdSQL =
       new SQLStmt(
-          """
+              """
         SELECT D_NEXT_O_ID
           FROM  %s
          WHERE D_W_ID = ?
@@ -45,7 +45,7 @@ public class StockLevel extends TPCCProcedure {
 
   public SQLStmt stockGetCountStockSQL =
       new SQLStmt(
-          """
+              """
         SELECT COUNT(DISTINCT (S_I_ID)) AS STOCK_COUNT
          FROM  %s, %s
          WHERE OL_W_ID = ?
