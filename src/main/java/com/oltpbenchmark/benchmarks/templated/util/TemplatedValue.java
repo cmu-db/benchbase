@@ -195,10 +195,11 @@ public class TemplatedValue {
   }
 
   public Long getNextLongBinomial() {
-    assert !this.valueType.equals(JDBCSupportedType.REAL)
-        && !this.valueType.equals(JDBCSupportedType.FLOAT)
-        && !this.valueType.equals(JDBCSupportedType.VARCHAR)
-        && !this.valueType.equals(JDBCSupportedType.CHAR);
+    assert this.valueType.equals(JDBCSupportedType.INTEGER)
+        || this.valueType.equals(JDBCSupportedType.BIGINT)
+        || this.valueType.equals(JDBCSupportedType.DATE)
+        || this.valueType.equals(JDBCSupportedType.TIME)
+        || this.valueType.equals(JDBCSupportedType.TIMESTAMP);
     Random binomialGenerator = (Random) this.generatorObject;
     Long generatedValue;
     do {
@@ -211,28 +212,31 @@ public class TemplatedValue {
   }
 
   public Long getNextLongUniform() {
-    assert !this.valueType.equals(JDBCSupportedType.REAL)
-        && !this.valueType.equals(JDBCSupportedType.FLOAT)
-        && !this.valueType.equals(JDBCSupportedType.VARCHAR)
-        && !this.valueType.equals(JDBCSupportedType.CHAR);
+    assert this.valueType.equals(JDBCSupportedType.INTEGER)
+        || this.valueType.equals(JDBCSupportedType.BIGINT)
+        || this.valueType.equals(JDBCSupportedType.DATE)
+        || this.valueType.equals(JDBCSupportedType.TIME)
+        || this.valueType.equals(JDBCSupportedType.TIMESTAMP);
     Random uniformGenerator = (Random) this.generatorObject;
     return uniformGenerator.nextLong(this.min, this.max);
   }
 
   public Long getNextLongZipf() {
-    assert !this.valueType.equals(JDBCSupportedType.REAL)
-        && !this.valueType.equals(JDBCSupportedType.FLOAT)
-        && !this.valueType.equals(JDBCSupportedType.VARCHAR)
-        && !this.valueType.equals(JDBCSupportedType.CHAR);
+    assert this.valueType.equals(JDBCSupportedType.INTEGER)
+        || this.valueType.equals(JDBCSupportedType.BIGINT)
+        || this.valueType.equals(JDBCSupportedType.DATE)
+        || this.valueType.equals(JDBCSupportedType.TIME)
+        || this.valueType.equals(JDBCSupportedType.TIMESTAMP);
     ZipfianGenerator zipfianGenerator = (ZipfianGenerator) this.generatorObject;
     return zipfianGenerator.nextLong();
   }
 
   public Long getNextLongScrambled() {
-    assert !this.valueType.equals(JDBCSupportedType.REAL)
-        && !this.valueType.equals(JDBCSupportedType.FLOAT)
-        && !this.valueType.equals(JDBCSupportedType.VARCHAR)
-        && !this.valueType.equals(JDBCSupportedType.CHAR);
+    assert this.valueType.equals(JDBCSupportedType.INTEGER)
+        || this.valueType.equals(JDBCSupportedType.BIGINT)
+        || this.valueType.equals(JDBCSupportedType.DATE)
+        || this.valueType.equals(JDBCSupportedType.TIME)
+        || this.valueType.equals(JDBCSupportedType.TIMESTAMP);
     ScrambledZipfianGenerator scrambledGenerator = (ScrambledZipfianGenerator) this.generatorObject;
     return scrambledGenerator.nextLong();
   }

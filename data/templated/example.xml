@@ -67,7 +67,7 @@
          <type>INTEGER</type>
       </types>
       <values>
-         <value dist="zipfian" min="10" max="40">2.1</value>
+         <value dist="zipfian" min="10" max="40">2</value>
       </values>
    </template>
    <template name="DeleteItem">
@@ -106,7 +106,7 @@
          <value>1</value>
          <value>1</value>
          <value>1</value>
-         <value dist="uniform" min="1999-12-12 01:01:55" max="1706013220000"/>
+         <value dist="uniform" min="1999-12-12 01:01:55" max="2000-12-12 04:04:44"/>
          <value dist="normal" min="0.5" max="12.5"/>
          <value dist="uniform" min="0" max="23"/>
       </values>

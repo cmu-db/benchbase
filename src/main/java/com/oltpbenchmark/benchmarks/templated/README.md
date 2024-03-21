@@ -90,22 +90,40 @@ The distributions are dependent on the type of the value. Currently, the followi
 | TIMESTAMP        |    X    |    X     |    X    |         X         |
 | DATE             |    X    |    X     |    X    |         X         |
 | TIME             |    X    |    X     |    X    |         X         |
-The following properties can be set on the value:
 
--   `dist`: The distribution of the values
--   `min`: The minimum value the generator can produce.
--   `max`: The maximum value the generator can produce.
--   `seed`: A seed for the generator to ensure consistency. Default is 0
+The following properties can be set for templated distributions:
 
-*NOTE:* For `Timestamp`, `Date`, and `Time` types, the min and max values must be converted to UNIX time (milliseconds) OR given as strings in the following format: (yyyy-MM-dd HH:mm:ss).
-The value is interpreted as the milliseconds since January 1, 1970, 00:00:00 GMT/UTC.
+| Property | description                                    | required | default | 
+| -----    | ---------------------------------------------- | :------: | :-----: |
+| dist     | The distribution of the values                 | Yes      | -       |
+| min      | The minimum value the generator can produce    | Yes      | -       |
+| max      | The maximum value the generator can produce    | Yes      | -       |
+| seed     | A seed for the generator to ensure consistency | No       | 0       |
+
+
+### Timestamps, Dates and Time
+
+For `Timestamp`, `Date`, and `Time` types, the min and max values can be given as a Long value or string.
+- The Long value is interpreted as the milliseconds since January 1, 1970, 00:00:00 GMT/UTC.
+
+- The string value is interpreted as UTC timezone and must have the following format: (yyyy-MM-dd HH:mm:ss)
+
+#### Example
 ```xml
 <value 
     dist="uniform" 
-    min="2023-01-23 12:33:40" // Mon Jan 23 2023 12:33:40 
-    max="1706013220000"       // Tue Jan 23 2024 12:33:40 
+    min="1674477220000" // Mon Jan 23 2023 12:33:40 
+    max="1706013220000" // Tue Jan 23 2024 12:33:40 
     seed="0"
 />
+
+<value 
+    dist="uniform" 
+    min="2023-01-23 12:33:40" // Mon Jan 23 2023 12:33:40 
+    max="2024-01-23 12:33:40" // Tue Jan 23 2024 12:33:40 
+    seed="0"
+/>
+
 ```
 To get the current UNIX time in milliseconds, use the following bash command:
 ```bash
