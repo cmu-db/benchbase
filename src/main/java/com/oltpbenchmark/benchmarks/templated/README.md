@@ -56,6 +56,30 @@ java -jar benchbase.jar -b templated -c config/sqlserver/sample_templated_config
 
 > For additional examples, please refer to the build pipeline definition in the [`maven.yml`](../../../../../../../.github/workflows/maven.yml#L423) Github Actions workflow file.
 
+### Value selection
+
+<!-- This can be expanded in the future to allow other access patterns -->
+The values are selected in **Round-Robin** fashion, giving the following access pattern for query 'Q1': 
+
+`V1 --> V2 --> V1 --> V2 ...`
+
+```xml
+<templates>
+    <template name="Q1">
+        <query><![CDATA[$SQLQuery]]></query>
+        <types>
+            <type>Type1</type>
+        </types>
+        <values>
+            <value>V1</value>
+        </values>
+        <values>
+            <value>V2</value>
+        </values>
+    </template>
+<templates>
+```
+
 ## Value Distributions
 
 In order to support more variety in templated queries, it is possible to use a whole distribution of values instead of a single static value in a templated query
