@@ -24,14 +24,14 @@ import java.util.List;
 /** Immutable class containing information about transactions. */
 public class GenericQueryOperation extends Operation {
 
-  public final List<Object> params;
+  public final List<TemplatedValue> params;
 
-  public GenericQueryOperation(Object[] params) {
+  public GenericQueryOperation(TemplatedValue[] params) {
     super();
     this.params = Collections.unmodifiableList(Arrays.asList(params));
   }
 
-  public List<Object> getParams() {
+  public List<TemplatedValue> getParams() {
     return params;
   }
 }
