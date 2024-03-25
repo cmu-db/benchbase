@@ -80,6 +80,8 @@ The values are selected in **Round-Robin** fashion, giving the following access 
 <templates>
 ```
 
+For now, more fine-grained control of the access pattern can be achieved by building a new query for each value and adjusting the weight of each query in the config file.
+
 ## Value Distributions
 
 In order to support more variety in templated queries, it is possible to use a whole distribution of values instead of a single static value in a templated query
