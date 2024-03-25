@@ -449,7 +449,7 @@ public class DBWorkload {
                 .export(
                     bench.getWorkloadConfiguration().getDatabaseType(),
                     bench.getProcedures().values());
-        LOG.debug(xml);
+        LOG.info(xml);
         System.exit(0);
       }
       throw new RuntimeException("No StatementDialects is available for " + bench);
