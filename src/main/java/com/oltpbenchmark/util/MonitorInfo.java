@@ -21,19 +21,19 @@ import org.immutables.value.Value;
 public interface MonitorInfo {
 
   public enum MonitoringType {
-    ADVANCED, THROUGHPUT;
+    ADVANCED,
+    THROUGHPUT;
   }
 
   /** Monitoring interval. */
   @Value.Default
-  default public int getMonitoringInterval() {
+  public default int getMonitoringInterval() {
     return 0;
   }
 
   /** Monitoring type. */
   @Value.Default
-  default public MonitoringType getMonitoringType() {
+  public default MonitoringType getMonitoringType() {
     return MonitoringType.THROUGHPUT;
   }
-
 }

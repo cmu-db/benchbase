@@ -50,14 +50,18 @@ public enum DatabaseType {
   PHOENIX(true, true);
 
   DatabaseType(
-      boolean escapeNames, boolean includeColNames, boolean loadNeedsUpdateColumnSequence, boolean needsMonitoringPrefix) {
+      boolean escapeNames,
+      boolean includeColNames,
+      boolean loadNeedsUpdateColumnSequence,
+      boolean needsMonitoringPrefix) {
     this.escapeNames = escapeNames;
     this.includeColNames = includeColNames;
     this.loadNeedsUpdateColumnSequence = loadNeedsUpdateColumnSequence;
     this.needsMonitoringPrefix = needsMonitoringPrefix;
   }
 
-  DatabaseType(boolean escapeNames, boolean includeColNames, boolean loadNeedsUpdateColumnSequence) {
+  DatabaseType(
+      boolean escapeNames, boolean includeColNames, boolean loadNeedsUpdateColumnSequence) {
     this(escapeNames, includeColNames, loadNeedsUpdateColumnSequence, false);
   }
 
@@ -79,12 +83,9 @@ public enum DatabaseType {
    * loading data.
    */
   private final boolean loadNeedsUpdateColumnSequence;
-  /**
-   * If this flag is set to true, the framework will add a monitoring prefix
-   * to each query.
-   */
-  private final boolean needsMonitoringPrefix;
 
+  /** If this flag is set to true, the framework will add a monitoring prefix to each query. */
+  private final boolean needsMonitoringPrefix;
 
   // ---------------------------------------------------------------
   // ACCESSORS
@@ -114,11 +115,10 @@ public enum DatabaseType {
   }
 
   /**
-   * @return True if the framework should add a monitoring prefix to each
-   * query.
+   * @return True if the framework should add a monitoring prefix to each query.
    */
   public boolean shouldCreateMonitoringPrefix() {
-      return (this.needsMonitoringPrefix);
+    return (this.needsMonitoringPrefix);
   }
 
   // ----------------------------------------------------------------

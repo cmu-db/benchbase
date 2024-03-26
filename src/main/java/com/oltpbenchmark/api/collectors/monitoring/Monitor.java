@@ -1,12 +1,10 @@
 package com.oltpbenchmark.api.collectors.monitoring;
 
-import java.util.List;
-
 import com.oltpbenchmark.BenchmarkState;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.util.MonitorInfo;
-
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +26,9 @@ public class Monitor extends Thread {
   /**
    * @param interval How long to wait between polling in milliseconds
    */
-  Monitor(MonitorInfo monitorInfo, BenchmarkState testState,
+  Monitor(
+      MonitorInfo monitorInfo,
+      BenchmarkState testState,
       List<? extends Worker<? extends BenchmarkModule>> workers) {
     this.monitorInfo = monitorInfo;
     this.testState = testState;
@@ -61,9 +61,7 @@ public class Monitor extends Thread {
     }
   }
 
-  /**
-   * Called at the end of the test to do any clean up that may be required.
-   */
+  /** Called at the end of the test to do any clean up that may be required. */
   public void tearDown() {
     // nothing to do here
   }

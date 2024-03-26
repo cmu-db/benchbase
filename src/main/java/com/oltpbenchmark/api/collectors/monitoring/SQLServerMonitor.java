@@ -1,5 +1,11 @@
 package com.oltpbenchmark.api.collectors.monitoring;
 
+import com.oltpbenchmark.BenchmarkState;
+import com.oltpbenchmark.WorkloadConfiguration;
+import com.oltpbenchmark.api.BenchmarkModule;
+import com.oltpbenchmark.api.Worker;
+import com.oltpbenchmark.util.MonitorInfo;
+import com.oltpbenchmark.util.MonitoringUtil;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -13,20 +19,14 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.oltpbenchmark.BenchmarkState;
-import com.oltpbenchmark.WorkloadConfiguration;
-import com.oltpbenchmark.api.BenchmarkModule;
-import com.oltpbenchmark.api.Worker;
-import com.oltpbenchmark.util.MonitorInfo;
-import com.oltpbenchmark.util.MonitoringUtil;
-
 /**
  * Implementation of a monitor specific to SQLServer. Uses SQLServer's system tables to extract
  * relevant query and system information.
  */
 public class SQLServerMonitor extends DatabaseMonitor {
 
-  private final String DM_EXEC_QUERY_STATS = """
+  private final String DM_EXEC_QUERY_STATS =
+      """
           SELECT q.text AS query_text, st.plan_handle, pl.query_plan,
           q.text AS query_text, st.plan_handle, pl.query_plan,
           st.execution_count, st.min_worker_time, st.max_worker_time,
@@ -42,7 +42,8 @@ public class SQLServerMonitor extends DatabaseMonitor {
           CROSS APPLY sys.dm_exec_sql_text(st.plan_handle) q
           CROSS APPLY sys.dm_exec_query_plan(st.plan_handle) pl
       """;
-  private String DM_OS_PERFORMANCE_STATS = """
+  private String DM_OS_PERFORMANCE_STATS =
+      """
           SELECT cntr_value, counter_name
           FROM sys.dm_os_performance_counters
           WHERE instance_name='%s';
@@ -56,8 +57,11 @@ public class SQLServerMonitor extends DatabaseMonitor {
 
   private final Set<String> cached_plans;
 
-  public SQLServerMonitor(MonitorInfo monitorInfo, BenchmarkState testState,
-      List<? extends Worker<? extends BenchmarkModule>> workers, WorkloadConfiguration conf) {
+  public SQLServerMonitor(
+      MonitorInfo monitorInfo,
+      BenchmarkState testState,
+      List<? extends Worker<? extends BenchmarkModule>> workers,
+      WorkloadConfiguration conf) {
     super(monitorInfo, testState, workers, conf);
 
     // Extract the database instance from url.
@@ -68,56 +72,59 @@ public class SQLServerMonitor extends DatabaseMonitor {
 
     this.cached_plans = new HashSet<String>();
 
-    this.singleQueryProperties = new ArrayList<String>() {
-      {
-        add("query_plan");
-        add("plan_handle");
-      }
-    };
+    this.singleQueryProperties =
+        new ArrayList<String>() {
+          {
+            add("query_plan");
+            add("plan_handle");
+          }
+        };
 
-    this.repeatedQueryProperties = new ArrayList<String>() {
-      {
-        add("execution_count");
-        add("min_worker_time");
-        add("max_worker_time");
-        add("total_worker_time");
-        add("min_physical_reads");
-        add("max_physical_reads");
-        add("total_physical_reads");
-        add("min_elapsed_time");
-        add("max_elapsed_time");
-        add("total_elapsed_time");
-        add("min_rows");
-        add("max_rows");
-        add("total_rows");
-        add("min_spills");
-        add("max_spills");
-        add("total_spills");
-        add("min_logical_writes");
-        add("max_logical_writes");
-        add("total_logical_writes");
-        add("min_logical_reads");
-        add("max_logical_reads");
-        add("total_logical_reads");
-        add("min_used_grant_kb");
-        add("max_used_grant_kb");
-        add("total_used_grant_kb");
-        add("min_used_threads");
-        add("max_used_threads");
-        add("total_used_threads");
-        add("plan_handle");
-      }
-    };
+    this.repeatedQueryProperties =
+        new ArrayList<String>() {
+          {
+            add("execution_count");
+            add("min_worker_time");
+            add("max_worker_time");
+            add("total_worker_time");
+            add("min_physical_reads");
+            add("max_physical_reads");
+            add("total_physical_reads");
+            add("min_elapsed_time");
+            add("max_elapsed_time");
+            add("total_elapsed_time");
+            add("min_rows");
+            add("max_rows");
+            add("total_rows");
+            add("min_spills");
+            add("max_spills");
+            add("total_spills");
+            add("min_logical_writes");
+            add("max_logical_writes");
+            add("total_logical_writes");
+            add("min_logical_reads");
+            add("max_logical_reads");
+            add("total_logical_reads");
+            add("min_used_grant_kb");
+            add("max_used_grant_kb");
+            add("total_used_grant_kb");
+            add("min_used_threads");
+            add("max_used_threads");
+            add("total_used_threads");
+            add("plan_handle");
+          }
+        };
 
-    this.repeatedSystemProperties = new ArrayList<String>() {
-      {
-        add("Data File(s) Size (KB)");
-        add("Transactions/sec");
-        add("Write Transactions/sec");
-        add("Cache Hit Ratio");
-        add("Cache Entries Count");
-      }
-    };
+    this.repeatedSystemProperties =
+        new ArrayList<String>() {
+          {
+            add("Data File(s) Size (KB)");
+            add("Transactions/sec");
+            add("Write Transactions/sec");
+            add("Cache Hit Ratio");
+            add("Cache Entries Count");
+          }
+        };
   }
 
   /**
@@ -231,5 +238,4 @@ public class SQLServerMonitor extends DatabaseMonitor {
   protected void writeSystemMetrics() {
     this.writeRepeatedSystemEventsToCSV();
   }
-
 }

@@ -1,5 +1,11 @@
 package com.oltpbenchmark.api.collectors.monitoring;
 
+import com.oltpbenchmark.BenchmarkState;
+import com.oltpbenchmark.WorkloadConfiguration;
+import com.oltpbenchmark.api.BenchmarkModule;
+import com.oltpbenchmark.api.Worker;
+import com.oltpbenchmark.util.MonitorInfo;
+import com.oltpbenchmark.util.MonitoringUtil;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,20 +18,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 
-import com.oltpbenchmark.BenchmarkState;
-import com.oltpbenchmark.WorkloadConfiguration;
-import com.oltpbenchmark.api.BenchmarkModule;
-import com.oltpbenchmark.api.Worker;
-import com.oltpbenchmark.util.MonitorInfo;
-import com.oltpbenchmark.util.MonitoringUtil;
-
 /**
  * Implementation of a monitor specific to PostgreSQL. Uses the 'pg_stat_statements' add-on to
  * extract relevant query and system information.
  */
 public class PostgreSQLMonitor extends DatabaseMonitor {
 
-  private final String PG_STAT_STATEMENTS = """
+  private final String PG_STAT_STATEMENTS =
+      """
       SELECT query AS query_text, calls as execution_count, rows,
       total_exec_time, min_exec_time, max_exec_time,
       shared_blks_read, shared_blks_written, local_blks_read,
@@ -37,27 +37,31 @@ public class PostgreSQLMonitor extends DatabaseMonitor {
 
   private final Set<String> stored_queries;
 
-  public PostgreSQLMonitor(MonitorInfo monitorInfo, BenchmarkState testState,
-      List<? extends Worker<? extends BenchmarkModule>> workers, WorkloadConfiguration conf) {
+  public PostgreSQLMonitor(
+      MonitorInfo monitorInfo,
+      BenchmarkState testState,
+      List<? extends Worker<? extends BenchmarkModule>> workers,
+      WorkloadConfiguration conf) {
     super(monitorInfo, testState, workers, conf);
 
     this.stored_queries = new HashSet<String>();
 
-    this.repeatedQueryProperties = new ArrayList<String>() {
-      {
-        add("execution_count");
-        add("min_exec_time");
-        add("max_exec_time");
-        add("total_exec_time");
-        add("rows");
-        add("shared_blks_read");
-        add("shared_blks_written");
-        add("local_blks_read");
-        add("local_blks_written");
-        add("temp_blks_read");
-        add("temp_blks_written");
-      }
-    };
+    this.repeatedQueryProperties =
+        new ArrayList<String>() {
+          {
+            add("execution_count");
+            add("min_exec_time");
+            add("max_exec_time");
+            add("total_exec_time");
+            add("rows");
+            add("shared_blks_read");
+            add("shared_blks_written");
+            add("local_blks_read");
+            add("local_blks_written");
+            add("temp_blks_read");
+            add("temp_blks_written");
+          }
+        };
   }
 
   /**

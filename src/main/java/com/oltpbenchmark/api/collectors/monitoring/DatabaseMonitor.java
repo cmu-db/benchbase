@@ -1,5 +1,12 @@
 package com.oltpbenchmark.api.collectors.monitoring;
 
+import com.oltpbenchmark.BenchmarkState;
+import com.oltpbenchmark.WorkloadConfiguration;
+import com.oltpbenchmark.api.BenchmarkModule;
+import com.oltpbenchmark.api.Worker;
+import com.oltpbenchmark.util.FileUtil;
+import com.oltpbenchmark.util.MonitorInfo;
+import com.oltpbenchmark.util.StringUtil;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
@@ -12,24 +19,15 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 import org.immutables.value.Value;
 
-import com.oltpbenchmark.BenchmarkState;
-import com.oltpbenchmark.WorkloadConfiguration;
-import com.oltpbenchmark.api.BenchmarkModule;
-import com.oltpbenchmark.api.Worker;
-import com.oltpbenchmark.util.FileUtil;
-import com.oltpbenchmark.util.MonitorInfo;
-import com.oltpbenchmark.util.StringUtil;
-
-import org.apache.commons.lang3.StringUtils;
-
-/**
- * Generic database monitor that consolidates functionality used across DBMS.
- */
+/** Generic database monitor that consolidates functionality used across DBMS. */
 public abstract class DatabaseMonitor extends Monitor {
   protected enum DatabaseState {
-    READY, INVALID, TEST
+    READY,
+    INVALID,
+    TEST
   };
 
   protected final String OUTPUT_DIR = "results/monitor";
@@ -64,7 +62,9 @@ public abstract class DatabaseMonitor extends Monitor {
     }
   }
 
-  public DatabaseMonitor(MonitorInfo monitorInfo, BenchmarkState testState,
+  public DatabaseMonitor(
+      MonitorInfo monitorInfo,
+      BenchmarkState testState,
       List<? extends Worker<? extends BenchmarkModule>> workers,
       WorkloadConfiguration workloadConf) {
     super(monitorInfo, testState, workers);
@@ -100,11 +100,14 @@ public abstract class DatabaseMonitor extends Monitor {
         LOG.warn("File at " + filePath + " deleted before writing query events to file.");
       }
       PrintStream out = new PrintStream(filePath);
-      out.println("QueryId,"
-          + StringUtil.join(",", this.singleQueryEvents.get(0).getPropertyValues().keySet()));
+      out.println(
+          "QueryId,"
+              + StringUtil.join(",", this.singleQueryEvents.get(0).getPropertyValues().keySet()));
       for (SingleQueryEvent event : this.singleQueryEvents) {
-        out.println(event.getQueryId() + ","
-            + StringUtil.join(",", this.singleQueryEvents.get(0).getPropertyValues().values()));
+        out.println(
+            event.getQueryId()
+                + ","
+                + StringUtil.join(",", this.singleQueryEvents.get(0).getPropertyValues().values()));
       }
       out.close();
       this.singleQueryEvents = new ArrayList<>();
@@ -127,11 +130,17 @@ public abstract class DatabaseMonitor extends Monitor {
         LOG.warn("File at " + filePath + " deleted before writing repeated query events to file.");
       }
       PrintStream out = new PrintStream(filePath);
-      out.println("QueryId,Instant,"
-          + StringUtil.join(",", this.repeatedQueryEvents.get(0).getPropertyValues().keySet()));
+      out.println(
+          "QueryId,Instant,"
+              + StringUtil.join(",", this.repeatedQueryEvents.get(0).getPropertyValues().keySet()));
       for (RepeatedQueryEvent event : this.repeatedQueryEvents) {
-        out.println(event.getQueryId() + "," + event.getInstant().toString() + ","
-            + StringUtil.join(",", this.repeatedQueryEvents.get(0).getPropertyValues().values()));
+        out.println(
+            event.getQueryId()
+                + ","
+                + event.getInstant().toString()
+                + ","
+                + StringUtil.join(
+                    ",", this.repeatedQueryEvents.get(0).getPropertyValues().values()));
       }
       out.close();
       this.repeatedQueryEvents = new ArrayList<>();
@@ -154,11 +163,16 @@ public abstract class DatabaseMonitor extends Monitor {
         LOG.warn("File at " + filePath + " deleted before writing repeated system events to file.");
       }
       PrintStream out = new PrintStream(filePath);
-      out.println("Instant,"
-          + StringUtil.join(",", this.repeatedSystemEvents.get(0).getPropertyValues().keySet()));
+      out.println(
+          "Instant,"
+              + StringUtil.join(
+                  ",", this.repeatedSystemEvents.get(0).getPropertyValues().keySet()));
       for (RepeatedSystemEvent event : this.repeatedSystemEvents) {
-        out.println(event.getInstant().toString() + ","
-            + StringUtil.join(",", this.repeatedSystemEvents.get(0).getPropertyValues().values()));
+        out.println(
+            event.getInstant().toString()
+                + ","
+                + StringUtil.join(
+                    ",", this.repeatedSystemEvents.get(0).getPropertyValues().values()));
       }
       out.close();
       this.repeatedSystemEvents = new ArrayList<>();
@@ -227,9 +241,7 @@ public abstract class DatabaseMonitor extends Monitor {
 
   protected abstract String getCleanupStmt();
 
-  /**
-   * Execute the extraction of desired query and performance metrics.
-   */
+  /** Execute the extraction of desired query and performance metrics. */
   protected abstract void runExtraction();
 
   protected abstract void writeSystemMetrics();
@@ -274,9 +286,7 @@ public abstract class DatabaseMonitor extends Monitor {
     writeToCSV();
   }
 
-  /**
-   * Called at the end of the test to do any clean up that may be required.
-   */
+  /** Called at the end of the test to do any clean up that may be required. */
   @Override
   public void tearDown() {
     if (this.conn != null) {

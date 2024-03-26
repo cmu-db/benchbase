@@ -18,36 +18,28 @@ package com.oltpbenchmark.util;
 import java.util.regex.Pattern;
 
 public abstract class MonitoringUtil {
-  private final static Pattern MONITORING_PATTERN =
+  private static final Pattern MONITORING_PATTERN =
       Pattern.compile("/[*] MONITOR-(?<queryId>\\S+) [*]/");
-  private final static String MONITORING_MARKER = "/* MONITOR-$queryId */";
-  private final static String MONITORING_PREFIX = "/* MONITOR-";
-  private final static String MONITORING_QUERYID = "$queryId";
+  private static final String MONITORING_MARKER = "/* MONITOR-$queryId */";
+  private static final String MONITORING_PREFIX = "/* MONITOR-";
+  private static final String MONITORING_QUERYID = "$queryId";
 
-  /**
-   * Universal monitoring prefix.
-   */
+  /** Universal monitoring prefix. */
   public static Pattern getMonitoringPattern() {
     return MonitoringUtil.MONITORING_PATTERN;
   }
 
-  /**
-   * Get monitoring marker.
-   */
+  /** Get monitoring marker. */
   public static String getMonitoringMarker() {
     return MonitoringUtil.MONITORING_MARKER;
   }
 
-  /**
-   * Get monitoring identifier.
-   */
+  /** Get monitoring identifier. */
   public static String getMonitoringPrefix() {
     return MonitoringUtil.MONITORING_PREFIX;
   }
 
-  /**
-   * Query identifier in monitoring prefix.
-   */
+  /** Query identifier in monitoring prefix. */
   public static String getMonitoringQueryId() {
     return MonitoringUtil.MONITORING_QUERYID;
   }

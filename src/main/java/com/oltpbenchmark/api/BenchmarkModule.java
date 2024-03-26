@@ -82,8 +82,8 @@ public abstract class BenchmarkModule {
     if (StringUtils.isEmpty(workConf.getUsername())) {
       return DriverManager.getConnection(workConf.getUrl());
     } else {
-      return DriverManager.getConnection(workConf.getUrl(), workConf.getUsername(),
-          workConf.getPassword());
+      return DriverManager.getConnection(
+          workConf.getUrl(), workConf.getUsername(), workConf.getPassword());
     }
   }
 
@@ -162,8 +162,7 @@ public abstract class BenchmarkModule {
     if (db_type != null) {
       DatabaseType ddl_db_type = db_type;
       // HACK: Use MySQL if we're given MariaDB
-      if (ddl_db_type == DatabaseType.MARIADB)
-        ddl_db_type = DatabaseType.MYSQL;
+      if (ddl_db_type == DatabaseType.MARIADB) ddl_db_type = DatabaseType.MYSQL;
       names.add("ddl-" + ddl_db_type.name().toLowerCase() + ".sql");
     }
     names.add("ddl-generic.sql");
@@ -262,17 +261,20 @@ public abstract class BenchmarkModule {
         }
       } finally {
         if (LOG.isDebugEnabled()) {
-          LOG.debug(String.format("Finished loading the %s database",
-              this.getBenchmarkName().toUpperCase()));
+          LOG.debug(
+              String.format(
+                  "Finished loading the %s database", this.getBenchmarkName().toUpperCase()));
         }
       }
     }
 
     if (this.afterLoadScriptPath != null) {
-      LOG.debug("Running script after load for {} benchmark...",
+      LOG.debug(
+          "Running script after load for {} benchmark...",
           this.workConf.getBenchmarkName().toUpperCase());
       runScript(this.afterLoadScriptPath);
-      LOG.debug("Finished running script after load for {} benchmark...",
+      LOG.debug(
+          "Finished running script after load for {} benchmark...",
           this.workConf.getBenchmarkName().toUpperCase());
     }
 
@@ -330,12 +332,16 @@ public abstract class BenchmarkModule {
    * @return
    */
   @SuppressWarnings("unchecked")
-  public final TransactionType initTransactionType(String procName, int id, long preExecutionWait,
-      long postExecutionWait) {
+  public final TransactionType initTransactionType(
+      String procName, int id, long preExecutionWait, long postExecutionWait) {
     if (id == TransactionType.INVALID_ID) {
-      throw new RuntimeException(String.format(
-          "Procedure %s.%s cannot use the reserved id '%d' for %s", getBenchmarkName(), procName,
-          id, TransactionType.INVALID.getClass().getSimpleName()));
+      throw new RuntimeException(
+          String.format(
+              "Procedure %s.%s cannot use the reserved id '%d' for %s",
+              getBenchmarkName(),
+              procName,
+              id,
+              TransactionType.INVALID.getClass().getSimpleName()));
     }
 
     Package pkg = this.getProcedurePackageImpl();

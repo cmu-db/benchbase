@@ -29,8 +29,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.sql.SQLException;
 import java.util.*;
-
-
 import org.apache.commons.cli.*;
 import org.apache.commons.collections4.map.ListOrderedMap;
 import org.apache.commons.configuration2.HierarchicalConfiguration;
@@ -84,19 +82,22 @@ public class DBWorkload {
     // Monitoring setup.
     ImmutableMonitorInfo.Builder builder = ImmutableMonitorInfo.builder();
     if (argsLine.hasOption("im")) {
-        builder.monitoringInterval(Integer.parseInt(argsLine.getOptionValue("im")));
+      builder.monitoringInterval(Integer.parseInt(argsLine.getOptionValue("im")));
     }
     if (argsLine.hasOption("mt")) {
-        switch (argsLine.getOptionValue("mt")) {
-            case "advanced":
-                builder.monitoringType(MonitorInfo.MonitoringType.ADVANCED);
-                break;
-            case "throughput":
-                builder.monitoringType(MonitorInfo.MonitoringType.THROUGHPUT);
-                break;
-            default:
-                throw new ParseException("Monitoring type '" + argsLine.getOptionValue("mt") + "' is undefined, allowed values are: advanced/throughput");
-        }
+      switch (argsLine.getOptionValue("mt")) {
+        case "advanced":
+          builder.monitoringType(MonitorInfo.MonitoringType.ADVANCED);
+          break;
+        case "throughput":
+          builder.monitoringType(MonitorInfo.MonitoringType.THROUGHPUT);
+          break;
+        default:
+          throw new ParseException(
+              "Monitoring type '"
+                  + argsLine.getOptionValue("mt")
+                  + "' is undefined, allowed values are: advanced/throughput");
+      }
     }
     MonitorInfo monitorInfo = builder.build();
 
@@ -166,12 +167,13 @@ public class DBWorkload {
         // Nothing to do here !
       }
 
-            // Set monitoring enabled, if all requirements are met.
-            if (monitorInfo.getMonitoringInterval() > 0 && monitorInfo.getMonitoringType() == MonitoringType.ADVANCED
-                    && DatabaseType.get(xmlConfig.getString("type")).shouldCreateMonitoringPrefix()) {
-                LOG.info("Advanced monitoring enabled, prefix will be added to queries.");
-                wrkld.setAdvancedMonitoringEnabled(true);
-            }
+      // Set monitoring enabled, if all requirements are met.
+      if (monitorInfo.getMonitoringInterval() > 0
+          && monitorInfo.getMonitoringType() == MonitoringType.ADVANCED
+          && DatabaseType.get(xmlConfig.getString("type")).shouldCreateMonitoringPrefix()) {
+        LOG.info("Advanced monitoring enabled, prefix will be added to queries.");
+        wrkld.setAdvancedMonitoringEnabled(true);
+      }
 
       // ----------------------------------------------------------------
       // CREATE BENCHMARK MODULE
@@ -580,9 +582,8 @@ public class DBWorkload {
     options.addOption(null, "execute", true, "Execute the benchmark workload");
     options.addOption("h", "help", false, "Print this help");
     options.addOption("s", "sample", true, "Sampling window");
-    options.addOption(
-        "im", "interval-monitor", true, "Monitoring Interval in milliseconds");
-        options.addOption("mt", "monitor-type", true, "Type of Monitoring (throughput/advanced)");
+    options.addOption("im", "interval-monitor", true, "Monitoring Interval in milliseconds");
+    options.addOption("mt", "monitor-type", true, "Type of Monitoring (throughput/advanced)");
     options.addOption(
         "d",
         "directory",

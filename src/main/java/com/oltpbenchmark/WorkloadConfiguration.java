@@ -175,11 +175,32 @@ public class WorkloadConfiguration {
     this.workloadState = new WorkloadState(benchmarkState, phases, terminals);
   }
 
-  public void addPhase(int id, int time, int warmup, double rate, List<Double> weights,
-      boolean rateLimited, boolean disabled, boolean serial, boolean timed, int active_terminals,
+  public void addPhase(
+      int id,
+      int time,
+      int warmup,
+      double rate,
+      List<Double> weights,
+      boolean rateLimited,
+      boolean disabled,
+      boolean serial,
+      boolean timed,
+      int active_terminals,
       Phase.Arrival arrival) {
-    phases.add(new Phase(benchmarkName, id, time, warmup, rate, weights, rateLimited, disabled,
-        serial, timed, active_terminals, arrival));
+    phases.add(
+        new Phase(
+            benchmarkName,
+            id,
+            time,
+            warmup,
+            rate,
+            weights,
+            rateLimited,
+            disabled,
+            serial,
+            timed,
+            active_terminals,
+            arrival));
   }
 
   /**
@@ -353,12 +374,47 @@ public class WorkloadConfiguration {
 
   @Override
   public String toString() {
-    return "WorkloadConfiguration{" + "phases=" + phases + ", databaseType=" + databaseType
-        + ", benchmarkName='" + benchmarkName + '\'' + ", url='" + url + '\'' + ", username='"
-        + username + '\'' + ", password='" + password + '\'' + ", driverClass='" + driverClass
-        + '\'' + ", batchSize=" + batchSize + ", maxRetries=" + maxRetries + ", scaleFactor="
-        + scaleFactor + ", selectivity=" + selectivity + ", terminals=" + terminals
-        + ", loaderThreads=" + loaderThreads + ", workloadState=" + workloadState + ", transTypes="
-        + transTypes + ", isolationMode=" + isolationMode + ", dataDir='" + dataDir + '\'' + '}';
+    return "WorkloadConfiguration{"
+        + "phases="
+        + phases
+        + ", databaseType="
+        + databaseType
+        + ", benchmarkName='"
+        + benchmarkName
+        + '\''
+        + ", url='"
+        + url
+        + '\''
+        + ", username='"
+        + username
+        + '\''
+        + ", password='"
+        + password
+        + '\''
+        + ", driverClass='"
+        + driverClass
+        + '\''
+        + ", batchSize="
+        + batchSize
+        + ", maxRetries="
+        + maxRetries
+        + ", scaleFactor="
+        + scaleFactor
+        + ", selectivity="
+        + selectivity
+        + ", terminals="
+        + terminals
+        + ", loaderThreads="
+        + loaderThreads
+        + ", workloadState="
+        + workloadState
+        + ", transTypes="
+        + transTypes
+        + ", isolationMode="
+        + isolationMode
+        + ", dataDir='"
+        + dataDir
+        + '\''
+        + '}';
   }
 }

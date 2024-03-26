@@ -20,7 +20,6 @@ package com.oltpbenchmark.api;
 import com.oltpbenchmark.jdbc.AutoIncrementPreparedStatement;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.MonitoringUtil;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.sql.Connection;
@@ -162,9 +161,7 @@ public abstract class Procedure {
     }
   }
 
-  /**
-   * Enable monitoring for this procedure by adding a monitoring prefixes.
-   */
+  /** Enable monitoring for this procedure by adding a monitoring prefixes. */
   protected final void enabledAdvancedMonitoring() {
     for (String stmtName : this.getStatements().keySet()) {
       SQLStmt stmt = this.name_stmt_xref.get(stmtName);

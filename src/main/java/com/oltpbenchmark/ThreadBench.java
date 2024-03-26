@@ -44,8 +44,10 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
 
   private Monitor monitor = null;
 
-  private ThreadBench(List<? extends Worker<? extends BenchmarkModule>> workers,
-      List<WorkloadConfiguration> workConfs, MonitorInfo monitorInfo) {
+  private ThreadBench(
+      List<? extends Worker<? extends BenchmarkModule>> workers,
+      List<WorkloadConfiguration> workConfs,
+      MonitorInfo monitorInfo) {
     this.workers = workers;
     this.workConfs = workConfs;
     this.workerThreads = new ArrayList<>(workers.size());
@@ -53,8 +55,10 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
     this.testState = new BenchmarkState(workers.size() + 1);
   }
 
-  public static Results runRateLimitedBenchmark(List<Worker<? extends BenchmarkModule>> workers,
-      List<WorkloadConfiguration> workConfs, MonitorInfo monitorInfo) {
+  public static Results runRateLimitedBenchmark(
+      List<Worker<? extends BenchmarkModule>> workers,
+      List<WorkloadConfiguration> workConfs,
+      MonitorInfo monitorInfo) {
     ThreadBench bench = new ThreadBench(workers, workConfs, monitorInfo);
     return bench.runRateLimitedMultiPhase();
   }
@@ -159,8 +163,9 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
 
     // Initialize the Monitor
     if (this.monitorInfo.getMonitoringInterval() > 0) {
-      this.monitor = MonitorGen.getMonitor(this.monitorInfo, this.testState, this.workers,
-          this.workConfs.get(0));
+      this.monitor =
+          MonitorGen.getMonitor(
+              this.monitorInfo, this.testState, this.workers, this.workConfs.get(0));
       this.monitor.start();
     }
 
@@ -237,8 +242,8 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                 lastEntry = true;
                 testState.startCoolDown();
                 measureEnd = now;
-                LOG.info("{} :: Waiting for all terminals to finish ..",
-                    StringUtil.bold("TERMINATE"));
+                LOG.info(
+                    "{} :: Waiting for all terminals to finish ..", StringUtil.bold("TERMINATE"));
               } else if (phase != null) {
                 // Reset serial execution parameters.
                 if (phase.isLatencyRun()) {
@@ -335,11 +340,16 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
       }
       DistributionStatistics stats = DistributionStatistics.computeStatistics(latencies);
 
-      Results results = new Results(
-          // If any errors were thrown during the execution, proprogate that fact to the
-          // final Results state so we can exit non-zero *after* we output the results.
-          errorsThrown ? State.ERROR : testState.getState(), startTs, measureEnd - start, requests,
-          stats, samples);
+      Results results =
+          new Results(
+              // If any errors were thrown during the execution, proprogate that fact to the
+              // final Results state so we can exit non-zero *after* we output the results.
+              errorsThrown ? State.ERROR : testState.getState(),
+              startTs,
+              measureEnd - start,
+              requests,
+              stats,
+              samples);
 
       // Compute transaction histogram
       Set<TransactionType> txnTypes = new HashSet<>();
@@ -412,8 +422,8 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
      * @param windowSizeSeconds
      * @param transactionType Allows to filter transactions by type
      */
-    public TimeBucketIterable(Iterable<Sample> samples, int windowSizeSeconds,
-        TransactionType transactionType) {
+    public TimeBucketIterable(
+        Iterable<Sample> samples, int windowSizeSeconds, TransactionType transactionType) {
       this.samples = samples;
       this.windowSizeSeconds = windowSizeSeconds;
       this.transactionType = transactionType;
@@ -440,8 +450,8 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
      * @param windowSizeSeconds
      * @param txType Allows to filter transactions by type
      */
-    public TimeBucketIterator(Iterator<LatencyRecord.Sample> samples, int windowSizeSeconds,
-        TransactionType txType) {
+    public TimeBucketIterator(
+        Iterator<LatencyRecord.Sample> samples, int windowSizeSeconds, TransactionType txType) {
       this.samples = samples;
       this.windowSizeSeconds = windowSizeSeconds;
       this.txType = txType;
