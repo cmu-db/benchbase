@@ -1,9 +1,9 @@
 -- Drop all tables
 
-BEGIN EXECUTE IMMEDIATE 'DROP TABLE "cputable"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;;
-BEGIN EXECUTE IMMEDIATE 'DROP TABLE "iotable"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;;
-BEGIN EXECUTE IMMEDIATE 'DROP TABLE "iotablesmallrow"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;;
-BEGIN EXECUTE IMMEDIATE 'DROP TABLE "locktable"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;;
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE cputable'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;;
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE iotable'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;;
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE iotablesmallrow'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;;
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE locktable'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;;
 
 -- Create table
 
@@ -48,22 +48,20 @@ CREATE TABLE locktable (
 
 -- Procedures
 
-create or replace
-function md5raw (text in varchar2)
-return varchar2 is
-hash_value varchar2(20);
-begin
-   hash_value := dbms_obfuscation_toolkit.md5 (input_string => text);
-   return hash_value;
-end;
+-- See https://docs.oracle.com/en/database/oracle/oracle-database/23/arpls/DBMS_CRYPTO.html
+-- DBMS_OBFUSCATION_TOOLKIT is deprecated, using DBMS_CRYPTO
+
+-- MD5 is deprecated for Oracle 23c onwards, potentially change to SHA-2 using DBMS_CRYPTO.HASH_SH256.
+-- The procedure name however should still be kept as "md5".
+
+-- Current (Oct 5, 2023) dialect file cannot change the function name as it can only change the SQL string
+--      inside SQLStmt, but related SQL for this procedure is constructed outside.
 
 create or replace
 function md5(text in varchar2)
-return varchar2 is
-hash_value varchar2(32);
-begin
-    select lower(rawtohex(md5raw(text)))
-    into hash_value
-    from dual;
-    return hash_value;
-end;
+return varchar2 is hash_value varchar2(32)
+;begin
+select lower(UTL_I18N.RAW_TO_CHAR (DBMS_CRYPTO.HASH(text, DBMS_CRYPTO.HASH_MD5), 'AL32UTF8'))
+into hash_value from dual
+;return hash_value
+;end;;

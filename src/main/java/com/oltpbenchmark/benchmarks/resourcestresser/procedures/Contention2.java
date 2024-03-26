@@ -21,47 +21,47 @@ import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.resourcestresser.ResourceStresserConstants;
 import com.oltpbenchmark.benchmarks.resourcestresser.ResourceStresserWorker;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * Uses a range of primary keys.
- */
+/** Uses a range of primary keys. */
 public class Contention2 extends Procedure {
-    private static final Logger LOG = LoggerFactory.getLogger(Contention2.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Contention2.class);
 
-    public final SQLStmt lockUpdate = new SQLStmt("UPDATE " + ResourceStresserConstants.TABLENAME_LOCKTABLE + " SET salary = ? WHERE empid >= ? AND empid < ?");
+  public final SQLStmt lockUpdate =
+      new SQLStmt(
+          "UPDATE "
+              + ResourceStresserConstants.TABLENAME_LOCKTABLE
+              + " SET salary = ? WHERE empid >= ? AND empid < ?");
 
-    public final SQLStmt lockSleep = new SQLStmt("SELECT SLEEP(?)");
+  public final SQLStmt lockSleep = new SQLStmt("SELECT SLEEP(?)");
 
-    public void run(Connection conn, int howManyKeys, int howManyUpdates, int sleepLength, int numKeys) throws SQLException {
+  public void run(
+      Connection conn, int howManyKeys, int howManyUpdates, int sleepLength, int numKeys)
+      throws SQLException {
 
+    for (int sel = 0; sel < howManyUpdates; ++sel) {
+      int leftKey = ResourceStresserWorker.gen.nextInt(Math.max(1, numKeys - howManyKeys));
+      int rightKey = leftKey + howManyKeys;
+      int salary = ResourceStresserWorker.gen.nextInt();
 
-        for (int sel = 0; sel < howManyUpdates; ++sel) {
-            int leftKey = ResourceStresserWorker.gen.nextInt(Math.max(1, numKeys - howManyKeys));
-            int rightKey = leftKey + howManyKeys;
-            int salary = ResourceStresserWorker.gen.nextInt();
-
-            try (PreparedStatement stmtUpdate = this.getPreparedStatement(conn, lockUpdate)) {
-                stmtUpdate.setInt(1, salary);
-                stmtUpdate.setInt(2, leftKey + 1);
-                stmtUpdate.setInt(3, rightKey + 1);
-                int result = stmtUpdate.executeUpdate();
-                if (result != howManyKeys) {
-                    LOG.warn("LOCK1UPDATE: supposedtochange={} but only changed {}", howManyKeys, result);
-                }
-            }
-
-            try (PreparedStatement stmtSleep = this.getPreparedStatement(conn, lockSleep)) {
-                stmtSleep.setInt(1, sleepLength);
-                stmtSleep.execute();
-            }
+      try (PreparedStatement stmtUpdate = this.getPreparedStatement(conn, lockUpdate)) {
+        stmtUpdate.setInt(1, salary);
+        stmtUpdate.setInt(2, leftKey + 1);
+        stmtUpdate.setInt(3, rightKey + 1);
+        int result = stmtUpdate.executeUpdate();
+        if (result != howManyKeys) {
+          LOG.warn("LOCK1UPDATE: supposedtochange={} but only changed {}", howManyKeys, result);
         }
+      }
+
+      try (PreparedStatement stmtSleep = this.getPreparedStatement(conn, lockSleep)) {
+        stmtSleep.setInt(1, sleepLength);
+        stmtSleep.execute();
+      }
     }
-
-
+  }
 }

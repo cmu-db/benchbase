@@ -18,6 +18,8 @@
         ".devcontainer/scripts/initializeCommand"
     ],
     "runArgs": [
+        // Allow us to resolve the host network from inside the devcontainer.
+        "--add-host=host.docker.internal:host-gateway",
         // Secret injection as environment variables
         // https://code.visualstudio.com/remote/advancedcontainers/environment-variables#_option-2-use-an-env-file
         "--env-file=.env"
@@ -30,7 +32,7 @@
         "http_proxy": "${localEnv:http_proxy}",
         "https_proxy": "${localEnv:https_proxy}",
         "no_proxy": "${localEnv:no_proxy}",
-        "MAVEN_CONFIG": "${localEnv:HOME}/.m2",
+        "MAVEN_CONFIG_DIR": "${localEnv:HOME}/.m2",
         "LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}",
         "CONTAINER_WORKSPACE_FOLDER": "${containerWorkspaceFolder}"
     },
@@ -40,11 +42,14 @@
             "settings": {},
             // Add the IDs of extensions you want installed when the container is created.
             "extensions": [
-                "github.vscode-github-actions",
+                "EditorConfig.EditorConfig",
                 "GitHub.copilot",
                 "eamodio.gitlens",
-                "vscjava.vscode-java-pack",
-                "EditorConfig.EditorConfig"
+                "github.vscode-github-actions",
+                "github.vscode-pull-request-github",
+                "huntertran.auto-markdown-toc",
+                "redhat.fabric8-analytics",
+                "vscjava.vscode-java-pack"
             ]
         }
     },

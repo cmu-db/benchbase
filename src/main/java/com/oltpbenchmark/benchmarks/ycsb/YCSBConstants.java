@@ -19,23 +19,20 @@ package com.oltpbenchmark.benchmarks.ycsb;
 
 public abstract class YCSBConstants {
 
-    public static final int RECORD_COUNT = 1000;
+  public static final int RECORD_COUNT = 1000;
 
-    public static final int NUM_FIELDS = 10;
+  public static final int NUM_FIELDS = 10;
 
-    /**
-     * The max size of each field in the USERTABLE.
-     * NOTE: If you increase this value here in the code, then you must update all the DDL files.
-     */
-    public static final int MAX_FIELD_SIZE = 100; // chars
+  /**
+   * The max size of each field in the USERTABLE. NOTE: If you increase this value here in the code,
+   * then you must update all the DDL files.
+   */
+  public static final int MAX_FIELD_SIZE = 100; // chars
 
-    /**
-     * How many records will each thread load.
-     */
-    public static final int THREAD_BATCH_SIZE = 50000;
+  /** How many records will each thread load. */
+  public static final int THREAD_BATCH_SIZE = 50000;
 
-    public static final int MAX_SCAN = 1000;
+  public static final int MAX_SCAN = 1000;
 
-    public static final String TABLE_NAME = "usertable";
-
+  public static final String TABLE_NAME = "usertable";
 }

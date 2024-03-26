@@ -3,54 +3,56 @@
     <dialect type="ORACLE">
         <procedure name="GetAverageRatingByTrustedUser">
             <statement name="getAverageRating">
-                SELECT avg(rating) FROM "review" r, "trust" t WHERE r.u_id=t.target_u_id AND r.i_id=? AND t.source_u_id=?
+                SELECT avg(rating) FROM review r, trust t WHERE r.u_id=t.target_u_id AND r.i_id=? AND t.source_u_id=?
             </statement>
         </procedure>
         <procedure name="GetItemAverageRating">
             <statement name="getAverageRating">
-                SELECT avg(rating) FROM "review" r WHERE r.i_id=?
+                SELECT avg(rating) FROM review r WHERE r.i_id=?
             </statement>
         </procedure>
         <procedure name="GetItemReviewsByTrustedUser">
             <statement name="getReview">
-                SELECT * FROM "review" r WHERE r.i_id=? ORDER BY creation_date DESC
+                SELECT * FROM review r WHERE r.i_id=? ORDER BY creation_date DESC
             </statement>
             <statement name="getTrust">
-                SELECT * FROM "trust" t WHERE t.source_u_id=?
+                SELECT * FROM trust t WHERE t.source_u_id=?
             </statement>
-        </procedure> 
+        </procedure>
         <procedure name="GetReviewItemById">
             <statement name="getReviewItem">
-                SELECT * FROM "review" r, "item" i WHERE i.i_id = r.i_id and r.i_id=? AND ROWNUM &lt;= 10 
+                SELECT * FROM review r, item i WHERE i.i_id = r.i_id and r.i_id=?
                 ORDER BY rating DESC, r.creation_date DESC
+                FETCH NEXT 10 ROWS ONLY
             </statement>
         </procedure>
         <procedure name="GetReviewsByUser">
             <statement name="getReviewUser">
-                SELECT * FROM "review" r, "useracct" u WHERE u.u_id = r.u_id AND r.u_id=? AND ROWNUM &lt;= 10
+                SELECT * FROM review r, useracct u WHERE u.u_id = r.u_id AND r.u_id=?
                 ORDER BY rating DESC, r.creation_date DESC
+                FETCH NEXT 10 ROWS ONLY
             </statement>
         </procedure>
         <procedure name="UpdateItemTitle">
             <statement name="updateItem">
-                UPDATE "item" SET title = ? WHERE i_id=?
+                UPDATE item SET title = ? WHERE i_id=?
             </statement>
         </procedure>
         <procedure name="UpdateReviewRating">
             <statement name="updateReview">
-                UPDATE "review" SET rating = ? WHERE i_id=? AND u_id=?
+                UPDATE review SET rating = ? WHERE i_id=? AND u_id=?
             </statement>
         </procedure>
         <procedure name="UpdateTrustRating">
             <statement name="updateTrust">
-                UPDATE "trust" SET trust = ? WHERE source_u_id=? AND target_u_id=?
+                UPDATE trust SET trust = ? WHERE source_u_id=? AND target_u_id=?
             </statement>
         </procedure>
         <procedure name="UpdateUserName">
             <statement name="updateUser">
-                UPDATE "useracct" SET name = ? WHERE u_id=?
+                UPDATE useracct SET name = ? WHERE u_id=?
             </statement>
-        </procedure>       
+        </procedure>
     </dialect>
 </dialects>
 

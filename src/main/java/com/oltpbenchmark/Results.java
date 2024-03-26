@@ -15,112 +15,128 @@
  *
  */
 
-
 package com.oltpbenchmark;
 
 import com.oltpbenchmark.LatencyRecord.Sample;
 import com.oltpbenchmark.api.TransactionType;
+import com.oltpbenchmark.types.State;
 import com.oltpbenchmark.util.Histogram;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public final class Results {
 
-    private final long nanoseconds;
-    private final int measuredRequests;
-    private final DistributionStatistics distributionStatistics;
-    private final List<LatencyRecord.Sample> latencySamples;
-    private final Histogram<TransactionType> unknown = new Histogram<>(false);
-    private final Histogram<TransactionType> success = new Histogram<>(true);
-    private final Histogram<TransactionType> abort = new Histogram<>(false);
-    private final Histogram<TransactionType> retry = new Histogram<>(false);
-    private final Histogram<TransactionType> error = new Histogram<>(false);
-    private final Histogram<TransactionType> retryDifferent = new Histogram<>(false);
-    private final Map<TransactionType, Histogram<String>> abortMessages = new HashMap<>();
+  private final State state;
+  private final long startTimestampMs;
+  private final long nanoseconds;
+  private final int measuredRequests;
+  private final DistributionStatistics distributionStatistics;
+  private final List<LatencyRecord.Sample> latencySamples;
+  private final Histogram<TransactionType> unknown = new Histogram<>(false);
+  private final Histogram<TransactionType> success = new Histogram<>(true);
+  private final Histogram<TransactionType> abort = new Histogram<>(false);
+  private final Histogram<TransactionType> retry = new Histogram<>(false);
+  private final Histogram<TransactionType> error = new Histogram<>(false);
+  private final Histogram<TransactionType> retryDifferent = new Histogram<>(false);
+  private final Map<TransactionType, Histogram<String>> abortMessages = new HashMap<>();
 
-    public Results(long nanoseconds, int measuredRequests, DistributionStatistics distributionStatistics, final List<LatencyRecord.Sample> latencySamples) {
-        this.nanoseconds = nanoseconds;
-        this.measuredRequests = measuredRequests;
-        this.distributionStatistics = distributionStatistics;
+  public Results(
+      State state,
+      long startTimestampMs,
+      long elapsedNanoseconds,
+      int measuredRequests,
+      DistributionStatistics distributionStatistics,
+      final List<LatencyRecord.Sample> latencySamples) {
+    this.startTimestampMs = startTimestampMs;
+    this.nanoseconds = elapsedNanoseconds;
+    this.measuredRequests = measuredRequests;
+    this.distributionStatistics = distributionStatistics;
+    this.state = state;
 
-        if (distributionStatistics == null) {
-            this.latencySamples = null;
-        } else {
-            // defensive copy
-            this.latencySamples = List.copyOf(latencySamples);
-
-        }
+    if (distributionStatistics == null) {
+      this.latencySamples = null;
+    } else {
+      // defensive copy
+      this.latencySamples = List.copyOf(latencySamples);
     }
+  }
 
-    public DistributionStatistics getDistributionStatistics() {
-        return distributionStatistics;
-    }
+  public State getState() {
+    return state;
+  }
 
-    public Histogram<TransactionType> getSuccess() {
-        return success;
-    }
+  public DistributionStatistics getDistributionStatistics() {
+    return distributionStatistics;
+  }
 
-    public Histogram<TransactionType> getUnknown() {
-        return unknown;
-    }
+  public Histogram<TransactionType> getSuccess() {
+    return success;
+  }
 
-    public Histogram<TransactionType> getAbort() {
-        return abort;
-    }
+  public Histogram<TransactionType> getUnknown() {
+    return unknown;
+  }
 
-    public Histogram<TransactionType> getRetry() {
-        return retry;
-    }
+  public Histogram<TransactionType> getAbort() {
+    return abort;
+  }
 
-    public Histogram<TransactionType> getError() {
-        return error;
-    }
+  public Histogram<TransactionType> getRetry() {
+    return retry;
+  }
 
-    public Histogram<TransactionType> getRetryDifferent() {
-        return retryDifferent;
-    }
+  public Histogram<TransactionType> getError() {
+    return error;
+  }
 
-    public Map<TransactionType, Histogram<String>> getAbortMessages() {
-        return abortMessages;
-    }
+  public Histogram<TransactionType> getRetryDifferent() {
+    return retryDifferent;
+  }
 
-    public double requestsPerSecondThroughput() {
-        return (double) measuredRequests / (double) nanoseconds * 1e9;
-    }
+  public Map<TransactionType, Histogram<String>> getAbortMessages() {
+    return abortMessages;
+  }
 
-    public double requestsPerSecondGoodput() {
-        return (double) success.getSampleCount() / (double) nanoseconds * 1e9;
-    }
+  public double requestsPerSecondThroughput() {
+    return (double) measuredRequests / (double) nanoseconds * 1e9;
+  }
 
-    public List<Sample> getLatencySamples() {
-        return latencySamples;
-    }
+  public double requestsPerSecondGoodput() {
+    return (double) success.getSampleCount() / (double) nanoseconds * 1e9;
+  }
 
-    public long getNanoseconds() {
-        return nanoseconds;
-    }
+  public List<Sample> getLatencySamples() {
+    return latencySamples;
+  }
 
-    public int getMeasuredRequests() {
-        return measuredRequests;
-    }
+  public long getStartTimestampMs() {
+    return startTimestampMs;
+  }
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Results(nanoSeconds=");
-        sb.append(nanoseconds);
-        sb.append(", measuredRequests=");
-        sb.append(measuredRequests);
-        sb.append(") = ");
-        sb.append(requestsPerSecondThroughput());
-        sb.append(" requests/sec (throughput)");
-        sb.append(", ");
-        sb.append(requestsPerSecondGoodput());
-        sb.append(" requests/sec (goodput)");
-        return sb.toString();
-    }
+  public long getNanoseconds() {
+    return nanoseconds;
+  }
 
+  public int getMeasuredRequests() {
+    return measuredRequests;
+  }
 
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("Results(state=");
+    sb.append(state);
+    sb.append(", nanoSeconds=");
+    sb.append(nanoseconds);
+    sb.append(", measuredRequests=");
+    sb.append(measuredRequests);
+    sb.append(") = ");
+    sb.append(requestsPerSecondThroughput());
+    sb.append(" requests/sec (throughput)");
+    sb.append(", ");
+    sb.append(requestsPerSecondGoodput());
+    sb.append(" requests/sec (goodput)");
+    return sb.toString();
+  }
 }

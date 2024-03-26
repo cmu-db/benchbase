@@ -221,15 +221,17 @@ Please see the existing MySQL and PostgreSQL code for an example.
 
 ## Contributing
 
-We welcome all contributions! Please open a pull request. Common contributions may include:
+We welcome all contributions! Please open a [pull request](https://github.com/cmu-db/benchbase/pulls). Common contributions may include:
 
 - Adding support for a new DBMS.
 - Adding more tests of existing benchmarks.
 - Fixing any bugs or known issues.
 
+Please see the [CONTRIBUTING.md](./CONTRIBUTING.md) for addition notes.
+
 ## Known Issues
 
-Please use GitHub's issue tracker for all issues.
+Please use [GitHub's issue tracker](https://github.com/cmu-db/benchbase/issues) for all issues.
 
 ## Credits
 
@@ -239,7 +241,7 @@ The original OLTPBench code was largely written by the authors of the original p
 
 A significant portion of the modernization was contributed by [Tim Veil @ Cockroach Labs](https://github.com/timveil-cockroach), including but not limited to:
 
-* Built with and for Java ~~11~~ 17.
+* Built with and for Java ~~17~~ 21.
 * Migration from Ant to Maven.
   * Reorganized project to fit Maven structure.
   * Removed static `lib` directory and dependencies.

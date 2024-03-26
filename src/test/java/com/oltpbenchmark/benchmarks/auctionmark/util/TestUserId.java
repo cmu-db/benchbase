@@ -14,165 +14,152 @@
  *  limitations under the License.                                            *
  ******************************************************************************/
 
-
 package com.oltpbenchmark.benchmarks.auctionmark.util;
 
-import static junit.framework.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import com.oltpbenchmark.util.Histogram;
-import org.junit.Test;
-
 import java.util.*;
+import org.junit.Test;
 
 public class TestUserId {
 
-    private static final Random rand = new Random(1);
+  private static final Random rand = new Random(1);
 
-    /**
-     * testUserId
-     */
-    @Test
-    public void testUserId() {
-        for (int i = 0; i < 100; i++) {
-            int size = rand.nextInt(10000);
-            for (int offset = 0; offset < 10; offset++) {
-                UserId user_id = new UserId(size, offset);
-                assertNotNull(user_id);
-                assertEquals(size, user_id.getItemCount());
-                assertEquals(offset, user_id.getOffset());
-            } // FOR
-        } // FOR
+  /** testUserId */
+  @Test
+  public void testUserId() {
+    for (int i = 0; i < 100; i++) {
+      int size = rand.nextInt(10000);
+      for (int offset = 0; offset < 10; offset++) {
+        UserId user_id = new UserId(size, offset);
+        assertNotNull(user_id);
+        assertEquals(size, user_id.getItemCount());
+        assertEquals(offset, user_id.getOffset());
+      } // FOR
+    } // FOR
+  }
+
+  /** testEquals */
+  //    @Test
+  //    public void testEquals() {
+  //        UserId user_id = new UserId(rand.nextLong());
+  //        assert (user_id.getItemCount() > 0);
+  //        assert (user_id.getOffset() > 0);
+  //
+  //        UserId clone = new UserId(user_id.getItemCount(), user_id.getOffset());
+  //        assertEquals(user_id, clone);
+  //        assertEquals(user_id.hashCode(), clone.hashCode());
+  //        assertEquals(0, user_id.compareTo(clone));
+  //    }
+
+  /** testCompareTo */
+  @Test
+  public void testCompareTo() throws Throwable {
+    Histogram<UserId> h = new Histogram<UserId>();
+    List<UserId> orig = new ArrayList<UserId>();
+
+    Set<String> seen_encode = new HashSet<>();
+    Set<Integer> seen_hash = new HashSet<Integer>();
+    Set<String[]> seen_array = new HashSet<>();
+    SortedMap<UserId, Boolean> seen_map = new TreeMap<UserId, Boolean>();
+
+    int num_ids = 100;
+    for (int i = 0; i < num_ids; i++) {
+      UserId user_id = new UserId(rand.nextInt(Integer.MAX_VALUE), rand.nextInt(Integer.MAX_VALUE));
+      assert (user_id.getItemCount() > 0);
+      assert (user_id.getOffset() > 0);
+      if (orig.contains(user_id)) {
+        i--;
+        continue;
+      }
+
+      //            System.err.println(String.format("[%02d] %-50s => %d / %d %s%s%s%s",
+      //                    h.getValueCount(), user_id, user_id.hashCode(), user_id.encode(),
+      //                    (seen_hash.contains(user_id.hashCode()) ? "!!! HASH" : ""),
+      //                    (seen_encode.contains(user_id.encode()) ? "!!! ENCODE" : ""),
+      //                    (seen_array.contains(user_id.toArray()) ? "!!! ARRAY" : ""),
+      //                    (seen_map.containsKey(user_id) ? "!!! MAP" : "")
+      //            ));
+
+      h.put(user_id, i + 1);
+      assertTrue(user_id.toString(), h.contains(user_id));
+      assertNotNull(user_id.toString(), h.get(user_id));
+      assertEquals(user_id.toString(), i + 1, h.get(user_id).intValue());
+      assertEquals(i + 1, h.getValueCount());
+
+      orig.add(user_id);
+      seen_hash.add(user_id.hashCode());
+      seen_encode.add(user_id.encode());
+      seen_array.add(user_id.toArray());
+      seen_map.put(user_id, true);
+    } // FOR
+    assertEquals(num_ids, orig.size());
+    assertEquals(num_ids, h.values().size());
+    assertEquals(num_ids, h.getValueCount());
+    assertEquals(num_ids, seen_hash.size());
+    assertEquals(num_ids, seen_encode.size());
+
+    for (int i = 0; i < num_ids; i++) {
+      UserId user_id = orig.get(i);
+      assertTrue(user_id.toString(), seen_encode.contains(user_id.encode()));
+      assertTrue(user_id.toString(), seen_hash.contains(user_id.hashCode()));
+      assertTrue(user_id.toString(), seen_map.containsKey(user_id));
+      assertNotNull(user_id.toString(), h.get(user_id));
+      assertEquals(user_id.toString(), i + 1, h.get(user_id).intValue());
     }
 
-    /**
-     * testEquals
-     */
-//    @Test
-//    public void testEquals() {
-//        UserId user_id = new UserId(rand.nextLong());
-//        assert (user_id.getItemCount() > 0);
-//        assert (user_id.getOffset() > 0);
-//
-//        UserId clone = new UserId(user_id.getItemCount(), user_id.getOffset());
-//        assertEquals(user_id, clone);
-//        assertEquals(user_id.hashCode(), clone.hashCode());
-//        assertEquals(0, user_id.compareTo(clone));
-//    }
+    // Randomly delete a bunch and make sure that they're not in our histogram anymore
+    Set<UserId> deleted = new HashSet<UserId>();
+    for (int i = 0; i < num_ids; i++) {
+      if (rand.nextBoolean()) {
+        UserId user_id = orig.get(i);
+        assertNotNull(user_id);
+        h.removeAll(user_id);
+        deleted.add(user_id);
+      }
+    } // FOR
+    assertFalse(deleted.isEmpty());
+    assertEquals(orig.size() - deleted.size(), h.getValueCount());
+    for (UserId user_id : orig) {
+      assertEquals(user_id.toString(), !deleted.contains(user_id), h.contains(user_id));
+    } // FOR
+  }
 
-    /**
-     * testCompareTo
-     */
-    @Test
-    public void testCompareTo() throws Throwable {
-        Histogram<UserId> h = new Histogram<UserId>();
-        List<UserId> orig = new ArrayList<UserId>();
+  /** testUserIdEncode */
+  @Test
+  public void testUserIdEncode() {
+    for (int i = 0; i < 100; i++) {
+      int size = rand.nextInt(10000);
+      for (int offset = 0; offset < 10; offset++) {
+        String encoded = new UserId(size, offset).encode();
 
-        Set<String> seen_encode = new HashSet<>();
-        Set<Integer> seen_hash = new HashSet<Integer>();
-        Set<String[]> seen_array = new HashSet<>();
-        SortedMap<UserId, Boolean> seen_map = new TreeMap<UserId, Boolean>();
+        UserId user_id = new UserId(encoded);
+        assertNotNull(user_id);
+        assertEquals(size, user_id.getItemCount());
+        assertEquals(offset, user_id.getOffset());
+      } // FOR
+    } // FOR
+  }
 
-        int num_ids = 100;
-        for (int i = 0; i < num_ids; i++) {
-            UserId user_id = new UserId(rand.nextInt(Integer.MAX_VALUE), rand.nextInt(Integer.MAX_VALUE));
-            assert (user_id.getItemCount() > 0);
-            assert (user_id.getOffset() > 0);
-            if (orig.contains(user_id)) {
-                i--;
-                continue;
-            }
+  /** testUserIdDecode */
+  @Test
+  public void testUserIdDecode() {
+    for (int i = 0; i < 100; i++) {
+      int size = rand.nextInt(10000);
+      for (int offset = 0; offset < 10; offset++) {
+        String[] values = {Integer.toString(size), Integer.toString(offset)};
+        String encoded = new UserId(size, offset).encode();
 
-//            System.err.println(String.format("[%02d] %-50s => %d / %d %s%s%s%s",
-//                    h.getValueCount(), user_id, user_id.hashCode(), user_id.encode(),
-//                    (seen_hash.contains(user_id.hashCode()) ? "!!! HASH" : ""),
-//                    (seen_encode.contains(user_id.encode()) ? "!!! ENCODE" : ""),
-//                    (seen_array.contains(user_id.toArray()) ? "!!! ARRAY" : ""),
-//                    (seen_map.containsKey(user_id) ? "!!! MAP" : "")
-//            ));
-
-            h.put(user_id, i + 1);
-            assertTrue(user_id.toString(), h.contains(user_id));
-            assertNotNull(user_id.toString(), h.get(user_id));
-            assertEquals(user_id.toString(), i + 1, h.get(user_id).intValue());
-            assertEquals(i + 1, h.getValueCount());
-
-            orig.add(user_id);
-            seen_hash.add(user_id.hashCode());
-            seen_encode.add(user_id.encode());
-            seen_array.add(user_id.toArray());
-            seen_map.put(user_id, true);
+        String[] new_values = new UserId(encoded).toArray();
+        assertEquals(values.length, new_values.length);
+        for (int j = 0; j < new_values.length; j++) {
+          assertEquals(values[j], new_values[j]);
         } // FOR
-        assertEquals(num_ids, orig.size());
-        assertEquals(num_ids, h.values().size());
-        assertEquals(num_ids, h.getValueCount());
-        assertEquals(num_ids, seen_hash.size());
-        assertEquals(num_ids, seen_encode.size());
-
-        for (int i = 0; i < num_ids; i++) {
-            UserId user_id = orig.get(i);
-            assertTrue(user_id.toString(), seen_encode.contains(user_id.encode()));
-            assertTrue(user_id.toString(), seen_hash.contains(user_id.hashCode()));
-            assertTrue(user_id.toString(), seen_map.containsKey(user_id));
-            assertNotNull(user_id.toString(), h.get(user_id));
-            assertEquals(user_id.toString(), i + 1, h.get(user_id).intValue());
-        }
-
-        // Randomly delete a bunch and make sure that they're not in our histogram anymore
-        Set<UserId> deleted = new HashSet<UserId>();
-        for (int i = 0; i < num_ids; i++) {
-            if (rand.nextBoolean()) {
-                UserId user_id = orig.get(i);
-                assertNotNull(user_id);
-                h.removeAll(user_id);
-                deleted.add(user_id);
-            }
-        } // FOR
-        assertFalse(deleted.isEmpty());
-        assertEquals(orig.size() - deleted.size(), h.getValueCount());
-        for (UserId user_id : orig) {
-            assertEquals(user_id.toString(), !deleted.contains(user_id), h.contains(user_id));
-        } // FOR
-
-    }
-
-    /**
-     * testUserIdEncode
-     */
-    @Test
-    public void testUserIdEncode() {
-        for (int i = 0; i < 100; i++) {
-            int size = rand.nextInt(10000);
-            for (int offset = 0; offset < 10; offset++) {
-                String encoded = new UserId(size, offset).encode();
-
-                UserId user_id = new UserId(encoded);
-                assertNotNull(user_id);
-                assertEquals(size, user_id.getItemCount());
-                assertEquals(offset, user_id.getOffset());
-            } // FOR
-        } // FOR
-    }
-
-    /**
-     * testUserIdDecode
-     */
-    @Test
-    public void testUserIdDecode() {
-        for (int i = 0; i < 100; i++) {
-            int size = rand.nextInt(10000);
-            for (int offset = 0; offset < 10; offset++) {
-                String[] values = {Integer.toString(size), Integer.toString(offset)};
-                String encoded = new UserId(size, offset).encode();
-
-                String[] new_values = new UserId(encoded).toArray();
-                assertEquals(values.length, new_values.length);
-                for (int j = 0; j < new_values.length; j++) {
-                    assertEquals(values[j], new_values[j]);
-                } // FOR
-            } // FOR
-        } // FOR
-    }
+      } // FOR
+    } // FOR
+  }
 }

@@ -20,18 +20,18 @@ package com.oltpbenchmark.api.collectors;
 import com.oltpbenchmark.types.DatabaseType;
 
 public class DBParameterCollectorGen {
-    public static DBParameterCollector getCollector(DatabaseType dbType, String dbUrl, String username, String password) {
-        switch (dbType) {
-
-            case MYSQL:
-            case MARIADB:
-                return new MySQLCollector(dbUrl, username, password);
-            case POSTGRES:
-                return new PostgresCollector(dbUrl, username, password);
-            case COCKROACHDB:
-                return new CockroachCollector(dbUrl, username, password);
-            default:
-                return new DBCollector();
-        }
+  public static DBParameterCollector getCollector(
+      DatabaseType dbType, String dbUrl, String username, String password) {
+    switch (dbType) {
+      case MYSQL:
+      case MARIADB:
+        return new MySQLCollector(dbUrl, username, password);
+      case POSTGRES:
+        return new PostgresCollector(dbUrl, username, password);
+      case COCKROACHDB:
+        return new CockroachCollector(dbUrl, username, password);
+      default:
+        return new DBCollector();
     }
+  }
 }

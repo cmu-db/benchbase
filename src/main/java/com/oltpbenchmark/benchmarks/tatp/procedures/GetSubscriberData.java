@@ -15,13 +15,11 @@
  *
  */
 
-
 package com.oltpbenchmark.benchmarks.tatp.procedures;
 
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.tatp.TATPConstants;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -29,14 +27,15 @@ import java.sql.SQLException;
 
 public class GetSubscriberData extends Procedure {
 
-    public final SQLStmt getSubscriber = new SQLStmt("SELECT * FROM " + TATPConstants.TABLENAME_SUBSCRIBER + " WHERE s_id = ?");
+  public final SQLStmt getSubscriber =
+      new SQLStmt("SELECT * FROM " + TATPConstants.TABLENAME_SUBSCRIBER + " WHERE s_id = ?");
 
-    public void run(Connection conn, long s_id) throws SQLException {
-        try (PreparedStatement stmt = this.getPreparedStatement(conn, getSubscriber)) {
-            stmt.setLong(1, s_id);
-            try (ResultSet results = stmt.executeQuery()) {
-
-            }
-        }
+  public void run(Connection conn, long s_id) throws SQLException {
+    try (PreparedStatement stmt = this.getPreparedStatement(conn, getSubscriber)) {
+      stmt.setLong(1, s_id);
+      try (ResultSet results = stmt.executeQuery()) {
+        assert results != null;
+      }
     }
+  }
 }

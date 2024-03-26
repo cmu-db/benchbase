@@ -19,14 +19,15 @@ package com.oltpbenchmark.benchmarks.tpch.procedures;
 
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.util.RandomGenerator;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class Q1 extends GenericQuery {
 
-    public final SQLStmt query_stmt = new SQLStmt("""
+  public final SQLStmt query_stmt =
+      new SQLStmt(
+          """
               SELECT
                  l_returnflag,
                  l_linestatus,
@@ -48,15 +49,15 @@ public class Q1 extends GenericQuery {
               ORDER BY
                  l_returnflag,
                  l_linestatus
-            """
-    );
+            """);
 
-    @Override
-    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
-        String delta = String.valueOf(rand.number(60, 120));
+  @Override
+  protected PreparedStatement getStatement(
+      Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
+    String delta = String.valueOf(rand.number(60, 120));
 
-        PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
-        stmt.setString(1, delta);
-        return stmt;
-    }
+    PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
+    stmt.setString(1, delta);
+    return stmt;
+  }
 }

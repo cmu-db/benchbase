@@ -22,42 +22,43 @@ import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.tpcds.procedures.Test;
+import java.util.ArrayList;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
+public final class TPCDSBenchmark extends BenchmarkModule {
+  private static final Logger LOG = LoggerFactory.getLogger(TPCDSBenchmark.class);
 
-public class TPCDSBenchmark extends BenchmarkModule {
-    private static final Logger LOG = LoggerFactory.getLogger(TPCDSBenchmark.class);
+  public TPCDSBenchmark(WorkloadConfiguration workConf) {
+    super(workConf);
+  }
 
-    public TPCDSBenchmark(WorkloadConfiguration workConf) {
-        super(workConf);
+  @Override
+  protected Package getProcedurePackageImpl() {
+    return (Test.class.getPackage());
+  }
+
+  @Override
+  protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
+    LOG.debug(
+        String.format(
+            "Initializing %d %s", this.workConf.getTerminals(), TPCDSWorker.class.getSimpleName()));
+
+    List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
+    try {
+      for (int i = 0; i < this.workConf.getTerminals(); ++i) {
+        TPCDSWorker worker = new TPCDSWorker(this, i);
+        workers.add(worker);
+      }
+    } catch (Exception e) {
+      LOG.error(e.getMessage(), e);
     }
+    return workers;
+  }
 
-    @Override
-    protected Package getProcedurePackageImpl() {
-        return (Test.class.getPackage());
-    }
-
-    @Override
-    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
-        LOG.debug(String.format("Initializing %d %s", this.workConf.getTerminals(), TPCDSWorker.class.getSimpleName()));
-
-        List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
-        try {
-            for (int i = 0; i < this.workConf.getTerminals(); ++i) {
-                TPCDSWorker worker = new TPCDSWorker(this, i);
-                workers.add(worker);
-            }
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-        }
-        return workers;
-    }
-
-    @Override
-    protected Loader<TPCDSBenchmark> makeLoaderImpl() {
-        return new TPCDSLoader(this);
-    }
+  @Override
+  protected Loader<TPCDSBenchmark> makeLoaderImpl() {
+    return new TPCDSLoader(this);
+  }
 }

@@ -26,8 +26,8 @@ else
 fi
 
 cd "$rootdir"
-MAVEN_CONFIG="${MAVEN_CONFIG:-$HOME/.m2}"
-mkdir -p "$MAVEN_CONFIG" || true
+MAVEN_CONFIG_DIR="${MAVEN_CONFIG_DIR:-$HOME/.m2}"
+mkdir -p "$MAVEN_CONFIG_DIR" || true
 set -x
 SRC_DIR="${LOCAL_WORKSPACE_FOLDER:-$PWD}"
 docker run ${INTERACTIVE_ARGS:-} --rm \
@@ -36,8 +36,8 @@ docker run ${INTERACTIVE_ARGS:-} --rm \
     --env BENCHBASE_PROFILES="$BENCHBASE_PROFILES" \
     --env CLEAN_BUILD="$CLEAN_BUILD" \
     --env SKIP_TESTS="$SKIP_TESTS" \
+    --env DO_FORMAT_CHECKS="$DO_FORMAT_CHECKS" \
     --env EXTRA_MAVEN_ARGS="${EXTRA_MAVEN_ARGS:-}" \
     --user "$CONTAINERUSER_UID:$CONTAINERUSER_GID" \
-    -v "$MAVEN_CONFIG:/home/containeruser/.m2" \
+    -v "$MAVEN_CONFIG_DIR:/home/containeruser/.m2" \
     -v "$SRC_DIR:/benchbase" benchbase-dev:latest $*
-set +x

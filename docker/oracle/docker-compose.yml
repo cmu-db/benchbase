@@ -1,0 +1,20 @@
+version: '3.5'
+
+services:
+  oracle:
+    image: gvenzl/oracle-xe:21.3.0-slim-faststart
+    container_name: oracle
+    ports:
+      - "1521:1521"
+      - "5500:5500"
+    environment:
+      - ORACLE_PASSWORD=password
+      - ORACLE_CHARACTERSET=AL32UTF8
+      - APP_USER=benchbase
+      - APP_USER_PASSWORD=password
+    healthcheck:
+      test: echo exit | sqlplus benchbase/password@xepdb1 | grep Connected
+      interval: 1s
+      timeout: 5s
+      retries: 30
+      start_period: 5s

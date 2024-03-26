@@ -7,9 +7,10 @@
 # Make sure any failure halts the rest of the operation.
 set -eu -o pipefail
 
-BENCHBASE_PROFILES="${BENCHBASE_PROFILES:-cockroachdb mariadb mysql postgres spanner phoenix sqlserver sqlite}"
+BENCHBASE_PROFILES="${BENCHBASE_PROFILES:-cockroachdb mariadb mysql oracle phoenix postgres spanner sqlite sqlserver}"
 CLEAN_BUILD="${CLEAN_BUILD:-true}"    # true, false, pre, post
 SKIP_TESTS="${SKIP_TESTS:-false}"
+DO_FORMAT_CHECKS="${DO_FORMAT_CHECKS:-false}"
 
 cd /benchbase
 mkdir -p results
@@ -31,7 +32,7 @@ function build_profile() {
     mkdir -p target/$profile
     # Build the profile without tests (we did that separately).
     mvn -T 2C -B --file pom.xml package -D descriptors=src/main/assembly/dir.xml -P $profile \
-        $SKIP_TEST_ARGS $EXTRA_MAVEN_ARGS -D buildDirectory=target/$profile
+        -Dfmt.skip $SKIP_TEST_ARGS $EXTRA_MAVEN_ARGS -D buildDirectory=target/$profile
     # Copy the resultant output to the profiles directory.
     cp -rlv target/$profile/benchbase-$profile/benchbase-$profile profiles/$profile
     # Later the container entrypoint will move into this directory to run it, so
@@ -95,10 +96,16 @@ else
     echo "WARNING: Unhandled SKIP_TESTS mode: '$SKIP_TESTS'" >&2
 fi
 
+# Pre format checks are mostly for CI.
+# Else, things are reformatted during compile.
+if [ "${DO_FORMAT_CHECKS:-}" == 'true' ]; then
+    mvn -B --file pom.xml fmt:check
+fi
+
 # Fetch resources serially to work around mvn races with downloading the same
 # file in multiple processes (mvn uses *.part instead of use tmpfile naming).
 for profile in ${BENCHBASE_PROFILES}; do
-    mvn -T2C -B --file pom.xml -D buildDirectory=target/$profile $EXTRA_MAVEN_ARGS process-resources dependency:copy-dependencies
+    mvn -T2C -B --file pom.xml -Dfmt.skip -D buildDirectory=target/$profile $EXTRA_MAVEN_ARGS process-resources dependency:copy-dependencies
 done
 
 # Make sure that we've built the base stuff (and test) before we build individual profiles.
@@ -113,7 +120,13 @@ for profile in ${BENCHBASE_PROFILES}; do
 done
 wait
 
-deduplicate_profile_files
+FIRST_BENCHBASE_PROFILE=$(echo "$BENCHBASE_PROFILES" | awk '{ print $1 }')
+if [ "$FIRST_BENCHBASE_PROFILE" == "$BENCHBASE_PROFILES" ]; then
+    echo "INFO: Single profile build: $FIRST_BENCHBASE_PROFILE. Skipping file dedup."
+else
+    echo "INFO: deduplicating files in combo build."
+    deduplicate_profile_files
+fi
 
 for profile in ${BENCHBASE_PROFILES}; do
     test_profile_build "$profile" || exit 1

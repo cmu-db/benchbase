@@ -15,29 +15,38 @@
  *
  */
 
-
 package com.oltpbenchmark.benchmarks.chbenchmark.pojo;
 
-//>>> CH-benCHmark
+// >>> CH-benCHmark
 public class Supplier {
 
-    public int su_suppkey; // PRIMARY KEY
-    public String su_name;
-    public String su_address;
-    public int su_nationkey;
-    public String su_phone;
-    public float su_acctbal;
-    public String su_comment;
+  public int su_suppkey; // PRIMARY KEY
+  public String su_name;
+  public String su_address;
+  public int su_nationkey;
+  public String su_phone;
+  public float su_acctbal;
+  public String su_comment;
 
-    @Override
-    public String toString() {
-        return ("\n***************** Supplier ********************"
-                + "\n*    su_suppkey = " + su_suppkey + "\n*  su_name = " + su_name
-                + "\n*    su_address = " + su_address + "\n*  su_nationkey = " + su_nationkey
-                + "\n*    su_phone = " + su_phone + "\n*  su_acctbal = " + su_acctbal
-                + "\n* su_comment = " + su_comment + "\n**********************************************");
-    }
-
+  @Override
+  public String toString() {
+    return ("\n***************** Supplier ********************"
+        + "\n*    su_suppkey = "
+        + su_suppkey
+        + "\n*  su_name = "
+        + su_name
+        + "\n*    su_address = "
+        + su_address
+        + "\n*  su_nationkey = "
+        + su_nationkey
+        + "\n*    su_phone = "
+        + su_phone
+        + "\n*  su_acctbal = "
+        + su_acctbal
+        + "\n* su_comment = "
+        + su_comment
+        + "\n**********************************************");
+  }
 }
 
-//<<< CH-benCHmark
+// <<< CH-benCHmark

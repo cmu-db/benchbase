@@ -18,6 +18,11 @@ scriptdir=$(dirname "$(readlink -f "$0")")
 rootdir=$(readlink -f "$scriptdir/..")
 cd "$rootdir"
 
+# Do the rebuild (if necessary) build first.
+if [ "${BUILD_IMAGE:-true}" != "false" ]; then
+    SKIP_TESTS=${SKIP_TESTS:-true} ./docker/benchbase/build-full-image.sh
+fi
+
 EXTRA_DOCKER_ARGS=''
 if [ "$BENCHBASE_PROFILE" == 'sqlite' ]; then
     # Map the sqlite db back to the host.
@@ -27,6 +32,11 @@ if [ "$BENCHBASE_PROFILE" == 'sqlite' ]; then
         SRC_DIR="$LOCAL_WORKSPACE_FOLDER"
     fi
     EXTRA_DOCKER_ARGS="-v $SRC_DIR/$benchmark.db:/benchbase/profiles/sqlite/$benchmark.db"
+
+    if [ "$benchmark" == 'templated' ]; then
+        # See notes below:
+        EXTRA_DOCKER_ARGS+=" -v $SRC_DIR/$benchmark.db:/benchbase/profiles/sqlite/tpcc.db"
+    fi
 else
     if [ ! -x "docker/${BENCHBASE_PROFILE}-${PROFILE_VERSION}/up.sh" ]; then
         echo "ERROR: No docker up.sh script available for '$BENCHBASE_PROFILE'"
@@ -35,15 +45,52 @@ else
     "./docker/${BENCHBASE_PROFILE}-${PROFILE_VERSION}/up.sh"
 fi
 
-CREATE_DB_ARGS='--create=true --load=true'
-if [ "${SKIP_LOAD_DB:-false}" == 'true' ]; then
-    CREATE_DB_ARGS=''
+if [ "${SKIP_LOAD_DB:-false}" != 'true' ]; then
+    # For templated benchmarks, we need to preload some data for the test since by
+    # design, templated benchmarks do not support the 'load' operation
+    # In this case, we load the tpcc data.
+    if [ "$benchmark" == 'templated' ]; then
+        load_benchmark='tpcc'
+
+        echo "INFO: Loading tpcc data for templated benchmark"
+        if [ "$BENCHBASE_PROFILE" == 'sqlite' ]; then
+            # Sqlite will load much faster if we disable sync.
+            config="config/sample_tpcc_nosync_config.xml"
+        else
+            config="config/sample_tpcc_config.xml"
+        fi
+    else
+        echo "INFO: Loading $benchmark data"
+        load_benchmark="$benchmark"
+        config="config/sample_${benchmark}_config.xml"
+    fi
+    BUILD_IMAGE=false EXTRA_DOCKER_ARGS="--network=host $EXTRA_DOCKER_ARGS" \
+    ./docker/benchbase/run-full-image.sh \
+        --config "$config" --bench "$load_benchmark" \
+        --create=true --load=true --execute=false
+else
+    echo "INFO: Skipping load of $benchmark data"
 fi
 
-SKIP_TESTS=${SKIP_TESTS:-true} EXTRA_DOCKER_ARGS="--network=host $EXTRA_DOCKER_ARGS" \
+if [ "${WITH_SERVICE_INTERRUPTIONS:-false}" == 'true' ]; then
+    # Randomly interrupt the docker db service by killing it.
+    # Used to test connection error handling during a benchmark.
+    (sleep 10 && ./scripts/interrupt-docker-db-service.sh "$BENCHBASE_PROFILE") &
+fi
+
+rm -f results/histograms.json
+BUILD_IMAGE=false EXTRA_DOCKER_ARGS="--network=host $EXTRA_DOCKER_ARGS" \
 ./docker/benchbase/run-full-image.sh \
     --config "config/sample_${benchmark}_config.xml" --bench "$benchmark" \
-    $CREATE_DB_ARGS --execute=true \
+    --create=false --load=false --execute=true \
     --sample 1 --interval-monitor 1000 \
     --json-histograms results/histograms.json
+rc=$?
+wait    # for the interrupt script, if any
+if [ $rc -ne 0 ]; then
+    echo "ERROR: benchmark execution failed with exit code $rc" >&2
+    exit $rc
+fi
+# else, check that the results look ok
+./scripts/check_latest_benchmark_results.sh "$benchmark"
 ./scripts/check_histogram_results.sh results/histograms.json

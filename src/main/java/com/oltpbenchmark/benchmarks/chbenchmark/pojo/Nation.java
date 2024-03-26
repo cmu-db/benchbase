@@ -15,25 +15,29 @@
  *
  */
 
-
 package com.oltpbenchmark.benchmarks.chbenchmark.pojo;
 
-//>>> CH-benCHmark
+// >>> CH-benCHmark
 public class Nation {
 
-    public int n_nationkey; // PRIMARY KEY
-    public String n_name;
-    public int n_regionkey;
-    public String n_comment;
+  public int n_nationkey; // PRIMARY KEY
+  public String n_name;
+  public int n_regionkey;
+  public String n_comment;
 
-    @Override
-    public String toString() {
-        return ("\n***************** Nation ********************"
-                + "\n*    n_nationkey = " + n_nationkey + "\n*  n_name = " + n_name
-                + "\n*    n_regionkey = " + n_regionkey + "\n*  n_comment = " + n_comment
-                + "\n**********************************************");
-    }
-
+  @Override
+  public String toString() {
+    return ("\n***************** Nation ********************"
+        + "\n*    n_nationkey = "
+        + n_nationkey
+        + "\n*  n_name = "
+        + n_name
+        + "\n*    n_regionkey = "
+        + n_regionkey
+        + "\n*  n_comment = "
+        + n_comment
+        + "\n**********************************************");
+  }
 }
 
-//<<< CH-benCHmark
+// <<< CH-benCHmark

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    This schema describes the dialects XML file for a benchmark
+
+    If you modify this schema, you must regenerate the jaxb
+    bindings. It's easy to do:
+
+    cd src/
+    xjc -p main.java.com.oltpbenchmark.api.templates main/resources/templates.xsd
+
+    You can check that changes to this file produce a valid schema using
+    the public tool at http://www.w3.org/2001/03/webdata/xsv.
+
+    For more information about jaxb, see:
+    http://java.sun.com/developer/technicalArticles/WebServices/jaxb/
+-->
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            elementFormDefault="unqualified">
+
+    <!-- <templates> -->
+    <xsd:element name="templates" type="templatesType"/>
+    <xsd:complexType name="templatesType">
+        <xsd:sequence>
+            <xsd:element name="template" type="templateType" minOccurs="1" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <!-- <template> -->
+    <xsd:complexType name="templateType">
+        <xsd:sequence>
+            <xsd:element name="query" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+            <xsd:element name="types" type="typesType" minOccurs="1" maxOccurs="1"/>
+            <xsd:element name="values" type="valuesType" minOccurs="1" maxOccurs="unbounded"/>
+        </xsd:sequence>
+        <xsd:attribute name="name" type="xsd:string" use="required"/>
+    </xsd:complexType>
+
+    <!-- <types> -->
+    <xsd:complexType name="typesType">
+        <xsd:sequence>
+            <xsd:element name="type" type="xsd:string" minOccurs="1" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <!-- <values> -->
+    <xsd:complexType name="valuesType">
+        <xsd:sequence>
+            <xsd:element name="value" type="valueType" minOccurs="1" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+
+<!-- <value> -->
+  <xsd:complexType name="valueType">
+    <xsd:simpleContent>
+      <xsd:extension base="xsd:string">
+        <xsd:attribute name="dist" type="xsd:string"/>
+        <xsd:attribute name="min" type="xsd:string"/>
+        <xsd:attribute name="max" type="xsd:string"/>
+        <xsd:attribute name="seed" type="xsd:string"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+
+</xsd:schema>
+

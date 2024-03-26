@@ -24,69 +24,65 @@ import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.hyadapt.procedures.ReadRecord1;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class HYADAPTBenchmark extends BenchmarkModule {
-    private static final Logger LOG = LoggerFactory.getLogger(HYADAPTBenchmark.class);
+public final class HYADAPTBenchmark extends BenchmarkModule {
+  private static final Logger LOG = LoggerFactory.getLogger(HYADAPTBenchmark.class);
 
-    public HYADAPTBenchmark(WorkloadConfiguration workConf) {
-        super(workConf);
-    }
+  public HYADAPTBenchmark(WorkloadConfiguration workConf) {
+    super(workConf);
+  }
 
-    @Override
-    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
-        List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
+  @Override
+  protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
+    List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
 
+    // LOADING FROM THE DATABASE IMPORTANT INFORMATION
+    // LIST OF USERS
 
-        // LOADING FROM THE DATABASE IMPORTANT INFORMATION
-        // LIST OF USERS
+    Table t = this.getCatalog().getTable("HTABLE");
 
-        Table t = this.getCatalog().getTable("HTABLE");
+    String userCount = SQLUtil.getCountSQL(this.workConf.getDatabaseType(), t);
+    int init_record_count = 0;
+    try (Connection metaConn = this.makeConnection()) {
 
-        String userCount = SQLUtil.getCountSQL(this.workConf.getDatabaseType(), t);
-        int init_record_count = 0;
-        try (Connection metaConn = this.makeConnection()) {
-
-            try (Statement stmt = metaConn.createStatement()) {
-                try (ResultSet res = stmt.executeQuery(userCount)) {
-                    while (res.next()) {
-                        init_record_count = res.getInt(1);
-                    }
-
-                }
-            }
-            //
-            for (int i = 0; i < workConf.getTerminals(); ++i) {
-//                Connection conn = this.makeConnection();
-//                conn.setAutoCommit(false);
-                workers.add(new HYADAPTWorker(this, i, init_record_count + 1));
-            }
-
-            LOG.info("Init Record Count :: {}", init_record_count);
-        } catch (SQLException e) {
-            LOG.error(e.getMessage(), e);
+      try (Statement stmt = metaConn.createStatement()) {
+        try (ResultSet res = stmt.executeQuery(userCount)) {
+          while (res.next()) {
+            init_record_count = res.getInt(1);
+          }
         }
+      }
+      //
+      for (int i = 0; i < workConf.getTerminals(); ++i) {
+        //                Connection conn = this.makeConnection();
+        //                conn.setAutoCommit(false);
+        workers.add(new HYADAPTWorker(this, i, init_record_count + 1));
+      }
 
-        return workers;
+      LOG.info("Init Record Count :: {}", init_record_count);
+    } catch (SQLException e) {
+      LOG.error(e.getMessage(), e);
     }
 
-    @Override
-    protected Loader<HYADAPTBenchmark> makeLoaderImpl() {
-        return new HYADAPTLoader(this);
-    }
+    return workers;
+  }
 
-    @Override
-    protected Package getProcedurePackageImpl() {
-        // TODO Auto-generated method stub
-        return ReadRecord1.class.getPackage();
-    }
+  @Override
+  protected Loader<HYADAPTBenchmark> makeLoaderImpl() {
+    return new HYADAPTLoader(this);
+  }
 
+  @Override
+  protected Package getProcedurePackageImpl() {
+    // TODO Auto-generated method stub
+    return ReadRecord1.class.getPackage();
+  }
 }

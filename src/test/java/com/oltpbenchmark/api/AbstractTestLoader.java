@@ -14,96 +14,116 @@
  *  limitations under the License.                                            *
  ******************************************************************************/
 
-
 package com.oltpbenchmark.api;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.Histogram;
 import com.oltpbenchmark.util.SQLUtil;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractTestLoader<T extends BenchmarkModule> extends AbstractTestCase<T> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractTestLoader.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractTestLoader.class);
 
-    public AbstractTestLoader() {
-        super(true, false);
+  public AbstractTestLoader() {
+    super(true, false);
+  }
+
+  @Override
+  public List<String> ignorableTables() {
+    return null;
+  }
+
+  /** testLoad */
+  @Test
+  public void testLoad() throws Exception {
+
+    this.benchmark.loadDatabase();
+
+    validateLoad();
+  }
+
+  /** testLoad with after load script */
+  @Test
+  public void testLoadWithAfterLoad() throws Exception {
+    this.benchmark.setAfterLoadScriptPath("/after-load.sql");
+
+    this.benchmark.loadDatabase();
+
+    // A table called extra is added with after-load, with one entry zero
+    try (PreparedStatement stmt = conn.prepareStatement("SELECT * FROM extra");
+        ResultSet rs = stmt.executeQuery()) {
+      while (rs.next()) {
+        assertEquals(
+            "Table 'extra' from after-load.sql has value different than 0", rs.getInt(1), 0);
+      }
+    } catch (Exception e) {
+      fail("Table 'extra' from after-load.sql was not created");
     }
 
-    @Override
-    public List<String> ignorableTables() {
-        return null;
+    validateLoad();
+  }
+
+  private void validateLoad() throws SQLException {
+    assertFalse(
+        "Failed to get table names for " + benchmark.getBenchmarkName().toUpperCase(),
+        this.catalog.getTables().isEmpty());
+
+    LOG.debug("Computing the size of the tables");
+    Histogram<String> tableSizes = new Histogram<String>(true);
+
+    for (Table table : this.catalog.getTables()) {
+      String tableName = table.getName();
+      Table catalog_tbl = this.catalog.getTable(tableName);
+
+      String sql = SQLUtil.getCountSQL(this.workConf.getDatabaseType(), catalog_tbl);
+
+      try (Statement stmt = conn.createStatement();
+          ResultSet result = stmt.executeQuery(sql); ) {
+
+        assertNotNull(result);
+
+        boolean adv = result.next();
+        assertTrue(sql, adv);
+
+        int count = result.getInt(1);
+        LOG.debug(sql + " => " + count);
+        tableSizes.put(tableName, count);
+      }
     }
 
-    /**
-     * testLoad
-     */
-    @Test
-    public void testLoad() throws Exception {
+    LOG.debug("=== TABLE SIZES ===\n" + tableSizes);
+    assertFalse(
+        "Unable to compute the tables size for " + benchmark.getBenchmarkName().toUpperCase(),
+        tableSizes.isEmpty());
 
-        this.benchmark.loadDatabase();
+    for (String tableName : tableSizes.values()) {
+      long count = tableSizes.get(tableName);
 
-        validateLoad();
+      if (ignorableTables() != null
+          && ignorableTables().stream().anyMatch(tableName::equalsIgnoreCase)) {
+        continue;
+      }
 
+      assert (count > 0) : "No tuples were inserted for table " + tableName;
     }
+  }
 
-    private void validateLoad() throws SQLException {
-        assertFalse("Failed to get table names for " + benchmark.getBenchmarkName().toUpperCase(), this.catalog.getTables().isEmpty());
+  public Loader<? extends BenchmarkModule> testLoadWithReturn() throws Exception {
+    Loader<? extends BenchmarkModule> loader = this.benchmark.loadDatabase();
 
+    validateLoad();
 
-        LOG.debug("Computing the size of the tables");
-        Histogram<String> tableSizes = new Histogram<String>(true);
-
-        for (Table table : this.catalog.getTables()) {
-            String tableName = table.getName();
-            Table catalog_tbl = this.catalog.getTable(tableName);
-
-            String sql = SQLUtil.getCountSQL(this.workConf.getDatabaseType(), catalog_tbl);
-
-            try (Statement stmt = conn.createStatement();
-                 ResultSet result = stmt.executeQuery(sql);) {
-
-                assertNotNull(result);
-
-                boolean adv = result.next();
-                assertTrue(sql, adv);
-
-                int count = result.getInt(1);
-                LOG.debug(sql + " => " + count);
-                tableSizes.put(tableName, count);
-            }
-        }
-
-        LOG.debug("=== TABLE SIZES ===\n" + tableSizes);
-        assertFalse("Unable to compute the tables size for " + benchmark.getBenchmarkName().toUpperCase(), tableSizes.isEmpty());
-
-        for (String tableName : tableSizes.values()) {
-            long count = tableSizes.get(tableName);
-
-            if (ignorableTables() != null && ignorableTables().stream().anyMatch(tableName::equalsIgnoreCase)) {
-                continue;
-            }
-
-            assert (count > 0) : "No tuples were inserted for table " + tableName;
-        }
-    }
-
-    public Loader<? extends BenchmarkModule> testLoadWithReturn() throws Exception {
-        Loader<? extends BenchmarkModule> loader = this.benchmark.loadDatabase();
-
-        validateLoad();
-
-        return loader;
-    }
+    return loader;
+  }
 }

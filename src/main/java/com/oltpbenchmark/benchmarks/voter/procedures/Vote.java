@@ -46,90 +46,95 @@
 
 package com.oltpbenchmark.benchmarks.voter.procedures;
 
+import static com.oltpbenchmark.benchmarks.voter.VoterConstants.*;
+
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import static com.oltpbenchmark.benchmarks.voter.VoterConstants.*;
-
 public class Vote extends Procedure {
 
-    // potential return codes
-    public static final long VOTE_SUCCESSFUL = 0;
-    public static final long ERR_INVALID_CONTESTANT = 1;
-    public static final long ERR_VOTER_OVER_VOTE_LIMIT = 2;
+  // potential return codes
+  public static final long VOTE_SUCCESSFUL = 0;
+  public static final long ERR_INVALID_CONTESTANT = 1;
+  public static final long ERR_VOTER_OVER_VOTE_LIMIT = 2;
 
-    // Checks if the vote is for a valid contestant
-    public final SQLStmt checkContestantStmt = new SQLStmt(
-            "SELECT contestant_number FROM " + TABLENAME_CONTESTANTS + " WHERE contestant_number = ?;"
-    );
+  // Checks if the vote is for a valid contestant
+  public final SQLStmt checkContestantStmt =
+      new SQLStmt(
+          "SELECT contestant_number FROM "
+              + TABLENAME_CONTESTANTS
+              + " WHERE contestant_number = ?");
 
-    // Checks if the voter has exceeded their allowed number of votes
-    public final SQLStmt checkVoterStmt = new SQLStmt(
-            "SELECT COUNT(*) FROM " + TABLENAME_VOTES + " WHERE phone_number = ?;"
-    );
+  // Checks if the voter has exceeded their allowed number of votes
+  public final SQLStmt checkVoterStmt =
+      new SQLStmt("SELECT COUNT(*) FROM " + TABLENAME_VOTES + " WHERE phone_number = ?");
 
-    // Checks an area code to retrieve the corresponding state
-    public final SQLStmt checkStateStmt = new SQLStmt(
-            "SELECT state FROM " + TABLENAME_LOCATIONS + " WHERE area_code = ?;"
-    );
+  // Checks an area code to retrieve the corresponding state
+  public final SQLStmt checkStateStmt =
+      new SQLStmt("SELECT state FROM " + TABLENAME_LOCATIONS + " WHERE area_code = ?");
 
-    // Records a vote
-    public final SQLStmt insertVoteStmt = new SQLStmt(
-            "INSERT INTO " + TABLENAME_VOTES + " (vote_id, phone_number, state, contestant_number, created) " +
-                    "VALUES (?, ?, ?, ?, NOW());"
-    );
+  // Records a vote
+  public final SQLStmt insertVoteStmt =
+      new SQLStmt(
+          "INSERT INTO "
+              + TABLENAME_VOTES
+              + " (vote_id, phone_number, state, contestant_number, created) "
+              + "VALUES (?, ?, ?, ?, NOW())");
 
-    public long run(Connection conn, long voteId, long phoneNumber, int contestantNumber, long maxVotesPerPhoneNumber) throws SQLException {
+  public long run(
+      Connection conn,
+      long voteId,
+      long phoneNumber,
+      int contestantNumber,
+      long maxVotesPerPhoneNumber)
+      throws SQLException {
 
-        try (PreparedStatement ps = getPreparedStatement(conn, checkContestantStmt)) {
-            ps.setInt(1, contestantNumber);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (!rs.next()) {
-                    return ERR_INVALID_CONTESTANT;
-                }
-            }
+    try (PreparedStatement ps = getPreparedStatement(conn, checkContestantStmt)) {
+      ps.setInt(1, contestantNumber);
+      try (ResultSet rs = ps.executeQuery()) {
+        if (!rs.next()) {
+          return ERR_INVALID_CONTESTANT;
         }
-
-
-        try (PreparedStatement ps = getPreparedStatement(conn, checkVoterStmt)) {
-            ps.setLong(1, phoneNumber);
-            try (ResultSet rs = ps.executeQuery()) {
-                boolean hasVoterEnt = rs.next();
-                if (hasVoterEnt && rs.getLong(1) >= maxVotesPerPhoneNumber) {
-                    return ERR_VOTER_OVER_VOTE_LIMIT;
-                }
-            }
-        }
-
-
-        String state = null;
-
-        try (PreparedStatement ps = getPreparedStatement(conn, checkStateStmt)) {
-            ps.setShort(1, (short) (phoneNumber / 10000000L));
-            try (ResultSet rs = ps.executeQuery()) {
-                // Some sample client libraries use the legacy random phone generation that mostly
-                // created invalid phone numbers. Until refactoring, re-assign all such votes to
-                // the "XX" fake state (those votes will not appear on the Live Statistics dashboard,
-                // but are tracked as legitimate instead of invalid, as old clients would mostly get
-                // it wrong and see all their transactions rejected).
-                state = rs.next() ? rs.getString(1) : "XX";
-            }
-        }
-
-        try (PreparedStatement ps = getPreparedStatement(conn, insertVoteStmt)) {
-            ps.setLong(1, voteId);
-            ps.setLong(2, phoneNumber);
-            ps.setString(3, state);
-            ps.setInt(4, contestantNumber);
-            ps.execute();
-        }
-
-        // Set the return value to 0: successful vote
-        return VOTE_SUCCESSFUL;
+      }
     }
+
+    try (PreparedStatement ps = getPreparedStatement(conn, checkVoterStmt)) {
+      ps.setLong(1, phoneNumber);
+      try (ResultSet rs = ps.executeQuery()) {
+        boolean hasVoterEnt = rs.next();
+        if (hasVoterEnt && rs.getLong(1) >= maxVotesPerPhoneNumber) {
+          return ERR_VOTER_OVER_VOTE_LIMIT;
+        }
+      }
+    }
+
+    String state = null;
+
+    try (PreparedStatement ps = getPreparedStatement(conn, checkStateStmt)) {
+      ps.setShort(1, (short) (phoneNumber / 10000000L));
+      try (ResultSet rs = ps.executeQuery()) {
+        // Some sample client libraries use the legacy random phone generation that mostly
+        // created invalid phone numbers. Until refactoring, re-assign all such votes to
+        // the "XX" fake state (those votes will not appear on the Live Statistics dashboard,
+        // but are tracked as legitimate instead of invalid, as old clients would mostly get
+        // it wrong and see all their transactions rejected).
+        state = rs.next() ? rs.getString(1) : "XX";
+      }
+    }
+
+    try (PreparedStatement ps = getPreparedStatement(conn, insertVoteStmt)) {
+      ps.setLong(1, voteId);
+      ps.setLong(2, phoneNumber);
+      ps.setString(3, state);
+      ps.setInt(4, contestantNumber);
+      ps.execute();
+    }
+
+    // Set the return value to 0: successful vote
+    return VOTE_SUCCESSFUL;
+  }
 }

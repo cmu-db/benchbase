@@ -22,17 +22,17 @@ import org.apache.commons.configuration2.XMLConfiguration;
 
 public class TwitterConfiguration {
 
-    private final XMLConfiguration xmlConfig;
+  private final XMLConfiguration xmlConfig;
 
-    public TwitterConfiguration(WorkloadConfiguration workConf) {
-        this.xmlConfig = workConf.getXmlConfig();
-    }
+  public TwitterConfiguration(WorkloadConfiguration workConf) {
+    this.xmlConfig = workConf.getXmlConfig();
+  }
 
-    public String getTracefile() {
-        return xmlConfig.getString("tracefile", null);
-    }
+  public String getTracefile() {
+    return xmlConfig.getString("tracefile", null);
+  }
 
-    public String getTracefile2() {
-        return xmlConfig.getString("tracefile2", null);
-    }
+  public String getTracefile2() {
+    return xmlConfig.getString("tracefile2", null);
+  }
 }
