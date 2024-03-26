@@ -33,7 +33,7 @@ public enum DatabaseType {
   DB2(true, false),
   H2(true, false),
   HSQLDB(false, false),
-  POSTGRES(false, false, true),
+  POSTGRES(false, false, true, true),
   MARIADB(true, false),
   MONETDB(false, false),
   MYROCKS(true, false),
@@ -45,19 +45,28 @@ public enum DatabaseType {
   SPANNER(false, true),
   SQLAZURE(true, true, true),
   SQLITE(true, false),
-  SQLSERVER(true, true, true),
+  SQLSERVER(true, true, true, true),
   TIMESTEN(true, false),
   PHOENIX(true, true);
 
   DatabaseType(
-      boolean escapeNames, boolean includeColNames, boolean loadNeedsUpdateColumnSequence) {
+      boolean escapeNames,
+      boolean includeColNames,
+      boolean loadNeedsUpdateColumnSequence,
+      boolean needsMonitoringPrefix) {
     this.escapeNames = escapeNames;
     this.includeColNames = includeColNames;
     this.loadNeedsUpdateColumnSequence = loadNeedsUpdateColumnSequence;
+    this.needsMonitoringPrefix = needsMonitoringPrefix;
+  }
+
+  DatabaseType(
+      boolean escapeNames, boolean includeColNames, boolean loadNeedsUpdateColumnSequence) {
+    this(escapeNames, includeColNames, loadNeedsUpdateColumnSequence, false);
   }
 
   DatabaseType(boolean escapeNames, boolean includeColNames) {
-    this(escapeNames, includeColNames, false);
+    this(escapeNames, includeColNames, false, false);
   }
 
   /** If this flag is set to true, then the framework will escape names in the INSERT queries */
@@ -74,6 +83,9 @@ public enum DatabaseType {
    * loading data.
    */
   private final boolean loadNeedsUpdateColumnSequence;
+
+  /** If this flag is set to true, the framework will add a monitoring prefix to each query. */
+  private final boolean needsMonitoringPrefix;
 
   // ---------------------------------------------------------------
   // ACCESSORS
@@ -100,6 +112,13 @@ public enum DatabaseType {
    */
   public boolean shouldUpdateColumnSequenceAfterLoad() {
     return (this.loadNeedsUpdateColumnSequence);
+  }
+
+  /**
+   * @return True if the framework should add a monitoring prefix to each query.
+   */
+  public boolean shouldCreateMonitoringPrefix() {
+    return (this.needsMonitoringPrefix);
   }
 
   // ----------------------------------------------------------------

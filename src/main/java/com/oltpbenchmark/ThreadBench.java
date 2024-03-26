@@ -1,17 +1,15 @@
 /*
  * Copyright 2020 by OLTPBenchmark Project
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  *
  */
 
@@ -21,7 +19,10 @@ import com.oltpbenchmark.LatencyRecord.Sample;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
+import com.oltpbenchmark.api.collectors.monitoring.Monitor;
+import com.oltpbenchmark.api.collectors.monitoring.MonitorGen;
 import com.oltpbenchmark.types.State;
+import com.oltpbenchmark.util.MonitorInfo;
 import com.oltpbenchmark.util.StringUtil;
 import java.util.*;
 import org.apache.commons.collections4.map.ListOrderedMap;
@@ -30,30 +31,35 @@ import org.slf4j.LoggerFactory;
 
 public class ThreadBench implements Thread.UncaughtExceptionHandler {
   private static final Logger LOG = LoggerFactory.getLogger(ThreadBench.class);
+  // Determines how long (in ms) to wait until monitoring thread rejoins the
+  // main thread.
+  private static final int MONITOR_REJOIN_TIME = 60000;
 
   private final BenchmarkState testState;
   private final List<? extends Worker<? extends BenchmarkModule>> workers;
   private final ArrayList<Thread> workerThreads;
   private final List<WorkloadConfiguration> workConfs;
   private final ArrayList<LatencyRecord.Sample> samples = new ArrayList<>();
-  private final int intervalMonitor;
+  private final MonitorInfo monitorInfo;
+
+  private Monitor monitor = null;
 
   private ThreadBench(
       List<? extends Worker<? extends BenchmarkModule>> workers,
       List<WorkloadConfiguration> workConfs,
-      int intervalMonitoring) {
+      MonitorInfo monitorInfo) {
     this.workers = workers;
     this.workConfs = workConfs;
     this.workerThreads = new ArrayList<>(workers.size());
-    this.intervalMonitor = intervalMonitoring;
+    this.monitorInfo = monitorInfo;
     this.testState = new BenchmarkState(workers.size() + 1);
   }
 
   public static Results runRateLimitedBenchmark(
       List<Worker<? extends BenchmarkModule>> workers,
       List<WorkloadConfiguration> workConfs,
-      int intervalMonitoring) {
-    ThreadBench bench = new ThreadBench(workers, workConfs, intervalMonitoring);
+      MonitorInfo monitorInfo) {
+    ThreadBench bench = new ThreadBench(workers, workConfs, monitorInfo);
     return bench.runRateLimitedMultiPhase();
   }
 
@@ -88,10 +94,9 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
       // to terminate... hands otherwise
 
       /*
-       * // CARLO: Maybe we might want to do this to kill threads that are
-       * hanging... if (workerThreads.get(i).isAlive()) {
-       * workerThreads.get(i).kill(); try { workerThreads.get(i).join(); }
-       * catch (InterruptedException e) { } }
+       * // CARLO: Maybe we might want to do this to kill threads that are hanging... if
+       * (workerThreads.get(i).isAlive()) { workerThreads.get(i).kill(); try {
+       * workerThreads.get(i).join(); } catch (InterruptedException e) { } }
        */
 
       requests += workers.get(i).getRequests();
@@ -116,16 +121,10 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
     this.createWorkerThreads();
 
     // long measureStart = start;
+    Phase phase = null;
 
-    long startTs = System.currentTimeMillis();
-    long start = System.nanoTime();
-    long warmupStart = System.nanoTime();
-    long warmup = warmupStart;
-    long measureEnd = -1;
     // used to determine the longest sleep interval
     double lowestRate = Double.MAX_VALUE;
-
-    Phase phase = null;
 
     for (WorkloadState workState : workStates) {
       workState.switchToNextPhase();
@@ -145,6 +144,12 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
       }
     }
 
+    long startTs = System.currentTimeMillis();
+    long start = System.nanoTime();
+    long warmupStart = System.nanoTime();
+    long warmup = warmupStart;
+    long measureEnd = -1;
+
     long intervalNs = getInterval(lowestRate, phase.getArrival());
 
     long nextInterval = start + intervalNs;
@@ -157,8 +162,11 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
     boolean lastEntry = false;
 
     // Initialize the Monitor
-    if (this.intervalMonitor > 0) {
-      new MonitorThread(this.intervalMonitor).start();
+    if (this.monitorInfo.getMonitoringInterval() > 0) {
+      this.monitor =
+          MonitorGen.getMonitor(
+              this.monitorInfo, this.testState, this.workers, this.workConfs.get(0));
+      this.monitor.start();
     }
 
     // Allow workers to start work.
@@ -299,6 +307,18 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         // Time to quit.
         break;
       }
+    }
+
+    // Stop the monitoring thread separately from cleanup all the workers so we can ignore errors
+    // from these threads (including possible SQLExceptions), but not the others.
+    try {
+      if (this.monitor != null) {
+        this.monitor.interrupt();
+        this.monitor.join(MONITOR_REJOIN_TIME);
+        this.monitor.tearDown();
+      }
+    } catch (Exception e) {
+      LOG.error(e.getMessage(), e);
     }
 
     try {
@@ -525,44 +545,6 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
           m.put(t.getName(), t.isAlive());
         }
         LOG.info("Worker Thread Status:\n{}", StringUtil.formatMaps(m));
-      }
-    }
-  }
-
-  private class MonitorThread extends Thread {
-    private final int intervalMonitor;
-
-    {
-      this.setDaemon(true);
-    }
-
-    /**
-     * @param interval How long to wait between polling in milliseconds
-     */
-    MonitorThread(int interval) {
-      this.intervalMonitor = interval;
-    }
-
-    @Override
-    public void run() {
-      LOG.info("Starting MonitorThread Interval [{}ms]", this.intervalMonitor);
-      while (true) {
-        try {
-          Thread.sleep(this.intervalMonitor);
-        } catch (InterruptedException ex) {
-          return;
-        }
-
-        // Compute the last throughput
-        long measuredRequests = 0;
-        synchronized (testState) {
-          for (Worker<?> w : workers) {
-            measuredRequests += w.getAndResetIntervalRequests();
-          }
-        }
-        double seconds = this.intervalMonitor / 1000d;
-        double tps = (double) measuredRequests / seconds;
-        LOG.info("Throughput: {} txn/sec", tps);
       }
     }
   }
