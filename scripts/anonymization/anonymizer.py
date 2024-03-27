@@ -4,174 +4,69 @@
 import sys
 import xml.etree.ElementTree as ET
 
-
-def rewriteFakeQueries(fakeValues, path):
-    """Method that rewrites existing query templates based on sensitive value replacements
-    """
-    # TODO
-
-
-def fakeColumn(dataset, col, locales, method, seed=0):
-    """Method that generates fake values for columns that are considered sensitive
-    """
-    # TODO
+from configuration.configurations import DPConfig, SensitiveConfig, ContinuousConfig
+from modules.jdbc_handler import JDBCHandler
+from scripts.anonymization.configuration.config_parser import XML_parser
+#from modules.dp_anonymizer import DifferentialPrivacyAnonymizer
+#from modules.sensitive_anonymizer import SensitiveAnonymizer
 
 
-def getTimestampColumns(dbTypeList):
-    """A helper function that returns a list of indexes of timestamp-type columns
-    """
-    # TODO
+"""Module that handles the full Anonymization pipeline
+"""
 
+import sys
+import pandas as pd
 
-def dfFromTable(curs, table):
-    """Helper function that creates a pandas DataFrame from a jaydebe connection
-    """
-    # TODO
-
-
-def populateAnonFromDF(curs, df, table, timestampIndexes):
-    """Helper function to fill a DB table from a DataFrame
-    """
-    # TODO
-
-
-def getDroppableInfo(dropCols, dataset):
-    """Helper function that saves droppable columns from anonymization
-    """
-    # TODO
-
-
-def getTransformer(
-    dataset, algorithm, categorical, continuous, ordinal, continuousConfig
-):
-    """Function that creates a custom transformer for the dp-mechanism
-    """
-
-    # TODO
-
-
-def getConstraints(objects):
-    """A helper method that builds constraints that are used by a TableTransformer
-    """
-    # TODO
-
-
+"""
 def anonymize(
-    dataset: str,
-    anon_config: dict,
-    sens_config: list,
-    cont_config: list,
-    templatesPath: str,
+    dataset: pd.DataFrame,
+    anon_config: DPConfig,
+    cont_config: ContinuousConfig,
+    sens_config: SensitiveConfig,
+    templates_path: str,
 ):
-    """Function that handles the data anonymization step
-    """
-    # TODO
+    dp_data = dataset
+    if anon_config:
+        dp_anonymizer = DifferentialPrivacyAnonymizer(dataset, anon_config, cont_config)
+        dp_data = dp_anonymizer.run_anonymization()
+
+    if sens_config:
+        sens_anonymizer = SensitiveAnonymizer(dp_data,sens_config,templates_path)
+        dp_data = sens_anonymizer.run_anonymization()
+
+    return dp_data
 
 
 def anonymizeDB(
-    jdbcConfig: dict,
-    anon_config: dict,
-    sens_config: list,
-    cont_config: list,
-    templatesPath: str,
+    jdbc_handler: JDBCHandler,
+    anon_config: DPConfig,
+    sensConfig: SensitiveConfig,
+    contConfig: ContinuousConfig,
+    templates_path: str,
 ):
-    """Function that handles the necessary steps for anonymization.
-    Includes starting the JVM, Anonymizing and pushing data to the DB
-    """
-    # TODO
+    jdbc_handler.start_JVM()
 
+    conn = jdbc_handler.get_connection()
 
-def listFromElement(element):
-    """Helper function creating an array of values from a XML Element
-    """
-    if element and element.text:
-        return list(element.text.split(","))
-    else:
-        return []
+    table = anon_config.table_name
+    dataset, timestamps = jdbc_handler.data_from_table(conn, table)
 
+    datasetAnon = anonymize(
+        dataset, anon_config, contConfig, sensConfig, templates_path
+    )
 
-def configFromXML(table):
-    """Method that constructs a configuration dictionary from XML for a specified table
+    ## TODO: Throw in Sensitive Anonmization
 
-    Args:
-        table (Element): The XML element that describes the table
+    # Create empty table
+    anon_table_name = jdbc_handler.create_anonymized_table(conn, table)
 
-    Returns:
-        (dict,dict,dict): The configurations for the anonymization, sensitive and continuous value handling
-    """
+    # Populate new table
+    jdbc_handler.populate_anonymized_table(
+        conn, datasetAnon, anon_table_name, timestamps
+    )
 
-    anon_config = {}
-    sens_config = []
-    cont_config = []
-
-    tableName = table.get("name")
-
-    #Exit the program if not enough basic information (name of a table) is available
-    if tableName == None:
-        sys.exit(
-            "There was no name provided for the table that should be anonymized. Program is exiting now!"
-        )
-
-    anon_config["table"] = tableName
-    print(f"Parsing config for table: {tableName}")
-
-    dp_info = table.find("differential_privacy")
-
-    if(dp_info):
-
-        cat = []
-        cont = []
-        ord = []
-        ignore = []
-        
-        anon_config["eps"] = dp_info.get("epsilon", 1.0)
-        anon_config["preEps"] = dp_info.get("pre_epsilon", 0.5)
-        anon_config["alg"] = dp_info.get("algorithm", "mst")
-
-        if(dp_info.find("ignore")):
-            for column in dp_info.find("ignore").findall("column"):
-                ignore.append(column.get("name"))
-
-        if(dp_info.find("categorical")):
-            for column in dp_info.find("categorical").findall("column"):
-                cat.append(column.get("name"))
-
-        if(dp_info.find("ordinal")):
-            for column in dp_info.find("ordinal").findall("column"):
-                ord.append(column.get("name"))
-
-        if(dp_info.find("continuous")):
-            for column in dp_info.find("continuous").findall("column"):
-                cont.append(column.get("name"))
-
-            if(column.get("bins") or column.get("lower") or column.get("upper")):
-                cont_config.append(
-                    {
-                    "name": column.get("name"),
-                    "bins": column.get("bins",10),
-                    "lower": column.get("lower"),
-                    "upper": column.get("upper"),
-                    }
-                )
-
-        anon_config["hide"] = ignore
-        anon_config["cat"] = cat
-        anon_config["cont"] = cont
-        anon_config["ord"] = ord
-
-    sens = table.find("value_faking")
-    if sens:
-        for column in sens.findall("column"):
-            sens_config.append(
-                {
-                    "name": column.get("name"),
-                    "method": column.get("method"),
-                    "locales": column.get("locales"),
-                    "seed": column.get("seed", 0),
-                }
-            )
-
-    return anon_config, sens_config, cont_config
+    conn.close()
+"""
 
 
 def main():
@@ -180,30 +75,33 @@ def main():
     # No templates provided
     if len(sys.argv) == 2:
         confPath = sys.argv[1]
-        templatesPath = ""
+        templates_path = ""
 
     elif len(sys.argv) == 3:
         confPath = sys.argv[1]
-        templatesPath = sys.argv[2]
+        templates_path = sys.argv[2]
 
     else:
-        print("Not enough arguments provided: <configPath> <templatesPath (optional)>")
+        print("Not enough arguments provided: <configPath> <templates_path (optional)>")
         return
 
     tree = ET.parse(confPath)
 
     parameters = tree.getroot()
-    jdbcConfig = {
-        "driver": parameters.find("driver").text,
-        "url": parameters.find("url").text,
-        "username": parameters.find("username").text,
-        "password": parameters.find("password").text,
-    }
+
+    jdbc_handler = JDBCHandler(
+        parameters.find("driver").text,
+        parameters.find("url").text,
+        parameters.find("username").text,
+        parameters.find("password").text,
+    )
 
     # Loop over all specified tables and anonymize them one-by-one
     for table in parameters.find("anonymization").findall("table"):
-        anon_config, sens_config, cont_config = configFromXML(table)
-        anonymizeDB(jdbcConfig, anon_config, sens_config, cont_config, templatesPath)
+        config_parser = XML_parser(table)
+        anon_config, sens_config, cont_config = config_parser.get_config()
+
+        #anonymizeDB(jdbc_handler, anon_config, sens_config, cont_config, templates_path)
 
 
 if __name__ == "__main__":
