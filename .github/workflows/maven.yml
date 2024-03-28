@@ -300,9 +300,11 @@ jobs:
           if [[ ${{matrix.benchmark}} == templated ]]; then
             java -jar benchbase.jar -b tpcc -c config/mysql/sample_tpcc_config.xml --create=true --load=true --execute=false --json-histograms results/histograms.json
             java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/mysql/sample_${{matrix.benchmark}}_config.xml --create=false --load=false --execute=true --json-histograms results/histograms.json
+          # For anonymization, we load tpcc and anonymize a single table. The workload itself is not executed
           elif [[ ${{matrix.benchmark}} == anonymization ]]; then
             java -jar benchbase.jar -b tpcc -c config/mysql/sample_tpcc_config.xml --create=true --load=true --execute=false --json-histograms results/histograms.json
             java -jar benchbase.jar -b tpcc -c config/mysql/sample_${{matrix.benchmark}}_config.xml --anonymize=true
+            exit 0
           elif [[ ${{matrix.benchmark}} == tpcc-with-reconnects ]]; then
             # See Also: WITH_SERVICE_INTERRUPTIONS=true docker/build-run-benchmark-with-docker.sh
             java -jar benchbase.jar -b tpcc -c config/mysql/sample_tpcc_config.xml --create=true --load=true
