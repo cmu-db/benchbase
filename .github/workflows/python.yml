@@ -1,4 +1,4 @@
-name: Test Anonymization (Python)
+name: BenchBase (Python)
 
 on:
   push:
@@ -26,6 +26,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt  
-      - name: Test with pytest 
-        working-directory: ./scripts/anonymization 
+      - name: Check anonymization files with pylint
+        working-directory: ./scripts/anonymization
+        run: |
+            pylint --rcfile=.pylintrc src/
+      - name: Test anonymization with pytest 
+        working-directory: ./scripts/anonymization/src 
         run: pytest test.py

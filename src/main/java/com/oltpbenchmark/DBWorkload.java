@@ -809,9 +809,10 @@ public class DBWorkload {
 
     LOG.info("Starting the Anonymization process");
     LOG.info(SINGLE_LINE);
+    String osCommand = System.getProperty("os.name").startsWith("Windows") ? "python" : "python3";
     ProcessBuilder processBuilder =
         new ProcessBuilder(
-            "python3", "scripts/anonymization/anonymizer.py", configFile, templatesPath);
+            osCommand, "scripts/anonymization/src/anonymizer.py", configFile, templatesPath);
     try {
       // Redirect Output stream of the script to get live feedback
       processBuilder.inheritIO();

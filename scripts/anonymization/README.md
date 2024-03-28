@@ -5,7 +5,37 @@
 The anonymization module allows applying privacy mechanisms such as differential privacy or column faking to the data.
 The system will pull data from the JDBC connection, anonymize the data and push it back to the DBMS by creating a new table.
 
-## Config
+## Setup
+
+### Requirements
+
+**Python**: Python 3.10
+
+Requirements can be found inside of the `requirements.txt` file. 
+
+Install with pip:
+
+```bash
+pip install -r requirements.txt
+```
+
+### Pylint - Linting
+
+Pylint is automatically added by the requirements and can be run as follows:
+```bash
+pylint --rcfile=.pylintrc src/
+```
+
+### Pytest - Testing
+Pytest is automatically added by the requirements and can be run as follows:
+
+```bash
+pytest ./src/test.py
+```
+
+
+
+## Configuration files (XML)
 
 ### Table selection
 
@@ -30,9 +60,9 @@ Differential privacy can be configured with the following parameters:
 
 | Name        | Default | Possible Value                                     | Description                                                                                  |
 | ----------- | ------- | -------------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| epsilon     | 1.0     | Any value > 0                                      | The privacy budget. Higher values will decrease the privacy guarantee                        |
-| pre_epsilon | 0.5     | Any value between 0 and epsilon (epsilon excluded) | The privacy budget spent on preprocessing of the data. Only necessary for continuous columns |
-| algorithm   | mst     | One of: `mst,aim,dpctgan,patectgan`                | The differential privacy mechanism applied to the data                                       |
+| epsilon     | 1.0     | Any value > 0                                      | The privacy budget. Higher values will decrease the privacy guarantee.                       |
+| pre_epsilon | 0.5     | Any value between 0 and epsilon (epsilon excluded) | The privacy budget spent on preprocessing of the data. Only necessary for continuous columns. |
+| algorithm   | mst     | One of: `mst,aim,dpctgan,patectgan`                | The differential privacy mechanism applied to the data.                                       |
 
 ```xml
 <anonymization>
@@ -50,10 +80,10 @@ Differential privacy can be configured with the following parameters:
 
 The columns of a table can be split into four categories:
 
-1. `ignore` - Columns that are ignored by the DP-mechanism. Left untouched
-2. `categorical` - Columns that contain categorical data
-3. `continuous` - Columns of data on a continuous domain. Only numerical columns
-4. `ordinal` - Columns of ordinal meaning. Typically numerical columns with low numers of distinct values
+1. `ignore` - Columns that are ignored by the DP-mechanism. Left untouched.
+2. `categorical` - Columns that contain categorical data.
+3. `continuous` - Columns of data on a continuous domain. Only numerical columns.
+4. `ordinal` - Columns of ordinal meaning. Typically numerical columns with low numers of distinct values.
 
 Each type of column requires its own XML-tag with each member of a type given as a separate tag. (See exampels below for clarification)
 
@@ -129,10 +159,10 @@ The parameters must be added inside of the `<column>`-tag. (See below)
 
 | Name  | Default | Possible Value    | Description                                 |
 | ----- | ------- | ----------------- | ------------------------------------------- |
-| name  | -       | Any string        | The name of the column                      |
-| bins  | 10      | Any value         | The amount of distinct values in the output |
-| lower | -       | Any value         | Lower bound of the values                   |
-| upper | -       | Any value > lower | Upper bound of the values                   |
+| name  | -       | Any string        | The name of the column.                     |
+| bins  | 10      | Any value         | The amount of distinct values in the output.|
+| lower | -       | Any value         | Lower bound of the values.                  |
+| upper | -       | Any value > lower | Upper bound of the values.                  |
 
 ---
 
@@ -176,10 +206,10 @@ The following parameters are available for sensitive values:
 
 | Name    | Default | Possible Value                                   | Description                                                                                    |
 | ------- | ------- | ------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
-| name    | -       | Any string                                       | The name of the column                                                                         |
-| method  | pystr   | Any method provided by the python faker library  | The faking method of the library. If the method is not found, a random string will be inserted |
-| locales | -       | A string of supported locales separated by comma | The locale to produce localized values like chinese street names or english first names        |
-| seed    | 0       | Any integer value                                | The privacy budget spent on preprocessing of the data. Only necessary for continuous columns   |
+| name    | -       | Any string                                       | The name of the column.                                                                         |
+| method  | pystr   | Any method provided by the python faker library  | The faking method of the library. If the method is not found, a random string will be inserted. |
+| locales | -       | A string of supported locales, separated by comma | The locale to produce localized values like chinese street names or english first names.        |
+| seed    | 0       | Any integer value                                | The privacy budget spent on preprocessing of the data. Only necessary for continuous columns.   |
 
 ### Faker categories
 

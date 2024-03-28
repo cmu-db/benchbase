@@ -1,6 +1,8 @@
-import pytest
+"""Testing suite
+"""
+
 import xml.etree.ElementTree as ET
-from configuration.config_parser import XML_parser
+from configuration.config_parser import XMLParser
 
 
 MINIMAL_CONFIG = """
@@ -39,11 +41,12 @@ FULL_CONFIG = """
 
 
 def test_full_config():
+    """Test method for a full config with dp-anonymization, continuous and sensitive values"""
 
     parameters = ET.fromstring(FULL_CONFIG)
 
     full_anon = parameters.find("table")
-    config_parser = XML_parser(full_anon)
+    config_parser = XMLParser(full_anon)
     anon_config, sens_config, cont_config = config_parser.get_config()
 
     assert anon_config is not None
@@ -57,11 +60,13 @@ def test_full_config():
 
 
 def test_minimal_config():
+    """Test method for a minimal config where only dp-anonymization is applied
+    """
 
     parameters = ET.fromstring(MINIMAL_CONFIG)
 
     only_dp_auto = parameters.find("table")
-    config_parser = XML_parser(only_dp_auto)
+    config_parser = XMLParser(only_dp_auto)
     anon_config, sens_config, cont_config = config_parser.get_config()
 
     assert anon_config is not None
