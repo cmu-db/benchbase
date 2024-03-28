@@ -35,6 +35,7 @@ env:
   POM_VERSION: 2023-SNAPSHOT
   JAVA_VERSION: 21
   ERRORS_THRESHOLD: 0.01
+  PYTHON_VERSION: 3.10
 
 jobs:
   compile-and-test:
@@ -239,7 +240,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'templated', 'tpcc', 'tpcc-with-reconnects', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
+        benchmark: [ 'anonymization', 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'templated', 'tpcc', 'tpcc-with-reconnects', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
     services:
       mysql: # https://hub.docker.com/_/mysql
         image: mysql:latest
@@ -275,6 +276,16 @@ jobs:
           java-version: ${{env.JAVA_VERSION}}
           distribution: 'temurin'
 
+      - name: Set up Python
+        uses: actions/setup-python@v4  
+        with:  
+          python-version: ${{env.PYTHON_VERSION}}  
+      - name: Install Python dependencies  
+        working-directory: ./scripts/anonymization
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt  
+
       - name: Run benchmark
         env:
           MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
@@ -286,6 +297,9 @@ jobs:
           if [[ ${{matrix.benchmark}} == templated ]]; then
             java -jar benchbase.jar -b tpcc -c config/mysql/sample_tpcc_config.xml --create=true --load=true --execute=false --json-histograms results/histograms.json
             java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/mysql/sample_${{matrix.benchmark}}_config.xml --create=false --load=false --execute=true --json-histograms results/histograms.json
+          elif [[ ${{matrix.benchmark}} == anonymization ]]; then
+            java -jar benchbase.jar -b tpcc -c config/mysql/sample_tpcc_config.xml --create=true --load=true --execute=false --json-histograms results/histograms.json
+            java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/mysql/sample_${{matrix.benchmark}}_config.xml --create=false --load=false --anonymize=true --execute=true --json-histograms results/histograms.json
           elif [[ ${{matrix.benchmark}} == tpcc-with-reconnects ]]; then
             # See Also: WITH_SERVICE_INTERRUPTIONS=true docker/build-run-benchmark-with-docker.sh
             java -jar benchbase.jar -b tpcc -c config/mysql/sample_tpcc_config.xml --create=true --load=true
