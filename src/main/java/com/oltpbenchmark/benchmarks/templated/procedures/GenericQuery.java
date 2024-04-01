@@ -18,10 +18,16 @@ package com.oltpbenchmark.benchmarks.templated.procedures;
 
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
+import com.oltpbenchmark.benchmarks.templated.util.TemplatedValue;
+import com.oltpbenchmark.benchmarks.templated.util.ValueGenerator;
+import com.oltpbenchmark.util.JDBCSupportedType;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.List;
 import org.immutables.value.Value;
@@ -33,7 +39,7 @@ public abstract class GenericQuery extends Procedure {
   protected static final Logger LOG = LoggerFactory.getLogger(GenericQuery.class);
 
   /** Execution method with parameters. */
-  public void run(Connection conn, List<Object> params) throws SQLException {
+  public void run(Connection conn, List<TemplatedValue> params) throws SQLException {
 
     try (PreparedStatement stmt = getStatement(conn, params)) {
       boolean hasResultSet = stmt.execute();
@@ -76,24 +82,130 @@ public abstract class GenericQuery extends Procedure {
     conn.commit();
   }
 
-  public PreparedStatement getStatement(Connection conn, List<Object> params) throws SQLException {
+  public PreparedStatement getStatement(Connection conn, List<TemplatedValue> params)
+      throws SQLException {
     QueryTemplateInfo queryTemplateInfo = this.getQueryTemplateInfo();
 
     PreparedStatement stmt = this.getPreparedStatement(conn, queryTemplateInfo.getQuery());
     String[] paramsTypes = queryTemplateInfo.getParamsTypes();
     for (int i = 0; i < paramsTypes.length; i++) {
-      if (paramsTypes[i].equalsIgnoreCase("NULL")) {
+
+      TemplatedValue param = params.get(i);
+      boolean hasDist = param.getDistribution() != null;
+      boolean hasValue = param.getValue() != null;
+
+      JDBCSupportedType paramType = JDBCSupportedType.valueOf(paramsTypes[i].toUpperCase());
+
+      if ((!hasDist && !hasValue) || paramType == JDBCSupportedType.NULL) {
         stmt.setNull(i + 1, Types.NULL);
+      } else if (hasDist) {
+        ValueGenerator distribution = param.getDistribution();
+        switch (paramType) {
+          case INTEGER:
+            int generatedInt;
+            switch (distribution) {
+              case UNIFORM:
+                generatedInt = param.getNextLongUniform().intValue();
+                break;
+              case NORMAL:
+                generatedInt = param.getNextLongBinomial().intValue();
+                break;
+              case ZIPFIAN:
+                generatedInt = param.getNextLongZipf().intValue();
+                break;
+              case SCRAMBLED:
+                generatedInt = param.getNextLongScrambled().intValue();
+                break;
+              default:
+                throw param.createRuntimeException();
+            }
+            stmt.setInt(i + 1, generatedInt);
+            break;
+          case FLOAT:
+          case REAL:
+            float generatedFloat;
+            switch (distribution) {
+              case UNIFORM:
+                generatedFloat = param.getNextFloatUniform();
+                break;
+              case NORMAL:
+                generatedFloat = param.getNextFloatBinomial();
+                break;
+              default:
+                throw param.createRuntimeException();
+            }
+            stmt.setFloat(i + 1, generatedFloat);
+            break;
+          case BIGINT:
+            Long generatedLong;
+            switch (distribution) {
+              case UNIFORM:
+                generatedLong = param.getNextLongUniform();
+                break;
+              case NORMAL:
+                generatedLong = param.getNextLongBinomial();
+                break;
+              case ZIPFIAN:
+                generatedLong = param.getNextLongZipf();
+                break;
+              case SCRAMBLED:
+                generatedLong = param.getNextLongScrambled();
+                break;
+              default:
+                throw param.createRuntimeException();
+            }
+            stmt.setLong(i + 1, generatedLong);
+            break;
+          case VARCHAR:
+            switch (distribution) {
+              case UNIFORM:
+                stmt.setString(i + 1, param.getNextString());
+                break;
+              default:
+                throw param.createRuntimeException();
+            }
+            break;
+          case TIMESTAMP:
+          case DATE:
+          case TIME:
+            Long generatedTimestamp;
+            switch (distribution) {
+              case UNIFORM:
+                generatedTimestamp = param.getNextLongUniform();
+                break;
+              case NORMAL:
+                generatedTimestamp = param.getNextLongBinomial();
+                break;
+              case ZIPFIAN:
+                generatedTimestamp = param.getNextLongZipf();
+                break;
+              case SCRAMBLED:
+                generatedTimestamp = param.getNextLongScrambled();
+                break;
+              default:
+                throw param.createRuntimeException();
+            }
+            if (paramType == JDBCSupportedType.TIMESTAMP) {
+              stmt.setTimestamp(i + 1, new Timestamp(generatedTimestamp));
+            } else if (paramType == JDBCSupportedType.DATE) {
+              stmt.setDate(i + 1, new Date(generatedTimestamp));
+            } else {
+              stmt.setTime(i + 1, new Time(generatedTimestamp));
+            }
+            break;
+          default:
+            throw new RuntimeException(
+                "Support for distributions for the type: "
+                    + paramType
+                    + " is not currently implemented");
+        }
+
       } else {
         try {
-          // TODO: add support for nullable other types
-          // For instance, can we provide a <value /> tag in the XML file to represent a
-          // NULL value?
-          // Or does it need a special marker like "$null" to signify a NULL value?
-          Object param = params.get(i);
+          Object val = param.getValue();
           stmt.setObject(
               i + 1,
-              param,
+              val,
               Integer.parseInt(Types.class.getDeclaredField(paramsTypes[i]).get(null).toString()));
         } catch (Exception e) {
           e.printStackTrace();
@@ -101,7 +213,7 @@ public abstract class GenericQuery extends Procedure {
               "Error when setting parameters. Parameter type: "
                   + paramsTypes[i]
                   + ", parameter value: "
-                  + params.get(i));
+                  + param.getValue());
         }
       }
     }
@@ -120,6 +232,6 @@ public abstract class GenericQuery extends Procedure {
     String[] getParamsTypes();
 
     /** Potential query parameter values. */
-    String[] getParamsValues();
+    TemplatedValue[] getParamsValues();
   }
 }
