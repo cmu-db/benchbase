@@ -277,13 +277,13 @@ jobs:
           distribution: 'temurin'
 
       - name: Set up Python
-        if: ${{matrix.benchmark == "anonymization"}}
+        if: ${{matrix.benchmark == anonymization}}
         uses: actions/setup-python@v4  
         with:  
           python-version: ${{env.PYTHON_VERSION}}  
 
       - name: Install Python dependencies  
-        if: ${{matrix.benchmark == "anonymization"}}
+        if: ${{matrix.benchmark == anonymization}}
         working-directory: ./scripts/anonymization
         run: |
           python -m pip install --upgrade pip
