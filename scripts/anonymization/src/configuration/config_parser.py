@@ -6,6 +6,7 @@ import xml.etree.ElementTree as ET
 
 from configuration.configurations import (
     DPConfig,
+    DPColumnConfig,
     SensitiveConfig,
     SensitiveEntry,
     ContinuousConfig,
@@ -76,8 +77,10 @@ class XMLParser:
                             )
                         )
 
+            column_classes = DPColumnConfig(ignore,cat,cont,ordi)
+
             anon_config = DPConfig(
-                table_name, eps, pre_eps, alg, ignore, cat, cont, ordi
+                table_name, eps, pre_eps, alg, column_classes
             )
 
             if len(cont) > 0:

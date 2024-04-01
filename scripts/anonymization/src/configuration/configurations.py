@@ -2,19 +2,11 @@
 """
 
 
-class DPConfig:
-    """A class to represent a config that handles DP-Anonymization
+class DPColumnConfig:
+    """A class to represent the classification of columns for DP anonymization
 
     Attributes
     ----------
-    table_name : str
-          Table name
-    epsilon : str
-          Privacy budget
-    preproc_eps : str
-          Privacy budget for preprocessing
-    algorithm : str
-          Name of the DP-algorithm
     hidden : list[str]
           List of column names that will not be anonymized
     categorical : list[str]
@@ -28,23 +20,48 @@ class DPConfig:
 
     def __init__(
         self,
-        table_name: str,
-        epsilon: str,
-        preproc_eps: str,
-        algorithm: str,
         hidden: list[str],
         categorical: list[str],
         continuous: list[str],
         ordinal: list[str],
     ):
-        self.epsilon = epsilon
-        self.table_name = table_name
-        self.preproc_eps = preproc_eps
-        self.algorithm = algorithm
         self.hidden = hidden
         self.categorical = categorical
         self.continuous = continuous
         self.ordinal = ordinal
+
+
+class DPConfig:
+    """A class to represent a config that handles DP-Anonymization
+
+    Attributes
+    ----------
+    table_name : str
+          Table name
+    epsilon : str
+          Privacy budget
+    preproc_eps : str
+          Privacy budget for preprocessing
+    algorithm : str
+          Name of the DP-algorithm
+    column_classification : DPColumnConfig
+          lassification of table columns
+
+    """
+
+    def __init__(
+        self,
+        table_name: str,
+        epsilon: str,
+        preproc_eps: str,
+        algorithm: str,
+        column_classification: DPColumnConfig,
+    ):
+        self.epsilon = epsilon
+        self.table_name = table_name
+        self.preproc_eps = preproc_eps
+        self.algorithm = algorithm
+        self.column_classification = column_classification
 
 
 class ContinuousEntry:
