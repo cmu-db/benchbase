@@ -413,6 +413,10 @@ public class DBWorkload {
                     } else if (plugin.equalsIgnoreCase("featurebench")) {
                         weight_strings = List.of();
                         time = work.getInt("/time_secs", 0);
+                        // get workload specific time in secs
+                        if(workloads != null && workloads.get(workCount-1).containsKey("time_secs")){
+                            time = workloads.get(workCount-1).getInt("time_secs");
+                        }
                     } else {
                         weight_strings = Arrays.asList(work.getString("weights[not(@bench)]").split("\\s*,\\s*"));
                     }
