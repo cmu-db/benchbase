@@ -2,7 +2,6 @@
 
 docker/**/*.zip
 docker/**/output
-results
 
 ### SQLite ###
 **/*.db
