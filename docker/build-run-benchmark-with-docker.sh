@@ -38,11 +38,11 @@ if [ "$BENCHBASE_PROFILE" == 'sqlite' ]; then
         EXTRA_DOCKER_ARGS+=" -v $SRC_DIR/$benchmark.db:/benchbase/profiles/sqlite/tpcc.db"
     fi
 else
-    if [ ! -x "docker/${BENCHBASE_PROFILE}-${PROFILE_VERSION}/up.sh" ]; then
+    if [ ! -x "docker/${BENCHBASE_PROFILE}/up.sh" ]; then
         echo "ERROR: No docker up.sh script available for '$BENCHBASE_PROFILE'"
     fi
 
-    "./docker/${BENCHBASE_PROFILE}-${PROFILE_VERSION}/up.sh"
+    "./docker/${BENCHBASE_PROFILE}/up.sh"
 fi
 
 if [ "${SKIP_LOAD_DB:-false}" != 'true' ]; then
