@@ -414,7 +414,7 @@ public class DBWorkload {
                         weight_strings = List.of();
                         time = work.getInt("/time_secs", 0);
                         // get workload specific time in secs
-                        if(workloads != null && workloads.get(workCount-1).containsKey("time_secs")){
+                        if(workloads != null && workloads.size() >= workCount && workloads.get(workCount-1).containsKey("time_secs")){
                             time = workloads.get(workCount-1).getInt("time_secs");
                         }
                     } else {
