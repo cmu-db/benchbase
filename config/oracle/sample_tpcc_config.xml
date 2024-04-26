@@ -4,9 +4,7 @@
     <!-- Connection details -->
     <type>ORACLE</type>
     <driver>oracle.jdbc.OracleDriver</driver>
-    <url>jdbc:oracle:thin:@(description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1521)(host=adb.us-ashburn-1.oraclecloud.com))(connect_data=(servic
-e_name=gdef37665292880_tpccfree_high.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))
-</url>
+    <url>jdbc:oracle:thin:@(description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1521)(host=adb.us-ashburn-1.oraclecloud.com))(connect_data=(service_name=gdef37665292880_tpccfree_high.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))</url>
     <username>ADMIN</username>
     <password>password</password>
     <reconnectOnConnectionFailure>true</reconnectOnConnectionFailure>
