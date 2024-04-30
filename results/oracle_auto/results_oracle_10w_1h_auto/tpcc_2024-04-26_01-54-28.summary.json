@@ -1,0 +1,26 @@
+{
+ "Start timestamp (milliseconds)": 1714114468184,
+ "Current Timestamp (milliseconds)": 1714118068799,
+ "Elapsed Time (nanoseconds)": 3600000009847,
+ "DBMS Type": "ORACLE",
+ "DBMS Version": null,
+ "Benchmark Type": "tpcc",
+ "Final State": "EXIT",
+ "Measured Requests": 7688,
+ "isolation": "TRANSACTION_SERIALIZABLE",
+ "scalefactor": "10",
+ "terminals": "1",
+ "Latency Distribution": {
+  "95th Percentile Latency (microseconds)": 1064514,
+  "Maximum Latency (microseconds)": 2566868,
+  "Median Latency (microseconds)": 203669,
+  "Minimum Latency (microseconds)": 67893,
+  "25th Percentile Latency (microseconds)": 161079,
+  "90th Percentile Latency (microseconds)": 964321,
+  "99th Percentile Latency (microseconds)": 1380704,
+  "75th Percentile Latency (microseconds)": 762192,
+  "Average Latency (microseconds)": 468175
+ },
+ "Throughput (requests/second)": 2.1355555497142182,
+ "Goodput (requests/second)": 2.1172222164310313
+}
