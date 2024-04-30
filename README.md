@@ -48,3 +48,9 @@ Replace the workload and config file with the desired DB and settings.
 
 ## Visualizing Results
 Place the generated results in the `results` directory and run the scripts in `results/visualization/vis_results.ipynb` to visualize the benchmark results.
+
+## Credit
+
+This repository is a fork of the OLTP-Bench project, which was originally developed by:
+
+D. E. Difallah, A. Pavlo, C. Curino, and P. Cudré-Mauroux, "OLTP-Bench: An Extensible Testbed for Benchmarking Relational Databases," PVLDB, vol. 7, iss. 4, pp. 277-288, 2013.
