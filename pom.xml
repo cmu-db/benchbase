@@ -236,14 +236,14 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>2.0.12</version>
+            <version>2.0.13</version>
         </dependency>
 
         <dependency>
             <!-- Drop-in replacement of log4j -->
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-reload4j</artifactId>
-            <version>2.0.12</version>
+            <version>2.0.13</version>
         </dependency>
 
         <dependency>
@@ -274,7 +274,7 @@
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.15.1</version>
+            <version>2.16.1</version>
         </dependency>
 
         <dependency>
@@ -416,7 +416,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.3.0</version>
+                <version>3.4.1</version>
                 <configuration>
                     <classifier>${classifier}</classifier>
                     <archive>
