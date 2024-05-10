@@ -9,11 +9,11 @@ services="$@"
 docker compose up -d $services
 
 # Wait until ready
-for i in {1..30}; do
-    if docker exec postgres pg_isready; then
+for i in {1..5}; do
+    if docker exec postgres pg_isready && sleep 2 && docker exec postgres pg_isready; then
         break
     else
-        sleep 1
+        sleep 5
     fi
 done
 
