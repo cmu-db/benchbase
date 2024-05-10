@@ -491,6 +491,10 @@ jobs:
           ./scripts/check_latest_benchmark_results.sh $results_benchmark
           ./scripts/check_histogram_results.sh results/histograms.json $ERRORS_THRESHOLD
 
+      - name: Stop custom postgres service
+        run: |
+          ./docker/postgres-latest/down.sh
+
   ## ----------------------------------------------------------------------------------
   ## COCKROACHDB
   ## ----------------------------------------------------------------------------------
