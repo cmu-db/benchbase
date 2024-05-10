@@ -23,5 +23,5 @@ function run_psql_in_docker() {
     set +x
 }
 
-run_psql_in_docker "CREATE EXTENSION pg_stat_statements"
+run_psql_in_docker "CREATE EXTENSION IF NOT EXISTS pg_stat_statements"
 run_psql_in_docker "SELECT COUNT(*) FROM pg_stat_statements" | egrep '^[1-9][0-9]*$'
