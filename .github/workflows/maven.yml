@@ -438,7 +438,7 @@ jobs:
       # https://github.com/actions/runner/issues/2139
       - name: Start custom postgres service
         run: |
-          ./docker/postgres-latest/up.sh
+          ./docker/postgres-latest/up.sh postgres
 
       - name: Download artifact
         uses: actions/download-artifact@v4
@@ -496,6 +496,10 @@ jobs:
             echo "ERROR: Advanced monitoring unsuccessful, file directory and/or appropriate files not created." >&2
             exit 1
           fi
+
+      - name: Stop custom postgres service
+        run: |
+          ./docker/postgres-latest/down.sh
 
   ## ----------------------------------------------------------------------------------
   ## COCKROACHDB
