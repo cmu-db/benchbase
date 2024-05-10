@@ -124,7 +124,8 @@ usage: benchbase
                                 supported: [tpcc, tpch, tatp, wikipedia,
                                 resourcestresser, twitter, epinions, ycsb,
                                 seats, auctionmark, chbenchmark, voter,
-                                sibench, noop, smallbank, hyadapt, otmetrics]
+                                sibench, noop, smallbank, hyadapt,
+                                otmetrics, templated]
  -c,--config <arg>              [required] Workload configuration file
     --clear <arg>               Clear all records in the database for this
                                 benchmark
@@ -136,6 +137,7 @@ usage: benchbase
  -h,--help                      Print this help
  -im,--interval-monitor <arg>   Throughput Monitoring Interval in
                                 milliseconds
+ -jh,--json-histograms <arg>    Export histograms to JSON file
     --load <arg>                Load data using the benchmark's data
                                 loader
  -s,--sample <arg>              Sampling window
