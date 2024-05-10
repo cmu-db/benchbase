@@ -4,7 +4,9 @@ set -eu
 scriptdir=$(dirname "$(readlink -f "$0")")
 cd "$scriptdir/"
 
-docker compose up -d
+services="$@"
+
+docker compose up -d $services
 
 # Wait until ready
 for i in {1..30}; do
