@@ -468,14 +468,14 @@ jobs:
           # In this case, we load the tpcc data.
           if [[ ${{matrix.benchmark}} == templated ]]; then
             java -jar benchbase.jar -b tpcc -c config/postgres/sample_tpcc_config.xml --create=true --load=true --execute=false --json-histograms results/histograms.json
-            java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/postgres/sample_${{matrix.benchmark}}_config.xml --create=false --load=false --execute=true --json-histograms results/histograms.json
+            java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/postgres/sample_${{matrix.benchmark}}_config.xml -im 1000 -mt advanced --create=false --load=false --execute=true --json-histograms results/histograms.json
           elif [[ ${{matrix.benchmark}} == tpcc-with-reconnects ]]; then
             # See Also: WITH_SERVICE_INTERRUPTIONS=true docker/build-run-benchmark-with-docker.sh
             java -jar benchbase.jar -b tpcc -c config/postgres/sample_tpcc_config.xml --create=true --load=true
             (sleep 10 && ./scripts/interrupt-docker-db-service.sh postgres) &
-            java -jar benchbase.jar -b tpcc -c config/postgres/sample_tpcc_config.xml --execute=true --json-histograms results/histograms.json
+            java -jar benchbase.jar -b tpcc -c config/postgres/sample_tpcc_config.xml -im 1000 -mt advanced --execute=true --json-histograms results/histograms.json
           else
-            java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/postgres/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
+            java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/postgres/sample_${{matrix.benchmark}}_config.xml -im 1000 -mt advanced --create=true --load=true --execute=true --json-histograms results/histograms.json
           fi
 
           # FIXME: Reduce the error rate so we don't need these overrides.
@@ -490,6 +490,12 @@ jobs:
           fi
           ./scripts/check_latest_benchmark_results.sh $results_benchmark
           ./scripts/check_histogram_results.sh results/histograms.json $ERRORS_THRESHOLD
+
+          # Running the monitor should create at least three files in the 'monitor' directory.
+          if ![ $(find "./results/monitor" -maxdepth 1 -mindepth 1 | wc -l) -gt 2]; then
+            echo "ERROR: Advanced monitoring unsuccessful, file directory and/or appropriate files not created." >&2
+            exit 1
+          fi
 
       - name: Stop custom postgres service
         run: |
@@ -638,14 +644,14 @@ jobs:
           # In this case, we load the tpcc data.
           if [[ ${{matrix.benchmark}} == templated ]]; then
             java -jar benchbase.jar -b tpcc -c config/sqlserver/sample_tpcc_config.xml --create=true --load=true --execute=false --json-histograms results/histograms.json
-            java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/sqlserver/sample_${{matrix.benchmark}}_config.xml --create=false --load=false --execute=true --json-histograms results/histograms.json
+            java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/sqlserver/sample_${{matrix.benchmark}}_config.xml -im 1000 -mt advanced  --create=false --load=false --execute=true --json-histograms results/histograms.json
           elif [[ ${{matrix.benchmark}} == tpcc-with-reconnects ]]; then
             # See Also: WITH_SERVICE_INTERRUPTIONS=true docker/build-run-benchmark-with-docker.sh
             java -jar benchbase.jar -b tpcc -c config/sqlserver/sample_tpcc_config.xml --create=true --load=true
             (sleep 10 && ./scripts/interrupt-docker-db-service.sh sqlserver) &
-            java -jar benchbase.jar -b tpcc -c config/sqlserver/sample_tpcc_config.xml --execute=true --json-histograms results/histograms.json
+            java -jar benchbase.jar -b tpcc -c config/sqlserver/sample_tpcc_config.xml -im 1000 -mt advanced --execute=true --json-histograms results/histograms.json
           else
-            java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/sqlserver/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true --json-histograms results/histograms.json
+            java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/sqlserver/sample_${{matrix.benchmark}}_config.xml -im 1000 -mt advanced --create=true --load=true --execute=true --json-histograms results/histograms.json
           fi
 
           # FIXME: Reduce the error rate so we don't need these overrides.
@@ -658,6 +664,12 @@ jobs:
           fi
           ./scripts/check_latest_benchmark_results.sh $results_benchmark
           ./scripts/check_histogram_results.sh results/histograms.json $ERRORS_THRESHOLD
+
+          # Running the monitor should create at least three files in the 'monitor' directory.
+          if ![ $(find "./results/monitor" -maxdepth 1 -mindepth 1 | wc -l) -gt 2]; then
+            echo "ERROR: Advanced monitoring unsuccessful, file directory and/or appropriate files not created." >&2
+            exit 1
+          fi
 
   ## ----------------------------------------------------------------------------------
   ## Docker Build Test Publish
