@@ -86,6 +86,21 @@ jobs:
         name: benchbase-${{matrix.profile}}
         path: target/benchbase-${{matrix.profile}}.tgz
 
+    # Needed for running a customized service containers using docker/*/up.sh scripts.
+    # See postgres example below.
+    # https://github.com/actions/runner/issues/2139
+    - name: Package docker-compose configs
+      if: ${{ matrix.profile == 'postgres' }}
+      run: |
+        tar czvpf docker-compose-${{matrix.profile}}.tar.gz docker/${{matrix.profile}}-latest
+
+    - name: Upload docker-compose configs
+      if: ${{ matrix.profile == 'postgres' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: docker-compose-${{matrix.profile}}
+        path: docker-compose-${{matrix.profile}}.tar.gz
+
   ## ----------------------------------------------------------------------------------
   ## SQLITE
   ## ----------------------------------------------------------------------------------
@@ -406,21 +421,25 @@ jobs:
       fail-fast: false
       matrix:
         benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'templated', 'tpcc', 'tpcc-with-reconnects', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
-    services:
-      postgres: # https://hub.docker.com/_/postgres
-        image: postgres:latest
-        env:
-          POSTGRES_DB: benchbase
-          POSTGRES_USER: admin
-          POSTGRES_PASSWORD: password
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
     steps:
+      # Note: we download just the docker-compose scripts/configs rather than the
+      # whole source code repo for better testing.
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-compose-postgres
+
+      - name: Extract docker-compose artifacts
+        run: |
+          tar xvzf docker-compose-postgres.tar.gz
+
+      # Use docker-compose to start the postgres service so we can modify the
+      # command line args to include extensions.
+      # https://github.com/actions/runner/issues/2139
+      - name: Start custom postgres service
+        run: |
+          ./docker/postgres-latest/up.sh --quiet-pull postgres
+
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
@@ -471,6 +490,10 @@ jobs:
           fi
           ./scripts/check_latest_benchmark_results.sh $results_benchmark
           ./scripts/check_histogram_results.sh results/histograms.json $ERRORS_THRESHOLD
+
+      - name: Stop custom postgres service
+        run: |
+          ./docker/postgres-latest/down.sh
 
   ## ----------------------------------------------------------------------------------
   ## COCKROACHDB
