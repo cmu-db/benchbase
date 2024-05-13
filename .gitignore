@@ -56,3 +56,5 @@ build/
 .*.swp
 
 .env
+
+docker-compose-*.tar.gz
