@@ -6,13 +6,19 @@ services:
     container_name: postgres
     hostname: postgres
     image: postgres:alpine
-    command: postgres -N 500
+    command: postgres -N 500 -c shared_preload_libraries=pg_stat_statements
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: password
       POSTGRES_DB: benchbase
     ports:
       - "5432:5432"
+    healthcheck:
+      test: pg_isready
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   postgres-ui:
     container_name: postgres-ui
