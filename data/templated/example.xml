@@ -9,12 +9,12 @@
          <type>INTEGER</type>
       </types>
       <values>
-         <value>3</value>
-         <value>4</value>
+         <value dist="uniform" min="1" max="3"/>
+         <value dist="zipfian" min="1" max="2"/>
       </values>
        <values>
-         <value>5</value>
-         <value>6</value>
+         <value dist="scrambled" min="0" max="4" seed="999"/>
+         <value dist="normal" min="1" max="3" seed="1"/>
       </values>
    </template>
    <template name="GetCust">
@@ -33,8 +33,8 @@
          <type>INTEGER</type>
       </types>
       <values>
+        <value>1</value>
         <value />
-        <value>8</value>
       </values>
    </template>
    <template name="GetWarehouse">
@@ -53,8 +53,8 @@
          <type>FLOAT</type>
       </types>
       <values>
-         <value>10</value>
-         <value>10.49</value>
+         <value dist="normal" min="10" max="12.5"/>
+         <value dist="uniform" min="15.1" max="100.22"/>
       </values>
       <values>
          <value>10.50</value>
@@ -64,19 +64,28 @@
     <template name="UpdateItemPrice">
       <query><![CDATA[UPDATE item SET i_price = i_price + 1 WHERE i_price < ?]]></query>
       <types>
-         <type>FLOAT</type>
+         <type>INTEGER</type>
       </types>
       <values>
-         <value>2.1</value>
+         <value dist="zipfian" min="10" max="40">2</value>
       </values>
    </template>
    <template name="DeleteItem">
-      <query><![CDATA[DELETE FROM item WHERE i_price > ?]]></query>
+      <query><![CDATA[DELETE FROM oorder WHERE o_entry_d < ?]]></query>
       <types>
-         <type>FLOAT</type>
+         <type>TIMESTAMP</type>
       </types>
       <values>
-         <value>255.0</value>
+         <value dist="uniform" min="1000" max="300000"></value>
+      </values>
+       <values>
+         <value dist="normal" min="1000" max="300000"></value>
+      </values>
+       <values>
+         <value dist="zipfian" min="1000" max="300000"></value>
+      </values>
+       <values>
+         <value dist="scrambled" min="1000" max="300000"></value>
       </values>
    </template>
    <template name="InsertItem">
@@ -97,9 +106,9 @@
          <value>1</value>
          <value>1</value>
          <value>1</value>
-         <value>2022-10-10 11:30:30</value>
-         <value>1.0</value>
-         <value>Test</value>
+         <value dist="uniform" min="1999-12-12 01:01:55" max="2000-12-12 04:04:44"/>
+         <value dist="normal" min="0.5" max="12.5"/>
+         <value dist="uniform" min="0" max="23"/>
       </values>
    </template>
 </templates>

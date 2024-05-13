@@ -67,7 +67,8 @@ public class Q15 extends GenericQuery {
             """);
 
   public final SQLStmt dropview_stmt =
-      new SQLStmt("""
+      new SQLStmt(
+          """
             DROP VIEW revenue0
             """);
 

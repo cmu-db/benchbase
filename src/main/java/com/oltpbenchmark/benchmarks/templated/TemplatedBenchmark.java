@@ -25,18 +25,19 @@ import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.api.templates.TemplateType;
 import com.oltpbenchmark.api.templates.TemplatesType;
+import com.oltpbenchmark.api.templates.ValueType;
 import com.oltpbenchmark.api.templates.ValuesType;
 import com.oltpbenchmark.benchmarks.templated.procedures.GenericQuery;
 import com.oltpbenchmark.benchmarks.templated.procedures.GenericQuery.QueryTemplateInfo;
 import com.oltpbenchmark.benchmarks.templated.util.GenericQueryOperation;
+import com.oltpbenchmark.benchmarks.templated.util.TemplatedValue;
 import com.oltpbenchmark.benchmarks.templated.util.TraceTransactionGenerator;
-import com.opencsv.CSVParser;
-import com.opencsv.CSVParserBuilder;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBElement;
 import jakarta.xml.bind.Unmarshaller;
 import java.io.FileInputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -120,12 +121,25 @@ public final class TemplatedBenchmark extends BenchmarkModule {
         // list of params.
         List<GenericQueryOperation> list = new ArrayList<>();
         String[] paramsTypes = info.getParamsTypes();
-        CSVParser parser = new CSVParserBuilder().withQuoteChar('\'').build();
-        for (String binding : info.getParamsValues()) {
-          Object[] params = parser.parseLine(binding);
-          assert paramsTypes.length == params.length;
+
+        TemplatedValue[] params = info.getParamsValues();
+        int paramsLen = params.length;
+        int typesLen = paramsTypes.length;
+
+        assert (paramsLen % typesLen) == 0;
+
+        if (paramsLen == typesLen) {
           list.add(new GenericQueryOperation(params));
+        } else {
+          int numSplits = paramsLen / typesLen;
+          for (int j = 0; j < numSplits; j += 1) {
+            TemplatedValue[] subset =
+                Arrays.copyOfRange(params, j * typesLen, j * typesLen + typesLen);
+            assert subset.length == typesLen;
+            list.add(new GenericQueryOperation(subset));
+          }
         }
+
         generators.put(proc.getClass(), new TraceTransactionGenerator(list));
       }
 
@@ -138,6 +152,7 @@ public final class TemplatedBenchmark extends BenchmarkModule {
     } catch (Exception e) {
       throw new IllegalStateException("Unable to create workers", e);
     }
+
     return workers;
   }
 
@@ -169,38 +184,60 @@ public final class TemplatedBenchmark extends BenchmarkModule {
 
       for (TemplateType template : templates.getTemplateList()) {
         ImmutableParsedQueryTemplate.Builder b = ImmutableParsedQueryTemplate.builder();
+        List<String> templateTypes = template.getTypes().getTypeList();
+
         b.name(template.getName());
         b.query(template.getQuery());
-        b.paramsTypes(template.getTypes().getTypeList());
-        for (ValuesType paramValue : template.getValues()) {
-          b.addParamsValues(String.join(",", paramValue.getValueList()));
+        b.paramsTypes(templateTypes);
+
+        for (ValuesType paramValue : template.getValuesList()) {
+          int typeIndex = 0;
+          for (ValueType value : paramValue.getValueList()) {
+            /* Lightweight constructor used if no distribution is present */
+            if (value.getDist() == null
+                || value.getDist().length() < 1
+                || value.getDist().equals("null")) {
+              b.addParamsValues(new TemplatedValue(value.getValue()));
+            } else {
+              b.addParamsValues(
+                  new TemplatedValue(
+                      value.getDist(),
+                      value.getMin(),
+                      value.getMax(),
+                      value.getSeed(),
+                      templateTypes.get(typeIndex)));
+            }
+            typeIndex++;
+          }
         }
 
         ParsedQueryTemplate qt = b.build();
         // Create and compile class.
         final String s =
-            """
+                """
                         package %s ;
+                        import %s ;
                         public final class %s extends %s {
                             @Override
                             public %s getQueryTemplateInfo() {
                                 return ImmutableQueryTemplateInfo.builder()
                                         .query(new %s(\"%s\"))
                                         .paramsTypes(new String[] {%s})
-                                        .paramsValues(new String[] {%s})
+                                        .paramsValues(new TemplatedValue[] {%s})
                                         .build();
                             }
                         }
                         """
                 .formatted(
                     GenericQuery.class.getPackageName(),
+                    TemplatedValue.class.getCanonicalName(),
                     qt.getName(),
                     GenericQuery.class.getCanonicalName(),
                     QueryTemplateInfo.class.getCanonicalName(),
                     SQLStmt.class.getCanonicalName(),
                     StringEscapeUtils.escapeJava(qt.getQuery()),
                     getParamsString(qt.getParamsTypes()),
-                    getParamsString(qt.getParamsValues()));
+                    buildTemplatedValueString(qt.getParamsValues()));
         LOG.debug("Class definition for query template {}:\n {}", qt.getName(), s);
         final String qualifiedClassName = GenericQuery.class.getPackageName() + "." + qt.getName();
         final ISimpleCompiler compiler = compilerFactory.newSimpleCompiler();
@@ -220,6 +257,44 @@ public final class TemplatedBenchmark extends BenchmarkModule {
     String result = "";
     for (String param : params) {
       result += "\"" + StringEscapeUtils.escapeJava(param) + "\",";
+    }
+    return result.isEmpty() ? "" : result.substring(0, result.length() - 1);
+  }
+
+  private String buildTemplatedValueString(List<TemplatedValue> params) {
+    String result = "";
+    for (TemplatedValue param : params) {
+      if (param.getDistribution() != null) {
+        result +=
+            "new TemplatedValue("
+                + "\""
+                + param.getDistribution()
+                + "\""
+                + ","
+                + "\""
+                + param.getMin()
+                + "\""
+                + ","
+                + "\""
+                + param.getMax()
+                + "\""
+                + ","
+                + "\""
+                + param.getSeed()
+                + "\""
+                + ","
+                + "\""
+                + param.getValueType()
+                + "\""
+                + "),";
+      } else {
+        result +=
+            "new TemplatedValue("
+                + "\""
+                + StringEscapeUtils.escapeJava(param.getValue())
+                + "\""
+                + "),";
+      }
     }
     return result.isEmpty() ? "" : result.substring(0, result.length() - 1);
   }
@@ -271,7 +346,7 @@ public final class TemplatedBenchmark extends BenchmarkModule {
 
     /** Potential query parameter values. */
     @Value.Default
-    default List<String> getParamsValues() {
+    default List<TemplatedValue> getParamsValues() {
       return List.of();
     }
   }

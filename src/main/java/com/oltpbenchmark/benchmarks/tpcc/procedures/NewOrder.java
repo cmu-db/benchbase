@@ -34,7 +34,7 @@ public class NewOrder extends TPCCProcedure {
 
   public final SQLStmt stmtGetCustSQL =
       new SQLStmt(
-          """
+              """
         SELECT C_DISCOUNT, C_LAST, C_CREDIT
           FROM %s
          WHERE C_W_ID = ?
@@ -45,7 +45,7 @@ public class NewOrder extends TPCCProcedure {
 
   public final SQLStmt stmtGetWhseSQL =
       new SQLStmt(
-          """
+              """
         SELECT W_TAX
           FROM %s
          WHERE W_ID = ?
@@ -54,7 +54,7 @@ public class NewOrder extends TPCCProcedure {
 
   public final SQLStmt stmtGetDistSQL =
       new SQLStmt(
-          """
+              """
         SELECT D_NEXT_O_ID, D_TAX
           FROM %s
          WHERE D_W_ID = ? AND D_ID = ? FOR UPDATE
@@ -63,7 +63,7 @@ public class NewOrder extends TPCCProcedure {
 
   public final SQLStmt stmtInsertNewOrderSQL =
       new SQLStmt(
-          """
+              """
         INSERT INTO %s
          (NO_O_ID, NO_D_ID, NO_W_ID)
          VALUES ( ?, ?, ?)
@@ -72,7 +72,7 @@ public class NewOrder extends TPCCProcedure {
 
   public final SQLStmt stmtUpdateDistSQL =
       new SQLStmt(
-          """
+              """
         UPDATE %s
            SET D_NEXT_O_ID = D_NEXT_O_ID + 1
          WHERE D_W_ID = ?
@@ -82,7 +82,7 @@ public class NewOrder extends TPCCProcedure {
 
   public final SQLStmt stmtInsertOOrderSQL =
       new SQLStmt(
-          """
+              """
         INSERT INTO %s
          (O_ID, O_D_ID, O_W_ID, O_C_ID, O_ENTRY_D, O_OL_CNT, O_ALL_LOCAL)
          VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -91,7 +91,7 @@ public class NewOrder extends TPCCProcedure {
 
   public final SQLStmt stmtGetItemSQL =
       new SQLStmt(
-          """
+              """
         SELECT I_PRICE, I_NAME , I_DATA
           FROM %s
          WHERE I_ID = ?
@@ -100,7 +100,7 @@ public class NewOrder extends TPCCProcedure {
 
   public final SQLStmt stmtGetStockSQL =
       new SQLStmt(
-          """
+              """
         SELECT S_QUANTITY, S_DATA, S_DIST_01, S_DIST_02, S_DIST_03, S_DIST_04, S_DIST_05,
                S_DIST_06, S_DIST_07, S_DIST_08, S_DIST_09, S_DIST_10
           FROM %s
@@ -111,7 +111,7 @@ public class NewOrder extends TPCCProcedure {
 
   public final SQLStmt stmtUpdateStockSQL =
       new SQLStmt(
-          """
+              """
         UPDATE %s
            SET S_QUANTITY = ? ,
                S_YTD = S_YTD + ?,
@@ -124,7 +124,7 @@ public class NewOrder extends TPCCProcedure {
 
   public final SQLStmt stmtInsertOrderLineSQL =
       new SQLStmt(
-          """
+              """
         INSERT INTO %s
          (OL_O_ID, OL_D_ID, OL_W_ID, OL_NUMBER, OL_I_ID, OL_SUPPLY_W_ID, OL_QUANTITY, OL_AMOUNT, OL_DIST_INFO)
          VALUES (?,?,?,?,?,?,?,?,?)
