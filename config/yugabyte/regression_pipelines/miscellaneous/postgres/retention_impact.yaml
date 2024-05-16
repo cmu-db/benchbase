@@ -6,7 +6,7 @@ password: {{password}}
 batchsize: 128
 isolation: TRANSACTION_REPEATABLE_READ
 loaderthreads: 1
-terminals: 1
+terminals: 6
 collect_pg_stat_statements: true
 yaml_version: v1.0
 works:
@@ -20,7 +20,7 @@ microbenchmark:
         setAutoCommit: true
         create:
             - drop table IF EXISTS nets_1;
-            - create table nets_1(op_id_1 text,work_type_1 text,work_id_1 text,sequence_id_1 text,source_1 text,owner_1 text,state_1 text,resource_id_1 text,tracing_data_1 text,created_1 timestamp with time zone,modified_1 timestamp with time zone,timeout_1 timestamp with time zone,retry_count_1 bigint,db_user_id_1 text,shard_id_1 smallint,ingest_time_1 timestamp with time zone,label_1 text,metadata_1 text,primary key ((db_user_id_1, shard_id_1) , op_id_1 ));
+            - create table nets_1(op_id_1 text,work_type_1 text,work_id_1 text,sequence_id_1 text,source_1 text,owner_1 text,state_1 text,resource_id_1 text,tracing_data_1 text,created_1 timestamp with time zone,modified_1 timestamp with time zone,timeout_1 timestamp with time zone,retry_count_1 bigint,db_user_id_1 text,shard_id_1 smallint,ingest_time_1 timestamp with time zone,label_1 text,metadata_1 text,primary key (db_user_id_1, shard_id_1, op_id_1 ));
 
         cleanup:
             - drop table IF EXISTS nets_1;
