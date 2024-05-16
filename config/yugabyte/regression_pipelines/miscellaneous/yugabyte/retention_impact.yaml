@@ -1,0 +1,175 @@
+type: YUGABYTE
+driver: com.yugabyte.Driver
+url: jdbc:yugabytedb://{{endpoint}}:5433/yugabyte?sslmode=require&ApplicationName=featurebench&reWriteBatchedInserts=true&load-balance=true
+username: {{username}}
+password: {{password}}
+batchsize: 128
+isolation: TRANSACTION_REPEATABLE_READ
+loaderthreads: 1
+terminals: 6
+collect_pg_stat_statements: true
+yaml_version: v1.0
+use_dist_in_explain : true
+works:
+    work:
+        time_secs: 3600
+        rate: unlimited
+        warmup: 60
+microbenchmark:
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
+    properties:
+        setAutoCommit: true
+        create:
+            - drop table IF EXISTS nets_1;
+            - create table nets_1(op_id_1 text,work_type_1 text,work_id_1 text,sequence_id_1 text,source_1 text,owner_1 text,state_1 text,resource_id_1 text,tracing_data_1 text,created_1 timestamp with time zone,modified_1 timestamp with time zone,timeout_1 timestamp with time zone,retry_count_1 bigint,db_user_id_1 text,shard_id_1 smallint,ingest_time_1 timestamp with time zone,label_1 text,metadata_1 text,primary key ((db_user_id_1, shard_id_1) HASH, op_id_1 ASC));
+
+        cleanup:
+            - drop table IF EXISTS nets_1;
+
+        loadRules:
+            - table: nets_
+              count: 1
+              rows: 100000000
+              columns:
+                    - name: op_id_
+                      count: 1
+                      util: PrimaryStringGen
+                      params: [ 1, 50 ]
+                    - name: work_type_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: work_id_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: sequence_id_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: source_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: owner_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: state_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: resource_id_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: tracing_data_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: created_
+                      count: 1
+                      util: CurrentTime
+                    - name: modified_
+                      count: 1
+                      util: CurrentTime
+                    - name: timeout_
+                      count: 1
+                      util: CurrentTime
+                    - name: retry_count_
+                      count: 1
+                      util: RandomInt
+                      params: [ 1, 50 ]
+                    - name: db_user_id_
+                      count: 1
+                      util: HashedRandomString
+                      params: [ 1, 500, 10]
+                    - name: shard_id_
+                      count: 1
+                      util: RandomNumber
+                      params: [ 1, 50 ]
+                    - name: ingest_time_
+                      count: 1
+                      util: CurrentTime
+                    - name: label_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: metadata_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+
+        executeRules:
+            - workload: Retention_pre_workload_run1
+              time_secs: 300
+              run:
+                  - name: NetG1_1_select_query
+                    weight: 100
+                    queries:
+                        - query: select work_id_1,owner_1,state_1,sequence_id_1 from nets_1 where db_user_id_1 = ? and shard_id_1 = ANY(ARRAY[?,?,?,?])
+                          bindings:
+                            - util: HashedRandomString
+                              params: [ 1, 500, 10]
+                            - util: RandomInt
+                              params: [ 1, 20 ]
+                            - util: RandomInt
+                              params: [ 21, 30 ]
+                            - util: RandomInt
+                              params: [ 31, 40 ]
+                            - util: RandomInt
+                              params: [ 41, 50 ]
+            - workload: Retention_mixed_workload_run2
+              time_secs: 3600
+              run:
+                  - name: NetG1_1_update_query
+                    weight: 50
+                    queries:
+                        - query: UPDATE nets_1 SET shard_id_1 = shard_id_1 + 1 WHERE db_user_id_1 = ? and shard_id_1 = ?
+                          bindings:
+                            - util: HashedRandomString
+                              params: [ 1, 500, 10]
+                            - util: RandomInt
+                              params: [ 21, 50 ]
+                  - name: NetG1_2_delete_query
+                    weight: 10
+                    queries:
+                        - query: delete from nets_1 where db_user_id_1 = ? and shard_id_1 = ?
+                          bindings:
+                            - util: HashedRandomString
+                              params: [ 1, 150 , 10]
+                            - util: RandomInt
+                              params: [ 1, 20 ]
+                  - name: NetG1_3_scan_query_pointselect
+                    weight: 40
+                    queries:
+                        - query: select work_id_1,owner_1,state_1,sequence_id_1 from nets_1 where db_user_id_1 = ? and shard_id_1 = ANY(ARRAY[?,?,?,?])
+                          bindings:
+                            - util: HashedRandomString
+                              params: [ 1, 500, 10]
+                            - util: RandomInt
+                              params: [ 1, 20 ]
+                            - util: RandomInt
+                              params: [ 21, 30 ]
+                            - util: RandomInt
+                              params: [ 31, 40 ]
+                            - util: RandomInt
+                              params: [ 41, 50 ]
+            - workload: Retention_post_workload_run3
+              time_secs: 300
+              run:
+                  - name: NetG1_1_select_query
+                    weight: 100
+                    queries:
+                        - query: select work_id_1,owner_1,state_1,sequence_id_1 from nets_1 where db_user_id_1 = ? and shard_id_1 = ANY(ARRAY[?,?,?,?])
+                          bindings:
+                            - util: HashedRandomString
+                              params: [ 1, 500, 10]
+                            - util: RandomInt
+                              params: [ 1, 20 ]
+                            - util: RandomInt
+                              params: [ 21, 30 ]
+                            - util: RandomInt
+                              params: [ 31, 40 ]
+                            - util: RandomInt
+                              params: [ 41, 50 ]
