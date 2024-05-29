@@ -51,8 +51,8 @@
         </procedure>
         <procedure name="Q6">
             <statement name="query_stmt">
-                SELECT sum(ol_amount) AS revenue FROM order_line WHERE ol_delivery_d >= to_date('1999-01-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS')
-                        AND to_date('2020-01-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS') > ol_delivery_d AND ol_quantity BETWEEN 1 AND 100000
+                SELECT sum(ol_amount) AS revenue FROM order_line WHERE ol_delivery_d >= datetime('1999-01-01 00:00:00')
+                        AND datetime('2020-01-01 00:00:00') > ol_delivery_d AND ol_quantity BETWEEN 1 AND 100000
             </statement>
         </procedure>
         <procedure name="Q7">
@@ -141,7 +141,7 @@
                     SELECT mod((s_w_id * s_i_id),10000) as supplier_no, sum(ol_amount) as total_revenue
                     FROM order_line, stock
                     WHERE ol_i_id = s_i_id AND ol_supply_w_id = s_w_id
-                            AND ol_delivery_d >= to_date('2007-01-02 00:00:00', 'YYYY-MM-DD HH24:MI:SS')
+                            AND ol_delivery_d >= datetime('2007-01-02 00:00:00')
                     GROUP BY mod((s_w_id * s_i_id),10000)
             </statement>
         </procedure>
