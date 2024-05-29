@@ -36,6 +36,10 @@ env:
   JAVA_VERSION: 21
   ERRORS_THRESHOLD: 0.01
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
+
 jobs:
   compile-and-test:
     runs-on: ubuntu-latest
