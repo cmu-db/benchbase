@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
 <dialects>
-    <dialect type="ORACLE">
+    <dialect type="sqlite">
         <procedure name="Q1">
             <statement name="query_stmt">
                 SELECT ol_number, sum(ol_quantity) AS sum_qty, sum(ol_amount) AS sum_amount, avg(ol_quantity) AS avg_qty,
                         avg(ol_amount) AS avg_amount, count(*) AS count_order
                 FROM order_line
-                WHERE ol_delivery_d > TO_DATE('2007-01-02 00:00:00', 'YYYY-MM-DD HH24:MI:SS')
+                WHERE ol_delivery_d > datetime('2007-01-02 00:00:00')
                 GROUP BY ol_number
                 ORDER BY ol_number
             </statement>
@@ -32,7 +32,7 @@
                 FROM customer, new_order, oorder, order_line
                 WHERE c_state LIKE 'A%' AND c_id = o_c_id AND c_w_id = o_w_id AND c_d_id = o_d_id AND no_w_id = o_w_id
                         AND no_d_id = o_d_id AND no_o_id = o_id AND ol_w_id = o_w_id AND ol_d_id = o_d_id AND ol_o_id = o_id
-                        AND o_entry_d > TO_DATE('2007-01-02 00:00:00', 'YYYY-MM-DD HH24:MI:SS')
+                        AND o_entry_d > datetime('2007-01-02 00:00:00')
                 GROUP BY ol_o_id, ol_w_id, ol_d_id, o_entry_d
                 ORDER BY revenue DESC , o_entry_d
             </statement>
@@ -44,57 +44,55 @@
                 WHERE c_id = o_c_id AND c_w_id = o_w_id AND c_d_id = o_d_id AND ol_o_id = o_id AND ol_w_id = o_w_id
                         AND ol_d_id=o_d_id AND ol_w_id = s_w_id AND ol_i_id = s_i_id
                         AND MOD((s_w_id * s_i_id), 10000) = su_suppkey
-                        AND ascii(substr(c_state, 1, 1)) = su_nationkey AND su_nationkey = n_nationkey AND n_regionkey = r_regionkey AND r_name = 'Europe'
-                        AND o_entry_d >= TO_DATE('2007-01-02 00:00:00', 'YYYY-MM-DD HH24:MI:SS')
+                        AND unicode(substr(c_state, 1, 1)) = su_nationkey AND su_nationkey = n_nationkey AND n_regionkey = r_regionkey AND r_name = 'Europe'
+                        AND o_entry_d >= datetime('2007-01-02 00:00:00')
                 GROUP BY n_name ORDER BY revenue DESC
             </statement>
         </procedure>
         <procedure name="Q6">
             <statement name="query_stmt">
-                SELECT sum(ol_amount) AS revenue FROM order_line WHERE ol_delivery_d >= to_date('1999-01-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS')
-                        AND to_date('2020-01-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS') > ol_delivery_d AND ol_quantity BETWEEN 1 AND 100000
+                SELECT sum(ol_amount) AS revenue FROM order_line WHERE ol_delivery_d >= datetime('1999-01-01 00:00:00')
+                        AND datetime('2020-01-01 00:00:00') > ol_delivery_d AND ol_quantity BETWEEN 1 AND 100000
             </statement>
         </procedure>
         <procedure name="Q7">
             <statement name="query_stmt">
-                SELECT su_nationkey AS supp_nation, substr(c_state, 1, 1) AS cust_nation, extract(YEAR FROM o_entry_d) AS l_year,
+                SELECT su_nationkey AS supp_nation, substr(c_state, 1, 1) AS cust_nation, strftime('%Y', o_entry_d) AS l_year,
                         sum(ol_amount) AS revenue
                 FROM supplier, stock, order_line, oorder, customer, nation n1, nation n2
                 WHERE ol_supply_w_id = s_w_id AND ol_i_id = s_i_id AND MOD ((s_w_id * s_i_id), 10000) = su_suppkey
                         AND ol_w_id = o_w_id AND ol_d_id = o_d_id AND ol_o_id = o_id AND c_id = o_c_id AND c_w_id = o_w_id
-                        AND c_d_id = o_d_id AND su_nationkey = n1.n_nationkey AND ascii(substr(c_state, 1, 1)) = n2.n_nationkey
+                        AND c_d_id = o_d_id AND su_nationkey = n1.n_nationkey AND unicode(substr(c_state, 1, 1)) = n2.n_nationkey
                         AND (
                             (n1.n_name = 'Germany' AND n2.n_name = 'Cambodia')
                             OR
                             (n1.n_name = 'Cambodia' AND n2.n_name = 'Germany')
                         )
-                GROUP BY su_nationkey, substr(c_state, 1, 1), extract(YEAR FROM o_entry_d)
+                GROUP BY su_nationkey, cust_nation, l_year
                 ORDER BY su_nationkey, cust_nation, l_year
             </statement>
         </procedure>
         <procedure name="Q8">
             <statement name="query_stmt">
-                SELECT extract(YEAR FROM o_entry_d) AS l_year, sum(
+                SELECT strftime('%Y', o_entry_d) AS l_year, sum(
                     CASE WHEN n2.n_name = 'Germany' THEN ol_amount ELSE 0 END
                 ) / sum(ol_amount) AS mkt_share
                 FROM item, supplier, stock, order_line, oorder, customer, nation n1, nation n2, region
                 WHERE i_id = s_i_id AND ol_i_id = s_i_id AND ol_supply_w_id = s_w_id AND MOD ((s_w_id * s_i_id), 10000) = su_suppkey
                         AND ol_w_id = o_w_id AND ol_d_id = o_d_id AND ol_o_id = o_id AND c_id = o_c_id AND c_w_id = o_w_id
-                        AND c_d_id = o_d_id AND n1.n_nationkey = ascii(substr(c_state, 1, 1)) AND n1.n_regionkey = r_regionkey
+                        AND c_d_id = o_d_id AND n1.n_nationkey = unicode(substr(c_state, 1, 1)) AND n1.n_regionkey = r_regionkey
                         AND 1000 > ol_i_id AND r_name = 'Europe' AND su_nationkey = n2.n_nationkey AND i_data LIKE '%b' AND i_id = ol_i_id
-                GROUP BY extract(YEAR FROM o_entry_d)
-                ORDER BY l_year
+                GROUP BY l_year ORDER BY l_year
             </statement>
         </procedure>
         <procedure name="Q9">
             <statement name="query_stmt">
-                SELECT n_name, extract(YEAR FROM o_entry_d) AS l_year, sum(ol_amount) AS sum_profit
+                SELECT n_name, strftime('%Y', o_entry_d) AS l_year, sum(ol_amount) AS sum_profit
                 FROM item, stock, supplier, order_line, oorder, nation
                 WHERE ol_i_id = s_i_id AND ol_supply_w_id = s_w_id AND MOD ((s_w_id * s_i_id), 10000) = su_suppkey
                         AND ol_w_id = o_w_id AND ol_d_id = o_d_id AND ol_o_id = o_id AND ol_i_id = i_id AND su_nationkey = n_nationkey
                         AND i_data LIKE '%bb'
-                GROUP BY n_name, extract(YEAR FROM o_entry_d)
-                ORDER BY n_name, l_year DESC
+                GROUP BY n_name, l_year ORDER BY n_name, l_year DESC
             </statement>
         </procedure>
         <procedure name="Q10">
@@ -102,8 +100,8 @@
                 SELECT c_id, c_last, sum(ol_amount) AS revenue, c_city, c_phone, n_name
                 FROM customer, oorder, order_line, nation
                 WHERE c_id = o_c_id AND c_w_id = o_w_id AND c_d_id = o_d_id AND ol_w_id = o_w_id AND ol_d_id = o_d_id
-                AND ol_o_id = o_id AND o_entry_d >= TO_DATE('2007-01-02 00:00:00', 'YYYY-MM-DD HH24:MI:SS')
-                AND ol_delivery_d >= o_entry_d AND n_nationkey = ascii(substr(c_state, 1, 1))
+                AND ol_o_id = o_id AND o_entry_d >= datetime('2007-01-02 00:00:00')
+                AND ol_delivery_d >= o_entry_d AND n_nationkey = unicode(substr(c_state, 1, 1))
                 GROUP BY c_id, c_last, c_city, c_phone, n_name ORDER BY revenue DESC
             </statement>
         </procedure>
@@ -113,7 +111,7 @@
                         sum(CASE WHEN o_carrier_id != 1 AND o_carrier_id != 2 THEN 1 ELSE 0 END) AS low_line_count
                 FROM oorder, order_line
                 WHERE ol_w_id = o_w_id AND ol_d_id = o_d_id AND ol_o_id = o_id AND ol_delivery_d >= o_entry_d
-                        AND TO_DATE('2020-01-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS') > ol_delivery_d
+                        AND datetime('2020-01-01 00:00:00') > ol_delivery_d
                 GROUP BY o_ol_cnt ORDER BY o_ol_cnt
             </statement>
         </procedure>
@@ -133,8 +131,8 @@
             <statement name="query_stmt">
                 SELECT (100.00 * sum(CASE WHEN i_data LIKE 'PR%' THEN ol_amount ELSE 0 END) / (1 + sum(ol_amount))) AS promo_revenue
                 FROM order_line, item
-                WHERE ol_i_id = i_id AND ol_delivery_d >= TO_DATE('2007-01-02 00:00:00', 'YYYY-MM-DD HH24:MI:SS')
-                        AND TO_DATE('2020-01-02', 'YYYY-MM-DD HH24:MI:SS') > ol_delivery_d
+                WHERE ol_i_id = i_id AND ol_delivery_d >= datetime('2007-01-02 00:00:00')
+                        AND datetime('2020-01-02') > ol_delivery_d
             </statement>
         </procedure>
         <procedure name="Q15">
@@ -143,7 +141,7 @@
                     SELECT mod((s_w_id * s_i_id),10000) as supplier_no, sum(ol_amount) as total_revenue
                     FROM order_line, stock
                     WHERE ol_i_id = s_i_id AND ol_supply_w_id = s_w_id
-                            AND ol_delivery_d >= to_date('2007-01-02 00:00:00', 'YYYY-MM-DD HH24:MI:SS')
+                            AND ol_delivery_d >= datetime('2007-01-02 00:00:00')
                     GROUP BY mod((s_w_id * s_i_id),10000)
             </statement>
         </procedure>
@@ -179,7 +177,7 @@
                 WHERE su_suppkey IN (
                     SELECT mod(s_i_id * s_w_id, 10000)
                     FROM stock INNER JOIN item ON i_id = s_i_id INNER JOIN order_line ON ol_i_id = s_i_id
-                    WHERE ol_delivery_d > TO_DATE('2010-05-23 12:00:00', 'YYYY-MM-DD HH24:MI:SS') AND i_data LIKE 'co%'
+                    WHERE ol_delivery_d > datetime('2010-05-23 12:00:00') AND i_data LIKE 'co%'
                     GROUP BY s_i_id, s_w_id, s_quantity
                     HAVING 2*s_quantity > sum(ol_quantity)
                 ) AND su_nationkey = n_nationkey AND n_name = 'Germany'
