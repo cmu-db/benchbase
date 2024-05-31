@@ -531,12 +531,14 @@ jobs:
       fail-fast: false
       matrix:
         # TODO: Add tpcc-with-reconnects benchmark support
-        benchmark: [ 'auctionmark', 'chbenchmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'templated', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
+        # TODO: Add chbenchmark benchmark support
+        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'templated', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
     services:
       cockroach: # https://hub.docker.com/repository/docker/timveil/cockroachdb-single-node
         image: timveil/cockroachdb-single-node:latest
         env:
           DATABASE_NAME: benchbase
+          # TODO: Expand for additional config adjustments (See Also: #405, #519, #525)
           MEMORY_SIZE: .75
         ports:
           - 26257:26257
