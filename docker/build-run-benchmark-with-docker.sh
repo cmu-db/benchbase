@@ -33,7 +33,7 @@ if [ "$BENCHBASE_PROFILE" == 'sqlite' ]; then
     fi
     EXTRA_DOCKER_ARGS="-v $SRC_DIR/$benchmark.db:/benchbase/profiles/sqlite/$benchmark.db"
 
-    if [ "$benchmark" == 'templated' ]; then
+    if echo "$benchmark" | egrep -qx '(templated|chbenchmark)'; then
         # See notes below:
         EXTRA_DOCKER_ARGS+=" -v $SRC_DIR/$benchmark.db:/benchbase/profiles/sqlite/tpcc.db"
     fi
@@ -49,7 +49,7 @@ if [ "${SKIP_LOAD_DB:-false}" != 'true' ]; then
     # For templated benchmarks, we need to preload some data for the test since by
     # design, templated benchmarks do not support the 'load' operation
     # In this case, we load the tpcc data.
-    if [ "$benchmark" == 'templated' ]; then
+    if echo "$benchmark" | egrep -qx '(templated|chbenchmark)'; then
         load_benchmark='tpcc'
 
         echo "INFO: Loading tpcc data for templated benchmark"
@@ -59,15 +59,24 @@ if [ "${SKIP_LOAD_DB:-false}" != 'true' ]; then
         else
             config="config/sample_tpcc_config.xml"
         fi
-    else
+
+        BUILD_IMAGE=false EXTRA_DOCKER_ARGS="--network=host $EXTRA_DOCKER_ARGS" \
+        ./docker/benchbase/run-full-image.sh \
+            --config "$config" --bench "$load_benchmark" \
+            --create=true --load=true --execute=false
+    fi
+
+    # For chbenchmark, we also load it's data in addition to tpcc.
+    if ! echo "$benchmark" | egrep -qx '(templated)'; then
         echo "INFO: Loading $benchmark data"
         load_benchmark="$benchmark"
         config="config/sample_${benchmark}_config.xml"
+
+        BUILD_IMAGE=false EXTRA_DOCKER_ARGS="--network=host $EXTRA_DOCKER_ARGS" \
+        ./docker/benchbase/run-full-image.sh \
+            --config "$config" --bench "$load_benchmark" \
+            --create=true --load=true --execute=false
     fi
-    BUILD_IMAGE=false EXTRA_DOCKER_ARGS="--network=host $EXTRA_DOCKER_ARGS" \
-    ./docker/benchbase/run-full-image.sh \
-        --config "$config" --bench "$load_benchmark" \
-        --create=true --load=true --execute=false
 else
     echo "INFO: Skipping load of $benchmark data"
 fi

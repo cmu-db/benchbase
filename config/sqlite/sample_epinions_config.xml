@@ -4,13 +4,13 @@
     <!-- Connection details -->
     <type>SQLITE</type>
     <driver>org.sqlite.JDBC</driver>
-    <url>jdbc:sqlite:resourcestresser.db</url>
+    <url>jdbc:sqlite:epinions.db</url>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
     <batchsize>128</batchsize>
 
     <!-- Scalefactor in Epinions scales by *2000 the number of users-->
     <scalefactor>0.1</scalefactor>
-    
+
     <!-- SQLITE only supports one writer thread -->
     <loaderThreads>1</loaderThreads>
 
