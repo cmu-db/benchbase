@@ -56,5 +56,8 @@ build/
 .*.swp
 
 .env
-
 docker-compose-*.tar.gz
+
+# Python
+__pycache__/
+*.py[cod]
