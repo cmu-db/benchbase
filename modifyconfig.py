@@ -10,6 +10,7 @@ root = tree.getroot()
 data=json.loads(sys.argv[1])
 for key,value in data.items():
     element=root.find(key)
+    value = str(value)
     if key == "warmup":
         element=root.find("works/work/warmup")
         if element == None:
