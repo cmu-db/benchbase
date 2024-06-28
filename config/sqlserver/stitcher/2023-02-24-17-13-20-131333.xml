@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='utf-8'?>
+<parameters>
+
+    
+    <type>sqlserver</type>
+    <driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</driver>
+    <url>jdbc:sqlserver://localhost:1433;encrypt=false;databaseName=ycsb</url>
+    <username>benchuser01</username>
+    <password>P@ssw0rd</password>
+    <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    <uploadCode />
+    <uploadUrl />
+
+    
+    <scalefactor>1200</scalefactor>
+    
+    <terminals>4</terminals>
+    <works>
+        <work>
+          <time>300</time>
+          <rate>27</rate>
+          <weights>50,5,15,10,10,10</weights>
+        </work>
+    </works>
+
+    
+    <transactiontypes>
+        <transactiontype>
+                <name>ReadRecord</name>
+        </transactiontype>
+        <transactiontype>
+                <name>InsertRecord</name>
+        </transactiontype>
+        <transactiontype>
+                <name>ScanRecord</name>
+        </transactiontype>
+        <transactiontype>
+                <name>UpdateRecord</name>
+        </transactiontype>
+        <transactiontype>
+                <name>DeleteRecord</name>
+        </transactiontype>
+        <transactiontype>
+                <name>ReadModifyWriteRecord</name>
+        </transactiontype>
+    </transactiontypes>
+</parameters>
