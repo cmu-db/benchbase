@@ -15,9 +15,9 @@ class DifferentialPrivacyAnonymizer():
         alg = self.anon_config.algorithm
         eps = float(self.anon_config.epsilon)
         pre_eps = float(self.anon_config.preproc_eps)
-        cat = self.anon_config.categorical
-        cont = self.anon_config.continuous
-        ordi = self.anon_config.ordinal
+        cat = self.anon_config.column_classification.categorical
+        cont = self.anon_config.column_classification.continuous
+        ordi = self.anon_config.column_classification.ordinal
 
         saved_columns,saved_indexes = self.__remove_ignorable()
 
@@ -70,7 +70,7 @@ class DifferentialPrivacyAnonymizer():
     def __remove_ignorable(self):
         saved_columns = []
         saved_indexes = []
-        ignore_columns = self.anon_config.hidden
+        ignore_columns = self.anon_config.column_classification.hidden
         if ignore_columns:
             saved_columns = self.dataset[ignore_columns]
             for col in ignore_columns:
@@ -80,7 +80,7 @@ class DifferentialPrivacyAnonymizer():
         return saved_columns,saved_indexes
     
     def __add_ignorable(self,dataset,saved_indexes,saved_columns):
-        ignore_columns = self.anon_config.hidden
+        ignore_columns = self.anon_config.column_classification.hidden
         for ind, col in enumerate(ignore_columns):
             dataset.insert(saved_indexes[ind], col, saved_columns[col])
         return dataset

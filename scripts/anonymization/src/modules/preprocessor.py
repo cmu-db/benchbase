@@ -29,9 +29,9 @@ class Preprocessor:
         tt = TableTransformer.create(
             dataset,
             nullable=dataset.isnull().values.any(),
-            categorical_columns=self.config.categorical,
-            continuous_columns=self.config.continuous,
-            ordinal_columns=self.config.ordinal,
+            categorical_columns=self.config.column_classification.categorical,
+            continuous_columns=self.config.column_classification.continuous,
+            ordinal_columns=self.config.column_classification.ordinal,
             style=style,
             constraints=self.getConstraints(cont_config, dataset),
         )
