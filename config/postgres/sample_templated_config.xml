@@ -19,6 +19,30 @@
 
     <query_templates_file>data/templated/example.xml</query_templates_file>
 
+     <anonymization>
+        <table name="item">
+            <differential_privacy epsilon="1.0" pre_epsilon="0.0" algorithm="mst">
+            <!-- Column categorization -->
+                <ignore>
+                    <column name="i_id"/>
+                    <column name="i_data" />
+                    <column name="i_im_id" />
+                </ignore>
+                <categorical>
+                    <column name="i_name" />
+                </categorical>
+            <!-- Continuous column fine-tuning -->
+                <continuous>
+                    <column name="i_price" bins="1000" lower="2.0" upper="100.0" /> 
+                </continuous>
+            </differential_privacy>
+            <!-- Sensitive value handling -->
+            <value_faking>
+                <column name="i_name" method="name" locales="en_US" seed="0"/>
+            </value_faking>
+        </table>
+    </anonymization>
+
     <!-- The workload -->
     <terminals>1</terminals>
     <works>

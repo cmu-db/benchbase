@@ -7,8 +7,8 @@ import pandas as pd
 from modules.jdbc_handler import JDBCHandler
 from configuration.config_parser import XMLParser
 from configuration.configurations import DPConfig, SensitiveConfig, ContinuousConfig
-#from modules.dp_anonymizer import DifferentialPrivacyAnonymizer
-#from modules.sensitive_anonymizer import SensitiveAnonymizer
+from modules.dp_anonymizer import DifferentialPrivacyAnonymizer
+from modules.sensitive_anonymizer import SensitiveAnonymizer
 
 
 def anonymize(
@@ -18,7 +18,7 @@ def anonymize(
     sens_config: SensitiveConfig,
     templates_path: str,
 ):
-    '''
+    
     dp_data = dataset
     if anon_config:
         dp_anonymizer = DifferentialPrivacyAnonymizer(dataset, anon_config, cont_config)
@@ -29,8 +29,7 @@ def anonymize(
         dp_data = sens_anonymizer.run_anonymization()
 
     return dp_data
-    '''
-    return
+
 
 
 def anonymize_db(
@@ -40,16 +39,16 @@ def anonymize_db(
     cont_config: ContinuousConfig,
     templates_path: str,
 ):
-    '''
-    jdbc_handler.start_JVM()
+    
+    jdbc_handler.start_jvm()
 
     conn = jdbc_handler.get_connection()
 
     table = anon_config.table_name
     dataset, timestamps = jdbc_handler.data_from_table(conn, table)
 
-    datasetAnon = anonymize(
-        dataset, anon_config, contConfig, sensConfig, templates_path
+    dataset_anon = anonymize(
+        dataset, anon_config, cont_config, sens_config, templates_path
     )
 
     ## TODO: Throw in Sensitive Anonmization
@@ -59,11 +58,11 @@ def anonymize_db(
 
     # Populate new table
     jdbc_handler.populate_anonymized_table(
-        conn, datasetAnon, anon_table_name, timestamps
+        conn, dataset_anon, anon_table_name, timestamps
     )
 
     conn.close()
-    '''
+    
     return
 
 
