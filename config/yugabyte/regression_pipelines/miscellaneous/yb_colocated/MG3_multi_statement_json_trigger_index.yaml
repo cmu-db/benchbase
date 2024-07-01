@@ -1,0 +1,290 @@
+type: YUGABYTE
+driver: com.yugabyte.Driver
+url: jdbc:yugabytedb://{{endpoint}}:5433/yugabyte?sslmode=require&ApplicationName=featurebench&reWriteBatchedInserts=true&load-balance=false
+createdb: drop database if exists yb_colocated; create database yb_colocated with colocated=true
+username: {{username}}
+password: {{password}}
+batchsize: 128
+isolation: TRANSACTION_REPEATABLE_READ
+loaderthreads: 1
+terminals: 24
+collect_pg_stat_statements: true
+use_dist_in_explain : true
+yaml_version: v1.0
+works:
+    work:
+        time_secs: 300
+        rate: unlimited
+        warmup: 60
+microbenchmark:
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
+    properties:
+        setAutoCommit: true
+        create:
+            - drop table if exists update_test_table1_varchar_json_col5_16_1;
+            - drop table if exists update_test_table1_varchar_json_col5_16_2;
+            - drop table if exists update_test_table1_varchar_json_col5_16_3;
+            - CREATE TABLE update_test_table1_varchar_json_col5_16_1 (id INT, vcol1 varchar(255), vcol2 varchar(255), vcol3 varchar(255), vcol4 varchar(255), vcol5 varchar(255), col1 jsonb, col2 jsonb, col3 jsonb, col4 jsonb, col5 jsonb, count int, primary key(id));
+            - CREATE TABLE update_test_table1_varchar_json_col5_16_2 (id INT, vcol1 varchar(255), vcol2 varchar(255), vcol3 varchar(255), vcol4 varchar(255), vcol5 varchar(255), col1 jsonb, col2 jsonb, col3 jsonb, col4 jsonb, col5 jsonb, count int, primary key(id));
+            - CREATE INDEX ON update_test_table1_varchar_json_col5_16_2(vcol1);
+            - CREATE TABLE update_test_table1_varchar_json_col5_16_3 (id INT, vcol1 varchar(255), vcol2 varchar(255), vcol3 varchar(255), vcol4 varchar(255), vcol5 varchar(255), col1 jsonb, col2 jsonb, col3 jsonb, col4 jsonb, col5 jsonb, count int, primary key(id));
+            - CREATE INDEX ON update_test_table1_varchar_json_col5_16_3(vcol1);
+            - CREATE INDEX ON update_test_table1_varchar_json_col5_16_3(count);
+            - CREATE OR REPLACE FUNCTION trigger_function() RETURNS TRIGGER LANGUAGE PLPGSQL AS $$ BEGIN NEW.count = NEW.count + 1; RETURN NEW; END; $$
+            - CREATE TRIGGER update_test_table1_varchar_json_col5_16_3_trigger BEFORE UPDATE on update_test_table1_varchar_json_col5_16_3 FOR EACH ROW EXECUTE PROCEDURE trigger_function()
+
+
+        cleanup:
+            - drop table if exists update_test_table1_varchar_json_col5_16_1;
+            - drop table if exists update_test_table1_varchar_json_col5_16_2;
+            - drop table if exists update_test_table1_varchar_json_col5_16_3;
+
+
+        loadRules:
+
+            -   table: update_test_table1_varchar_json_col5_16_
+                count: 3
+                rows: 100000
+                columns:
+                    -   name: id
+                        util: PrimaryIntGen
+                        params: [ 1, 100000 ]
+                    -   name: vcol1
+                        util: RandomAString
+                        params: [ 255, 255 ]
+                    -   name: vcol2
+                        util: RandomAString
+                        params: [ 255, 255 ]
+                    -   name: vcol3
+                        util: RandomAString
+                        params: [ 255, 255 ]
+                    -   name: vcol4
+                        util: RandomAString
+                        params: [ 255, 255 ]
+                    -   name: vcol5
+                        util: RandomAString
+                        params: [ 255, 255 ]
+                    -   name: col1
+                        util: RandomJson
+                        params: [ 5, 16 ]
+                    -   name: col2
+                        util: RandomJson
+                        params: [ 5, 16 ]
+                    -   name: col3
+                        util: RandomJson
+                        params: [ 5, 16 ]
+                    -   name: col4
+                        util: RandomJson
+                        params: [ 5, 16 ]
+                    -   name: col5
+                        util: RandomJson
+                        params: [ 5, 16 ]
+                    -   name: count
+                        util: RandomNumber
+                        params: [1, 5]
+        executeRules:
+
+            -   workload: update_test_table1_varchar_json_col5_16_1
+                run:
+                    -   name: Insert_without_index_test
+                        weight: 100
+                        queries:
+                            -   query: insert into update_test_table1_varchar_json_col5_16_1 (id,vcol1,vcol2,vcol3,vcol4,vcol5,col1,col2,col3,col4,col5,count) VALUES (?,?,?,?,?,?,?::jsonb,?::jsonb,?::jsonb,?::jsonb,?::jsonb,?)
+                                count: 1
+                                bindings:
+                                    -   util: PrimaryIntGen
+                                        params: [ 100001, 10000000 ]
+                                    -   util: RandomAString
+                                        params: [ 255, 255 ]
+                                    -   util: RandomAString
+                                        params: [ 255, 255 ]
+                                    -   util: RandomAString
+                                        params: [ 255, 255 ]
+                                    -   util: RandomAString
+                                        params: [ 255, 255 ]
+                                    -   util: RandomAString
+                                        params: [ 255, 255 ]
+                                    -   util: RandomJson
+                                        params: [ 5, 16 ]
+                                    -   util: RandomJson
+                                        params: [ 5, 16 ]
+                                    -   util: RandomJson
+                                        params: [ 5, 16 ]
+                                    -   util: RandomJson
+                                        params: [ 5, 16 ]
+                                    -   util: RandomJson
+                                        params: [ 5, 16 ]
+                                    -   util: RandomNumber
+                                        params: [1, 5]
+                            -   query: select vcol2 from update_test_table1_varchar_json_col5_16_1 where id = ?
+                                count: 1
+                                bindings:
+                                    -   util: RandomNumber
+                                        params: [ 1, 100000 ]
+                            -   query: update update_test_table1_varchar_json_col5_16_1 set vcol1 = ?, col2 = ? ::jsonb, count = ? where id = ?
+                                count: 1
+                                bindings:
+                                    -   util: RandomAString
+                                        params: [ 255, 255 ]
+                                    -   util: RandomJson
+                                        params: [ 5, 16 ]
+                                    -   util: RandomNumber
+                                        params: [1, 5]
+                                    -   util: RandomNumber
+                                        params: [ 1, 100000 ]
+
+
+            -   workload: update_test_table1_varchar_json_col5_16_2
+                run:
+                    -   name: Insert_without_index_test
+                        weight: 100
+                        queries:
+                            -   query: insert into update_test_table1_varchar_json_col5_16_2 (id,vcol1,vcol2,vcol3,vcol4,vcol5,col1,col2,col3,col4,col5,count) VALUES (?,?,?,?,?,?,?::jsonb,?::jsonb,?::jsonb,?::jsonb,?::jsonb,?)
+                                count: 1
+                                bindings:
+                                    -   util: PrimaryIntGen
+                                        params: [ 100001, 10000000 ]
+                                    -   util: RandomAString
+                                        params: [ 255, 255 ]
+                                    -   util: RandomAString
+                                        params: [ 255, 255 ]
+                                    -   util: RandomAString
+                                        params: [ 255, 255 ]
+                                    -   util: RandomAString
+                                        params: [ 255, 255 ]
+                                    -   util: RandomAString
+                                        params: [ 255, 255 ]
+                                    -   util: RandomJson
+                                        params: [ 5, 16 ]
+                                    -   util: RandomJson
+                                        params: [ 5, 16 ]
+                                    -   util: RandomJson
+                                        params: [ 5, 16 ]
+                                    -   util: RandomJson
+                                        params: [ 5, 16 ]
+                                    -   util: RandomJson
+                                        params: [ 5, 16 ]
+                                    -   util: RandomNumber
+                                        params: [1, 5]
+                            -   query: select vcol2 from update_test_table1_varchar_json_col5_16_2 where id = ?
+                                count: 1
+                                bindings:
+                                    -   util: RandomNumber
+                                        params: [ 1, 100000 ]
+                            -   query: update update_test_table1_varchar_json_col5_16_2 set vcol1 = ?, col2 = ? ::jsonb, count = ? where id = ?
+                                count: 1
+                                bindings:
+                                    -   util: RandomAString
+                                        params: [ 255, 255 ]
+                                    -   util: RandomJson
+                                        params: [ 5, 16 ]
+                                    -   util: RandomNumber
+                                        params: [1, 5]
+                                    -   util: RandomNumber
+                                        params: [ 1, 100000 ]
+
+            -   workload: update_test_table1_varchar_json_col5_16_3
+                run:
+                    -   name: Insert_without_index_test
+                        weight: 100
+                        queries:
+                            -   query: insert into update_test_table1_varchar_json_col5_16_3 (id,vcol1,vcol2,vcol3,vcol4,vcol5,col1,col2,col3,col4,col5,count) VALUES (?,?,?,?,?,?,?::jsonb,?::jsonb,?::jsonb,?::jsonb,?::jsonb,?)
+                                count: 1
+                                bindings:
+                                    -   util: PrimaryIntGen
+                                        params: [ 100001, 10000000 ]
+                                    -   util: RandomAString
+                                        params: [ 255, 255 ]
+                                    -   util: RandomAString
+                                        params: [ 255, 255 ]
+                                    -   util: RandomAString
+                                        params: [ 255, 255 ]
+                                    -   util: RandomAString
+                                        params: [ 255, 255 ]
+                                    -   util: RandomAString
+                                        params: [ 255, 255 ]
+                                    -   util: RandomJson
+                                        params: [ 5, 16 ]
+                                    -   util: RandomJson
+                                        params: [ 5, 16 ]
+                                    -   util: RandomJson
+                                        params: [ 5, 16 ]
+                                    -   util: RandomJson
+                                        params: [ 5, 16 ]
+                                    -   util: RandomJson
+                                        params: [ 5, 16 ]
+                                    -   util: RandomNumber
+                                        params: [1, 5]
+                            -   query: select vcol2 from update_test_table1_varchar_json_col5_16_3 where id = ?
+                                count: 1
+                                bindings:
+                                    -   util: RandomNumber
+                                        params: [ 1, 100000 ]
+                            -   query: update update_test_table1_varchar_json_col5_16_3 set vcol1 = ?, col2 = ? ::jsonb, count = ? where id = ?
+                                count: 1
+                                bindings:
+                                    -   util: RandomAString
+                                        params: [ 255, 255 ]
+                                    -   util: RandomJson
+                                        params: [ 5, 16 ]
+                                    -   util: RandomNumber
+                                        params: [1, 5]
+                                    -   util: RandomNumber
+                                        params: [ 1, 100000 ]
+
+            -   workload: update_test_table1_varchar_json_col5_16_4
+                run:
+                    -   name: Insert_without_index_test
+                        weight: 100
+                        queries:
+                            -   query: insert into update_test_table1_varchar_json_col5_16_3 (id,vcol1,vcol2,vcol3,vcol4,vcol5,col1,col2,col3,col4,col5,count) VALUES (?,?,?,?,?,?,?::jsonb,?::jsonb,?::jsonb,?::jsonb,?::jsonb,?)
+                                count: 1
+                                bindings:
+                                    -   util: PrimaryIntGen
+                                        params: [ 100001, 10000000 ]
+                                    -   util: RandomAString
+                                        params: [ 255, 255 ]
+                                    -   util: RandomAString
+                                        params: [ 255, 255 ]
+                                    -   util: RandomAString
+                                        params: [ 255, 255 ]
+                                    -   util: RandomAString
+                                        params: [ 255, 255 ]
+                                    -   util: RandomAString
+                                        params: [ 255, 255 ]
+                                    -   util: RandomJson
+                                        params: [ 5, 16 ]
+                                    -   util: RandomJson
+                                        params: [ 5, 16 ]
+                                    -   util: RandomJson
+                                        params: [ 5, 16 ]
+                                    -   util: RandomJson
+                                        params: [ 5, 16 ]
+                                    -   util: RandomJson
+                                        params: [ 5, 16 ]
+                                    -   util: RandomNumber
+                                        params: [1, 5]
+                            -   query: select vcol2 from update_test_table1_varchar_json_col5_16_3 where id = ?
+                                count: 1
+                                bindings:
+                                    -   util: RandomNumber
+                                        params: [ 1, 100000 ]
+                            -   query: update update_test_table1_varchar_json_col5_16_3 set vcol1 = ?, vcol2 = ?, vcol3 = ?, col1 = ? ::jsonb, col2 = ? ::jsonb, col3 = ? ::jsonb, count = ? where id = ?
+                                count: 1
+                                bindings:
+                                    -   util: RandomAString
+                                        params: [ 255, 255 ]
+                                    -   util: RandomAString
+                                        params: [ 255, 255 ]
+                                    -   util: RandomAString
+                                        params: [ 255, 255 ]
+                                    -   util: RandomJson
+                                        params: [ 5, 16 ]
+                                    -   util: RandomJson
+                                        params: [ 5, 16 ]
+                                    -   util: RandomJson
+                                        params: [ 5, 16 ]
+                                    -   util: RandomNumber
+                                        params: [1, 5]
+                                    -   util: RandomNumber
+                                        params: [ 1, 100000 ]
