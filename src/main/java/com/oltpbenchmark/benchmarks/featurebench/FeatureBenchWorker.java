@@ -141,14 +141,8 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
                 }
             }
 
+            Map<String, PreparedStatement> explainDDLMap = new LinkedHashMap<>();
 
-            List<String> allQueries = new ArrayList<>();
-            for (ExecuteRule er : executeRules) {
-                for (int i = 0; i < er.getQueries().size(); i++) {
-                    allQueries.add(er.getQueries().get(i).getQuery());
-                }
-            }
-            List<PreparedStatement> explainDDLs = new ArrayList<>();
             if (!this.getWorkloadConfiguration().getXmlConfig().getBoolean("disable_explain", false)) {
                 for (ExecuteRule er : executeRules) {
                     for (Query query : er.getQueries()) {
@@ -167,7 +161,7 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
                                         throw new RuntimeException(e);
                                     }
                                 }
-                                explainDDLs.add(stmt);
+                                explainDDLMap.put(query.getQuery(), stmt);
                             } catch (SQLException e) {
                                 throw new RuntimeException(e);
                             }
@@ -177,8 +171,8 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
                 }
             }
             try {
-                if (!explainDDLs.isEmpty())
-                    runExplainAnalyse(explainDDLs, allQueries);
+                if (!explainDDLMap.isEmpty())
+                    runExplainAnalyse(explainDDLMap);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -188,12 +182,12 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
     }
 
 
-    public void runExplainAnalyse(List<PreparedStatement> explainSQLS, List<String> allQueries) throws SQLException {
+    public void runExplainAnalyse(Map<String, PreparedStatement> explainDDLMap) throws SQLException {
         LOG.info("Running explain for select/update queries before execute phase for workload : " + this.workloadName);
-        int count = 0;
-        for (PreparedStatement ddl : explainSQLS) {
+        for (Map.Entry<String, PreparedStatement> entry : explainDDLMap.entrySet()) {
+            String query = entry.getKey();
+            PreparedStatement ddl = entry.getValue();
             JSONObject jsonObject = new JSONObject();
-            count++;
             int countResultSetGen = 0;
             boolean distOptionPresent = true;
             while (countResultSetGen < 3) {
@@ -241,7 +235,7 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
             }
 
             jsonObject.put("ClientSideExplainTime(ms)", explainEnd - explainStart);
-            queryToExplainMap.put(allQueries.get(count-1), jsonObject);
+            queryToExplainMap.put(query, jsonObject);
         }
     }
 

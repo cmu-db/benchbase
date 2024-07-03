@@ -762,7 +762,7 @@ public class DBWorkload {
         options.addOption(null, "dialects-export", true, "Export benchmark SQL to a dialects file");
         options.addOption("jh", "json-histograms", true, "Export histograms to JSON file");
         options.addOption("workloads", "workloads", true, "Run some specific workloads");
-        options.addOption("p", "params", true, "Use varibles through CLI for YAML");
+        options.addOption("p", "params", true, "Use variables through CLI for YAML");
         options.addOption(null, "cleanup", true, "Clean up the database");
         return options;
     }
