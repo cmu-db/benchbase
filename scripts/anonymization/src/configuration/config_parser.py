@@ -99,7 +99,7 @@ class XMLParser:
                     SensitiveEntry(
                         column.get("name"),
                         column.get("method"),
-                        column.get("locales"),
+                        column.get("locales").split(","),
                         column.get("seed", "0"),
                     )
                 )

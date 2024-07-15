@@ -1,6 +1,7 @@
 import pandas as pd
+import xml.etree.ElementTree as ET
 
-from configuration.configurations import SensitiveConfig
+from configuration.configurations import SensitiveConfig, SensitiveEntry
 from faker import Faker
 
 
@@ -21,7 +22,8 @@ class SensitiveAnonymizer:
                     anon_data, col.name, col.method, col.locales, col.seed
                 )
                 list_of_mappings.append(mapping)
-                # TODO: Use list of mappings to change templates file
+
+        self.__rewrite_templates(self.sens_config.columns, list_of_mappings)
         return anon_data
 
     def __fake_column(self,
@@ -35,7 +37,7 @@ class SensitiveAnonymizer:
 
         fake.seed_instance(seed)
 
-        sensDict = {}
+        sens_dict = {}
         min_len = 0
         max_len = 1
         exists = False
@@ -43,7 +45,7 @@ class SensitiveAnonymizer:
         dataset[col_name] = dataset[col_name].astype(str)
 
         try:
-            fakerFunc = getattr(fake.unique, method)
+            faker_function = getattr(fake.unique, method)
             exists = True
         except AttributeError:
             exists = False
@@ -55,13 +57,31 @@ class SensitiveAnonymizer:
 
         for val in collection:
             if exists:
-                fakeValue = fakerFunc()
-                sensDict[val] = fakeValue
+                fake_value = faker_function()
+                sens_dict[val] = fake_value
             else:
-                sensDict[val] = fake.pystr(min_chars=min_len, max_chars=max_len)
+                sens_dict[val] = fake.pystr(min_chars=min_len, max_chars=max_len)
 
-        dataset[col_name] = dataset[col_name].map(sensDict)
+        dataset[col_name] = dataset[col_name].map(sens_dict)
 
         fake.unique.clear()
 
-        return dataset, sensDict
+        return dataset, sens_dict
+
+    def __rewrite_templates(self, 
+                            faked_columns:list[SensitiveEntry],
+                            list_of_mappings: list[map]
+        ):
+        tree = ET.parse(self.templates_path)
+        parameters = tree.getroot()
+        for template in parameters.findall("template"):
+            for index,column in enumerate(faked_columns):
+                if column.name in template.find("query").text:
+                    # Values must be scanned and possibly adapted
+                    mapping = list_of_mappings[index]
+                    for separate_value in template.findall("value"):
+                        if separate_value.text in mapping:
+                            separate_value.text = mapping[separate_value.text]
+
+        #Save the modified Tree
+        tree.write(self.templates_path)
