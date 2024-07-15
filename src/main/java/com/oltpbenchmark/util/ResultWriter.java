@@ -227,7 +227,7 @@ public class ResultWriter {
         }
     }
 
-    public Map<String, Object> writeDetailedSummary(PrintStream os, String customTags) {
+    public Map<String, Object> writeDetailedSummary(PrintStream os, String customTags, Boolean skipReport) {
         Map<String, Object> summaryMap = buildSummaryMap(dbType, collector, benchType, results);
         summaryMap.put("Transaction Distribution", transactionsMap(results));
         summaryMap.put("Help", help());
@@ -238,6 +238,7 @@ public class ResultWriter {
         Map<String, Object> metadata = new TreeMap<>();
         metadata.put("yaml_version", expConf.getString("yaml_version", "v1.0"));
         metadata.put("customTags", formatCustomTags(customTags));
+        metadata.put("skipReport",skipReport);
         detailedSummaryMap.put("metadata", metadata);
         detailedSummaryMap.put("Summary", summaryMap);
         detailedSummaryMap.put("queries", results.getFeaturebenchAdditionalResults().getJsonResultsList());

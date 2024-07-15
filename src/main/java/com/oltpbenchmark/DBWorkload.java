@@ -666,7 +666,9 @@ public class DBWorkload {
                             Results r = runWorkload(benchList, intervalMonitor, workCount);
                             writeOutputs(r, activeTXTypes, argsLine, xmlConfig,
                                 executeRules == null ? null : workloads.get(workCount - 1).getString("workload"),
-                                executeRules == null ? null : workloads.get(workCount - 1).getString("customTags", null));
+                                executeRules == null ? null : workloads.get(workCount - 1).getString("customTags", null),
+                                    executeRules != null && workloads.get(workCount - 1).getBoolean("skipReport", false)
+                                );
                             writeHistograms(r);
 
                             if (argsLine.hasOption("json-histograms")) {
@@ -696,12 +698,13 @@ public class DBWorkload {
                         // if block currently only valid for bulkload experiments
                         if(xmlConfig.containsKey("microbenchmark/properties/workload")) {
                             writeOutputs(r, activeTXTypes, argsLine, xmlConfig,
-                                xmlConfig.getString("microbenchmark/properties/workload"), null);
+                                xmlConfig.getString("microbenchmark/properties/workload"), null,false);
                         }
                         else {
                             writeOutputs(r, activeTXTypes, argsLine, xmlConfig,
                                 executeRules == null ? null : workloads.get(workCount - 1).getString("workload"),
-                                executeRules == null ? null : workloads.get(workCount - 1).getString("customTags", null));
+                                executeRules == null ? null : workloads.get(workCount - 1).getString("customTags", null),
+                                executeRules != null && workloads.get(workCount - 1).getBoolean("skipReport", false));
                         }
                         writeHistograms(r);
 
@@ -833,7 +836,7 @@ public class DBWorkload {
      */
     private static void writeOutputs(Results r, List<TransactionType> activeTXTypes, CommandLine argsLine,
                                      XMLConfiguration xmlConfig, String workload_name,
-                                     String customTags) throws Exception {
+                                     String customTags,Boolean skipReport) throws Exception {
 
         // If an output directory is used, store the information
         String outputDirectory = "results";
@@ -905,7 +908,7 @@ public class DBWorkload {
                 }
                 if(workload_name == null || workload_name.isEmpty())
                     workload_name = baseFileName;
-                workloadToSummaryMap.put(workload_name, rw.writeDetailedSummary(ps, customTags));
+                workloadToSummaryMap.put(workload_name, rw.writeDetailedSummary(ps, customTags, skipReport));
 
                 try {
                     FileWriter writer = new FileWriter(filePathForOutputJson);
