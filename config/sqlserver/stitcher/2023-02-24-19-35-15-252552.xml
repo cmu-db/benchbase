@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='utf-8'?>
+<parameters>
+	
+    <type>sqlserver</type>
+    <driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</driver>
+    <url>jdbc:sqlserver://localhost:1433;encrypt=false;databaseName=tpcc16</url>
+    <username>benchuser01</username>
+    <password>P@ssw0rd</password>
+    <isolation>TRANSACTION_SERIALIZABLE</isolation>
+        
+    <scalefactor>16</scalefactor>
+    
+    <terminals>7</terminals>
+    <works>
+        <work>
+          <time>300</time>
+          <rate>598</rate>
+          <weights>45,43,4,4,4</weights>
+        </work>
+    </works>
+	
+   	<transactiontypes>
+    	<transactiontype>
+    		<name>NewOrder</name>
+    	</transactiontype>
+    	<transactiontype>
+    		<name>Payment</name>
+    	</transactiontype>
+    	<transactiontype>
+    		<name>OrderStatus</name>
+    	</transactiontype>
+    	<transactiontype>
+    		<name>Delivery</name>
+    	</transactiontype>
+    	<transactiontype>
+    		<name>StockLevel</name>
+    	</transactiontype>
+   	</transactiontypes>	
+</parameters>
