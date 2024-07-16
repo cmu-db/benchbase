@@ -62,7 +62,7 @@ public abstract class BenchmarkModule {
     this.workConf = workConf;
     this.dialects = new StatementDialects(workConf);
     // setClassLoader();
-    this.classLoader = ClassLoader.getSystemClassLoader();
+    this.classLoader = Thread.currentThread().getContextClassLoader();
   }
 
   /**
@@ -70,7 +70,7 @@ public abstract class BenchmarkModule {
    * implementation.
    */
   protected void setClassLoader() {
-    this.classLoader = ClassLoader.getSystemClassLoader();
+    this.classLoader = Thread.currentThread().getContextClassLoader();
   }
 
   // --------------------------------------------------------------------------

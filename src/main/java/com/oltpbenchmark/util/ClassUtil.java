@@ -184,7 +184,7 @@ public abstract class ClassUtil {
    * @return
    */
   public static Class<?> getClass(String class_name) {
-    return getClass(ClassLoader.getSystemClassLoader(), class_name);
+    return getClass(Thread.currentThread().getContextClassLoader(), class_name);
   }
 
   /**
