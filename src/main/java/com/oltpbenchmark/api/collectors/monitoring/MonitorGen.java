@@ -21,6 +21,9 @@ public class MonitorGen {
       case ADVANCED:
         {
           switch (conf.getDatabaseType()) {
+            case MARIADB:
+            case MYSQL:
+              return new MySQLMonitor(monitorInfo, testState, workers, conf);
             case SQLSERVER:
               return new SQLServerMonitor(monitorInfo, testState, workers, conf);
             case POSTGRES:
