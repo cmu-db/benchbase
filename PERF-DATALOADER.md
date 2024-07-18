@@ -54,3 +54,5 @@ rows: {{rows}}
 #### Caveat/In-progress items
 - partitioned tables are not yet supported.
 - columns with user defined data types are not yet supported.
+
+#### [Reference utility functions](https://github.com/yugabyte/benchbase/blob/main/src/main/java/com/oltpbenchmark/benchmarks/featurebench/Readme.md#utility-functions-)
