@@ -1,0 +1,21 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="perf-dataloader - yugabyte" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="com.oltpbenchmark.DBWorkload" />
+    <module name="benchbase" />
+    <option name="PROGRAM_PARAMETERS" value="-b perf-dataloader -c config/yugabyte/sample_dataloader_config.yaml --load=true -p tableName=actor -p rows=100" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="com.oltpbenchmark.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <extension name="software.aws.toolkits.jetbrains.core.execution.JavaAwsConnectionExtension">
+      <option name="credential" />
+      <option name="region" />
+      <option name="useCurrentConnection" value="false" />
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

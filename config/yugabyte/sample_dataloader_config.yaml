@@ -1,0 +1,8 @@
+type: YUGABYTE
+driver: com.yugabyte.Driver
+url: jdbc:yugabytedb://172.151.25.127:5433/yugabyte?sslmode=require&reWriteBatchedInserts=true
+username: yugabyte
+password: Password@321
+
+tablename: {{tableName}}
+rows: {{rows}}

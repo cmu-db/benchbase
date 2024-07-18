@@ -33,7 +33,7 @@ public class RandomTimestamp implements BaseUtil{
                 + this.getClass());
         }
 
-        this.numberofTimestamp = values.get(0) instanceof String? Integer.parseInt((String) values.get(0)):  ((Number) values.get(0)).intValue();
+        this.numberofTimestamp = values.get(0) instanceof String? Integer.parseInt((String) values.get(0)): ((Number) values.get(0)).intValue();
 
         if (numberofTimestamp <0)
             throw new RuntimeException("Please enter positive number of days");

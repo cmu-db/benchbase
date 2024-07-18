@@ -1,11 +1,13 @@
 package com.oltpbenchmark.benchmarks.featurebench.utils;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class RandomTextArrayGen implements BaseUtil {
 
-    private String[] textArray;
+    private List<String> textArray;
 
     private int minLengthOfString;
     private int maxLengthOfString;
@@ -22,7 +24,7 @@ public class RandomTextArrayGen implements BaseUtil {
         this.arraySize = ((Number) values.get(0)).intValue();
         if (arraySize <= 0)
             throw new RuntimeException("Please enter positive text array length");
-        textArray = new String[arraySize];
+//        textArray = new ArrayList<>();
         this.minLengthOfString = ((Number) values.get(1)).intValue();
         this.maxLengthOfString = ((Number) values.get(2)).intValue();
         if (minLengthOfString > maxLengthOfString || minLengthOfString < 0)
@@ -39,7 +41,7 @@ public class RandomTextArrayGen implements BaseUtil {
         this.arraySize = ((Number) values.get(0)).intValue();
         if (arraySize <= 0)
             throw new RuntimeException("Please enter positive text array length");
-        textArray = new String[arraySize];
+//        textArray = new ArrayList<>();
         this.minLengthOfString = ((Number) values.get(1)).intValue();
         this.maxLengthOfString = ((Number) values.get(2)).intValue();
         if (minLengthOfString > maxLengthOfString || minLengthOfString < 0)
@@ -49,10 +51,12 @@ public class RandomTextArrayGen implements BaseUtil {
 
     @Override
     public Object run() throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+        textArray = new ArrayList<>();
         for (int i = 0; i < arraySize; i++) {
             String rd = (String) new RandomAString(List.of(minLengthOfString, maxLengthOfString)).run();
-            textArray[i] = rd;
+            textArray.add(rd);
         }
-        return textArray;
+        String abc = textArray.toString().replaceFirst("\\[", "{").replace("]", "}");
+        return abc;
     }
 }

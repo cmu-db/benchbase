@@ -120,7 +120,7 @@ public class DBWorkload {
         int lastTxnId = 0;
         for (String plugin : targetList) {
             String pluginTest = "[@bench='" + plugin + "']";
-            if (plugin.equalsIgnoreCase("featurebench"))
+            if (plugin.equalsIgnoreCase("featurebench") || plugin.equalsIgnoreCase("perf-dataloader"))
             {
                 String[] params=null;
                 if (argsLine.hasOption("params")) {
@@ -140,6 +140,7 @@ public class DBWorkload {
             WorkloadConfiguration wrkld = new WorkloadConfiguration();
             wrkld.setBenchmarkName(plugin);
             wrkld.setXmlConfig(xmlConfig);
+            wrkld.setConfigFilePath(configFile);
 
             // Pull in database configuration
             wrkld.setDatabaseType(DatabaseType.get(xmlConfig.getString("type")));
@@ -410,7 +411,7 @@ public class DBWorkload {
 
                     if (targetList.length > 1 || work.containsKey("weights[@bench]")) {
                         weight_strings = Arrays.asList(work.getString("weights" + pluginTest).split("\\s*,\\s*"));
-                    } else if (plugin.equalsIgnoreCase("featurebench")) {
+                    } else if (plugin.equalsIgnoreCase("featurebench") || plugin.equalsIgnoreCase("perf-dataloader")) {
                         weight_strings = List.of();
                         time = work.getInt("/time_secs", 0);
                         // get workload specific time in secs
