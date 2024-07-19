@@ -265,7 +265,7 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
                 for (int i = 0; i < count; i++) {
                     for (int j = 0; j < baseUtils.size(); j++)
                         stmt.setObject(j + 1, baseUtils.get(j).get());
-                    if (query.isSelectQuery()) {
+                    if (query.isSelectQuery() || stmt.toString().toUpperCase().contains(" RETURNING ")) {
                         ResultSet rs = stmt.executeQuery();
                         int countSet = 0;
                         while (rs.next()) countSet++;
