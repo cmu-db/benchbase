@@ -172,7 +172,7 @@ public abstract class DatabaseMonitor extends Monitor {
             event.getInstant().toString()
                 + ","
                 + StringUtil.join(
-                    ",", this.repeatedSystemEvents.get(0).getPropertyValues().values()));
+                    ",", event.getPropertyValues().values()));
       }
       out.close();
       this.repeatedSystemEvents = new ArrayList<>();
