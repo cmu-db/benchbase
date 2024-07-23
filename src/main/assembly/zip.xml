@@ -11,9 +11,9 @@
         <fileSet>
             <directory>${project.basedir}/config</directory>
         </fileSet>
-        <fileSet>
-            <directory>${project.basedir}/data</directory>
-        </fileSet>
+<!--        <fileSet>-->
+<!--            <directory>${project.basedir}/data</directory>-->
+<!--        </fileSet>-->
         <fileSet>
             <directory>${project.basedir}/scripts</directory>
         </fileSet>
@@ -34,6 +34,10 @@
         </file>
         <file>
             <source>${project.basedir}/CONTRIBUTORS.md</source>
+            <outputDirectory></outputDirectory>
+        </file>
+        <file>
+            <source>${project.basedir}/perf-data-loader</source>
             <outputDirectory></outputDirectory>
         </file>
     </files>

@@ -6,19 +6,44 @@ TABLE_NAME=""
 ROWS=""
 GENERATE_ONLY=false
 LOAD_ONLY=false
+JAR_PATH=""
 
 # Function to display help
 function display_help {
-    echo "Usage: $0 --config <config_file> --table-name <table_name> --rows <rows> [--generate-only] [--load-only]"
+    echo "Usage: $0 --config <config_file> --table-name <table_name> --rows <rows> [--gen-config-only] [--load-only]"
     echo "Short forms: -c <config_file> -t <table_name> -r <rows>"
     echo "Options:"
-    echo "  -c, --config       Configuration file"
-    echo "  -t, --table-name   Table name"
-    echo "  -r, --rows         Number of rows"
-    echo "  --generate-only    Only generate the loader file"
-    echo "  --load-only        Only load data into the database"
-    echo "  -h, --help         Display this help message"
+    echo "  -c, --config                Configuration file"
+    echo "  -t, --table-name            Table name"
+    echo "  -r, --rows                  Number of rows"
+    echo "  --gen-config-only           Only generate the loader/config file"
+    echo "  --load-only                 Only load data into the database"
+    echo "  -h, --help                  Display this help message"
     exit 0
+}
+
+# Function to find the jar file
+function find_jar {
+    # Check current directory first
+    if [[ -f "benchbase.jar" ]]; then
+        JAR_PATH="benchbase.jar"
+        return
+    fi
+
+    # Check target/benchbase-yugabyte/
+    if [[ -f "target/benchbase-yugabyte/benchbase.jar" ]]; then
+        JAR_PATH="target/benchbase-yugabyte/benchbase.jar"
+        return
+    fi
+
+    # Check target/benchbase-postgres/
+    if [[ -f "target/benchbase-postgres/benchbase.jar" ]]; then
+        JAR_PATH="target/benchbase-postgres/benchbase.jar"
+        return
+    fi
+
+    echo "Error: benchbase.jar not found in any expected location."
+    exit 1
 }
 
 # Parse arguments
@@ -39,7 +64,7 @@ while [[ $# -gt 0 ]]; do
             shift # past argument
             shift # past value
             ;;
-        --generate-only)
+        --gen-config-only)
             GENERATE_ONLY=true
             shift # past argument
             ;;
@@ -57,11 +82,14 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# Ensure that both --generate-only and --load-only are not provided simultaneously
+# Ensure that both --gen-config-only and --load-only are not provided simultaneously
 if [ "$GENERATE_ONLY" = true ] && [ "$LOAD_ONLY" = true ]; then
-    echo "Error: Cannot use --generate-only and --load-only simultaneously."
+    echo "Error: Cannot use --gen-config-only and --load-only simultaneously."
     exit 1
 fi
+
+# Find the JAR file
+find_jar
 
 if [ "$LOAD_ONLY" = true ]; then
     if [ -z "$CONFIG" ]; then
@@ -69,17 +97,17 @@ if [ "$LOAD_ONLY" = true ]; then
         display_help
     fi
     echo "Loading the data into the database now!"
-    java -jar target/benchbase-yugabyte/benchbase.jar -b featurebench -c "$CONFIG" --load=True
+    java -jar "$JAR_PATH" -b featurebench -c "$CONFIG" --load=True
     exit 0
 fi
 
 if [ "$GENERATE_ONLY" = true ]; then
     if [ -z "$CONFIG" ] || [ -z "$TABLE_NAME" ] || [ -z "$ROWS" ]; then
-        echo "Error: --config, --table-name, and --rows parameters are required with --generate-only."
+        echo "Error: --config, --table-name, and --rows parameters are required with --gen-config-only."
         display_help
     fi
     echo "Generating loader file for the table"
-    java -jar target/benchbase-yugabyte/benchbase.jar -b perf-dataloader -c "$CONFIG" -p tableName="$TABLE_NAME" -p rows="$ROWS" --load=True
+    java -jar "$JAR_PATH" -b perf-dataloader -c "$CONFIG" -p tableName="$TABLE_NAME" -p rows="$ROWS" --load=True
     exit 0
 fi
 
@@ -91,9 +119,9 @@ fi
 
 # If no specific option is provided, do both generate and load with default config file location
 echo "Generating loader file for the table"
-java -jar target/benchbase-yugabyte/benchbase.jar -b perf-dataloader -c "$CONFIG" -p tableName="$TABLE_NAME" -p rows="$ROWS" --load=True
+java -jar "$JAR_PATH" -b perf-dataloader -c "$CONFIG" -p tableName="$TABLE_NAME" -p rows="$ROWS" --load=True
 
 DEFAULT_CONFIG="${TABLE_NAME}_loader.yaml"
 
 echo "Loading the data into the database now!"
-java -jar target/benchbase-yugabyte/benchbase.jar -b featurebench -c "$DEFAULT_CONFIG" --load=True
+java -jar "$JAR_PATH" -b featurebench -c "$DEFAULT_CONFIG" --load=True
