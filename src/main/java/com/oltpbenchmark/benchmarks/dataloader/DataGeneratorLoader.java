@@ -560,10 +560,41 @@ public class DataGeneratorLoader extends Loader<DataGenerator> {
                 while (rs.next()) {
                     distinctValues.add(rs.getObject(1));
                 }
+                if (distinctValues.isEmpty()) {
+                    List<String> hierarchy = getParentTableHierarchy(foreignKey.getForeignTableName(), conn);
+
+                    StringBuilder loadOrder = new StringBuilder(String.format("There are no entries in the parent " +
+                            "table `%s` for column `%s` to be used as foreign key. Consider loading tables in " +
+                            "following order: ", foreignKey.getForeignTableName(),
+                        foreignKey.getForeignColumnName()));
+                    for (String table: hierarchy) {
+                        loadOrder.append(table).append(" --> ");
+                    }
+                    loadOrder.append(foreignKey.getTableName());
+                    throw new RuntimeException(loadOrder.toString());
+                }
                 foreignKey.setDistinctValues(distinctValues);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
+        }
+    }
+    public static List<String> getParentTableHierarchy(String tableName, Connection conn) {
+        List<String> tableHierarchy = new ArrayList<>();
+        findParentTables(tableName, conn, tableHierarchy);
+        return tableHierarchy;
+    }
+
+    private static void findParentTables(String tableName, Connection conn, List<String> tableHierarchy) {
+        List<ForeignKey> foreignKeys = getForeignKeys(tableName, conn);
+
+        if (foreignKeys.isEmpty()) {
+            tableHierarchy.add(tableName);
+        } else {
+            for (ForeignKey foreignKey : foreignKeys) {
+                findParentTables(foreignKey.getForeignTableName(), conn, tableHierarchy);
+            }
+            tableHierarchy.add(tableName);
         }
     }
 }
