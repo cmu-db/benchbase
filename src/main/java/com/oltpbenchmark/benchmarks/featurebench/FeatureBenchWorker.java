@@ -56,9 +56,9 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
     private HashMap<String, PreparedStatement> preparedStatementsPerQuery;
     public static Map<String,JSONObject> queryToExplainMap = new HashMap<>();
 
-    public AtomicBoolean isPGStatStatementCollected = new AtomicBoolean(false);
+    static AtomicBoolean isPGStatStatementCollected = new AtomicBoolean(false);
 
-    public AtomicBoolean isPGStatResetCalled = new AtomicBoolean(false);
+    static AtomicBoolean isPGStatResetCalled = new AtomicBoolean(false);
 
     static AtomicBoolean isInitializeDone = new AtomicBoolean(false);
 
@@ -73,6 +73,10 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
         this.executeRules = executeRules;
         this.config = workerConfig;
         this.workloadName = workloadName;
+        isInitializeDone.set(false);
+        isPGStatResetCalled.set(false);
+        isPGStatStatementCollected.set(false);
+        isCleanUpDone.set(false);
         try {
             ybm = (YBMicroBenchmark) Class.forName(workloadClass)
                 .getDeclaredConstructor(HierarchicalConfiguration.class)
@@ -291,7 +295,8 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
     @Override
     public void tearDown() {
         synchronized (FeatureBenchWorker.class) {
-            if (!this.configuration.getNewConnectionPerTxn() && this.configuration.getWorkloadState().getGlobalState() == State.EXIT && !isPGStatStatementCollected.get()) {
+            boolean shouldCollect = this.getWorkloadConfiguration().getXmlConfig().getBoolean("collect_pg_stat_statements", false);
+            if (!this.configuration.getNewConnectionPerTxn() && (shouldCollect && !isPGStatStatementCollected.get()) && this.conn != null) {
 
                 List<String> queryStrings = new ArrayList<>();
                 for (ExecuteRule er : executeRules) {
@@ -303,17 +308,15 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
                 List<JSONObject> jsonResultsList = new ArrayList<>();
                 JSONObject pgStatOutputs = null;
                 JSONObject pgPreparedStatementOutputs = null;
-                if (!isPGStatStatementCollected.get() && this.getWorkloadConfiguration().getXmlConfig().getBoolean("collect_pg_stat_statements", false)) {
-                    try {
-                        LOG.info("Collecting pg_stat_statements for workload : " + this.workloadName);
-                        pgStatOutputs = callPGStats();
-                        isPGStatStatementCollected.set(true);
-                        /*TODO: remove collecting prepared_statements*/
-                        pgPreparedStatementOutputs = collectPgPreparedStatements();
-                    } catch (SQLException e) {
-                        throw new RuntimeException(e);
-                    }
+                try {
+                    LOG.info("Collecting pg_stat_statements for workload : " + this.workloadName);
+                    pgStatOutputs = callPGStats();
+                    /*TODO: remove collecting prepared_statements*/
+                    pgPreparedStatementOutputs = collectPgPreparedStatements();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
                 }
+
 
                 for (String queryString : queryStrings) {
                     JSONObject inner = new JSONObject();
@@ -327,18 +330,21 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
                 this.featurebenchAdditionalResults.setJsonResultsList(jsonResultsList);
                 isPGStatStatementCollected.set(true);
             }
-        }
-        synchronized (FeatureBenchWorker.class) {
-            if (!this.configuration.getNewConnectionPerTxn() && this.conn != null && ybm != null) {
+
+            if (((config.containsKey("execute") && config.getBoolean("execute")) || (executeRules == null || executeRules.isEmpty()) )&& !isCleanUpDone.get()) {
                 try {
-                    if ((config.containsKey("execute") && config.getBoolean("execute")) || (executeRules == null || executeRules.size() == 0)) {
-                        if (this.configuration.getWorkloadState().getGlobalState() == State.EXIT && !isCleanUpDone.get()) {
-                            ybm.cleanUp(conn);
-                            LOG.info("\n=================Cleanup Phase taking from User=========\n");
-                            conn.close();
-                            isCleanUpDone.set(true);
-                        }
-                    }
+                    ybm.cleanUp(conn);
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+                LOG.info("\n=================Cleanup Phase taking from User=========\n");
+                    isCleanUpDone.set(true);
+
+            }
+
+            if (!this.configuration.getNewConnectionPerTxn() && this.conn != null) {
+                try {
+                    conn.close();
                 } catch (SQLException e) {
                     LOG.error("Connection couldn't be closed.", e);
                 }

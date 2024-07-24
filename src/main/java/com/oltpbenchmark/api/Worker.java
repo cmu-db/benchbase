@@ -63,7 +63,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
     boolean isFeaturebenchWorkload = false;
     private LatencyRecord latencies;
     private boolean seenDone = false;
-    public final FeaturebenchAdditionalResults featurebenchAdditionalResults = new FeaturebenchAdditionalResults();
+    public static final FeaturebenchAdditionalResults featurebenchAdditionalResults = new FeaturebenchAdditionalResults();
 
     public Worker(T benchmark, int id) {
         this.id = id;
