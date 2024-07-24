@@ -53,9 +53,9 @@ class XMLParser:
 
         if dp_info is not None:
 
-            cat = self.__get_column_type("ignore", dp_info)
+            cat = self.__get_column_type("categorical", dp_info)
             ordi = self.__get_column_type("ordinal", dp_info)
-            ignore = self.__get_column_type("continuous", dp_info)
+            ignore = self.__get_column_type("ignore", dp_info)
 
             eps = dp_info.get("epsilon", "1.0")
             pre_eps = dp_info.get("pre_epsilon", "0.5")
@@ -77,6 +77,12 @@ class XMLParser:
                             )
                         )
 
+            print("Parsed the following columns:\n"
+                  + f"Categorical: {cat}\n"
+                  + f"Continuous: {cont}\n"
+                  + f"Ordinal: {ordi}\n"
+                  + f"Ignored: {ignore}")
+
             column_classes = DPColumnConfig(ignore,cat,cont,ordi)
 
             anon_config = DPConfig(
@@ -93,7 +99,7 @@ class XMLParser:
                     SensitiveEntry(
                         column.get("name"),
                         column.get("method"),
-                        column.get("locales"),
+                        column.get("locales").split(","),
                         column.get("seed", "0"),
                     )
                 )

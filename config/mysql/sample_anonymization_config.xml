@@ -35,7 +35,7 @@
             </differential_privacy>
             <!-- Sensitive value handling -->
             <value_faking>
-                <column name="i_name" method="name" locales="en_US" seed="0"/>
+                <column name="i_name" method="pystr" locales="en_US" seed="0"/>
             </value_faking>
         </table>
     </anonymization>
