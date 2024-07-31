@@ -1,0 +1,88 @@
+type: YUGABYTE
+driver: com.yugabyte.Driver
+url: jdbc:yugabytedb://{{endpoint}}:5433/yugabyte?sslmode=require&ApplicationName=featurebench&reWriteBatchedInserts=true&load-balance=false
+username: {{username}}
+password: {{password}}
+batchsize: 128
+isolation: TRANSACTION_REPEATABLE_READ
+loaderThreads: 1
+terminals: 1
+collect_pg_stat_statements: true
+use_dist_in_explain : true
+yaml_version: v1.0
+works:
+    work:
+        time_secs: 180
+        rate: unlimited
+        warmup: 60
+microbenchmark:
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
+    properties:
+        setAutoCommit: true
+        create:
+            - DROP TABLE IF EXISTS accounts_1;
+            - CREATE TABLE IF NOT EXISTS accounts_1(account_id_1 bigint, user_id_1 bigint, addr_1 varchar(50), bal_1 float(2),PRIMARY KEY(account_id_1));
+            - CREATE UNIQUE INDEX user_accounts_1 ON accounts_1( user_id_1, account_id_1);
+            - DROP TABLE IF EXISTS accounts_2;
+            - CREATE TABLE IF NOT EXISTS accounts_2(account_id_1 bigint, user_id_1 bigint, addr_1 varchar(50), bal_1 float(2),PRIMARY KEY(account_id_1));
+            - CREATE UNIQUE INDEX user_accounts_2 ON accounts_2( user_id_1, account_id_1);
+
+        cleanup:
+            - DROP TABLE IF EXISTS accounts_1;
+            - DROP TABLE IF EXISTS accounts_2;
+
+        loadRules:
+            -   table: accounts_
+                count: 2
+                rows: 2000000
+                columns:
+                    -   name: account_id_
+                        count: 1
+                        util: PrimaryIntGen
+                        params: [ 1, 2000000 ]
+                    -   name: user_id_
+                        count: 1
+                        util: PrimaryIntGen
+                        params: [ 1, 2000000 ]
+                    -   name: addr_
+                        count: 1
+                        util: PrimaryStringGen
+                        params: [ 1, 50 ]
+                    -   name: bal_
+                        count: 1
+                        util: PrimaryFloatGen
+                        params: [ 1, 2000000, 2 ]
+
+        executeRules:
+            - workload: CW3_1_select_baseline
+              run:
+                  - name: statement1_insert
+                    weight: 100
+                    queries:
+                        - query: SELECT bal_1 FROM accounts_1 WHERE account_id_1=ANY(ARRAY[?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?])
+                          bindings:
+                              -   util: RandomNumber
+                                  count: 50
+                                  params: [ 1, 2000000 ]
+
+            - workload: CW3_2_update_baseline
+              run:
+                  - name: statement1_insert
+                    weight: 100
+                    queries:
+                        - query: UPDATE accounts_1 SET bal_1=bal_1+1 WHERE account_id_1=ANY(ARRAY[?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?]) returning bal_1
+                          bindings:
+                              -   util: RandomNumber
+                                  count: 50
+                                  params: [ 1, 2000000 ]
+
+            - workload: CW3_3_select_for_update
+              run:
+                  - name: statement1_insert
+                    weight: 100
+                    queries:
+                        - query: SELECT bal_1 FROM accounts_2 WHERE account_id_1=ANY(ARRAY[?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?]) for update
+                          bindings:
+                              -   util: RandomNumber
+                                  count: 50
+                                  params: [ 1, 2000000 ]

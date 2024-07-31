@@ -1,0 +1,242 @@
+type: YUGABYTE
+driver: com.yugabyte.Driver
+url: jdbc:yugabytedb://{{endpoint}}:5433/yugabyte?sslmode=require&ApplicationName=featurebench&reWriteBatchedInserts=true&load-balance=false
+createdb: drop database if exists yb_colocated; create database yb_colocated with colocated=true
+username: {{username}}
+password: {{password}}
+batchsize: 128
+isolation: TRANSACTION_REPEATABLE_READ
+loaderThreads: 1
+terminals: 1
+collect_pg_stat_statements: true
+use_dist_in_explain : true
+yaml_version: v1.0
+works:
+    work:
+        time_secs: 180
+        rate: unlimited
+        warmup: 60
+microbenchmark:
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
+    properties:
+        setAutoCommit: true
+        create:
+            - DROP TABLE IF EXISTS accounts_1;
+            - CREATE TABLE IF NOT EXISTS accounts_1(account_id_1 bigint, user_id_1 bigint, addr_1 varchar(50), bal_1 float(2),PRIMARY KEY(account_id_1));
+            - CREATE UNIQUE INDEX user_accounts_1 ON accounts_1( user_id_1, account_id_1);
+            - CREATE UNIQUE INDEX user_accounts_2 ON accounts_1( user_id_1, account_id_1, user_id_1, bal_1);
+
+        cleanup:
+            - DROP TABLE IF EXISTS accounts_1;
+
+        loadRules:
+            -   table: accounts_
+                count: 1
+                rows: 1000000
+                columns:
+                    -   name: account_id_
+                        count: 1
+                        util: PrimaryIntGen
+                        params: [ 1, 1000000 ]
+                    -   name: user_id_
+                        count: 1
+                        util: PrimaryIntGen
+                        params: [ 1, 1000000 ]
+                    -   name: addr_
+                        count: 1
+                        util: PrimaryStringGen
+                        params: [ 1, 50 ]
+                    -   name: bal_
+                        count: 1
+                        util: PrimaryFloatGen
+                        params: [ 1, 1000000, 2 ]
+
+        executeRules:
+            - workload: CW1_1_2column_condition_no_conflict_so_single_insert
+              run:
+                  - name: statement1_insert
+                    weight: 100
+                    queries:
+                        - query: INSERT INTO accounts_1(account_id_1,user_id_1,addr_1,bal_1) VALUES (?,?,?,?) ON CONFLICT (user_id_1, account_id_1) DO NOTHING
+                          bindings:
+                              -   util: PrimaryIntGen
+                                  params: [ 1000001, 5000000 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 1000001, 5000000 ]
+                              -   util: PrimaryStringGen
+                                  params: [ 1, 50 ]
+                              -   util: PrimaryFloatGen
+                                  params: [ 1000001, 5000000, 2 ]
+
+
+            - workload: CW1_2_4column_condition_no_conflict_so_single_insert
+              run:
+                  - name: statement1_insert
+                    weight: 100
+                    queries:
+                        - query: INSERT INTO accounts_1(account_id_1,user_id_1,addr_1,bal_1) VALUES (?,?,?,?) ON CONFLICT (user_id_1, account_id_1, user_id_1, bal_1) DO NOTHING
+                          bindings:
+                              -   util: PrimaryIntGen
+                                  params: [ 5000001, 10000000 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 5000001, 10000000 ]
+                              -   util: PrimaryStringGen
+                                  params: [ 1, 50 ]
+                              -   util: PrimaryFloatGen
+                                  params: [ 5000001, 10000000, 2 ]
+
+            - workload: CW1_3_2column_condition_no_conflict_so_10_insert
+              run:
+                  - name: statement1_insert
+                    weight: 100
+                    queries:
+                        - query: INSERT INTO accounts_1(account_id_1,user_id_1,addr_1,bal_1) VALUES (?,?,?,?) ON CONFLICT (user_id_1, account_id_1) DO NOTHING
+                          count: 10
+                          bindings:
+                              -   util: PrimaryIntGen
+                                  params: [ 10000000, 15000000 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 10000000, 15000000 ]
+                              -   util: PrimaryStringGen
+                                  params: [ 1, 50 ]
+                              -   util: PrimaryFloatGen
+                                  params: [ 10000000, 15000000, 2 ]
+
+            - workload: CW1_4_4column_condition_no_conflict_so_10_insert
+              run:
+                  - name: statement1_insert
+                    weight: 100
+                    queries:
+                        - query: INSERT INTO accounts_1(account_id_1,user_id_1,addr_1,bal_1) VALUES (?,?,?,?) ON CONFLICT (user_id_1, account_id_1, user_id_1, bal_1) DO NOTHING
+                          bindings:
+                              -   util: PrimaryIntGen
+                                  params: [ 15000000, 20000000 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 15000000, 20000000 ]
+                              -   util: PrimaryStringGen
+                                  params: [ 1, 50 ]
+                              -   util: PrimaryFloatGen
+                                  params: [ 15000000, 20000000, 2 ]
+
+            - workload: CW1_5_2column_condition_no_conflict_so_10_insert_with_returning
+              run:
+                  - name: statement1_insert
+                    weight: 100
+                    queries:
+                        - query: INSERT INTO accounts_1(account_id_1,user_id_1,addr_1,bal_1) VALUES (?,?,?,?) ON CONFLICT (user_id_1, account_id_1) DO NOTHING RETURNING *
+                          count: 10
+                          bindings:
+                              -   util: PrimaryIntGen
+                                  params: [ 20000001, 25000000 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 20000001, 25000000 ]
+                              -   util: PrimaryStringGen
+                                  params: [ 1, 50 ]
+                              -   util: PrimaryFloatGen
+                                  params: [ 20000001, 25000000, 2 ]
+
+            - workload: CW1_6_4column_condition_no_conflict_so_10_insert_with_returning
+              run:
+                  - name: statement1_insert
+                    weight: 100
+                    queries:
+                        - query: INSERT INTO accounts_1(account_id_1,user_id_1,addr_1,bal_1) VALUES (?,?,?,?) ON CONFLICT (user_id_1, account_id_1, user_id_1, bal_1) DO NOTHING RETURNING *
+                          bindings:
+                              -   util: PrimaryIntGen
+                                  params: [ 25000001, 30000000 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 25000001, 30000000 ]
+                              -   util: PrimaryStringGen
+                                  params: [ 1, 50 ]
+                              -   util: PrimaryFloatGen
+                                  params: [ 25000001, 30000000, 2 ]
+
+            - workload: CW1_7_2column_condition_no_conflict_so_10values_in_1insert_with_returning
+              run:
+                  - name: statement1_insert
+                    weight: 100
+                    queries:
+                        - query: INSERT INTO accounts_1(account_id_1,user_id_1,addr_1,bal_1) VALUES (?,?,?,?),(?,?,?,?),(?,?,?,?),(?,?,?,?),(?,?,?,?),(?,?,?,?),(?,?,?,?),(?,?,?,?),(?,?,?,?),(?,?,?,?) ON CONFLICT (user_id_1, account_id_1) DO NOTHING
+                          bindings:
+                              -   util: PrimaryIntGen
+                                  params: [ 30000001, 35000000 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 30000001, 35000000 ]
+                              -   util: PrimaryStringGen
+                                  params: [ 1, 50 ]
+                              -   util: PrimaryFloatGen
+                                  params: [ 30000001, 35000000, 2 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 35000001, 40000000 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 35000001, 40000000 ]
+                              -   util: PrimaryStringGen
+                                  params: [ 1, 50 ]
+                              -   util: PrimaryFloatGen
+                                  params: [ 35000001, 40000000, 2 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 40000001, 45000000 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 40000001, 45000000 ]
+                              -   util: PrimaryStringGen
+                                  params: [ 1, 50 ]
+                              -   util: PrimaryFloatGen
+                                  params: [ 40000001, 45000000, 2 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 45000001, 50000000 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 45000001, 50000000 ]
+                              -   util: PrimaryStringGen
+                                  params: [ 1, 50 ]
+                              -   util: PrimaryFloatGen
+                                  params: [ 45000001, 50000000, 2 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 50000001, 55000000 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 50000001, 55000000 ]
+                              -   util: PrimaryStringGen
+                                  params: [ 1, 50 ]
+                              -   util: PrimaryFloatGen
+                                  params: [ 50000001, 55000000, 2 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 55000001, 60000000 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 55000001, 60000000 ]
+                              -   util: PrimaryStringGen
+                                  params: [ 1, 50 ]
+                              -   util: PrimaryFloatGen
+                                  params: [ 55000001, 60000000, 2 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 60000001, 65000000 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 60000001, 65000000 ]
+                              -   util: PrimaryStringGen
+                                  params: [ 1, 50 ]
+                              -   util: PrimaryFloatGen
+                                  params: [ 60000001, 65000000, 2 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 65000001, 70000000 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 65000001, 70000000 ]
+                              -   util: PrimaryStringGen
+                                  params: [ 1, 50 ]
+                              -   util: PrimaryFloatGen
+                                  params: [ 65000001, 70000000, 2 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 70000001, 75000000 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 70000001, 75000000 ]
+                              -   util: PrimaryStringGen
+                                  params: [ 1, 50 ]
+                              -   util: PrimaryFloatGen
+                                  params: [ 70000001, 75000000, 2 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 75000001, 80000000 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 75000001, 80000000 ]
+                              -   util: PrimaryStringGen
+                                  params: [ 1, 50 ]
+                              -   util: PrimaryFloatGen
+                                  params: [ 75000001, 80000000, 2 ]
+
+

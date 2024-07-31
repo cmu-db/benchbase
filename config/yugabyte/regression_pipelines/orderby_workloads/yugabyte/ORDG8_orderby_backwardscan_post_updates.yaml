@@ -1,0 +1,255 @@
+#100000	col1	col2	    col3      col4
+#Table1	1*1M	1000*1k	    10000*100
+
+#TEST FOR YUGABYTE REGULAR TABLES
+#GOAL7 Orderby on hash partitioned table
+#Orderby clause on non indexed column of bigint datatype
+#Orderby clause on hash pkey of bigint datatype
+#Orderby clause on hash secondary indexed column of bigint datatype
+#Orderby clause on range secondary indexed column of bigint datatype
+type: YUGABYTE
+driver: com.yugabyte.Driver
+url: jdbc:yugabytedb://{{endpoint}}:5433/yugabyte?sslmode=require&ApplicationName=featurebench&reWriteBatchedInserts=true&load-balance=false
+username: {{username}}
+password: {{password}}
+batchsize: 128
+isolation: TRANSACTION_REPEATABLE_READ
+loaderThreads: 1
+terminals: 1
+collect_pg_stat_statements: true
+yaml_version: v1.1
+use_dist_in_explain : true
+works:
+    work:
+        time_secs: 120
+        active_terminals: 1
+        rate: unlimited
+        warmup: 30
+microbenchmark:
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
+    properties:
+        setAutoCommit: true
+
+        create:
+            - DROP TABLE IF EXISTS Indexed1M_1;
+            - CREATE TABLE Indexed1M_1(col_bigint_card1_1 bigint, col_bigint_card2_1 bigint, col_bigint_card3_1 bigint, col_bigint_id_1 bigint, col_bigint_id_2 bigint, col_bigint_id_3 bigint, col_bigint_id_4 bigint, col_float2_1 float(2), col_float2_2 float(2), col_float5_1 float(5), col_float5_2 float(5), col_varchar10_id_1 varchar(10), col_varchar100_id_1 varchar(100), col_varchar100_id_2 varchar(100), col_varchar500_id_1 varchar(500), PRIMARY KEY(col_bigint_card1_1, col_bigint_card2_1, col_bigint_card3_1, col_bigint_id_1));
+            - CREATE INDEX ON Indexed1M_1(col_bigint_id_2);
+            - CREATE INDEX ON Indexed1M_1(col_bigint_id_3 ASC);
+            - DROP TABLE IF EXISTS indexedBigint1M_1;
+            - CREATE TABLE indexedBigint1M_1(col_bigint_id_1 bigint, col_bigint_id_2 bigint, col_bigint_id_3 bigint,col_bigint_1 bigint, col_bigint_2 bigint, col_bigint_3 bigint, col_float2_1 float(2), col_float2_2 float(2), col_float5_1 float(5), col_float5_2 float(5), col_boolean_1 boolean, col_varchar10_id_1 varchar(10), col_varchar100_id_1 varchar(100), col_varchar100_id_2 varchar(100), col_varchar500_id_1 varchar(500), PRIMARY KEY(col_bigint_id_1 ASC));
+            - CREATE INDEX ON indexedBigint1M_1(col_bigint_id_2 DESC);
+            - CREATE INDEX ON indexedBigint1M_1(col_bigint_id_3);
+            - DROP TABLE IF EXISTS Indexed1M_range_1;
+            - CREATE TABLE Indexed1M_range_1(col_bigint_id_1 bigint, col_bigint_id_2 bigint, col_bigint_id_3 bigint, col_bigint_1 bigint, col_bigint_2 bigint, col_bigint_3 bigint, col_float2_1 float(2), col_float2_2 float(2), col_float5_1 float(5), col_float5_2 float(5), col_boolean_1 boolean, col_varchar10_id_1 varchar(10), col_varchar100_id_1 varchar(100), col_varchar100_id_2 varchar(100), col_varchar500_id_1 varchar(500), PRIMARY KEY(col_bigint_id_1 ASC));
+            - CREATE INDEX ON Indexed1M_range_1(col_bigint_id_2 ASC);
+
+        cleanup:
+            - DROP TABLE IF EXISTS Indexed1M_1;
+            - DROP TABLE IF EXISTS indexedBigint1M_1;
+            - DROP TABLE IF EXISTS Indexed1M_range_1;
+
+        loadRules:
+              - table: Indexed1M_
+                count: 1
+                rows: 1000000
+                columns:
+                    - name: col_bigint_card1_
+                      count: 1
+                      util: OneNumberFromArray
+                      params: [ 1000000 ]
+                    - name: col_bigint_card2_
+                      count: 1
+                      util: RandomInt
+                      params: [ 1000001, 1001000 ]
+                    - name: col_bigint_card3_
+                      count: 1
+                      util: RandomInt
+                      params: [ 1000001, 1010001 ]
+                    - name: col_bigint_id_
+                      count: 4
+                      util: PrimaryIntGen
+                      params: [ 1, 1000000 ]
+                    - name: col_float2_
+                      count: 2
+                      util: RandomNoWithDecimalPoints
+                      params: [ 1, 1000000, 2 ]
+                    - name: col_float5_
+                      count: 2
+                      util: RandomNoWithDecimalPoints
+                      params: [ 1, 1000000, 5 ]
+                    - name: col_varchar10_id_
+                      count: 1
+                      util: PrimaryStringGen
+                      params: [1, 10]
+                    - name: col_varchar100_id_
+                      count: 2
+                      util: PrimaryStringGen
+                      params: [1, 100]
+                    - name: col_varchar500_id_
+                      count: 1
+                      util: PrimaryStringGen
+                      params: [1, 500]
+
+              - table: indexedBigint1M_
+                count: 1
+                rows: 1000000
+                columns:
+                    -   name: col_bigint_id_
+                        count: 3
+                        util: PrimaryIntGen
+                        params: [ 1, 1000000 ]
+                    -   name: col_bigint_
+                        count: 3
+                        util: RandomNumber
+                        params: [ 1, 1000000 ]
+                    -   name: col_float2_
+                        count: 2
+                        util: RandomNoWithDecimalPoints
+                        params: [ 1, 1000000, 2 ]
+                    -   name: col_float5_
+                        count: 2
+                        util: RandomNoWithDecimalPoints
+                        params: [ 1, 1000000, 5 ]
+                    -   name: col_boolean_
+                        count: 1
+                        util: RandomBoolean
+                    -   name: col_varchar10_id_
+                        count: 1
+                        util: PrimaryStringGen
+                        params: [ 1, 10 ]
+                    -   name: col_varchar100_id_
+                        count: 2
+                        util: PrimaryStringGen
+                        params: [ 1, 100 ]
+                    -   name: col_varchar500_id_
+                        count: 1
+                        util: PrimaryStringGen
+                        params: [ 1, 500 ]
+
+              - table: Indexed1M_range_
+                count: 1
+                rows: 1000000
+                columns:
+                    - name: col_bigint_id_
+                      count: 3
+                      util: PrimaryIntGen
+                      params: [ 1, 1000000 ]
+                    - name: col_bigint_
+                      count: 3
+                      util: RandomNumber
+                      params: [ 1, 1000000 ]
+                    - name: col_float2_
+                      count: 2
+                      util: RandomNoWithDecimalPoints
+                      params: [ 1, 1000000, 2 ]
+                    - name: col_float5_
+                      count: 2
+                      util: RandomNoWithDecimalPoints
+                      params: [ 1, 1000000, 5 ]
+                    - name: col_boolean_
+                      count: 1
+                      util: RandomBoolean
+                    - name: col_varchar10_id_
+                      count: 1
+                      util: PrimaryStringGen
+                      params: [1, 10]
+                    - name: col_varchar100_id_
+                      count: 2
+                      util: PrimaryStringGen
+                      params: [1, 100]
+                    - name: col_varchar500_id_
+                      count: 1
+                      util: PrimaryStringGen
+                      params: [1, 500]
+
+        executeRules:
+
+            - workload: ORDG8_1_ordby_bckwrd_ind_scan_pkey_filter
+              customTags: customer=0,schematype=regular,partition=hash,pkey=composite,cardinality=multiple,projection=hashpkey,filtercount=one,filteron=hashpkey,filtertype=comparision,queryshape=orderby,orderbyon=hashpkeydesc
+              run:
+                  - name: ordby_bckwrd_ind_scan_pkey_filter
+                    weight: 100
+                    queries:
+                        - query: select col_bigint_id_1,col_bigint_id_2,col_bigint_card2_1,col_bigint_card3_1 from Indexed1M_1 where col_bigint_card1_1=1000000 and col_bigint_card2_1<1000100 order by col_bigint_card2_1 DESC
+
+            -   workload: ORDG8_2_ordby_bigint_indexed_column_desc
+                customTags: customer=2,schematype=regular,partition=range,skey=desc,columndatatype=bigint,cardinality=single,projection=indexed,queryshape=orderby,orderbyon=rangeskey
+                run:
+                    -   name: ordby_bigint_indexed_column_desc
+                        weight: 100
+                        queries:
+                            -   query: select col_bigint_id_2 from indexedBigint1M_1 order by col_bigint_id_2
+
+            - workload: ORDG8_3_ordby_bigint_pkey_column_desc
+              customTags: schematype=colocated,partition=hash,cardinality=single,projection=rangepkey,filtercount=one,filteron=rangepkey,filtertype=comparision,queryshape=orderby,orderbyon=rangepkeydesc
+              run:
+                  - name: yb_ordby_bigint_non_indexed_column
+                    weight: 100
+                    queries:
+                        - query: select col_bigint_id_1 from Indexed1M_range_1 where col_bigint_id_1>1 order by col_bigint_id_1 DESC
+
+            - workload: ORDG8_1_perform_update_ordby_bckwrd_ind_scan_pkey_filter
+              skipReport: true
+              customTags: customer=0,schematype=regular,partition=hash,pkey=composite,cardinality=multiple,projection=hashpkey,filtercount=one,filteron=hashpkey,filtertype=comparision,queryshape=orderby,orderbyon=hashpkeydesc
+              run:
+                  - name: ordby_bckwrd_ind_scan_pkey_filter
+                    weight: 100
+                    queries:
+                        - query: update Indexed1M_1 set col_bigint_card3_1=? where col_bigint_card3_1=?
+                          bindings:
+                              -   util: RandomNumber
+                                  params: [ 1000001, 1010001 ]
+                              -   util: RandomNumber
+                                  params: [ 1000001, 1010001 ]
+
+            -   workload: ORDG8_2_perform_update_ordby_bigint_indexed_column_desc
+                skipReport: true
+                customTags: customer=2,schematype=regular,partition=range,skey=desc,columndatatype=bigint,cardinality=single,projection=indexed,queryshape=orderby,orderbyon=rangeskey
+                run:
+                    -   name: ordby_bigint_indexed_column_desc
+                        weight: 100
+                        queries:
+                            -   query: update indexedBigint1M_1 set col_bigint_id_3=? where col_bigint_id_3=?
+                                bindings:
+                                  -   util: RandomNumber
+                                      params: [ 1, 1000000 ]
+                                  -   util: RandomNumber
+                                      params: [ 1, 1000000 ]
+
+            - workload: ORDG8_3_perform_update_ordby_bigint_pkey_column_desc
+              skipReport: true
+              customTags: schematype=colocated,partition=hash,cardinality=single,projection=rangepkey,filtercount=one,filteron=rangepkey,filtertype=comparision,queryshape=orderby,orderbyon=rangepkeydesc
+              run:
+                  - name: yb_ordby_bigint_non_indexed_column
+                    weight: 100
+                    queries:
+                        - query: update Indexed1M_range_1 set col_bigint_id_2 = ? where col_bigint_id_2 = ?
+                          bindings:
+                              -   util: RandomNumber
+                                  params: [ 1, 1000000 ]
+                              -   util: RandomNumber
+                                  params: [ 1, 1000000 ]
+
+            - workload: ORDG8_1_post_update_ordby_bckwrd_ind_scan_pkey_filter
+              customTags: customer=0,schematype=regular,partition=hash,pkey=composite,cardinality=multiple,projection=hashpkey,filtercount=one,filteron=hashpkey,filtertype=comparision,queryshape=orderby,orderbyon=hashpkeydesc
+              run:
+                  - name: ordby_bckwrd_ind_scan_pkey_filter
+                    weight: 100
+                    queries:
+                        - query: select col_bigint_id_1,col_bigint_id_2,col_bigint_card2_1,col_bigint_card3_1 from Indexed1M_1 where col_bigint_card1_1=1000000 and col_bigint_card2_1<1000100 order by col_bigint_car2_1 DESC
+
+            -   workload: ORDG8_2_post_update_ordby_bigint_indexed_column_desc
+                customTags: customer=2,schematype=regular,partition=range,skey=desc,columndatatype=bigint,cardinality=single,projection=indexed,queryshape=orderby,orderbyon=rangeskey
+                run:
+                    -   name: ordby_bigint_indexed_column_desc
+                        weight: 100
+                        queries:
+                            -   query: select col_bigint_id_2 from indexedBigint1M_1 order by col_bigint_id_2
+
+            - workload: ORDG8_3_post_update_ordby_bigint_pkey_column_desc
+              customTags: schematype=colocated,partition=hash,cardinality=single,projection=rangepkey,filtercount=one,filteron=rangepkey,filtertype=comparision,queryshape=orderby,orderbyon=rangepkeydesc
+              run:
+                  - name: yb_ordby_bigint_non_indexed_column
+                    weight: 100
+                    queries:
+                        - query: select col_bigint_id_1 from Indexed1M_range_1 where col_bigint_id_1>1 order by col_bigint_id_1 DESC
