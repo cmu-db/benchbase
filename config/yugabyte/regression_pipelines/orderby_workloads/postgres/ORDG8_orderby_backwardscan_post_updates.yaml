@@ -33,14 +33,14 @@ microbenchmark:
             - DROP TABLE IF EXISTS Indexed1M_1;
             - CREATE TABLE Indexed1M_1(col_bigint_card1_1 bigint, col_bigint_card2_1 bigint, col_bigint_card3_1 bigint, col_bigint_id_1 bigint, col_bigint_id_2 bigint, col_bigint_id_3 bigint, col_bigint_id_4 bigint, col_float2_1 float(2), col_float2_2 float(2), col_float5_1 float(5), col_float5_2 float(5), col_varchar10_id_1 varchar(10), col_varchar100_id_1 varchar(100), col_varchar100_id_2 varchar(100), col_varchar500_id_1 varchar(500), PRIMARY KEY(col_bigint_card1_1, col_bigint_card2_1, col_bigint_card3_1, col_bigint_id_1));
             - CREATE INDEX ON Indexed1M_1(col_bigint_id_2);
-            - CREATE INDEX ON Indexed1M_1(col_bigint_id_3 ASC);
+            - CREATE INDEX ON Indexed1M_1(col_bigint_id_3);
             - DROP TABLE IF EXISTS indexedBigint1M_1;
-            - CREATE TABLE indexedBigint1M_1(col_bigint_id_1 bigint, col_bigint_id_2 bigint, col_bigint_id_3 bigint,col_bigint_1 bigint, col_bigint_2 bigint, col_bigint_3 bigint, col_float2_1 float(2), col_float2_2 float(2), col_float5_1 float(5), col_float5_2 float(5), col_boolean_1 boolean, col_varchar10_id_1 varchar(10), col_varchar100_id_1 varchar(100), col_varchar100_id_2 varchar(100), col_varchar500_id_1 varchar(500), PRIMARY KEY(col_bigint_id_1 ASC));
+            - CREATE TABLE indexedBigint1M_1(col_bigint_id_1 bigint, col_bigint_id_2 bigint, col_bigint_id_3 bigint,col_bigint_1 bigint, col_bigint_2 bigint, col_bigint_3 bigint, col_float2_1 float(2), col_float2_2 float(2), col_float5_1 float(5), col_float5_2 float(5), col_boolean_1 boolean, col_varchar10_id_1 varchar(10), col_varchar100_id_1 varchar(100), col_varchar100_id_2 varchar(100), col_varchar500_id_1 varchar(500), PRIMARY KEY(col_bigint_id_1));
             - CREATE INDEX ON indexedBigint1M_1(col_bigint_id_2 DESC);
             - CREATE INDEX ON indexedBigint1M_1(col_bigint_id_3);
             - DROP TABLE IF EXISTS Indexed1M_range_1;
-            - CREATE TABLE Indexed1M_range_1(col_bigint_id_1 bigint, col_bigint_id_2 bigint, col_bigint_id_3 bigint, col_bigint_1 bigint, col_bigint_2 bigint, col_bigint_3 bigint, col_float2_1 float(2), col_float2_2 float(2), col_float5_1 float(5), col_float5_2 float(5), col_boolean_1 boolean, col_varchar10_id_1 varchar(10), col_varchar100_id_1 varchar(100), col_varchar100_id_2 varchar(100), col_varchar500_id_1 varchar(500), PRIMARY KEY(col_bigint_id_1 ASC));
-            - CREATE INDEX ON Indexed1M_range_1(col_bigint_id_2 ASC);
+            - CREATE TABLE Indexed1M_range_1(col_bigint_id_1 bigint, col_bigint_id_2 bigint, col_bigint_id_3 bigint, col_bigint_1 bigint, col_bigint_2 bigint, col_bigint_3 bigint, col_float2_1 float(2), col_float2_2 float(2), col_float5_1 float(5), col_float5_2 float(5), col_boolean_1 boolean, col_varchar10_id_1 varchar(10), col_varchar100_id_1 varchar(100), col_varchar100_id_2 varchar(100), col_varchar500_id_1 varchar(500), PRIMARY KEY(col_bigint_id_1));
+            - CREATE INDEX ON Indexed1M_range_1(col_bigint_id_2);
 
         cleanup:
             - DROP TABLE IF EXISTS Indexed1M_1;
