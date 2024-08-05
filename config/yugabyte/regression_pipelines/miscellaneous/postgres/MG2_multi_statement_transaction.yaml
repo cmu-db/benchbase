@@ -118,17 +118,17 @@ microbenchmark:
                           bindings:
                               -   util: RandomNoWithDecimalPoints
                                   params: [ 1000000, 10000000, 2 ]
-                              -   util: PrimaryIntGen
+                              -   util: RandomInt
                                   params: [ 1, 1000000 ]
-                              -   util: PrimaryIntGen
+                              -   util: RandomInt
                                   params: [ 1, 1000000 ]
                         - query: SELECT bal_1 FROM accounts_1 WHERE account_id_1 = ?
                           bindings:
-                              -   util: PrimaryIntGen
+                              -   util: RandomInt
                                   params: [ 1, 1000000 ]
                         - query: UPDATE users_1 SET bal_1 = bal_1 + ? WHERE user_id_1 = ?
                           bindings:
                               -   util: RandomInt
                                   params: [ 1, 100 ]
-                              -   util: PrimaryIntGen
+                              -   util: RandomInt
                                   params: [ 1, 1000000 ]
