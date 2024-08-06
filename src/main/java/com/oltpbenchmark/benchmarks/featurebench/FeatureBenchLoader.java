@@ -163,6 +163,9 @@ public class FeatureBenchLoader extends Loader<FeatureBenchBenchmark> {
             this.numberOfRows = numberOfRows;
             this.columns = columns;
             for (Map<String, Object> col : columns) {
+                // order is reserved keyword in postgres. While inserting, use "";
+                if (col.get("name").toString().equalsIgnoreCase("order"))
+                    col.put("name", "\"order\"");
                 if (col.containsKey("count")) {
                     for (int i = 0; i < (int) col.get("count"); i++) {
                         UtilToMethod obj = new UtilToMethod(col.get("util"), col.get("params"));

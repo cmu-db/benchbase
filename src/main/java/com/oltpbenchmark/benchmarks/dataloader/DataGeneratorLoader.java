@@ -24,165 +24,17 @@ import java.util.regex.Pattern;
 public class DataGeneratorLoader extends Loader<DataGenerator> {
     private static final Logger LOG = LoggerFactory.getLogger(DataGeneratorLoader.class);
 
-    private Map<String, PropertyMapping> properties;
-    private Map<String, FkPropertyMapping> fkProperties;
+    private final Map<String, PropertyMapping> properties;
+    private final Map<String, FkPropertyMapping> fkProperties;
 
-    private Map<String, PropertyMapping> pkProperties;
+    private final Map<String, PropertyMapping> pkProperties;
+
     public DataGeneratorLoader(DataGenerator benchmark, Map<String, PropertyMapping> properties,
                                Map<String, PropertyMapping> pkProperties, Map<String, FkPropertyMapping> fkProperties) {
         super(benchmark);
         this.properties = properties;
         this.fkProperties = fkProperties;
         this.pkProperties = pkProperties;
-    }
-
-
-    public static class Column1 {
-        public String name;
-        public String util;
-        public List<Object> params;
-        public Column1(String name, String util) {
-            this.name = name;
-            this.util = util;
-            this.params = new ArrayList<>();
-        }
-    }
-
-    public static class LoadRule {
-        public String table;
-        public int rows;
-        public List<Column1> columns = new ArrayList<>();
-
-        public LoadRule(String table, int rows, List<Column1> columns) {
-            this.table = table;
-            this.rows = rows;
-            this.columns = columns;
-        }
-        public LoadRule(String table, int rows) {
-            this.table = table;
-            this.rows = rows;
-        }
-    }
-
-    public static class Properties {
-        public List<LoadRule> loadRules;
-
-        public Properties(List<LoadRule> loadRules) {
-            this.loadRules = loadRules;
-        }
-    }
-
-    public static class Microbenchmark {
-        public Properties properties;
-        @JsonProperty("class")
-        public String className = "com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark";
-
-        public Microbenchmark(Properties properties) {
-            this.properties = properties;
-        }
-    }
-
-    public static class Root {
-        public Microbenchmark microbenchmark;
-
-        public Root(Microbenchmark microbenchmark) {
-            this.microbenchmark = microbenchmark;
-        }
-    }
-
-    // Create custom PropertyUtils to enforce field order
-    class CustomPropertyUtils extends PropertyUtils {
-        @Override
-        protected Set<Property> createPropertySet(Class<?> type, BeanAccess bAccess) {
-            Set<Property> properties = super.createPropertySet(type, bAccess);
-            if (type == Column1.class) {
-                List<String> order = Arrays.asList("name", "util", "params");
-                List<Property> sortedProperties = new ArrayList<>(properties);
-                sortedProperties.sort(Comparator.comparingInt(p -> order.indexOf(p.getName())));
-                return new LinkedHashSet<>(sortedProperties);
-            }
-            if (type == Microbenchmark.class) {
-                List<String> order = Arrays.asList("className", "properties");
-                List<Property> sortedProperties = new ArrayList<>(properties);
-                sortedProperties.sort(Comparator.comparingInt(p -> order.indexOf(p.getName())));
-                return new LinkedHashSet<>(sortedProperties);
-            }
-            if (type == LoadRule.class) {
-                List<String> order = Arrays.asList("table", "rows", "columns");
-                List<Property> sortedProperties = new ArrayList<>(properties);
-                sortedProperties.sort(Comparator.comparingInt(p -> order.indexOf(p.getName())));
-                return new LinkedHashSet<>(sortedProperties);
-            }
-            return properties;
-        }
-    }
-
-    @Override
-    public List<LoaderThread> createLoaderThreads() throws SQLException {
-        Connection conn = benchmark.makeConnection();
-        String tableName = workConf.getXmlConfig().getString("tablename");
-        int rows = workConf.getXmlConfig().getInt("rows");
-
-        // check if the table exists in the database
-        checkIfTableExists(tableName, conn);
-        // get the table schema
-        List<Column> tableSchema = getTableSchema(tableName, conn);
-
-        // key primary key details
-        List<PrimaryKey> primaryKeys = getPrimaryKeys(tableName, conn);
-
-        // get all unique constraints from the indexes
-        List<String> uniqueConstraintColumns = getUniqueConstrains(tableName, conn);
-
-        // get all columns with respective user defined ENUM data type
-        Map<String, List<Object>> udColumns = getUserDefinedEnumDataTypes(tableName, "public", conn);
-
-        // get all foreign keys of the table
-        List<ForeignKey> foreignKeys = getForeignKeys(tableName, conn);
-//        System.out.println(foreignKeys);
-
-
-        int limit = Math.min(10000, rows);
-        List<String> fkColNames = new ArrayList<>();
-
-        // if in foreign key, parent table is same as current table, don't treat it as foreign key. treat is as normal column
-        List<ForeignKey> fkToRemove = new ArrayList<>();
-        foreignKeys.forEach(fk -> {
-            if (fk.getForeignTableName().equalsIgnoreCase(tableName)) {
-                fkToRemove.add(fk);
-            }
-            else {
-                fkColNames.add(fk.getColumnName());
-            }
-        });
-        foreignKeys.removeAll(fkToRemove);
-
-        // remove all fks from unique constraints
-        uniqueConstraintColumns.removeAll(fkColNames);
-
-        // remove all fks from primary keys
-        List<PrimaryKey> pkToRemove = new ArrayList<>();
-        primaryKeys.forEach(pk -> {
-            if (fkColNames.contains(pk.getColumnName()))
-                pkToRemove.add(pk);
-        });
-        primaryKeys.removeAll(pkToRemove);
-
-        if (foreignKeys.size() > 0) {
-            // fetch the distinct values from parent table. This could take some time
-            getDistinctValuesFromParentTable(conn, foreignKeys, limit);
-        }
-        // create mapping of utility function to the columns in the table
-        Map<String, PropertyMapping> columnToUtilsMapping =
-            utilsMapping(tableSchema, primaryKeys, foreignKeys, limit, rows, uniqueConstraintColumns, udColumns);
-
-        // generate the mapping object which can be used to create the output yaml file
-        Root root = generateMappingObject(tableName, rows, columnToUtilsMapping, fkColNames, udColumns);
-
-        // create output yaml file
-        writeToFile(tableName, rows, root);
-        LOG.info("Generated loader file: {}_loader.yaml", tableName);
-        return new ArrayList<>();
     }
 
     public static void checkIfTableExists(String tableName, Connection connection) throws SQLException {
@@ -374,6 +226,7 @@ public class DataGeneratorLoader extends Loader<DataGenerator> {
         }
         return filteredColumns;
     }
+
     public static List<ForeignKey> getForeignKeys(String tableName, Connection conn) {
         List<ForeignKey> foreignKeyList = new ArrayList<>();
         String query = "SELECT " +
@@ -421,33 +274,119 @@ public class DataGeneratorLoader extends Loader<DataGenerator> {
         return foreignKeyList;
     }
 
+    public static List<String> getParentTableHierarchy(String tableName, Connection conn) {
+        List<String> tableHierarchy = new ArrayList<>();
+        findParentTables(tableName, conn, tableHierarchy);
+        return tableHierarchy;
+    }
+
+    private static void findParentTables(String tableName, Connection conn, List<String> tableHierarchy) {
+        List<ForeignKey> foreignKeys = getForeignKeys(tableName, conn);
+
+        if (foreignKeys.isEmpty()) {
+            tableHierarchy.add(tableName);
+        } else {
+            for (ForeignKey foreignKey : foreignKeys) {
+                findParentTables(foreignKey.getForeignTableName(), conn, tableHierarchy);
+            }
+            tableHierarchy.add(tableName);
+        }
+    }
+
+    @Override
+    public List<LoaderThread> createLoaderThreads() throws SQLException {
+        Connection conn = benchmark.makeConnection();
+        String tableName = workConf.getXmlConfig().getString("tablename");
+        int rows = workConf.getXmlConfig().getInt("rows");
+
+        // check if the table exists in the database
+        checkIfTableExists(tableName, conn);
+        // get the table schema
+        List<Column> tableSchema = getTableSchema(tableName, conn);
+
+        // key primary key details
+        List<PrimaryKey> primaryKeys = getPrimaryKeys(tableName, conn);
+
+        // get all unique constraints from the indexes
+        List<String> uniqueConstraintColumns = getUniqueConstrains(tableName, conn);
+
+        // get all columns with respective user defined ENUM data type
+        Map<String, List<Object>> udColumns = getUserDefinedEnumDataTypes(tableName, "public", conn);
+
+        // get all foreign keys of the table
+        List<ForeignKey> foreignKeys = getForeignKeys(tableName, conn);
+//        System.out.println(foreignKeys);
+
+
+        int limit = Math.min(10000, rows);
+        List<String> fkColNames = new ArrayList<>();
+
+        // if in foreign key, parent table is same as current table, don't treat it as foreign key. treat is as normal column
+        List<ForeignKey> fkToRemove = new ArrayList<>();
+        foreignKeys.forEach(fk -> {
+            if (fk.getForeignTableName().equalsIgnoreCase(tableName)) {
+                fkToRemove.add(fk);
+            } else {
+                fkColNames.add(fk.getColumnName());
+            }
+        });
+        foreignKeys.removeAll(fkToRemove);
+
+        // remove all fks from unique constraints
+        uniqueConstraintColumns.removeAll(fkColNames);
+
+        // remove all fks from primary keys
+        List<PrimaryKey> pkToRemove = new ArrayList<>();
+        primaryKeys.forEach(pk -> {
+            if (fkColNames.contains(pk.getColumnName()))
+                pkToRemove.add(pk);
+        });
+        primaryKeys.removeAll(pkToRemove);
+
+        if (!foreignKeys.isEmpty()) {
+            // fetch the distinct values from parent table. This could take some time
+            getDistinctValuesFromParentTable(conn, foreignKeys, limit);
+        }
+        // create mapping of utility function to the columns in the table
+        Map<String, PropertyMapping> columnToUtilsMapping =
+            utilsMapping(tableSchema, primaryKeys, foreignKeys, limit, rows, uniqueConstraintColumns, udColumns);
+
+        // generate the mapping object which can be used to create the output yaml file
+        Root root = generateMappingObject(tableName, rows, columnToUtilsMapping, fkColNames, udColumns);
+
+        // create output yaml file
+        writeToFile(tableName, rows, root);
+        LOG.info("Generated loader file: {}_loader.yaml", tableName);
+        return new ArrayList<>();
+    }
+
     public Map<String, PropertyMapping> utilsMapping(List<Column> tableSchema, List<PrimaryKey> primaryKeys,
                                                      List<ForeignKey> foreignKeys, int limit, int rows,
                                                      List<String> uniqueConstraintColumns,
                                                      Map<String, List<Object>> udColumData) {
         Map<String, PropertyMapping> columnToUtilMapping = new LinkedHashMap<>();
         // take care of the primary keys first
-        for(PrimaryKey pk: primaryKeys) {
+        for (PrimaryKey pk : primaryKeys) {
             columnToUtilMapping.put(pk.getColumnName(), pkProperties.get(pk.getDataType()));
         }
 
-        for (ForeignKey fk: foreignKeys) {
-            if(!columnToUtilMapping.containsKey(fk.getColumnName())) {
+        for (ForeignKey fk : foreignKeys) {
+            if (!columnToUtilMapping.containsKey(fk.getColumnName())) {
                 FkPropertyMapping fkm = fkProperties.get(fk.getColumnDataType());
                 PropertyMapping pm = new PropertyMapping(fkm.className, limit, fk.getDistinctValues());
                 columnToUtilMapping.put(fk.getColumnName(), pm);
             }
         }
         udColumData.forEach((colName, values) -> {
-            if(!columnToUtilMapping.containsKey(colName)) {
+            if (!columnToUtilMapping.containsKey(colName)) {
                 // Caveat: treating all user defined data types as list of String utility
                 PropertyMapping pm = new PropertyMapping("OneStringFromArray", values.size(), values);
                 columnToUtilMapping.put(colName, pm);
             }
         });
         // take care of the rest of the keys
-        for(Column col: tableSchema) {
-            if(!columnToUtilMapping.containsKey(col.getColumnName())) {
+        for (Column col : tableSchema) {
+            if (!columnToUtilMapping.containsKey(col.getColumnName())) {
                 PropertyMapping pm;
                 // if column is one of the unique constraint columns, then use primary key util functions for it
                 if (uniqueConstraintColumns.contains(col.getColumnName()))
@@ -458,25 +397,25 @@ public class DataGeneratorLoader extends Loader<DataGenerator> {
                 if (pm == null) {
                     throw new RuntimeException(String.format("Cannot find suitable utility function for column " +
                         "`%s` of datatype `%s`. Consider asking #perf team to add a utility function for given " +
-                            "data type", col.getColumnName(), col.getDataType()));
+                        "data type", col.getColumnName(), col.getDataType()));
                 }
-                for (int i = 0; i < pm.params.size(); i++) {
-                    Object obj = pm.params.get(i);
+                PropertyMapping pmForColumn = new PropertyMapping(pm);
+                for (int i = 0; i < pmForColumn.params.size(); i++) {
+                    Object obj = pmForColumn.params.get(i);
                     if (obj instanceof String) {
                         if (obj.toString().equalsIgnoreCase("rows")) {
-                            pm.params.set(i, rows);
+                            pmForColumn.params.set(i, rows);
                         } else if (obj.toString().equalsIgnoreCase("max") && col.getCharacterMaximumLength() != null) {
-                            pm.params.set(i, col.getCharacterMaximumLength());
+                            pmForColumn.params.set(i, col.getCharacterMaximumLength());
                         }
                     }
                 }
-                columnToUtilMapping.put(col.getColumnName(), pm);
+                columnToUtilMapping.put(col.getColumnName(), pmForColumn);
             }
         }
 
         return columnToUtilMapping;
     }
-
 
     public Root generateMappingObject(String tableName, int rows, Map<String, PropertyMapping> colToUtilsMapping,
                                       List<String> fkColNames, Map<String, List<Object>> udColumns) {
@@ -486,22 +425,19 @@ public class DataGeneratorLoader extends Loader<DataGenerator> {
 
             prop.params.forEach(param -> {
                 if (fkColNames.contains(colName)) {
-                    if (param instanceof Integer )
+                    if (param instanceof Integer)
                         col.params.add(param);
                     else
                         col.params.add(param.toString());
-                }
-                else if (udColumns.containsKey(colName)) {
-                    if (param instanceof Integer )
+                } else if (udColumns.containsKey(colName)) {
+                    if (param instanceof Integer)
                         col.params.add(param);
                     else
                         col.params.add(param.toString());
-                }
-                else {
+                } else {
                     if (param.toString().equalsIgnoreCase("rows")) {
                         col.params.add(rows);
-                    }
-                    else {
+                    } else {
                         col.params.add(Integer.parseInt(param.toString()));
                     }
                 }
@@ -509,10 +445,11 @@ public class DataGeneratorLoader extends Loader<DataGenerator> {
 
             loadRule.columns.add(col);
         });
-        Properties properties1 = new Properties(Arrays.asList(loadRule));
+        Properties properties1 = new Properties(List.of(loadRule));
         Microbenchmark mb = new Microbenchmark(properties1);
         return new Root(mb);
     }
+
     public void writeToFile(String tableName, int rows, Root root) {
         // Configure SnakeYAML options
         DumperOptions options = new DumperOptions();
@@ -567,7 +504,7 @@ public class DataGeneratorLoader extends Loader<DataGenerator> {
                             "table `%s` for column `%s` to be used as foreign key. Consider loading tables in " +
                             "following order: ", foreignKey.getForeignTableName(),
                         foreignKey.getForeignColumnName()));
-                    for (String table: hierarchy) {
+                    for (String table : hierarchy) {
                         loadOrder.append(table).append(" --> ");
                     }
                     loadOrder.append(foreignKey.getTableName());
@@ -579,22 +516,86 @@ public class DataGeneratorLoader extends Loader<DataGenerator> {
             }
         }
     }
-    public static List<String> getParentTableHierarchy(String tableName, Connection conn) {
-        List<String> tableHierarchy = new ArrayList<>();
-        findParentTables(tableName, conn, tableHierarchy);
-        return tableHierarchy;
+
+    public static class Column1 {
+        public String name;
+        public String util;
+        public List<Object> params;
+
+        public Column1(String name, String util) {
+            this.name = name;
+            this.util = util;
+            this.params = new ArrayList<>();
+        }
     }
 
-    private static void findParentTables(String tableName, Connection conn, List<String> tableHierarchy) {
-        List<ForeignKey> foreignKeys = getForeignKeys(tableName, conn);
+    public static class LoadRule {
+        public String table;
+        public int rows;
+        public List<Column1> columns = new ArrayList<>();
 
-        if (foreignKeys.isEmpty()) {
-            tableHierarchy.add(tableName);
-        } else {
-            for (ForeignKey foreignKey : foreignKeys) {
-                findParentTables(foreignKey.getForeignTableName(), conn, tableHierarchy);
+        public LoadRule(String table, int rows, List<Column1> columns) {
+            this.table = table;
+            this.rows = rows;
+            this.columns = columns;
+        }
+
+        public LoadRule(String table, int rows) {
+            this.table = table;
+            this.rows = rows;
+        }
+    }
+
+    public static class Properties {
+        public List<LoadRule> loadRules;
+
+        public Properties(List<LoadRule> loadRules) {
+            this.loadRules = loadRules;
+        }
+    }
+
+    public static class Microbenchmark {
+        public Properties properties;
+        @JsonProperty("class")
+        public String className = "com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark";
+
+        public Microbenchmark(Properties properties) {
+            this.properties = properties;
+        }
+    }
+
+    public static class Root {
+        public Microbenchmark microbenchmark;
+
+        public Root(Microbenchmark microbenchmark) {
+            this.microbenchmark = microbenchmark;
+        }
+    }
+
+    // Create custom PropertyUtils to enforce field order
+    static class CustomPropertyUtils extends PropertyUtils {
+        @Override
+        protected Set<Property> createPropertySet(Class<?> type, BeanAccess bAccess) {
+            Set<Property> properties = super.createPropertySet(type, bAccess);
+            if (type == Column1.class) {
+                List<String> order = Arrays.asList("name", "util", "params");
+                List<Property> sortedProperties = new ArrayList<>(properties);
+                sortedProperties.sort(Comparator.comparingInt(p -> order.indexOf(p.getName())));
+                return new LinkedHashSet<>(sortedProperties);
             }
-            tableHierarchy.add(tableName);
+            if (type == Microbenchmark.class) {
+                List<String> order = Arrays.asList("className", "properties");
+                List<Property> sortedProperties = new ArrayList<>(properties);
+                sortedProperties.sort(Comparator.comparingInt(p -> order.indexOf(p.getName())));
+                return new LinkedHashSet<>(sortedProperties);
+            }
+            if (type == LoadRule.class) {
+                List<String> order = Arrays.asList("table", "rows", "columns");
+                List<Property> sortedProperties = new ArrayList<>(properties);
+                sortedProperties.sort(Comparator.comparingInt(p -> order.indexOf(p.getName())));
+                return new LinkedHashSet<>(sortedProperties);
+            }
+            return properties;
         }
     }
 }
