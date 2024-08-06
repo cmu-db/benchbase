@@ -1,0 +1,8 @@
+type: POSTGRES
+driver: org.postgresql.Driver
+url: jdbc:postgresql://localhost:5432/firefly?sslmode=disable&reWriteBatchedInserts=true
+username: postgres
+password: postgres
+
+tablename: {{tableName}}
+rows: {{rows}}

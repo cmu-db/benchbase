@@ -1,8 +1,8 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="perf-dataloader - yugabyte" type="Application" factoryName="Application">
+  <configuration default="false" name="perf-dataloader - postgres" type="Application" factoryName="Application">
     <option name="MAIN_CLASS_NAME" value="com.oltpbenchmark.DBWorkload" />
     <module name="benchbase" />
-    <option name="PROGRAM_PARAMETERS" value="-b perf-dataloader -c config/yugabyte/sample_perf_dataloader_config.yaml --load=true -p tableName=actor -p rows=100" />
+    <option name="PROGRAM_PARAMETERS" value="-b perf-dataloader -c config/postgres/sample_perf_dataloader_config.yaml --load=true -p tableName=actor -p rows=100" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="com.oltpbenchmark.*" />
