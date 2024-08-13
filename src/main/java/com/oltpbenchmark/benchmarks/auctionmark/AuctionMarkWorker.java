@@ -751,7 +751,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
                     gag_ids, gav_ids, images);
         } catch (DuplicateItemIdException ex) {
             profile.seller_item_cnt.set(sellerId, ex.getItemCount());
-            LOG.warn("a duplicate item existed; i believe this error should be handled differently.: " + ex.getMessage());
+            LOG.debug("a duplicate item existed; i believe this error should be handled differently.: " + ex.getMessage());
             throw ex;
         }
 
