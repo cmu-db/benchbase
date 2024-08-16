@@ -6,11 +6,12 @@ TABLE_NAME=""
 ROWS=""
 GENERATE_ONLY=false
 LOAD_ONLY=false
+GEN_LOAD_ORDER=false
 JAR_PATH=""
 
 # Function to display help
 function display_help {
-    echo "Usage: $0 --config <config_file> --table-name <table_name> --rows <rows> [--gen-config-only] [--load-only]"
+    echo "Usage: $0 --config <config_file> --table-name <table_name> --rows <rows> [--gen-config-only] [--load-only] [--gen-load-order]"
     echo "Short forms: -c <config_file> -t <table_name> -r <rows>"
     echo "Options:"
     echo "  -c, --config                Configuration file"
@@ -18,6 +19,7 @@ function display_help {
     echo "  -r, --rows                  Number of rows"
     echo "  --gen-config-only           Only generate the loader/config file"
     echo "  --load-only                 Only load data into the database"
+    echo "  --gen-load-order            Generate table load order in the provided database"
     echo "  -h, --help                  Display this help message"
     exit 0
 }
@@ -72,6 +74,10 @@ while [[ $# -gt 0 ]]; do
             LOAD_ONLY=true
             shift # past argument
             ;;
+        --gen-load-order)
+            GEN_LOAD_ORDER=true
+            shift # past argument
+            ;;
         -h|--help)
             display_help
             ;;
@@ -83,8 +89,10 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Ensure that both --gen-config-only and --load-only are not provided simultaneously
-if [ "$GENERATE_ONLY" = true ] && [ "$LOAD_ONLY" = true ]; then
-    echo "Error: Cannot use --gen-config-only and --load-only simultaneously."
+if { [ "$GENERATE_ONLY" = true ] && [ "$LOAD_ONLY" = true ]; } || \
+   { [ "$GENERATE_ONLY" = true ] && [ "$GEN_LOAD_ORDER" = true ]; } || \
+   { [ "$LOAD_ONLY" = true ] && [ "$GEN_LOAD_ORDER" = true ]; }; then
+    echo "Error: Cannot use these conflicting parameters simultaneously. --gen-config-only, --load-only, --gen-load-order ."
     exit 1
 fi
 
@@ -110,6 +118,29 @@ if [ "$GENERATE_ONLY" = true ]; then
     java -jar "$JAR_PATH" -b perf-dataloader -c "$CONFIG" -p tableName="$TABLE_NAME" -p rows="$ROWS" --load=True
     exit 0
 fi
+
+if [ "$GEN_LOAD_ORDER" = true ]; then
+    if [ -z "$CONFIG" ]; then
+        echo "Error: --config parameter is required with --gen-load-order."
+        display_help
+    fi
+    # Create a temporary file
+    TEMP_CONFIG=$(mktemp)
+    # Copy the content of the original CONFIG file to the temporary file
+    cp "$CONFIG" "$TEMP_CONFIG"
+
+    # Append text to the temporary config file (you can customize the text as needed)
+    echo >> "$TEMP_CONFIG"
+    echo "gen-db-load-order: true" >> "$TEMP_CONFIG"
+    echo "Generating load order based on the provided config file"
+    java -jar "$JAR_PATH" -b perf-dataloader -c "$TEMP_CONFIG" -p tableName="dummy" -p rows="1" --load=True
+
+    # Clean up: delete the temporary config file
+    rm -f "$TEMP_CONFIG"
+
+    exit 0
+fi
+
 
 # Check if required parameters are provided for the default operation
 if [ -z "$CONFIG" ] || [ -z "$TABLE_NAME" ] || [ -z "$ROWS" ]; then

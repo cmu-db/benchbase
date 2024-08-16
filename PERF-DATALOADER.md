@@ -18,7 +18,7 @@ cd benchbase
 ### How to use:
 ```
 #$./perf-data-loader --help
-Usage: ./perf-data-loader --config <config_file> --table-name <table_name> --rows <rows> [--gen-config-only] [--load-only]
+Usage: ./perf-data-loader --config <config_file> --table-name <table_name> --rows <rows> [--gen-config-only] [--load-only] [--gen-load-order]
 Short forms: -c <config_file> -t <table_name> -r <rows>
 Options:
   -c, --config                Configuration file
@@ -26,6 +26,7 @@ Options:
   -r, --rows                  Number of rows
   --gen-config-only           Only generate the loader/config file
   --load-only                 Only load data into the database
+  --gen-load-order            Generate table load order in the provided database
   -h, --help                  Display this help message
 ```
 - to only generate the loader file(skip the actual load). This will generate the yaml file <table-name>_loader.yaml which can be used in loading the data.
@@ -41,6 +42,13 @@ Options:
 - to generate the loader yaml file and load the data in one go
 ```
 ./perf-data-loader --config <config_file> --table-name <table_name> --rows <rows>
+```
+- to generate the load order of all the tables in the database. It is useful to know the load order when there are
+foreign ey references in the db schema. When used, this command will print out the load order/levels in which you can
+populate the tables. Start from tables at level 0, then level 1, and so on. It also generate load_order.json file
+containing the load order in json format.
+```shell
+./perf-data-loader -c <config_file> --gen-load-order
 ```
 
 the input yaml file should have following content
