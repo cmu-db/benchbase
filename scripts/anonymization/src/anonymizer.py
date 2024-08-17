@@ -16,7 +16,6 @@ def anonymize(
     anon_config: DPConfig,
     cont_config: ContinuousConfig,
     sens_config: SensitiveConfig,
-    templates_path: str,
 ):
     
     dp_data = dataset
@@ -25,11 +24,10 @@ def anonymize(
         dp_data = dp_anonymizer.run_anonymization()
 
     if sens_config:
-        sens_anonymizer = SensitiveAnonymizer(dp_data,sens_config,templates_path)
+        sens_anonymizer = SensitiveAnonymizer(dp_data,sens_config)
         dp_data = sens_anonymizer.run_anonymization()
 
     return dp_data
-
 
 
 def anonymize_db(
@@ -37,7 +35,6 @@ def anonymize_db(
     anon_config: DPConfig,
     sens_config: SensitiveConfig,
     cont_config: ContinuousConfig,
-    templates_path: str,
 ):
     
     jdbc_handler.start_jvm()
@@ -48,10 +45,8 @@ def anonymize_db(
     dataset, timestamps = jdbc_handler.data_from_table(conn, table)
 
     dataset_anon = anonymize(
-        dataset, anon_config, cont_config, sens_config, templates_path
+        dataset, anon_config, cont_config, sens_config
     )
-
-    ## TODO: Throw in Sensitive Anonmization
 
     # Create empty table
     anon_table_name = jdbc_handler.create_anonymized_table(conn, table)
@@ -70,17 +65,11 @@ def anonymize_db(
 def main():
     """Entry method"""
 
-    # No templates provided
-    if len(sys.argv) == 2:
+    if len(sys.argv) >= 2:
         xml_config_path = sys.argv[1]
-        templates_path = ""
-
-    elif len(sys.argv) == 3:
-        xml_config_path = sys.argv[1]
-        templates_path = sys.argv[2]
 
     else:
-        print("Not enough arguments provided: <configPath> <templates_path (optional)>")
+        print("Not enough arguments provided: <configPath>")
         return
 
     tree = ET.parse(xml_config_path)
@@ -99,7 +88,7 @@ def main():
         config_parser = XMLParser(table)
         anon_config, sens_config, cont_config = config_parser.get_config()
 
-        anonymize_db(jdbc_handler, anon_config, sens_config, cont_config, templates_path)
+        anonymize_db(jdbc_handler, anon_config, sens_config, cont_config)
 
 
 if __name__ == "__main__":

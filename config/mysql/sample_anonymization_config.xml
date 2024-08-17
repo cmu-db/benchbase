@@ -30,7 +30,7 @@
                 </categorical>
             <!-- Continuous column fine-tuning -->
                 <continuous>
-                    <column name="i_price" bins="1000" lower="2.0" upper="100.0" /> 
+                    <column name="i_price" bins="25" lower="2.0" upper="100.0" />
                 </continuous>
             </differential_privacy>
             <!-- Sensitive value handling -->

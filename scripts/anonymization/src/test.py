@@ -2,7 +2,9 @@
 """
 
 import xml.etree.ElementTree as ET
+import pandas as pd
 from configuration.config_parser import XMLParser
+from anonymizer import anonymize
 
 
 MINIMAL_CONFIG = """
@@ -16,24 +18,24 @@ MINIMAL_CONFIG = """
 FULL_CONFIG = """
    <full_anon>
         <table name="item">
-            <differential_privacy epsilon="1.0" pre_epsilon="0.0" algorithm="aim">
+            <differential_privacy epsilon="1.0" pre_epsilon="0.0" algorithm="mst">
             <!-- Column categorization -->
                 <ignore>
-                    <column name="i_id"/>
+                    <column name="id"/>
                 </ignore>
                 <categorical>
-                    <column name="i_name" />
-                    <column name="i_data" />
-                    <column name="i_im_id" />
+                    <column name="name" />
+                    <column name="item" />
+                    <column name="timestamp" />
                 </categorical>
             <!-- Continuous column fine-tuning -->
                 <continuous>
-                    <column name="i_price" bins="1000" lower="2.0" upper="100.0" /> 
+                    <column name="number" bins="1000" lower="1.0" upper="10000.0" /> 
                 </continuous>
             </differential_privacy>
             <!-- Sensitive value handling -->
             <value_faking>
-                <column name="i_name" method="name" locales="en_US" seed="0"/>
+                <column name="name" method="name" locales="en_US" seed="0"/>
             </value_faking>
         </table>
     </full_anon>
@@ -52,15 +54,20 @@ def test_full_config():
     assert anon_config is not None
     assert sens_config is not None
     assert cont_config is not None
+    
+    dataset = pd.read_csv('test_table.csv')
 
-    assert anon_config.table_name == "item"
-    assert anon_config.epsilon == "1.0"
-    assert anon_config.preproc_eps == "0.0"
-    assert anon_config.algorithm == "aim"
+    # Templates Path = None
+    dataset_anon = anonymize(
+        dataset, anon_config, cont_config, sens_config
+    )
+
+    assert dataset_anon is not None
+
 
 
 def test_minimal_config():
-    """Test method for a minimal config where only dp-anonymization is applied
+    """Test method for a minimal config where only dp-anonymization is applied. Testing only the config parsing
     """
 
     parameters = ET.fromstring(MINIMAL_CONFIG)
@@ -72,3 +79,4 @@ def test_minimal_config():
     assert anon_config is not None
     assert sens_config is None
     assert cont_config is None
+

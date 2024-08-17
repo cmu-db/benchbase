@@ -238,6 +238,7 @@ Possible methods for faking can be found on the official [Faker documentation](h
 ### Basic
 
 The most basic config will need only the name of the table and the privacy mechanism. All necessary information is collected automatically.
+This method is not recommended since it typically results in faulty behavior because the anonymization algorithms do not know how to handle certain columns.
 
 ```xml
 <anonymization>
