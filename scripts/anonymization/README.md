@@ -30,7 +30,8 @@ pylint --rcfile=.pylintrc src/
 Pytest is automatically added by the requirements and can be run as follows:
 
 ```bash
-pytest ./src/test.py
+cd ./src
+pytest test.py
 ```
 
 
