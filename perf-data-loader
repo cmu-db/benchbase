@@ -9,6 +9,11 @@ LOAD_ONLY=false
 GEN_LOAD_ORDER=false
 JAR_PATH=""
 
+# ANSI color codes
+GREEN="\033[32m"
+RED="\033[31m"
+RESET="\033[0m"
+
 # Function to display help
 function display_help {
     echo "Usage: $0 --config <config_file> --table-name <table_name> --rows <rows> [--gen-config-only] [--load-only] [--gen-load-order]"
@@ -46,6 +51,49 @@ function find_jar {
 
     echo "Error: benchbase.jar not found in any expected location."
     exit 1
+}
+
+# Function to show a fake progress bar while a command is running
+show_progress_bar() {
+    local CMD_PID=$1
+    local SECONDS=0
+
+    while kill -0 "$CMD_PID" 2>/dev/null; do
+        printf "\r["
+        for ((i=0; i<50; i++)); do
+            if (( i < (SECONDS % 50) )); then
+                printf "="
+            else
+                printf " "
+            fi
+        done
+        printf "] %d%%" $((SECONDS % 50 * 2))
+        sleep 0.1
+    done
+}
+
+# Function to check command success or failure
+# Function to check command success or failure
+check_command_status() {
+    local CMD_PID=$1
+    local SUCCESS_MSG=$2
+    local FAILURE_MSG=$3
+    local LOG_FILE=$4
+
+    wait "$CMD_PID"
+    CMD_EXIT_CODE=$?
+    # Clear the progress bar line
+    printf "\r\033[K"
+    if [ $CMD_EXIT_CODE -eq 0 ]; then
+        # Ensure the progress bar finishes at 100% on success
+        printf "\r[==================================================] 100%%\n"
+        echo -e "${GREEN}$SUCCESS_MSG${RESET}"
+    else
+        # Avoid showing 100% if the command fails
+        echo -e "${RED}$FAILURE_MSG${RESET}"
+        echo -e "${RED}\nConsole log:${RESET}"
+        cat "$LOG_FILE"
+    fi
 }
 
 # Parse arguments
@@ -104,8 +152,23 @@ if [ "$LOAD_ONLY" = true ]; then
         echo "Error: --config parameter is required with --load-only."
         display_help
     fi
-    echo "Loading the data into the database now!"
-    java -jar "$JAR_PATH" -b featurebench -c "$CONFIG" --load=True
+
+    # Create a temporary file to capture output and errors
+    LOG_FILE=$(mktemp)
+    echo "Loading the data into the database now..."
+    # Start the Java command in the background
+    java -jar "$JAR_PATH" -b featurebench -c "$CONFIG" --load=True > "$LOG_FILE" 2>&1 &
+    CMD_PID=$!
+    # Show the progress bar while the command is running
+    show_progress_bar "$CMD_PID"
+    # Check if the command was successful and print the appropriate message
+    check_command_status "$CMD_PID" \
+        "Data load to the table \`${TABLE_NAME}\` is successful." \
+        "Failed to load data into the table: ${TABLE_NAME}." \
+        "$LOG_FILE"
+
+    # Clean up the log file
+    rm "$LOG_FILE"
     exit 0
 fi
 
@@ -114,8 +177,22 @@ if [ "$GENERATE_ONLY" = true ]; then
         echo "Error: --config, --table-name, and --rows parameters are required with --gen-config-only."
         display_help
     fi
-    echo "Generating loader file for the table"
-    java -jar "$JAR_PATH" -b perf-dataloader -c "$CONFIG" -p tableName="$TABLE_NAME" -p rows="$ROWS" --load=True
+    # Create a temporary file to capture output and errors
+    LOG_FILE=$(mktemp)
+    echo "Generating loader file for the table..."
+    # Start the Java command in the background
+    java -jar "$JAR_PATH" -b perf-dataloader -c "$CONFIG" -p tableName="$TABLE_NAME" -p rows="$ROWS" --load=True > "$LOG_FILE" 2>&1 &
+    CMD_PID=$!
+    # Show the progress bar while the command is running
+    show_progress_bar "$CMD_PID"
+    # Check if the command was successful and print the appropriate message
+    check_command_status "$CMD_PID" \
+        "Loader file generated successfully: ${TABLE_NAME}_loader.yaml" \
+        "Failed to generate loader file." \
+        "$LOG_FILE"
+
+    # Clean up the log file
+    rm "$LOG_FILE"
     exit 0
 fi
 
@@ -126,18 +203,33 @@ if [ "$GEN_LOAD_ORDER" = true ]; then
     fi
     # Create a temporary file
     TEMP_CONFIG=$(mktemp)
+    # Create a temporary file to capture output and errors
+    LOG_FILE=$(mktemp)
     # Copy the content of the original CONFIG file to the temporary file
     cp "$CONFIG" "$TEMP_CONFIG"
 
     # Append text to the temporary config file (you can customize the text as needed)
     echo >> "$TEMP_CONFIG"
     echo "gen-db-load-order: true" >> "$TEMP_CONFIG"
-    echo "Generating load order based on the provided config file"
-    java -jar "$JAR_PATH" -b perf-dataloader -c "$TEMP_CONFIG" -p tableName="dummy" -p rows="1" --load=True
-
+    echo "Generating load order based on the provided config file..."
+    java -jar "$JAR_PATH" -b perf-dataloader -c "$TEMP_CONFIG" -p tableName="dummy" -p rows="1" --load=True > "$LOG_FILE" 2>&1 &
+    CMD_PID=$!
+    # Show the progress bar while the command is running
+    show_progress_bar "$CMD_PID"
+    # Check if the command was successful and print the appropriate message
+    check_command_status "$CMD_PID" \
+        "Load order generated successfully in file \`load_order.json\` and is as follows: " \
+        "Failed to generate load order for the database." \
+        "$LOG_FILE"
+    # If successful, print the contents of the load order file
+    if [ $CMD_EXIT_CODE -eq 0 ]; then
+        cat "load_order.json"
+        echo ""
+    fi
     # Clean up: delete the temporary config file
     rm -f "$TEMP_CONFIG"
-
+    # Clean up the log file
+    rm "$LOG_FILE"
     exit 0
 fi
 
@@ -149,10 +241,38 @@ if [ -z "$CONFIG" ] || [ -z "$TABLE_NAME" ] || [ -z "$ROWS" ]; then
 fi
 
 # If no specific option is provided, do both generate and load with default config file location
-echo "Generating loader file for the table"
-java -jar "$JAR_PATH" -b perf-dataloader -c "$CONFIG" -p tableName="$TABLE_NAME" -p rows="$ROWS" --load=True
+# Create a temporary file to capture output and errors
+LOG_FILE=$(mktemp)
+echo "Generating loader file for the table..."
+# Start the Java command in the background
+java -jar "$JAR_PATH" -b perf-dataloader -c "$CONFIG" -p tableName="$TABLE_NAME" -p rows="$ROWS" --load=True > "$LOG_FILE" 2>&1 &
+CMD_PID=$!
+# Show the progress bar while the command is running
+show_progress_bar "$CMD_PID"
+# Check if the command was successful and print the appropriate message
+check_command_status "$CMD_PID" \
+    "Loader file generated successfully: ${TABLE_NAME}_loader.yaml" \
+    "Failed to generate loader file." \
+    "$LOG_FILE"
+
+# Clean up the log file
+rm "$LOG_FILE"
 
 DEFAULT_CONFIG="${TABLE_NAME}_loader.yaml"
 
-echo "Loading the data into the database now!"
-java -jar "$JAR_PATH" -b featurebench -c "$DEFAULT_CONFIG" --load=True
+# Create a temporary file to capture output and errors
+LOG_FILE=$(mktemp)
+echo "Loading the data into the database now..."
+# Start the Java command in the background
+java -jar "$JAR_PATH" -b featurebench -c "$DEFAULT_CONFIG" --load=True > "$LOG_FILE" 2>&1 &
+CMD_PID=$!
+# Show the progress bar while the command is running
+show_progress_bar "$CMD_PID"
+# Check if the command was successful and print the appropriate message
+check_command_status "$CMD_PID" \
+    "Data load to the table \`${TABLE_NAME}\` is successful." \
+    "Failed to load data into the table: ${TABLE_NAME}." \
+    "$LOG_FILE"
+
+# Clean up the log file
+rm "$LOG_FILE"

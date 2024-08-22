@@ -39,17 +39,127 @@ public class DataGeneratorLoader extends Loader<DataGenerator> {
         this.pkProperties = pkProperties;
     }
 
-    public static void checkIfTableExists(String tableName, Connection connection) throws SQLException {
-        boolean exists = false;
+    @Override
+    public List<LoaderThread> createLoaderThreads() throws SQLException {
+        Connection conn = benchmark.makeConnection();
+        boolean genLoadOrderOnly = workConf.getXmlConfig().getBoolean("gen-db-load-order", false);
+        if (genLoadOrderOnly) {
+            Set<String> processedTables = new HashSet<>();
+            Map<String, List<Dependency>> graph = new HashMap<>();
+            Set<String> visited = new HashSet<>();
+            StringBuilder loadOrder = new StringBuilder();
+            Map<Integer, List<String>> depth = new TreeMap<>();
+            Map<Integer, List<String>> levelAndTables = new LinkedHashMap<>();
+            buildGraph(conn, processedTables, graph);
+
+            List<String> independentTables = new ArrayList<>();
+            List<String> allDbTables = getAllTables(conn);
+            for(String table: allDbTables) {
+                if (!processedTables.contains(table.toLowerCase())) {
+                    independentTables.add(table);
+                }
+            }
+
+            if (!graph.isEmpty()) {
+                String startTable = graph.keySet().iterator().next();
+                levelAndTables.putAll(getOrderOfImport(startTable, loadOrder, graph, depth, visited));
+                levelAndTables.get(0).addAll(independentTables);
+            } else {
+                levelAndTables.put(0, independentTables);
+            }
+
+            int totalTables = 0;
+            for (Map.Entry<Integer, List<String>> entry : levelAndTables.entrySet()) {
+                int level = entry.getKey();
+                List<String> tablesAtLevel = entry.getValue();
+                totalTables += tablesAtLevel.size();
+                System.out.println("Level " + level + ": " + String.join(", ", tablesAtLevel));
+            }
+
+            System.out.println("Total number of tables: " + totalTables);
+            try {
+                FileWriter writer = new FileWriter("load_order.json");
+                writer.write(JSONUtil.format(JSONUtil.toJSONString(levelAndTables)));
+                writer.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+        } else {
+            String tableName = workConf.getXmlConfig().getString("tablename");
+            int rows = workConf.getXmlConfig().getInt("rows");
+
+            // check if the table exists in the database and fetch the table schema
+            String schemaOfTable = getTableSchemaIfTableExists(tableName, conn);
+            // get the table schema
+            List<Column> columnDetails = getTableSchema(tableName, conn, schemaOfTable);
+
+            // key primary key details
+            List<PrimaryKey> primaryKeys = getPrimaryKeys(tableName, schemaOfTable, conn);
+
+            // get all unique constraints from the indexes
+            List<String> uniqueConstraintColumns = getUniqueConstrains(tableName, schemaOfTable, conn);
+
+            // get all columns with respective user defined ENUM data type
+            Map<String, List<Object>> udColumns = getUserDefinedEnumDataTypes(tableName, schemaOfTable, conn);
+
+            // get all foreign keys of the table
+            List<ForeignKey> foreignKeys = getForeignKeys(tableName, schemaOfTable, conn);
+
+            int limit = Math.min(10000, rows);
+            List<String> fkColNames = new ArrayList<>();
+
+            // if in foreign key, parent table is same as current table, don't treat it as foreign key. treat is as normal column
+            List<ForeignKey> fkToRemove = new ArrayList<>();
+            foreignKeys.forEach(fk -> {
+                if (fk.getForeignTableName().equalsIgnoreCase(tableName)) {
+                    fkToRemove.add(fk);
+                } else {
+                    fkColNames.add(fk.getColumnName());
+                }
+            });
+            foreignKeys.removeAll(fkToRemove);
+
+            // remove all fks from unique constraints
+            uniqueConstraintColumns.removeAll(fkColNames);
+
+            // remove all fks from primary keys
+            List<PrimaryKey> pkToRemove = new ArrayList<>();
+            primaryKeys.forEach(pk -> {
+                if (fkColNames.contains(pk.getColumnName()))
+                    pkToRemove.add(pk);
+            });
+            primaryKeys.removeAll(pkToRemove);
+
+            if (!foreignKeys.isEmpty()) {
+                // fetch the distinct values from parent table. This could take some time
+                getDistinctValuesFromParentTable(conn, foreignKeys, limit, schemaOfTable);
+            }
+            // create mapping of utility function to the columns in the table
+            Map<String, PropertyMapping> columnToUtilsMapping =
+                utilsMapping(columnDetails, primaryKeys, foreignKeys, limit, rows, uniqueConstraintColumns, udColumns);
+
+            // generate the mapping object which can be used to create the output yaml file
+            Root root = generateMappingObject(tableName, rows, columnToUtilsMapping, fkColNames, udColumns);
+
+            // create output yaml file
+            writeToFile(tableName, rows, root);
+            LOG.info("Generated loader file: {}_loader.yaml", tableName);
+        }
+
+        return new ArrayList<>();
+    }
+
+    public static String getTableSchemaIfTableExists(String tableName, Connection connection) throws SQLException {
+        String tableSchema = null;
         ResultSet resultSet = null;
 
         try {
             DatabaseMetaData metaData = connection.getMetaData();
             resultSet = metaData.getTables(null, null, tableName, new String[]{"TABLE"});
             if (resultSet.next()) {
-                exists = true;
-            }
-            if (!exists) {
+                tableSchema = resultSet.getString("TABLE_SCHEM");
+            } else {
                 throw new RuntimeException(String.format("Table with name %s does not exist", tableName));
             }
         } finally {
@@ -58,16 +168,17 @@ public class DataGeneratorLoader extends Loader<DataGenerator> {
             }
         }
 
+        return tableSchema;
     }
 
-    public static List<Column> getTableSchema(String tableName, Connection conn) {
+    public static List<Column> getTableSchema(String tableName, Connection conn, String tableSchema) {
         List<Column> tableSchemaList = new ArrayList<>();
         String query = "SELECT column_name, data_type, character_maximum_length, is_identity " +
-            "FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ?";
+            "FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ? and table_schema = ?";
 
         try (PreparedStatement pstmt = conn.prepareStatement(query)) {
-
             pstmt.setString(1, tableName);
+            pstmt.setString(2, tableSchema);
             ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()) {
@@ -86,7 +197,7 @@ public class DataGeneratorLoader extends Loader<DataGenerator> {
         return tableSchemaList;
     }
 
-    public static List<PrimaryKey> getPrimaryKeys(String tableName, Connection conn) {
+    public static List<PrimaryKey> getPrimaryKeys(String tableName, String tableSchema, Connection conn) {
         List<PrimaryKey> primaryKeyList = new ArrayList<>();
         String query = "SELECT c.column_name, c.data_type " +
             "FROM information_schema.table_constraints tc " +
@@ -95,11 +206,12 @@ public class DataGeneratorLoader extends Loader<DataGenerator> {
             "AND tc.table_name = c.table_name " +
             "AND ccu.column_name = c.column_name " +
             "WHERE constraint_type = 'PRIMARY KEY' " +
-            "AND tc.table_name = ?";
+            "AND tc.table_name = ? and tc.table_schema = ?";
 
         try (PreparedStatement pstmt = conn.prepareStatement(query)) {
 
             pstmt.setString(1, tableName);
+            pstmt.setString(2, tableSchema);
             ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()) {
@@ -116,17 +228,18 @@ public class DataGeneratorLoader extends Loader<DataGenerator> {
         return primaryKeyList;
     }
 
-    public static List<String> getUniqueConstrains(String tableName, Connection conn) {
+    public static List<String> getUniqueConstrains(String tableName, String tableSchema, Connection conn) {
         List<String> uniques = new ArrayList<>();
         // Query to find unique indexes on 'store' table in 'public' schema
         String query = "SELECT indexdef " +
             "FROM pg_indexes " +
             "WHERE indexdef ILIKE '%UNIQUE%' " +
-            "AND tablename = ?";
+            "AND tablename = ? and schemaname = ?";
 
         try (PreparedStatement pstmt = conn.prepareStatement(query)) {
 
             pstmt.setString(1, tableName);
+            pstmt.setString(2, tableSchema);
             ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()) {
@@ -229,7 +342,7 @@ public class DataGeneratorLoader extends Loader<DataGenerator> {
         return filteredColumns;
     }
 
-    public static List<ForeignKey> getForeignKeys(String tableName, Connection conn) {
+    public static List<ForeignKey> getForeignKeys(String tableName, String tableSchema, Connection conn) {
         List<ForeignKey> foreignKeyList = new ArrayList<>();
         String query = "SELECT " +
             "kcu.table_schema AS schema_name, " +
@@ -250,11 +363,12 @@ public class DataGeneratorLoader extends Loader<DataGenerator> {
             "AND kcu.table_name = col.table_name " +
             "AND kcu.column_name = col.column_name " +
             "WHERE tc.constraint_type = 'FOREIGN KEY' " +
-            "AND kcu.table_name = ?";
+            "AND kcu.table_name = ? AND kcu.table_schema = ?";
 
         try (PreparedStatement pstmt = conn.prepareStatement(query)) {
 
             pstmt.setString(1, tableName);
+            pstmt.setString(2, tableSchema);
             ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()) {
@@ -276,128 +390,16 @@ public class DataGeneratorLoader extends Loader<DataGenerator> {
         return foreignKeyList;
     }
 
-    public static void buildDependencyDAGForTable(Map<String, List<Dependency>> graph, List<ForeignKey> foreignKeyList, Connection conn) {
+    public static void buildDependencyDAGForTable(Map<String, List<Dependency>> graph, List<ForeignKey> foreignKeyList,
+                                                  String tableSchema, Connection conn) {
         // Build the adjacency list
         for (ForeignKey fk : foreignKeyList) {
             graph.computeIfAbsent(fk.getTableName(), k -> new ArrayList<>()).add(new Dependency(fk.getForeignTableName(), -1));
-            List<ForeignKey> fkOfFks = getForeignKeys(fk.getForeignTableName(), conn);
+            List<ForeignKey> fkOfFks = getForeignKeys(fk.getForeignTableName(), tableSchema, conn);
             if (!fkOfFks.isEmpty()) {
-                buildDependencyDAGForTable(graph, fkOfFks, conn);
+                buildDependencyDAGForTable(graph, fkOfFks, tableSchema, conn);
             }
         }
-    }
-
-    @Override
-    public List<LoaderThread> createLoaderThreads() throws SQLException {
-        Connection conn = benchmark.makeConnection();
-        boolean genLoadOrderOnly = workConf.getXmlConfig().getBoolean("gen-db-load-order", false);
-        if (genLoadOrderOnly) {
-            Set<String> processedTables = new HashSet<>();
-            Map<String, List<Dependency>> graph = new HashMap<>();
-            Set<String> visited = new HashSet<>();
-            StringBuilder loadOrder = new StringBuilder();
-            Map<Integer, List<String>> depth = new TreeMap<>();
-            Map<Integer, List<String>> levelAndTables = new LinkedHashMap<>();
-            buildGraph(conn, processedTables, graph);
-
-            List<String> independentTables = new ArrayList<>();
-            List<String> allDbTables = getAllTables(conn);
-            for(String table: allDbTables) {
-                if (!processedTables.contains(table.toLowerCase())) {
-                    independentTables.add(table);
-                }
-            }
-
-            if (!graph.isEmpty()) {
-                String startTable = graph.keySet().iterator().next();
-                levelAndTables.putAll(getOrderOfImport(startTable, loadOrder, graph, depth, visited));
-                levelAndTables.get(0).addAll(independentTables);
-            } else {
-                levelAndTables.put(0, independentTables);
-            }
-
-            int totalTables = 0;
-            for (Map.Entry<Integer, List<String>> entry : levelAndTables.entrySet()) {
-                int level = entry.getKey();
-                List<String> tablesAtLevel = entry.getValue();
-                totalTables += tablesAtLevel.size();
-                System.out.println("Level " + level + ": " + String.join(", ", tablesAtLevel));
-            }
-
-            System.out.println("Total number of tables: " + totalTables);
-            try {
-                FileWriter writer = new FileWriter("load_order.json");
-                writer.write(JSONUtil.format(JSONUtil.toJSONString(levelAndTables)));
-                writer.close();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
-        } else {
-            String tableName = workConf.getXmlConfig().getString("tablename");
-            int rows = workConf.getXmlConfig().getInt("rows");
-
-            // check if the table exists in the database
-            checkIfTableExists(tableName, conn);
-            // get the table schema
-            List<Column> tableSchema = getTableSchema(tableName, conn);
-
-            // key primary key details
-            List<PrimaryKey> primaryKeys = getPrimaryKeys(tableName, conn);
-
-            // get all unique constraints from the indexes
-            List<String> uniqueConstraintColumns = getUniqueConstrains(tableName, conn);
-
-            // get all columns with respective user defined ENUM data type
-            Map<String, List<Object>> udColumns = getUserDefinedEnumDataTypes(tableName, "public", conn);
-
-            // get all foreign keys of the table
-            List<ForeignKey> foreignKeys = getForeignKeys(tableName, conn);
-//        System.out.println(foreignKeys);
-
-
-            int limit = Math.min(10000, rows);
-            List<String> fkColNames = new ArrayList<>();
-
-            // if in foreign key, parent table is same as current table, don't treat it as foreign key. treat is as normal column
-            List<ForeignKey> fkToRemove = new ArrayList<>();
-            foreignKeys.forEach(fk -> {
-                if (fk.getForeignTableName().equalsIgnoreCase(tableName)) {
-                    fkToRemove.add(fk);
-                } else {
-                    fkColNames.add(fk.getColumnName());
-                }
-            });
-            foreignKeys.removeAll(fkToRemove);
-
-            // remove all fks from unique constraints
-            uniqueConstraintColumns.removeAll(fkColNames);
-
-            // remove all fks from primary keys
-            List<PrimaryKey> pkToRemove = new ArrayList<>();
-            primaryKeys.forEach(pk -> {
-                if (fkColNames.contains(pk.getColumnName()))
-                    pkToRemove.add(pk);
-            });
-            primaryKeys.removeAll(pkToRemove);
-
-            if (!foreignKeys.isEmpty()) {
-                // fetch the distinct values from parent table. This could take some time
-                getDistinctValuesFromParentTable(conn, foreignKeys, limit);
-            }
-            // create mapping of utility function to the columns in the table
-            Map<String, PropertyMapping> columnToUtilsMapping =
-                utilsMapping(tableSchema, primaryKeys, foreignKeys, limit, rows, uniqueConstraintColumns, udColumns);
-
-            // generate the mapping object which can be used to create the output yaml file
-            Root root = generateMappingObject(tableName, rows, columnToUtilsMapping, fkColNames, udColumns);
-
-            // create output yaml file
-            writeToFile(tableName, rows, root);
-            LOG.info("Generated loader file: {}_loader.yaml", tableName);
-        }
-
-        return new ArrayList<>();
     }
 
     public Map<String, PropertyMapping> utilsMapping(List<Column> tableSchema, List<PrimaryKey> primaryKeys,
@@ -427,6 +429,9 @@ public class DataGeneratorLoader extends Loader<DataGenerator> {
         // take care of the rest of the keys
         for (Column col : tableSchema) {
             if (!columnToUtilMapping.containsKey(col.getColumnName())) {
+                // skip the columns having array data types
+                if (col.getDataType().equalsIgnoreCase("array"))
+                    continue;
                 PropertyMapping pm;
                 // if column is one of the unique constraint columns, then use primary key util functions for it
                 if (uniqueConstraintColumns.contains(col.getColumnName()))
@@ -526,7 +531,7 @@ public class DataGeneratorLoader extends Loader<DataGenerator> {
         }
     }
 
-    public void getDistinctValuesFromParentTable(Connection conn, List<ForeignKey> foreignKeyList, int limit) {
+    public void getDistinctValuesFromParentTable(Connection conn, List<ForeignKey> foreignKeyList, int limit, String schemaOfTable) {
         String queryTemplate = "SELECT DISTINCT %s FROM %s LIMIT %d";
         for (ForeignKey foreignKey : foreignKeyList) {
             String query = String.format(queryTemplate, foreignKey.getForeignColumnName(), foreignKey.getForeignTableName(), limit);
@@ -543,7 +548,7 @@ public class DataGeneratorLoader extends Loader<DataGenerator> {
                     Map<Integer, List<String>> depth = new TreeMap<>();
                     Set<String> visited = new HashSet<>();
 
-                    buildDependencyDAGForTable(graph, foreignKeyList, conn);
+                    buildDependencyDAGForTable(graph, foreignKeyList, schemaOfTable, conn);
 
                     StringBuilder loadOrder = new StringBuilder(String.format("There are no entries in the parent " +
                             "table `%s` for column `%s` to be used as foreign key. Consider loading tables in " +

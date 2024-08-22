@@ -2,7 +2,6 @@ package com.oltpbenchmark.benchmarks.featurebench.utils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class RandomTextArrayGen implements BaseUtil {
@@ -56,7 +55,6 @@ public class RandomTextArrayGen implements BaseUtil {
             String rd = (String) new RandomAString(List.of(minLengthOfString, maxLengthOfString)).run();
             textArray.add(rd);
         }
-        String abc = textArray.toString().replaceFirst("\\[", "{").replace("]", "}");
-        return abc;
+        return textArray.toString().replaceFirst("\\[", "{").replace("]", "}");
     }
 }
