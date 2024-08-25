@@ -7,8 +7,8 @@ from configuration.configurations import DPConfig, ContinuousConfig
 
 
 class Preprocessor:
-      """A class that transforms the dataset in order to 
-      allow differential privacy algorithms to work with the data
+    """A class that transforms the dataset in order to 
+    allow differential privacy algorithms to work with the data
 
     Attributes
     ----------
