@@ -101,7 +101,7 @@ class JDBCHandler:
         curs = conn.cursor()
         anon_table_name = table + "_anonymized"
         curs.execute(f"DROP TABLE IF EXISTS {anon_table_name}")
-        curs.execute(f"CREATE TABLE {anon_table_name} AS TABLE {table} WITH NO DATA")
+        curs.execute(f"CREATE TABLE {anon_table_name} AS SELECT * FROM {table} WHERE 1=0")
         curs.close()
         return anon_table_name
 
