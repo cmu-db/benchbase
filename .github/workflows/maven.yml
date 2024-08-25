@@ -357,6 +357,8 @@ jobs:
           elif [ ${{matrix.benchmark}} == tpcc-with-reconnects ]; then
               ERRORS_THRESHOLD=0.02
               results_benchmark=tpcc
+          elif [ ${{matrix.benchmark}} == anonymization ]; then
+              results_benchmark=tpcc
           fi
           ./scripts/check_latest_benchmark_results.sh $results_benchmark
           ./scripts/check_histogram_results.sh results/histograms.json $ERRORS_THRESHOLD
