@@ -1,16 +1,37 @@
+"""Module that handles differential privacy anonymization
+"""
+
 import time
+import pandas as pd
+
 from snsynth import Synthesizer
 from configuration.configurations import DPConfig,ContinuousConfig
-import pandas as pd
 from .preprocessor import Preprocessor
 
 class DifferentialPrivacyAnonymizer():
+    """A class that holds all necessary information for differential privacy anonymization
+
+    Attributes
+    ----------
+    dataset : pd.DataFrame
+        The full dataset
+    anon_config : DPConfig
+        The configuration of all columns of the dataset
+    cont_config : ContinuousConfig
+        The specific configuration of all continuous columns of the dataset
+    """
+
     def __init__(self,  dataset: pd.DataFrame, anon_config: DPConfig, cont_config: ContinuousConfig):
         self.dataset = dataset
         self.anon_config = anon_config
         self.cont_config = cont_config
 
     def run_anonymization(self):
+        """Function that runs differential privacy algorithms
+
+        Returns:
+            pd.DataFrame: The resulting differentially private dataset
+        """
     
         alg = self.anon_config.algorithm
         eps = float(self.anon_config.epsilon)
@@ -38,7 +59,7 @@ class DifferentialPrivacyAnonymizer():
                     categorical_columns=cat,
                     continuous_columns=cont,
                     ordinal_columns=ordi,
-                    transformer=Preprocessor(self.anon_config).getTransformer(
+                    transformer=Preprocessor(self.anon_config).get_transformer(
                         self.dataset, self.cont_config
                     ),
                     nullable=nullable_flag,
@@ -64,7 +85,6 @@ class DifferentialPrivacyAnonymizer():
 
         anon_data = self.__add_ignorable(anon_data,saved_indexes,saved_columns)
 
-        
         return anon_data
     
     def __remove_ignorable(self):
@@ -84,3 +104,4 @@ class DifferentialPrivacyAnonymizer():
         for ind, col in enumerate(ignore_columns):
             dataset.insert(saved_indexes[ind], col, saved_columns[col])
         return dataset
+    

@@ -4,12 +4,13 @@
 import sys
 import xml.etree.ElementTree as ET
 import pandas as pd
-from modules.jdbc_handler import JDBCHandler
+
 from configuration.config_parser import XMLParser
 from configuration.configurations import DPConfig, SensitiveConfig, ContinuousConfig
+
 from modules.dp_anonymizer import DifferentialPrivacyAnonymizer
 from modules.sensitive_anonymizer import SensitiveAnonymizer
-
+from modules.jdbc_handler import JDBCHandler
 
 def anonymize(
     dataset: pd.DataFrame,
@@ -17,6 +18,17 @@ def anonymize(
     cont_config: ContinuousConfig,
     sens_config: SensitiveConfig,
 ):
+    """Function that runs differential privacy and sensitive value anonymization
+
+    Args:
+        dataset (pd.DataFrame): The original dataset
+        anon_config (DPConfig): The Differential Privacy Configuration
+        cont_config (ContinuousConfig): The Configuration for Continuous Values
+        sens_config (SensitiveConfig): The Configuration for Sensitive Values
+
+    Returns:
+        pd.DataFrame: The Anonymized Dataset
+    """
     
     dp_data = dataset
     if anon_config:
@@ -36,6 +48,14 @@ def anonymize_db(
     sens_config: SensitiveConfig,
     cont_config: ContinuousConfig,
 ):
+    """Entry function that handles data pulling, anonymization and data pushing back to the DB
+
+    Args:
+        jdbc_handler (JDBCHandler): The JDBC Information
+        anon_config (DPConfig): The Differential Privacy Configuration
+        cont_config (ContinuousConfig): The Configuration for Continuous Values
+        sens_config (SensitiveConfig): The Configuration for Sensitive Values
+    """
     
     jdbc_handler.start_jvm()
 

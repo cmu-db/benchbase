@@ -1,13 +1,25 @@
+"""Module for data transformation
+"""
+
 from snsynth.transform import BinTransformer, TableTransformer
 
 from configuration.configurations import DPConfig, ContinuousConfig
 
 
 class Preprocessor:
+      """A class that transforms the dataset in order to 
+      allow differential privacy algorithms to work with the data
+
+    Attributes
+    ----------
+    config : DPConfig
+        The differential privacy parameters
+    """
+      
     def __init__(self, config: DPConfig):
         self.config = config
 
-    def getTransformer(self, dataset, cont_config):
+    def get_transformer(self, dataset, cont_config):
         """Method that returns a TableTransformer object which can be used by DP mechansisms
 
         Args:
@@ -33,12 +45,12 @@ class Preprocessor:
             continuous_columns=self.config.column_classification.continuous,
             ordinal_columns=self.config.column_classification.ordinal,
             style=style,
-            constraints=self.getConstraints(cont_config, dataset),
+            constraints=self.get_constraints(cont_config, dataset),
         )
         print("Instantiated Transformer")
         return tt
 
-    def getConstraints(self,cont_config: ContinuousConfig, dataset):
+    def get_constraints(self,cont_config: ContinuousConfig, dataset):
         """Helper method that forms constraints from a list of continuous columns
 
         Args:
@@ -71,9 +83,9 @@ class Preprocessor:
                 else:
                     max_bound = int(upper)
 
-            nullFlag = dataset[col_name].isnull().values.any()
+            null_flag = dataset[col_name].isnull().values.any()
             constraints[col_name] = BinTransformer(
-                bins=bins, lower=min_bound, upper=max_bound, nullable=nullFlag
+                bins=bins, lower=min_bound, upper=max_bound, nullable=null_flag
             )
 
         return constraints

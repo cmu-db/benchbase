@@ -1,11 +1,22 @@
+"""Module for handling Sensitive Values
+"""
+
 import pandas as pd
-import xml.etree.ElementTree as ET
 
 from configuration.configurations import SensitiveConfig
 from faker import Faker
 
-
 class SensitiveAnonymizer:
+    """A class that holds all information for sensitive anonymization.
+
+    Attributes
+    ----------
+    dataset : pd.DataFrame
+        The full dataset
+    sens_config : SensitiveConfig
+        The configuration of the columns that are sensitive
+    """
+
     def __init__(
         self, dataset: pd.DataFrame, sens_config: SensitiveConfig
     ):
@@ -13,6 +24,11 @@ class SensitiveAnonymizer:
         self.sens_config = sens_config
 
     def run_anonymization(self):
+        """Function that runs the actual anonymization of sensitive values
+
+        Returns:
+            pd.DataFrame: A dataset with anonymized sensitive values
+        """
         anon_data = self.dataset.copy()
 
         if self.sens_config:
@@ -64,3 +80,4 @@ class SensitiveAnonymizer:
         fake.unique.clear()
 
         return dataset
+    

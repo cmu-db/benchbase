@@ -43,7 +43,9 @@ FULL_CONFIG = """
 
 
 def test_full_config():
-    """Test method for a full config with dp-anonymization, continuous and sensitive values"""
+    """
+    Test method for a full config with dp-anonymization,continuous and sensitive values
+    """
 
     parameters = ET.fromstring(FULL_CONFIG)
 
@@ -54,7 +56,7 @@ def test_full_config():
     assert anon_config is not None
     assert sens_config is not None
     assert cont_config is not None
-    
+
     dataset = pd.read_csv('test_table.csv')
 
     # Templates Path = None
@@ -79,4 +81,3 @@ def test_minimal_config():
     assert anon_config is not None
     assert sens_config is None
     assert cont_config is None
-

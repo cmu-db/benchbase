@@ -44,7 +44,8 @@ class XMLParser:
         # Exit the program if not enough basic information (name of a table) is available
         if table_name is None:
             sys.exit(
-                "There was no name provided for the table that should be anonymized. Program is exiting now!"
+                "There was no name provided for the table that should be anonymized.\n"
+                + "Program is exiting now!"
             )
 
         print(f"Parsing config for table: {table_name}")
