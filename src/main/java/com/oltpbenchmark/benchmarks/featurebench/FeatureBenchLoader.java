@@ -232,7 +232,7 @@ public class FeatureBenchLoader extends Loader<FeatureBenchBenchmark> {
 
         private void typeCastDataTypes(StringBuilder valueString, int index) {
             String utilName = this.baseutils.get(index).getInstance().getClass().getName().toLowerCase();
-            if (utilName.contains("array")) {
+            if (utilName.contains("arraygen")) {
                 if(utilName.contains("integer"))
                     valueString.append("?::int[],");
                 else if (utilName.contains("long"))
