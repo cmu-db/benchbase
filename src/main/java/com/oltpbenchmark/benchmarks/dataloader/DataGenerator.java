@@ -34,7 +34,8 @@ public class DataGenerator extends BenchmarkModule {
         // load properties file
 
         return new DataGeneratorLoader(this, getProperties("datatype-mapping.properties"),
-            getProperties("pk-mapping.properties"), getFkProperties());
+            getProperties("pk-mapping.properties"),
+            getProperties("array-mapping.properties"), getFkProperties());
     }
 
     @Override

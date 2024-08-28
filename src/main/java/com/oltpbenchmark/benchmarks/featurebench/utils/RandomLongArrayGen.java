@@ -5,15 +5,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class RandomIntegerArrayGen implements BaseUtil {
+public class RandomLongArrayGen implements BaseUtil {
 
-    private List<Integer> integerArray;
+    private List<Long> longArray;
 
-    private Integer minValue;
-    private Integer maxValue;
+    private Long minValue;
+    private Long maxValue;
     private int arraySize;
 
-    public RandomIntegerArrayGen(List<Object> values) {
+    public RandomLongArrayGen(List<Object> values) {
         if (values.size() != 3) {
             throw new RuntimeException("Incorrect number of parameters for util function "
                 + this.getClass());
@@ -21,13 +21,13 @@ public class RandomIntegerArrayGen implements BaseUtil {
         this.arraySize = ((Number) values.get(0)).intValue();
         if (arraySize <= 0)
             throw new RuntimeException("Please enter positive integer array length");
-        this.minValue = (Integer) values.get(1);
-        this.maxValue = (Integer) values.get(2);
+        this.minValue = ((Number) values.get(1)).longValue();
+        this.maxValue = ((Number) values.get(2)).longValue();
         if (minValue > maxValue)
             throw new RuntimeException("Please enter correct bounds for max and min value");
     }
 
-    public RandomIntegerArrayGen(List<Object> values, int workerId, int totalWorkers) {
+    public RandomLongArrayGen(List<Object> values, int workerId, int totalWorkers) {
         if (values.size() != 3) {
             throw new RuntimeException("Incorrect number of parameters for util function "
                 + this.getClass());
@@ -35,8 +35,8 @@ public class RandomIntegerArrayGen implements BaseUtil {
         this.arraySize = ((Number) values.get(0)).intValue();
         if (arraySize <= 0)
             throw new RuntimeException("Please enter positive integer array length");
-        this.minValue = (Integer) values.get(1);
-        this.maxValue = (Integer) values.get(2);
+        this.minValue = ((Number) values.get(1)).longValue();
+        this.maxValue = ((Number) values.get(2)).longValue();
         if (minValue > maxValue)
             throw new RuntimeException("Please enter correct bounds for max and min value");
     }
@@ -44,11 +44,12 @@ public class RandomIntegerArrayGen implements BaseUtil {
     @Override
     public Object run() throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         Random random = new Random();
-        integerArray = new ArrayList<>();
+        longArray = new ArrayList<>();
         for (int i = 0; i < arraySize; i++) {
-            Integer rd = random.nextInt((maxValue - minValue) + 1) + minValue;
-            integerArray.add(rd);
+            Long rd = random.nextLong((maxValue - minValue) + 1) + minValue;
+            longArray.add(rd);
         }
-        return integerArray.toString().replaceFirst("\\[", "{").replace("]", "}");
+        return longArray.toString().replaceFirst("\\[", "{").replace("]", "}");
     }
 }
+

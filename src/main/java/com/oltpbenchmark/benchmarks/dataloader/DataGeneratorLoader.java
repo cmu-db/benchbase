@@ -27,16 +27,18 @@ public class DataGeneratorLoader extends Loader<DataGenerator> {
 
     private final Map<String, PropertyMapping> properties;
     private final Map<String, FkPropertyMapping> fkProperties;
-
+    private final Map<String, PropertyMapping> arrayProperties;
     private final Map<String, PropertyMapping> pkProperties;
     private int minLevel = Integer.MAX_VALUE;
 
     public DataGeneratorLoader(DataGenerator benchmark, Map<String, PropertyMapping> properties,
-                               Map<String, PropertyMapping> pkProperties, Map<String, FkPropertyMapping> fkProperties) {
+                               Map<String, PropertyMapping> pkProperties, Map<String, PropertyMapping> arrayProperties,
+                               Map<String, FkPropertyMapping> fkProperties) {
         super(benchmark);
         this.properties = properties;
         this.fkProperties = fkProperties;
         this.pkProperties = pkProperties;
+        this.arrayProperties = arrayProperties;
     }
 
     @Override
@@ -173,9 +175,7 @@ public class DataGeneratorLoader extends Loader<DataGenerator> {
 
     public static List<Column> getTableSchema(String tableName, Connection conn, String tableSchema) {
         List<Column> tableSchemaList = new ArrayList<>();
-        String query = "SELECT column_name, data_type, character_maximum_length, is_identity " +
-            "FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ? and table_schema = ?";
-
+        String query = "SELECT c.column_name, c.data_type, CASE WHEN c.data_type = 'ARRAY' THEN (SELECT replace(t.typname, '_', '') FROM pg_type t JOIN pg_namespace ns ON t.typnamespace = ns.oid WHERE t.oid = (SELECT typarray FROM pg_type WHERE typname = replace(c.udt_name, '_', ''))) ELSE c.data_type END as base_data_type, c.character_maximum_length, c.is_identity, CASE WHEN c.is_nullable = 'YES' THEN TRUE END as nullable FROM INFORMATION_SCHEMA.COLUMNS c WHERE c.table_name = ? AND c.table_schema = ?";
         try (PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, tableName);
             pstmt.setString(2, tableSchema);
@@ -188,6 +188,8 @@ public class DataGeneratorLoader extends Loader<DataGenerator> {
                 column.setDataType(rs.getString("data_type").replaceAll("\\s", ""));
                 column.setCharacterMaximumLength((Integer) rs.getObject("character_maximum_length"));
                 column.setIsIdentity("YES".equals(rs.getString("is_identity")));
+                column.setBaseDataType(rs.getString("base_data_type"));
+                column.setNullable(rs.getBoolean("nullable"));
                 tableSchemaList.add(column);
             }
         } catch (SQLException e) {
@@ -429,18 +431,25 @@ public class DataGeneratorLoader extends Loader<DataGenerator> {
         // take care of the rest of the keys
         for (Column col : tableSchema) {
             if (!columnToUtilMapping.containsKey(col.getColumnName())) {
-                // skip the columns having array data types
-                if (col.getDataType().equalsIgnoreCase("array"))
-                    continue;
                 PropertyMapping pm;
                 // if column is one of the unique constraint columns, then use primary key util functions for it
                 if (uniqueConstraintColumns.contains(col.getColumnName()))
                     pm = pkProperties.get(col.getDataType());
-                else
-                    pm = properties.get(col.getDataType().toLowerCase());
+                else {
 
-                if (pm == null) {
-                    throw new RuntimeException(String.format("Cannot find suitable utility function for column " +
+                    if (col.getDataType().equalsIgnoreCase("array")) {
+                        // if it is array data type, find utility function with base data type
+                        pm = arrayProperties.get(col.getBaseDataType().toLowerCase());
+                        // if suitable utility function is not present and the column is nullable, it can be skipped
+                        if (pm == null && col.getNullable()) continue;
+                    } else {
+                        // if it is not array type, find utility function is properties.
+                        pm = properties.get(col.getDataType().toLowerCase());
+                    }
+                }
+
+                if (pm == null && !col.getNullable()) {
+                    throw new RuntimeException(String.format("Cannot find suitable utility function for NOT NULL column " +
                         "`%s` of datatype `%s`. Consider asking #perf team to add a utility function for given " +
                         "data type", col.getColumnName(), col.getDataType()));
                 }
@@ -470,12 +479,12 @@ public class DataGeneratorLoader extends Loader<DataGenerator> {
 
             prop.params.forEach(param -> {
                 if (fkColNames.contains(colName)) {
-                    if (param instanceof Integer)
+                    if (param instanceof Integer || param instanceof Long)
                         col.params.add(param);
                     else
                         col.params.add(param.toString());
                 } else if (udColumns.containsKey(colName)) {
-                    if (param instanceof Integer)
+                    if (param instanceof Integer || param instanceof Long)
                         col.params.add(param);
                     else
                         col.params.add(param.toString());
@@ -483,7 +492,7 @@ public class DataGeneratorLoader extends Loader<DataGenerator> {
                     if (param.toString().equalsIgnoreCase("rows")) {
                         col.params.add(rows);
                     } else {
-                        col.params.add(Integer.parseInt(param.toString()));
+                        col.params.add(Long.parseLong(param.toString()));
                     }
                 }
             });

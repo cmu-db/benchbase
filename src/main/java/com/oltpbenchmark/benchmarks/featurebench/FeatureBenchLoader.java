@@ -189,22 +189,12 @@ public class FeatureBenchLoader extends Loader<FeatureBenchBenchmark> {
                     Map<String, Object> columnsDetails = this.columns.get(index);
                     if (columnsDetails.containsKey("count")) {
                         for (int i = 0; i < (int) columnsDetails.get("count"); i++) {
-                            columnString.append(columnsDetails.get("name") + String.valueOf(i + 1)).append(",");
-                            if (this.baseutils.get(index).getInstance().getClass().getName().
-                                toLowerCase().indexOf("json") >= 0)
-                                valueString.append("?::JSON,");
-                            else {
-                                valueString.append("?,");
-                            }
+                            columnString.append(columnsDetails.get("name")).append(i + 1).append(",");
+                            typeCastDataTypes(valueString, index);
                         }
                     } else {
                         columnString.append(columnsDetails.get("name")).append(",");
-                        if (this.baseutils.get(index).getInstance().getClass().getName().
-                            toLowerCase().indexOf("json") >= 0)
-                            valueString.append("?::JSON,");
-                        else {
-                            valueString.append("?,");
-                        }
+                        typeCastDataTypes(valueString, index);
                     }
 
                 }
@@ -238,6 +228,25 @@ public class FeatureBenchLoader extends Loader<FeatureBenchBenchmark> {
             }
 
             numberOfGeneratorFinished += 1;
+        }
+
+        private void typeCastDataTypes(StringBuilder valueString, int index) {
+            String utilName = this.baseutils.get(index).getInstance().getClass().getName().toLowerCase();
+            if (utilName.contains("array")) {
+                if(utilName.contains("integer"))
+                    valueString.append("?::int[],");
+                else if (utilName.contains("long"))
+                    valueString.append("?::bigint[],");
+                else if (utilName.contains("double"))
+                    valueString.append("?::double[],");
+                else if (utilName.contains("text"))
+                    valueString.append("?::text[],");
+            }
+            else if (utilName.contains("json"))
+                valueString.append("?::JSON,");
+            else {
+                valueString.append("?,");
+            }
         }
 
         @Override
