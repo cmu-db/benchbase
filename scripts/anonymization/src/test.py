@@ -15,6 +15,17 @@ MINIMAL_CONFIG = """
     </auto_dp>
 """
 
+FAKE_ONLY_CONFIG = """
+    <fake_only>
+        <table name="item">
+            <!-- Sensitive value handling -->
+            <value_faking>
+                <column name="name" method="surname" locales="en_US" seed="0"/>
+            </value_faking>
+        </table>
+    </fake_only>
+"""
+
 FULL_CONFIG = """
    <full_anon>
         <table name="item">
@@ -30,7 +41,7 @@ FULL_CONFIG = """
                 </categorical>
             <!-- Continuous column fine-tuning -->
                 <continuous>
-                    <column name="number" bins="1000" lower="1.0" upper="10000.0" /> 
+                    <column name="number" bins="1000" lower="1.0" upper="10000.0" />
                 </continuous>
             </differential_privacy>
             <!-- Sensitive value handling -->
@@ -65,8 +76,33 @@ def test_full_config():
     )
 
     assert dataset_anon is not None
+    assert dataset['id'].equals(dataset_anon['id'])
+    assert not dataset['item'].equals(dataset_anon['item'])
 
+def test_faking_only():
+    """
+    Test method for a config that does only apply value faking
+    """
 
+    parameters = ET.fromstring(FAKE_ONLY_CONFIG)
+
+    fake_only = parameters.find("table")
+    config_parser = XMLParser(fake_only)
+    anon_config, sens_config, cont_config = config_parser.get_config()
+
+    dataset = pd.read_csv('test_table.csv')
+
+    assert anon_config is None
+    assert sens_config is not None
+    assert cont_config is None
+
+    # Templates Path = None
+    dataset_anon = anonymize(
+        dataset, anon_config, cont_config, sens_config
+    )
+
+    assert dataset_anon is not None
+    assert dataset['item'].equals(dataset_anon['item'])
 
 def test_minimal_config():
     """Test method for a minimal config where only dp-anonymization is applied. Testing only the config parsing

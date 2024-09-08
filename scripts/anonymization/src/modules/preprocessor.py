@@ -7,7 +7,7 @@ from configuration.configurations import DPConfig, ContinuousConfig
 
 
 class Preprocessor:
-    """A class that transforms the dataset in order to 
+    """A class that transforms the dataset in order to
     allow differential privacy algorithms to work with the data
 
     Attributes
@@ -15,7 +15,7 @@ class Preprocessor:
     config : DPConfig
         The differential privacy parameters
     """
-      
+
     def __init__(self, config: DPConfig):
         self.config = config
 

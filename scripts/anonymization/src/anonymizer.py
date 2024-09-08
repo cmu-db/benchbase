@@ -29,14 +29,14 @@ def anonymize(
     Returns:
         pd.DataFrame: The Anonymized Dataset
     """
-    
+
     dp_data = dataset
     if anon_config:
         dp_anonymizer = DifferentialPrivacyAnonymizer(dataset, anon_config, cont_config)
         dp_data = dp_anonymizer.run_anonymization()
 
     if sens_config:
-        sens_anonymizer = SensitiveAnonymizer(dp_data,sens_config)
+        sens_anonymizer = SensitiveAnonymizer(dp_data, sens_config)
         dp_data = sens_anonymizer.run_anonymization()
 
     return dp_data
@@ -56,7 +56,7 @@ def anonymize_db(
         cont_config (ContinuousConfig): The Configuration for Continuous Values
         sens_config (SensitiveConfig): The Configuration for Sensitive Values
     """
-    
+
     jdbc_handler.start_jvm()
 
     conn = jdbc_handler.get_connection()
@@ -77,10 +77,6 @@ def anonymize_db(
     )
 
     conn.close()
-    
-    return
-
-
 
 def main():
     """Entry method"""

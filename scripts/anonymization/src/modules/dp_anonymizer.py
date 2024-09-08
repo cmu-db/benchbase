@@ -32,7 +32,7 @@ class DifferentialPrivacyAnonymizer():
         Returns:
             pd.DataFrame: The resulting differentially private dataset
         """
-    
+
         alg = self.anon_config.algorithm
         eps = float(self.anon_config.epsilon)
         pre_eps = float(self.anon_config.preproc_eps)
@@ -64,6 +64,7 @@ class DifferentialPrivacyAnonymizer():
                     ),
                     nullable=nullable_flag,
                 )
+
                 anon_data = pd.DataFrame(sample)
             else:
                 sample = synth.fit_sample(
@@ -86,7 +87,7 @@ class DifferentialPrivacyAnonymizer():
         anon_data = self.__add_ignorable(anon_data,saved_indexes,saved_columns)
 
         return anon_data
-    
+
     def __remove_ignorable(self):
         saved_columns = []
         saved_indexes = []
@@ -95,13 +96,12 @@ class DifferentialPrivacyAnonymizer():
             saved_columns = self.dataset[ignore_columns]
             for col in ignore_columns:
                 saved_indexes.append(self.dataset.columns.get_loc(col))
-    
+
         self.dataset = self.dataset.drop(ignore_columns, axis=1)
         return saved_columns,saved_indexes
-    
+
     def __add_ignorable(self,dataset,saved_indexes,saved_columns):
         ignore_columns = self.anon_config.column_classification.hidden
         for ind, col in enumerate(ignore_columns):
             dataset.insert(saved_indexes[ind], col, saved_columns[col])
         return dataset
-    
