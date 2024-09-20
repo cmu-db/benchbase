@@ -3,21 +3,72 @@
 import json
 import sys
 import yaml
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, Undefined
 from functools import reduce
 from operator import getitem
+from collections import OrderedDict
 
 
-def set_nested_item(dataDict, mapList, val):
-    """Set item in nested dictionary"""
-    reduce(getitem, mapList[:-1], dataDict)[mapList[-1]] = val
-    return dataDict
+# Custom Undefined handler to return an empty string or leave placeholders as-is
+class SilentUndefined(Undefined):
+    def _fail_with_undefined_error(self, *args, **kwargs):
+        return ''  # Return empty string if undefined
+
+    def __str__(self):
+        return self._fail_with_undefined_error()
 
 
 def jinja2_modification(context, input_yaml):
-    template = Environment(loader=FileSystemLoader("./")).get_template(input_yaml)
+    template_env = Environment(loader=FileSystemLoader("./"), undefined=SilentUndefined)
+    template = template_env.get_template(input_yaml)
     with open(input_yaml, 'w') as f:
         f.write(template.render(context))
+
+
+# Load the YAML using OrderedDict to preserve the order of elements
+def ordered_yaml_loader(stream, Loader=yaml.SafeLoader, object_pairs_hook=OrderedDict):
+    class OrderedLoader(Loader):
+        pass
+
+    def construct_mapping(loader, node):
+        loader.flatten_mapping(node)
+        return object_pairs_hook(loader.construct_pairs(node))
+
+    OrderedLoader.add_constructor(
+        yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
+        construct_mapping)
+    return yaml.load(stream, OrderedLoader)
+
+
+# Custom dumper to preserve empty strings as "" instead of null
+def ordered_yaml_dumper(data, stream=None, Dumper=yaml.SafeDumper, **kwds):
+    class OrderedDumper(Dumper):
+        pass
+
+    # Add custom representer for OrderedDict to preserve order
+    def _dict_representer(dumper, data):
+        return dumper.represent_dict(data.items())
+
+    # Add custom representer for empty strings to prevent 'null' output
+    def _str_representer(dumper, value):
+        if not value or value == '' or value == 'null':
+            return dumper.represent_scalar('tag:yaml.org,2002:str', '')  # Keep as empty string
+        return dumper.represent_scalar('tag:yaml.org,2002:str', value)
+
+    OrderedDumper.add_representer(OrderedDict, _dict_representer)
+    OrderedDumper.add_representer(str, _str_representer)  # Ensure empty strings are represented as ""
+
+    return yaml.dump(data, stream, OrderedDumper, **kwds)
+
+
+def set_nested_item(dataDict, mapList, val):
+    """Set item in nested dictionary, handling list indices if present."""
+    for i, key in enumerate(mapList[:-1]):
+        if isinstance(reduce(getitem, mapList[:i], dataDict), list):
+            index = int(key[key.find("[") + 1:key.find("]")])  # Extract index inside brackets
+            mapList[i] = index  # Replace the string with an integer index
+    reduce(getitem, mapList[:-1], dataDict)[mapList[-1]] = val
+    return dataDict
 
 
 def main():
@@ -25,8 +76,9 @@ def main():
     yaml_file = sys.argv[2]
     data = json.loads(context, strict=False)
     jinja2_modification(data, yaml_file)
+
     with open(yaml_file) as f:
-        doc = yaml.load(f, Loader=yaml.FullLoader)
+        doc = ordered_yaml_loader(f, Loader=yaml.FullLoader)
         for key, value in data.items():
             if key == "warmup":
                 doc["works"]["work"]["warmup"] = value
@@ -37,16 +89,16 @@ def main():
                 if "sslmode" in data:
                     doc[key] = doc[key].replace("disable", "require") if data["sslmode"] else doc[key].replace(
                         "require", "disable")
-                if "load-balance" in data and data['load-balance'] == True :
+                if "load-balance" in data and data['load-balance'] == True:
                     doc[key] = doc[key] + "&load-balance=true"
             elif key == "setAutoCommit":
                 doc["microbenchmark"]["properties"]["setAutoCommit"] = value
             else:
-                nested_key = key.split('.')
+                nested_key = key.replace('[', '.[').split('.')
                 set_nested_item(doc, nested_key, value)
 
         with open(yaml_file, 'w') as fnew:
-            yaml.safe_dump(doc, fnew, encoding='utf-8', allow_unicode=True)
+            ordered_yaml_dumper(doc, fnew, Dumper=yaml.SafeDumper, allow_unicode=True)
     return
 
 
