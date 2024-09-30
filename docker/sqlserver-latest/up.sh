@@ -11,6 +11,15 @@ network=$(docker ps --format "{{.Names}} {{.Networks}}" | awk '( $1 ~ /^'$BENCHB
 # Also setup the database for use with the sample configs.
 # See Also: .github/workflows/maven.yml
 
+# Wait until ready
+for i in {1..60}; do
+    if /usr/bin/docker inspect --format="{{print .State.Health.Status}}" sqlserver | grep -q -x healthy; then
+        break
+    else
+        sleep 5
+    fi
+done
+
 function run_sqlcmd_in_docker() {
     set -x
     docker run --rm --network=$network --entrypoint /opt/mssql-tools/bin/sqlcmd mcr.microsoft.com/mssql-tools:latest \

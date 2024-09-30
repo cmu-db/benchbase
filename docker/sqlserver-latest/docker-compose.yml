@@ -8,9 +8,9 @@ services:
     image: mcr.microsoft.com/mssql/server:latest
     healthcheck:
       test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "SApassword1", "-b", "-Q", "SELECT 1;"]
-      interval: 10s
+      interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 30
       start_period: 5s
     environment:
       ACCEPT_EULA: Y
