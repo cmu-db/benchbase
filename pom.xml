@@ -145,7 +145,7 @@
                 <dependency>
                     <groupId>org.mariadb.jdbc</groupId>
                     <artifactId>mariadb-java-client</artifactId>
-                    <version>3.3.3</version>
+                    <version>3.4.1</version>
                     <scope>runtime</scope>
                 </dependency>
             </dependencies>
@@ -165,7 +165,7 @@
                 <dependency>
                     <groupId>com.google.cloud</groupId>
                     <artifactId>google-cloud-spanner-jdbc</artifactId>
-                    <version>2.18.1</version>
+                    <version>2.20.1</version>
                     <scope>runtime</scope>
                 </dependency>
             </dependencies>
@@ -249,7 +249,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-configuration2</artifactId>
-            <version>2.10.1</version>
+            <version>2.11.0</version>
         </dependency>
 
         <dependency>
@@ -319,7 +319,7 @@
         <dependency>
             <groupId>org.hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
-            <version>2.7.2</version>
+            <version>2.7.3</version>
             <scope>test</scope>
         </dependency>
 
@@ -416,7 +416,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.4.1</version>
+                <version>3.4.2</version>
                 <configuration>
                     <classifier>${classifier}</classifier>
                     <archive>
@@ -451,7 +451,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-clean-plugin</artifactId>
-                <version>3.3.2</version>
+                <version>3.4.0</version>
                 <configuration>
                     <filesets>
                         <fileset>
@@ -466,7 +466,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-release-plugin</artifactId>
-                <version>3.0.1</version>
+                <version>3.1.1</version>
                 <configuration>
                     <useReleaseProfile>false</useReleaseProfile>
                     <tagNameFormat>v@{version}</tagNameFormat>
@@ -501,7 +501,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.6.1</version>
+                <version>3.7.1</version>
                 <executions>
                     <execution>
                         <id>analyze</id>
