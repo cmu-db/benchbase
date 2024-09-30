@@ -10,9 +10,10 @@ docker compose up -d $services
 
 # Wait until ready
 for i in {1..5}; do
-    sleep 5
     if /usr/bin/docker inspect --format="{{print .State.Health.Status}}" postgres | grep -q -x healthy; then
         break
+    else
+        sleep 10
     fi
 done
 
