@@ -303,16 +303,16 @@ jobs:
           distribution: 'temurin'
 
       - name: Set up Python
-        uses: actions/setup-python@v5  
-        with:  
-          python-version: ${{env.PYTHON_VERSION}}  
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{env.PYTHON_VERSION}}
 
-      - name: Install Python dependencies  
+      - name: Install Python dependencies
         working-directory: ./scripts/anonymization
         run: |
           if [[ ${{matrix.benchmark}} == anonymization ]]; then
             python -m pip install --upgrade pip
-            pip install -r requirements.txt  
+            pip install -r requirements.txt
           else
             echo "Dependency installation not necessary for benchmark"
           fi
