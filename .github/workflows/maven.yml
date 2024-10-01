@@ -627,7 +627,7 @@ jobs:
           ACCEPT_EULA: Y
           SA_PASSWORD: SApassword1
         options: >-
-          --health-cmd='set -eu && sqlcmd=`ls /opt/mssql-tools*/bin/sqlcmd | head -n1` && set -x && test -n "${sqlcmd}" && ${sqlcmd} -C -S localhost -U sa -P SApassword1 -b -Q "SELECT 1;"'
+          --health-cmd='set -eu && sqlcmd=$(ls /opt/mssql-tools*/bin/sqlcmd | head -n1) && set -x && test -n "$sqlcmd" && $sqlcmd -C -S localhost -U sa -P SApassword1 -b -Q "SELECT 1;"'
           --health-interval 5s
           --health-timeout 5s
           --health-retries 5
