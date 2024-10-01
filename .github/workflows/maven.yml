@@ -660,8 +660,10 @@ jobs:
       # REMOVE ME: Testing
       - name: Check sqlserver
         run: |
-          docker exec sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P SApassword1 -b -Q 'SELECT 1;' || true
-          docker exec -it sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P SApassword1 -b -Q 'SELECT 1;' || true
+          container_id=$(docker ps | grep mcr.microsoft.com/mssql/server | awk '{ print $1 }')
+          docker exec $container_id /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P SApassword1 -b -Q 'SELECT 1;' || true
+          docker exec -it $container_id /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P SApassword1 -b -Q 'SELECT 1;' || true
+          exit 1
 
       - name: Download artifact
         uses: actions/download-artifact@v4
