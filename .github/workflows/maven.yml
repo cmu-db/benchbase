@@ -627,7 +627,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install jq
-          ./docker/sqlserver-latest/up.sh || true
+          BENCHBASE_PROFILE=sqlserver ./docker/sqlserver-latest/up.sh || true
           docker inspect --format="{{json .State.Health}}" sqlserver | jq || true
 
   ## ----------------------------------------------------------------------------------
