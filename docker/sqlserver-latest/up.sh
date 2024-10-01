@@ -6,9 +6,7 @@ cd "$scriptdir/"
 
 docker compose up -d
 
-BENCHBASE_PROFILE=${BENCHBASE_PROFILE:-sqlserver}
-
-network=$(docker ps --format "{{.Names}} {{.Networks}}" | awk '( $1 ~ /^'$BENCHBASE_PROFILE'/ ) { print $2 }')
+network=$(docker ps --format "{{.Names}} {{.Networks}}" | awk '( $1 ~ /^sqlserver/ ) { print $2 }')
 
 # Also setup the database for use with the sample configs.
 # See Also: .github/workflows/maven.yml
