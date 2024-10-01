@@ -617,6 +617,19 @@ jobs:
           ./scripts/check_latest_benchmark_results.sh $results_benchmark
           ./scripts/check_histogram_results.sh results/histograms.json $ERRORS_THRESHOLD
 
+  # REMOVE ME: testing:
+  sqlserver-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Start sqlserver container
+        run: |
+          apt-get update
+          apt-get install jq
+          ./docker/sqlserver-latest/up.sh || true
+          docker inspect --format="{{json .State.Health}}" sqlserver | jq || true
+
   ## ----------------------------------------------------------------------------------
   ## MSSQL
   ## ----------------------------------------------------------------------------------
@@ -634,15 +647,22 @@ jobs:
         env:
           ACCEPT_EULA: Y
           SA_PASSWORD: SApassword1
-        options: >-
-          --health-cmd "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P SApassword1 -b -Q 'SELECT 1;'"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 60
-          --health-start-period 5s
+        # FIXME:
+        #options: >-
+        #  --health-cmd "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P SApassword1 -b -Q 'SELECT 1;'"
+        #  --health-interval 5s
+        #  --health-timeout 5s
+        #  --health-retries 60
+        #  --health-start-period 5s
         ports:
           - 1433:1433
     steps:
+      # REMOVE ME: Testing
+      - name: Check sqlserver
+        run: |
+          docker exec sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P SApassword1 -b -Q 'SELECT 1;' || true
+          docker exec -it sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P SApassword1 -b -Q 'SELECT 1;' || true
+
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
