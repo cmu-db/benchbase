@@ -7,7 +7,7 @@ services:
     hostname: sqlserver
     image: mcr.microsoft.com/mssql/server:latest
     healthcheck:
-      test: ["CMD-SHELL", "set -eu && sqlcmd=`ls /opt/mssql-tools*/bin/sqlcmd | head -n1` && set -x && test -n \"$${sqlcmd}\" && $${sqlcmd} -C -S localhost -U sa -P SApassword1 -b -Q 'SELECT 1;'"]
+      test: ["CMD-SHELL", "find /opt/mssql-tools*/bin/ -name sqlcmd -executable -print -quit | xargs -t -I% sh -c '% -C -S localhost -U sa -P SApassword1 -b -Q \"SELECT 1;\"'"]
       interval: 5s
       timeout: 5s
       retries: 5
