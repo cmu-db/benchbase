@@ -61,6 +61,10 @@ jobs:
       - name: Compile with Maven
         run: mvn -B compile test-compile --file pom.xml
 
+      - name: Test exec plugin
+        run: |
+          mvn exec:java -P sqlite -Dexec.args="-b noop -c config/sqlite/sample_noop_config.xml --create=true --load=true --execute=true"
+
       - name: Test with Maven
         run: mvn -B test --file pom.xml
 
