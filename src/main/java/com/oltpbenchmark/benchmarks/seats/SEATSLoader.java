@@ -923,7 +923,7 @@ public final class SEATSLoader extends Loader<SEATSBenchmark> {
     protected Object specialValue(long id, int columnIdx) {
       Object value = null;
       switch (columnIdx) {
-          // CUSTOMER ID
+        // CUSTOMER ID
         case (0):
           {
             // HACK: The flights_per_airport histogram may not match up
@@ -950,26 +950,26 @@ public final class SEATSLoader extends Loader<SEATSBenchmark> {
             }
             break;
           }
-          // CUSTOMER ID STR
+        // CUSTOMER ID STR
         case (1):
           {
             value = this.last_id.encode();
             this.last_id = null;
             break;
           }
-          // LOCAL AIRPORT
+        // LOCAL AIRPORT
         case (2):
           {
             value = this.airport_code;
             break;
           }
-          // BALANCE
+        // BALANCE
         case (3):
           {
             value = (double) this.randBalance.nextInt();
             break;
           }
-          // BAD MOJO!
+        // BAD MOJO!
         default:
       }
       return (value);
@@ -1060,7 +1060,7 @@ public final class SEATSLoader extends Loader<SEATSBenchmark> {
     protected Object specialValue(long id, int columnIdx) {
       String value = null;
       switch (columnIdx) {
-          // CUSTOMER ID
+        // CUSTOMER ID
         case (0):
           {
             while (this.customer_idx < this.ff_per_customer.length
@@ -1080,7 +1080,7 @@ public final class SEATSLoader extends Loader<SEATSBenchmark> {
             value = this.last_customer_id.encode();
             break;
           }
-          // AIRLINE ID
+        // AIRLINE ID
         case (1):
           {
             do {
@@ -1092,13 +1092,13 @@ public final class SEATSLoader extends Loader<SEATSBenchmark> {
             }
             break;
           }
-          // CUSTOMER_ID_STR
+        // CUSTOMER_ID_STR
         case (2):
           {
             value = this.last_customer_id.encode();
             break;
           }
-          // BAD MOJO!
+        // BAD MOJO!
         default:
       }
       return (value);
@@ -1195,19 +1195,19 @@ public final class SEATSLoader extends Loader<SEATSBenchmark> {
     protected Object specialValue(long id, int columnIdx) {
       Object value = null;
       switch (columnIdx) {
-          // OUTER AIRPORT
+        // OUTER AIRPORT
         case (0):
           value = this.outer_airport;
           break;
-          // INNER AIRPORT
+        // INNER AIRPORT
         case (1):
           value = this.inner_airport;
           break;
-          // DISTANCE
+        // DISTANCE
         case (2):
           value = this.distance;
           break;
-          // BAD MOJO!
+        // BAD MOJO!
         default:
       }
       return (value);
@@ -1389,7 +1389,7 @@ public final class SEATSLoader extends Loader<SEATSBenchmark> {
     protected Object specialValue(long id, int columnIdx) {
       Object value = null;
       switch (columnIdx) {
-          // FLIGHT ID
+        // FLIGHT ID
         case (0):
           {
             // Figure out what date we are currently on
@@ -1435,56 +1435,56 @@ public final class SEATSLoader extends Loader<SEATSBenchmark> {
             value = this.flight_id.encode();
             break;
           }
-          // AIRLINE ID
+        // AIRLINE ID
         case (1):
           {
             value = this.airline_code;
             SEATSLoader.this.flights_per_airline.put(this.airline_code);
             break;
           }
-          // DEPART AIRPORT
+        // DEPART AIRPORT
         case (2):
           {
             value = this.depart_airport;
             break;
           }
-          // DEPART TIME
+        // DEPART TIME
         case (3):
           {
             value = this.depart_time;
             break;
           }
-          // ARRIVE AIRPORT
+        // ARRIVE AIRPORT
         case (4):
           {
             value = this.arrive_airport;
             break;
           }
-          // ARRIVE TIME
+        // ARRIVE TIME
         case (5):
           {
             value = this.arrive_time;
             break;
           }
-          // FLIGHT STATUS
+        // FLIGHT STATUS
         case (6):
           {
             value = this.status;
             break;
           }
-          // BASE PRICE
+        // BASE PRICE
         case (7):
           {
             value = (double) this.prices.nextInt();
             break;
           }
-          // SEATS TOTAL
+        // SEATS TOTAL
         case (8):
           {
             value = SEATSConstants.FLIGHTS_NUM_SEATS;
             break;
           }
-          // SEATS REMAINING
+        // SEATS REMAINING
         case (9):
           {
             // We have to figure this out ahead of time since we need to
@@ -1501,7 +1501,7 @@ public final class SEATSLoader extends Loader<SEATSBenchmark> {
             }
             break;
           }
-          // BAD MOJO!
+        // BAD MOJO!
         default:
       }
       return (value);
@@ -1763,13 +1763,13 @@ public final class SEATSLoader extends Loader<SEATSBenchmark> {
 
       Object value = null;
       switch (columnIdx) {
-          // CUSTOMER ID
+        // CUSTOMER ID
         case (1):
           {
             value = ((CustomerId) this.current[0]).encode();
             break;
           }
-          // FLIGHT ID
+        // FLIGHT ID
         case (2):
           {
             FlightId flight_id = (FlightId) this.current[1];
@@ -1782,19 +1782,19 @@ public final class SEATSLoader extends Loader<SEATSBenchmark> {
             }
             break;
           }
-          // SEAT
+        // SEAT
         case (3):
           {
             value = this.current[2];
             break;
           }
-          // PRICE
+        // PRICE
         case (4):
           {
             value = (double) this.prices.nextInt();
             break;
           }
-          // BAD MOJO!
+        // BAD MOJO!
         default:
       }
       return (value);
