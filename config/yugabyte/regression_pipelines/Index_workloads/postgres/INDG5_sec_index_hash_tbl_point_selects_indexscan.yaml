@@ -65,6 +65,7 @@ microbenchmark:
         executeRules:
 
             - workload: INDG5_1_hashtbl_point_lookup_index_scan_using_comp_skey_first_part_hash
+              customTags: customer=9
               run:
                   - name: hashtbl_index_scan_using_sec_index
                     weight: 100
@@ -79,6 +80,7 @@ microbenchmark:
                         - query: select * from Hashtbl_comp_skey_1 where col_bigint_id_3=500009
 
             - workload: INDG5_3_hashtbl_point_lookup_index_scan_using_mixed_comp_skey_first_part_hash
+              customTags: customer=1
               run:
                   - name: hashtbl_index_scan_using_sec_index
                     weight: 100

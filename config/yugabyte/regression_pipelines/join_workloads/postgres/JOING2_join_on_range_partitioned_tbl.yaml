@@ -76,6 +76,7 @@ microbenchmark:
                         - query: select Rangetbl_1.col_bigint_id_1,Rangetbl_2.col_bigint_id_1 from Rangetbl_1 join Rangetbl_2 on Rangetbl_1.col_bigint_id_1=Rangetbl_2.col_bigint_id_1
 
             - workload: JOING2_2_join_on_pk_of_range_tbl_with_1_filter
+              customTags: customer=1
               run:
                   - name: join_on_pk_of_range_tbl
                     weight: 100
@@ -83,6 +84,7 @@ microbenchmark:
                         - query: select Rangetbl_1.col_bigint_id_1,Rangetbl_2.col_bigint_id_1 from Rangetbl_1 join Rangetbl_2 on Rangetbl_1.col_bigint_id_1=Rangetbl_2.col_bigint_id_1 where Rangetbl_1.col_bigint_id_1<100001
 
             - workload: JOING2_3_join_on_pk_of_range_tbl_with_2_filter
+              customTags: customer=2
               run:
                   - name: join_on_pk_of_range_tbl
                     weight: 100

@@ -67,6 +67,7 @@ microbenchmark:
                         params: [ 500, 500 ]
         executeRules:
             -   workload: JoinG8_hash_join_fetch_1row
+                customTags: customer=1
                 run:
                     -   name: hash_join_fetch_1row
                         weight: 100
@@ -88,6 +89,7 @@ microbenchmark:
                             -   query: select pkey_rangescan_join_1.col_bigint_id_1 from pkey_rangescan_join_1 JOIN pkey_rangescan_join_2 on pkey_rangescan_join_1.col_bigint_id_1=pkey_rangescan_join_2.col_bigint_id_1 and pkey_rangescan_join_1.col_bigint_id_1 < 2  and pkey_rangescan_join_2.col_bigint_id_1 < 2;
 
             -   workload: JoinG8_merge_join_fetch_1000row
+                customTags: customer=4
                 run:
                     -   name: merge_join_fetch_1000row
                         weight: 100

@@ -92,6 +92,7 @@ microbenchmark:
 
 
             - workload: INDG11_2_data_cardinality_hashtbl_point_lookup_index_scan_using_comp_skey_sec_part_hash_1k_two_conditions
+              customTags: customer=1
               run:
                   - name: hashtbl_index_scan_using_sec_index
                     weight: 100

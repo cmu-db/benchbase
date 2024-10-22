@@ -86,12 +86,14 @@ microbenchmark:
                     queries:
                         - query: select count(col_bigint_id_2) from Indexed1M_1
             - workload: AGGRG3_count_on_indexed_float
+              customTags: customer=1
               run:
                   - name: pg_count_on_indexed_varchar10
                     weight: 100
                     queries:
                         - query: select count(col_float5_1) from Indexed1M_1
             - workload: AGGRG3_count_on_indexed_varchar10
+              customTags: customer=1
               run:
                   - name: pg_count_on_indexed_varchar10
                     weight: 100

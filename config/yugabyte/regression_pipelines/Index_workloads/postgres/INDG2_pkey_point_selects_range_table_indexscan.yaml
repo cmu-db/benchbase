@@ -68,6 +68,7 @@ microbenchmark:
 
 
             - workload: INDG2_1_rangetbl_point_lookup_index_scan_using_comp_pkey_first_part_range
+              customTags: customer=7
               run:
                   - name: hashtbl_index_scan_using_sec_index
                     weight: 100

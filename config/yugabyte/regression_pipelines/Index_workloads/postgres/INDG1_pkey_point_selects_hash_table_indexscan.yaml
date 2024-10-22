@@ -68,6 +68,7 @@ microbenchmark:
         executeRules:
 
             - workload: INDG1_1_hashtbl_point_lookup_index_scan_using_comp_pkey_first_part_hash
+              customTags: customer=10
               run:
                   - name: hashtbl_index_scan_using_sec_index
                     weight: 100

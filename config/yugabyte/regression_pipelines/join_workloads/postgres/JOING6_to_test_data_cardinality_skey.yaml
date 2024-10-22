@@ -131,6 +131,7 @@ microbenchmark:
         executeRules:
 
             - workload: JoinG6_1_1Mtbl_join_1Mtbl_two_conditions_indexscan_two_filters
+              customTags: customer=3
               run:
                   - name: hashtbl_index_scan_using_sec_index
                     weight: 100
@@ -145,6 +146,7 @@ microbenchmark:
                         - query: select * from pkeyBigint1M_1 as a join pkeyBigint1M_2 as b on a.col_bigint_card1_1=b.col_bigint_card1_1 and a.col_bigint_card2_1=b.col_bigint_card2_1 where b.col_bigint_card1_1=1000000 and  b.col_bigint_card3_1 in (1000058);
 
             - workload: JoinG6_3_1Mtbl_join_1Mtbl_two_conditions_indexscan_two_filters
+              customTags: customer=3
               run:
                   - name: hashtbl_index_scan_using_sec_index
                     weight: 100
@@ -161,6 +163,7 @@ microbenchmark:
 
 
             -   workload: JoinG6_5_1Mtbl_join_10ktbl_two_conditions_indexscan_two_filters
+                customTags: customer=3
                 run:
                     -   name: hashtbl_index_scan_using_sec_index
                         weight: 100
@@ -175,6 +178,7 @@ microbenchmark:
                             -   query: select * from pkeyBigint1M_1 as a join pkeyBigint10k_1 as b on a.col_bigint_card1_1=b.col_bigint_card1_1 and a.col_bigint_card2_1=b.col_bigint_card2_1 where b.col_bigint_card1_1=1000000 and  b.col_bigint_card3_1 in (1000058);
 
             -   workload: JoinG6_7_1Mtbl_join_10ktbl_two_conditions_indexscan_two_filters
+                customTags: customer=3
                 run:
                     -   name: hashtbl_index_scan_using_sec_index
                         weight: 100

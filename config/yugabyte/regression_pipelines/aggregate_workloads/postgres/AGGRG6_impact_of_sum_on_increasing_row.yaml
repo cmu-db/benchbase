@@ -155,6 +155,7 @@ microbenchmark:
                     queries:
                         - query: select sum(col_bigint_id_1) from pkeyBigint1M_1
             - workload: AGGRG6_sum_bigint_10M_table_rows
+              customTags: customer=2
               run:
                   - name: pg_distinct_bigint_10M_table_rows
                     weight: 100

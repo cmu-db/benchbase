@@ -82,6 +82,7 @@ microbenchmark:
                               util: RandomNumber
                               params: [ 1, 1000000 ]
             - workload: scanG12_bitmapscan_orCondition_100row
+              customTags: customer=1
               run:
                   - name: pkey_INclause_rangescan_increasing_rows_100row_test
                     weight: 100
@@ -92,6 +93,7 @@ microbenchmark:
                               util: RandomNumber
                               params: [ 1, 1000000 ]
             - workload: scanG12_bitmapscan_orCondition_1000row
+              customTags: customer=1
               run:
                   - name: pkey_INclause_rangescan_increasing_rows_1000row_test
                     weight: 100
@@ -102,6 +104,7 @@ microbenchmark:
                               util: RandomNumber
                               params: [ 1, 1000000 ]
             - workload: scanG12_bitmapscan_orCondition_10000row
+              customTags: customer=1
               run:
                   - name: pkey_INclause_rangescan_increasing_rows_10000row_test
                     weight: 100

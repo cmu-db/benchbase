@@ -157,6 +157,7 @@ microbenchmark:
 
 
             - workload: JOING4_2_join_on_pk_of_varchar_datatype
+              customTags: customer=1
               run:
                   - name: join_on_pk_of_bigint_datatype
                     weight: 100
@@ -164,6 +165,7 @@ microbenchmark:
                         - query: select pkeyVarchar1001M_1.col_varchar100_pid_1,pkeyVarchar1001M_2.col_varchar100_pid_1 from pkeyVarchar1001M_1 join pkeyVarchar1001M_2 on pkeyVarchar1001M_1.col_varchar100_pid_1=pkeyVarchar1001M_2.col_varchar100_pid_1
 
             -   workload: JOING4_3_join_on_pk_of_uuid_datatype
+                customTags: customer=1
                 run:
                     -   name: join_on_pk_of_bigint_datatype
                         weight: 100

@@ -71,6 +71,7 @@ microbenchmark:
 
         executeRules:
             - workload: JOING1_1_join_on_pk_of_hash_tbl
+              customTags: customer=2
               run:
                   - name: join_on_pk_of_hash_tbl
                     weight: 100
@@ -85,6 +86,7 @@ microbenchmark:
                         - query: select Hashtbl_1.col_bigint_id_1,Hashtbl_2.col_bigint_id_1 from Hashtbl_1 join Hashtbl_2 on Hashtbl_1.col_bigint_id_1=Hashtbl_2.col_bigint_id_1 where Hashtbl_1.col_bigint_id_1<100001
 
             - workload: JOING1_3_join_on_pk_of_hash_tbl_with_2_filter
+              customTags: customer=1
               run:
                   - name: join_on_pk_of_hash_tbl
                     weight: 100
@@ -113,6 +115,7 @@ microbenchmark:
                             -   query: select Hashtbl_1.col_bigint_id_3,Hashtbl_2.col_bigint_id_3 from Hashtbl_1 join Hashtbl_2 on Hashtbl_1.col_bigint_id_3=Hashtbl_2.col_bigint_id_3
 
             -   workload: JOING1_7_join_on_rangeidx_of_hash_tbl_with_1_filter
+                customTags: customer=3
                 run:
                     -   name: join_on_pk_of_hash_tbl
                         weight: 100

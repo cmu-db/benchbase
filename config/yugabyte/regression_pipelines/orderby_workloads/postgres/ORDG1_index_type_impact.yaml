@@ -73,12 +73,14 @@ microbenchmark:
 
         executeRules:
             - workload: ORDG1_ordby_bigint_non_indexed_column
+              customTags: customer=2
               run:
                   - name: yb_ordby_bigint_non_indexed_column
                     weight: 100
                     queries:
                         - query: select col_bigint_id_3 from Indexed1M_1 order by col_bigint_id_3
             - workload: ORDG1_ordby_bigint_pkey_column
+              customTags: customer=2
               run:
                   - name: yb_ordby_bigint_non_indexed_column
                     weight: 100

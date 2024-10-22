@@ -200,6 +200,7 @@ microbenchmark:
                         params: [ 1, 500 ]
         executeRules:
             -   workload: ORDG5_ordby_bigint_indexed_column_desc
+                customTags: customer=2
                 run:
                     -   name: ordby_bigint_indexed_column_desc
                         weight: 100
