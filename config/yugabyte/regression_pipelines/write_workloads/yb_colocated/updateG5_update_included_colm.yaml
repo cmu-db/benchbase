@@ -1,0 +1,205 @@
+type: YUGABYTE
+driver: com.yugabyte.Driver
+url: jdbc:yugabytedb://{{endpoint}}:5433/yugabyte?sslmode=require&ApplicationName=featurebench&reWriteBatchedInserts=true
+username: {{username}}
+password: {{password}}
+createdb: drop database if exists yb_colocated; create database yb_colocated with colocated=true
+batchsize: 128
+isolation: TRANSACTION_REPEATABLE_READ
+loaderThreads: 1
+terminals: 1
+collect_pg_stat_statements: true
+use_dist_in_explain : true
+works:
+    work:
+        time_secs: 180
+        rate: unlimited
+        warmup: 30
+microbenchmark:
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
+    properties:
+        setAutoCommit: false
+        create:
+
+            - DROP TABLE IF EXISTS UG5_cardinality_tbl1_1;
+            - DROP TABLE IF EXISTS UG5_cardinality_tbl1_2;
+            - DROP TABLE IF EXISTS UG5_cardinality_tbl2_child_1 CASCADE;
+            - DROP TABLE IF EXISTS UG5_cardinality_tbl2_1 CASCADE;
+
+            - CREATE TABLE UG5_cardinality_tbl1_1(col_bigint_card1_1 bigint, col_bigint_card2_1 bigint, col_bigint_card3_1 bigint, col_bigint_id_1 bigint, col_bigint_id_2 bigint, col_bigint_id_3 bigint, col_bigint_id_4 bigint, col_bigint_id_5 bigint, col_bigint_id_6 bigint, col_int_id_1 int, col_int_id_2 int, col_int_id_3 int, col_int_id_4 int, col_int_card1_1 int, col_int_card1_2 int,  col_int_card1_3 int, col_int_card1_4 int, col_varchar500_id_1 varchar(500), PRIMARY KEY(col_bigint_id_1));
+            - CREATE INDEX ON UG5_cardinality_tbl1_1(col_bigint_card2_1) INCLUDE (col_bigint_card3_1) # update multiple(1000) rows with point select
+            - CREATE INDEX ON UG5_cardinality_tbl1_1(col_bigint_card1_1) INCLUDE (col_bigint_id_2) # update all(1M) rows with point select
+            - CREATE INDEX ON UG5_cardinality_tbl1_1(col_bigint_id_3) INCLUDE (col_int_id_4) # update single column + 1 row with point select
+            - CREATE INDEX ON UG5_cardinality_tbl1_1(col_bigint_id_5 ASC) INCLUDE (col_int_card1_4) # update single column + 1M row
+
+            - CREATE TABLE UG5_cardinality_tbl1_2(col_bigint_card1_1 bigint, col_bigint_card2_1 bigint, col_bigint_card3_1 bigint, col_bigint_id_1 bigint, col_bigint_id_2 bigint, col_bigint_id_3 bigint, col_bigint_id_4 bigint, col_bigint_id_5 bigint, col_bigint_id_6 bigint, col_int_id_1 int, col_int_id_2 int, col_int_id_3 int, col_int_id_4 int, col_int_card1_1 int, col_int_card1_2 int,  col_int_card1_3 int, col_int_card1_4 int, col_varchar500_id_1 varchar(500), PRIMARY KEY(col_bigint_id_1 ASC));
+            - CREATE INDEX ON UG5_cardinality_tbl1_2(col_bigint_id_5 ASC) INCLUDE (col_int_card1_4) # update single column + 1M row
+
+            - CREATE TABLE UG5_cardinality_tbl2_1(col_bigint_card1_1 bigint, col_bigint_card2_1 bigint, col_bigint_card3_1 bigint, col_bigint_id_1 bigint, col_bigint_id_2 bigint, col_bigint_id_3 bigint, col_bigint_id_4 bigint, col_bigint_id_5 bigint, col_bigint_id_6 bigint, col_int_id_1 int, col_int_id_2 int, col_int_id_3 int, col_int_id_4 int, col_int_card1_1 int, col_int_card1_2 int,  col_int_card1_3 int, col_int_card1_4 int, col_varchar500_id_1 varchar(500), PRIMARY KEY(col_bigint_id_1));
+            - CREATE UNIQUE INDEX ON UG5_cardinality_tbl2_1(col_bigint_id_2);
+            - CREATE UNIQUE INDEX ON UG5_cardinality_tbl2_1(col_bigint_id_3);
+            - CREATE UNIQUE INDEX ON UG5_cardinality_tbl2_1(col_bigint_id_4);
+            - CREATE INDEX ON UG5_cardinality_tbl2_1(col_int_id_1 ASC) INCLUDE (col_bigint_id_2,col_bigint_id_3,col_bigint_id_4); #Index created so that an update on these included columns will should cascade to child table and it's indexes
+            - CREATE TABLE UG5_cardinality_tbl2_child_1(col_bigint_id_1 bigint, col_bigint_id_2 bigint, col_bigint_id_3 bigint, col_bigint_id_4 bigint, col_bigint_id_5 bigint, col_varchar10_id_1 varchar(10), col_bigint_card1_1 bigint, col_bigint_card2_1 bigint, col_bigint_card3_1 bigint, PRIMARY KEY(col_bigint_id_1));
+            - ALTER TABLE UG5_cardinality_tbl2_child_1 ADD CONSTRAINT UG5_cardinality_tbl2_child_id1_fk FOREIGN KEY (col_bigint_id_2) REFERENCES UG5_cardinality_tbl2_1 (col_bigint_id_1) ON UPDATE CASCADE;
+            - ALTER TABLE UG5_cardinality_tbl2_child_1 ADD CONSTRAINT UG5_cardinality_tbl2_child_id2_fk FOREIGN KEY (col_bigint_id_3) REFERENCES UG5_cardinality_tbl2_1 (col_bigint_id_2) ON UPDATE CASCADE;
+            - ALTER TABLE UG5_cardinality_tbl2_child_1 ADD CONSTRAINT UG5_cardinality_tbl2_child_id3_fk FOREIGN KEY (col_bigint_id_4) REFERENCES UG5_cardinality_tbl2_1 (col_bigint_id_3) ON UPDATE CASCADE;
+            - ALTER TABLE UG5_cardinality_tbl2_child_1 ADD CONSTRAINT UG5_cardinality_tbl2_child_id4_fk FOREIGN KEY (col_bigint_id_5) REFERENCES UG5_cardinality_tbl2_1 (col_bigint_id_4) ON UPDATE CASCADE;
+            - CREATE INDEX ON UG5_cardinality_tbl2_child_1(col_bigint_id_2 ASC) INCLUDE (col_bigint_id_3,col_bigint_id_4,col_bigint_id_5); #Update on referenced+included colmn
+            - CREATE INDEX ON UG5_cardinality_tbl2_child_1(col_bigint_id_3 ASC);
+            - CREATE INDEX ON UG5_cardinality_tbl2_child_1(col_bigint_id_4 ASC);
+            - CREATE INDEX ON UG5_cardinality_tbl2_child_1(col_bigint_id_5 ASC);
+
+        cleanup:
+            - DROP TABLE IF EXISTS UG5_cardinality_tbl2_child_1 CASCADE;
+            - DROP TABLE IF EXISTS UG5_cardinality_tbl1_1;
+            - DROP TABLE IF EXISTS UG5_cardinality_tbl1_2;
+            - DROP TABLE IF EXISTS UG5_cardinality_tbl2_1 CASCADE;
+
+        loadRules:
+
+          - table: UG5_cardinality_tbl1_
+            count: 2
+            rows: 1000000
+            columns:
+                - name: col_bigint_card1_
+                  count: 1
+                  util: OneNumberFromArray
+                  params: [ 1000000 ]
+                - name: col_bigint_card2_
+                  count: 1
+                  util: RandomInt
+                  params: [ 1000000,1001000 ]
+                - name: col_bigint_card3_
+                  count: 1
+                  util: RandomInt
+                  params: [ 1000000,1010000]
+                - name: col_bigint_id_
+                  count: 6
+                  util: PrimaryIntGen
+                  params: [ 1, 1000000 ]
+                - name: col_int_id_
+                  count: 4
+                  util: PrimaryIntGen
+                  params: [ 1, 1000000 ]
+                - name: col_int_card1_
+                  count: 4
+                  util: OneNumberFromArray
+                  params: [ 1000000 ]
+                - name: col_varchar500_id_
+                  count: 1
+                  util: PrimaryStringGen
+                  params: [1, 500]
+
+          - table: UG5_cardinality_tbl2_
+            count: 1
+            rows: 1000000
+            columns:
+                - name: col_bigint_card1_
+                  count: 1
+                  util: OneNumberFromArray
+                  params: [ 1000000 ]
+                - name: col_bigint_card2_
+                  count: 1
+                  util: RandomInt
+                  params: [ 1000000,1001000 ]
+                - name: col_bigint_card3_
+                  count: 1
+                  util: RandomInt
+                  params: [ 1000000,1010000]
+                - name: col_bigint_id_
+                  count: 6
+                  util: PrimaryIntGen
+                  params: [ 1, 1000000 ]
+                - name: col_int_id_
+                  count: 4
+                  util: PrimaryIntGen
+                  params: [ 1, 1000000 ]
+                - name: col_int_card1_
+                  count: 4
+                  util: OneNumberFromArray
+                  params: [ 1000000 ]
+                - name: col_varchar500_id_
+                  count: 1
+                  util: PrimaryStringGen
+                  params: [1, 500]
+
+          - table: UG5_cardinality_tbl2_child_
+            count: 1
+            rows: 1000000
+            columns:
+                - name: col_bigint_id_
+                  count: 5
+                  util: PrimaryIntGen
+                  params: [ 1, 1000000 ]
+                - name: col_varchar10_id_
+                  count: 1
+                  util: RandomAString
+                  params: [10, 10]
+                - name: col_bigint_card1_
+                  count: 1
+                  util: OneNumberFromArray
+                  params: [ 1000000 ]
+                - name: col_bigint_card2_
+                  count: 1
+                  util: RandomInt
+                  params: [ 1000001,1001000 ]
+                - name: col_bigint_card3_
+                  count: 1
+                  util: RandomInt
+                  params: [ 1000001,1010000]
+
+        executeRules:
+
+            # update single column + 1 row with point select
+            - workload: UG5_1_update_1_rows_1col_included_colm_point_select_filter
+              run:
+                  - name: update_10_cols
+                    weight: 100
+                    queries:
+                        - query: UPDATE UG5_cardinality_tbl1_1 SET col_int_id_4=col_int_id_4+1 where col_bigint_id_3 = ?
+                          bindings:
+                            - util: PrimaryIntGen
+                              params: [ 1, 1000000 ]
+
+            # update single column + 1M row
+            - workload: UG5_2_update_1M_rows_1col_included_colm_range_filter
+              run:
+                  - name: update_10_cols
+                    weight: 100
+                    queries:
+                        - query: UPDATE UG5_cardinality_tbl1_1 SET col_int_card1_4=col_int_card1_4+1 where col_bigint_id_5 > 0
+
+            # update single column + 1M row
+            - workload: UG5_3_update_1M_rows_1col_included_colm_range_filter_range_tbl
+              run:
+                  - name: update_10_cols
+                    weight: 100
+                    queries:
+                        - query: UPDATE UG5_cardinality_tbl1_2 SET col_int_card1_4=col_int_card1_4+1 where col_bigint_id_5 > 0
+
+            # Update on parent tbl 3cols which are included in an index (col_bigint_id_2,col_bigint_id_3,col_bigint_id_4) referenced in child tbl (col_bigint_id_3,col_bigint_id_4,col_bigint_id_5) and also part of an included colms of an index
+            - workload: UG5_4_update_parent_tbls_referenced_included_colm_1row
+              run:
+                  - name: update_10_cols
+                    weight: 100
+                    queries:
+                        - query: UPDATE UG5_cardinality_tbl2_1 SET col_bigint_id_2=col_bigint_id_2+1000000, col_bigint_id_3=col_bigint_id_3+1000000, col_bigint_id_4=col_bigint_id_4+1000000 where col_int_id_1 = ?
+                          bindings:
+                            - util: PrimaryIntGen
+                              params: [ 1, 800000 ]
+
+            # Update on parent tbl 3cols which are included in an index (col_bigint_id_2,col_bigint_id_3,col_bigint_id_4) referenced in child tbl (col_bigint_id_3,col_bigint_id_4,col_bigint_id_5) and also part of an included colms of an index
+            - workload: UG5_5_update_parent_tbls_referenced_included_colm_1k_rows
+              run:
+                  - name: update_10_cols
+                    weight: 100
+                    queries:
+                        - query: UPDATE UG5_cardinality_tbl2_1 SET col_bigint_id_2=col_bigint_id_2+1000000, col_bigint_id_3=col_bigint_id_3+1000000, col_bigint_id_4=col_bigint_id_4+1000000 where col_int_id_1 > 999000
+
+            - workload: UG5_6_update_child_tbls_referenced_included_colm_1k_rows
+              run:
+                  - name: update_10_cols
+                    weight: 100
+                    queries:
+                        - query: UPDATE ug5_cardinality_tbl2_child_1 SET col_bigint_id_3=1000000 where col_bigint_id_2<1001
