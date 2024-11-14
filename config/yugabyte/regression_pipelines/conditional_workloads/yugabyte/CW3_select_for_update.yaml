@@ -20,19 +20,23 @@ microbenchmark:
     properties:
         setAutoCommit: true
         create:
-            - DROP TABLE IF EXISTS accounts_1;
-            - CREATE TABLE IF NOT EXISTS accounts_1(account_id_1 bigint, user_id_1 bigint, addr_1 varchar(50), bal_1 float(2),PRIMARY KEY(account_id_1));
-            - CREATE UNIQUE INDEX user_accounts_1 ON accounts_1( user_id_1, account_id_1);
-            - DROP TABLE IF EXISTS accounts_2;
-            - CREATE TABLE IF NOT EXISTS accounts_2(account_id_1 bigint, user_id_1 bigint, addr_1 varchar(50), bal_1 float(2),PRIMARY KEY(account_id_1));
-            - CREATE UNIQUE INDEX user_accounts_2 ON accounts_2( user_id_1, account_id_1);
+            - DROP TABLE IF EXISTS CW3_transactions_1;
+            - DROP TABLE IF EXISTS CW3_accounts_1;
+            - DROP TABLE IF EXISTS CW3_accounts_2;
+
+            - CREATE TABLE IF NOT EXISTS CW3_accounts_1(account_id_1 bigint, user_id_1 bigint, addr_1 varchar(50), bal_1 float(2),PRIMARY KEY(account_id_1));
+            - CREATE UNIQUE INDEX user_CW3_accounts_1 ON CW3_accounts_1( user_id_1, account_id_1);
+            - CREATE TABLE IF NOT EXISTS CW3_accounts_2(account_id_1 bigint, user_id_1 bigint, addr_1 varchar(50), bal_1 float(2),PRIMARY KEY(account_id_1));
+            - CREATE UNIQUE INDEX user_CW3_accounts_2 ON CW3_accounts_2( user_id_1, account_id_1);
+            - CREATE TABLE IF NOT EXISTS CW3_transactions_1(tran_id_1 bigint PRIMARY KEY, account_id_1 bigint, amount_1 bigint, FOREIGN KEY(account_id_1) REFERENCES CW3_accounts_1(account_id_1) ON DELETE CASCADE ON UPDATE CASCADE)
 
         cleanup:
-            - DROP TABLE IF EXISTS accounts_1;
-            - DROP TABLE IF EXISTS accounts_2;
+            - DROP TABLE IF EXISTS CW3_accounts_1;
+            - DROP TABLE IF EXISTS CW3_transactions_1;
+            - DROP TABLE IF EXISTS CW3_accounts_2;
 
         loadRules:
-            -   table: accounts_
+            -   table: CW3_accounts_
                 count: 2
                 rows: 2000000
                 columns:
@@ -53,13 +57,32 @@ microbenchmark:
                         util: PrimaryFloatGen
                         params: [ 1, 2000000, 2 ]
 
+            # Entries are only available for transaction done by accounts from 1-10000 of table CW3_accounts_1. So relevant queries should only use that range.
+            -   table: CW3_transactions_
+                count: 1
+                rows: 1000000
+                columns:
+                    -   name: tran_id_
+                        count: 1
+                        util: PrimaryIntGen
+                        params: [ 1, 1000000 ]
+                    -   name: account_id_
+                        count: 1
+                        util: RandomInt
+                        params: [ 1, 10000 ]
+                    -   name: amount_
+                        count: 1
+                        util: RandomInt
+                        params: [ 1, 50 ]
+
+
         executeRules:
             - workload: CW3_1_select_baseline
               run:
                   - name: statement1_insert
                     weight: 100
                     queries:
-                        - query: SELECT bal_1 FROM accounts_1 WHERE account_id_1=ANY(ARRAY[?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?])
+                        - query: SELECT bal_1 FROM CW3_accounts_1 WHERE account_id_1=ANY(ARRAY[?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?])
                           bindings:
                               -   util: RandomNumber
                                   count: 50
@@ -70,7 +93,7 @@ microbenchmark:
                   - name: statement1_insert
                     weight: 100
                     queries:
-                        - query: UPDATE accounts_1 SET bal_1=bal_1+1 WHERE account_id_1=ANY(ARRAY[?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?]) returning bal_1
+                        - query: UPDATE CW3_accounts_1 SET bal_1=bal_1+1 WHERE account_id_1=ANY(ARRAY[?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?]) returning bal_1
                           bindings:
                               -   util: RandomNumber
                                   count: 50
@@ -81,8 +104,45 @@ microbenchmark:
                   - name: statement1_insert
                     weight: 100
                     queries:
-                        - query: SELECT bal_1 FROM accounts_2 WHERE account_id_1=ANY(ARRAY[?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?]) for update
+                        - query: SELECT bal_1 FROM CW3_accounts_2 WHERE account_id_1=ANY(ARRAY[?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?]) for update
                           bindings:
                               -   util: RandomNumber
                                   count: 50
                                   params: [ 1, 2000000 ]
+
+            - workload: CW3_4_select_for_update_nowait
+              run:
+                  - name: statement1_insert
+                    weight: 100
+                    queries:
+                        - query: SELECT bal_1 FROM CW3_accounts_2 WHERE account_id_1=ANY(ARRAY[?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?]) for update NOWAIT
+                          bindings:
+                              -   util: RandomNumber
+                                  count: 50
+                                  params: [ 1, 2000000 ]
+
+            - workload: CW3_5_select_for_update_skip_lock
+              run:
+                  - name: statement1_insert
+                    weight: 100
+                    queries:
+                        - query: SELECT bal_1 FROM CW3_accounts_2 WHERE account_id_1=ANY(ARRAY[?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?]) for update SKIP LOCKED
+                          bindings:
+                              -   util: RandomNumber
+                                  count: 50
+                                  params: [ 1, 2000000 ]
+
+            - workload: CW3_6_select_for_update_with_join
+              run:
+                  - name: statement1_insert
+                    weight: 100
+                    queries:
+                        - query: SELECT * from CW3_accounts_1 a JOIN CW3_transactions_1 t on a.account_id_1 = t.account_id_1 where t.amount_1 > 0 for update;
+
+
+            - workload: CW3_7_select_for_update_with_CTE
+              run:
+                  - name: statement1_insert
+                    weight: 100
+                    queries:
+                        - query: With high_value_transactions As (SELECT * from CW3_transactions_1 where amount_1>49 for update) UPDATE CW3_transactions_1 set amount_1=amount_1+1 WHERE tran_id_1 IN (Select tran_id_1 from high_value_transactions)
