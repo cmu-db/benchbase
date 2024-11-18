@@ -10,7 +10,7 @@ loaderThreads: 1
 terminals: 1
 collect_pg_stat_statements: true
 use_dist_in_explain : true
-yaml_version: v1.0
+yaml_version: v1.1
 works:
     work:
         time_secs: 180
@@ -24,7 +24,7 @@ microbenchmark:
             - DROP TABLE IF EXISTS accounts_1;
             - CREATE TABLE IF NOT EXISTS accounts_1(account_id_1 bigint, user_id_1 bigint, addr_1 varchar(50), bal_1 float(2),PRIMARY KEY(account_id_1));
             - CREATE UNIQUE INDEX user_accounts_1 ON accounts_1( user_id_1, account_id_1);
-            - CREATE UNIQUE INDEX user_accounts_2 ON accounts_1( user_id_1, account_id_1, user_id_1, bal_1);
+            - CREATE UNIQUE INDEX user_accounts_2 ON accounts_1( user_id_1, account_id_1, addr_1, bal_1);
 
         cleanup:
             - DROP TABLE IF EXISTS accounts_1;
@@ -32,16 +32,16 @@ microbenchmark:
         loadRules:
             -   table: accounts_
                 count: 1
-                rows: 6000000
+                rows: 8000000
                 columns:
                     -   name: account_id_
                         count: 1
                         util: PrimaryIntGen
-                        params: [ 1, 6000000 ]
+                        params: [ 1, 8000000 ]
                     -   name: user_id_
                         count: 1
                         util: PrimaryIntGen
-                        params: [ 1, 6000000 ]
+                        params: [ 1, 8000000 ]
                     -   name: addr_
                         count: 1
                         util: PrimaryStringGen
@@ -49,7 +49,7 @@ microbenchmark:
                     -   name: bal_
                         count: 1
                         util: PrimaryFloatGen
-                        params: [ 1, 6000000, 2 ]
+                        params: [ 1, 8000000, 2 ]
 
         executeRules:
             - workload: CW2_1_2column_condition_single_upsert
@@ -57,7 +57,7 @@ microbenchmark:
                   - name: statement1_insert
                     weight: 100
                     queries:
-                        - query: INSERT INTO accounts_1(account_id_1,user_id_1,addr_1,bal_1) VALUES (?,?,?,?) ON CONFLICT (user_id_1, account_id_1) DO UPDATE SET (account_id_1,user_id_1,addr_1,bal_1)=(excluded.account_id_1,excluded.user_id_1,excluded.addr_1,excluded.bal_1)
+                        - query: INSERT INTO accounts_1(user_id_1,account_id_1,addr_1,bal_1) VALUES (?,?,?,?) ON CONFLICT (user_id_1, account_id_1) DO UPDATE SET (user_id_1,account_id_1,addr_1,bal_1)=(excluded.user_id_1,excluded.account_id_1,excluded.addr_1,excluded.bal_1)
                           bindings:
                               -   util: PrimaryIntGen
                                   params: [ 1, 1000000 ]
@@ -74,90 +74,90 @@ microbenchmark:
                   - name: statement1_insert
                     weight: 100
                     queries:
-                        - query: INSERT INTO accounts_1(account_id_1,user_id_1,addr_1,bal_1) VALUES (?,?,?,?) ON CONFLICT (user_id_1, account_id_1, user_id_1, bal_1) DO UPDATE SET (account_id_1,user_id_1,addr_1,bal_1)=(excluded.account_id_1,excluded.user_id_1,excluded.addr_1,excluded.bal_1)
+                        - query: INSERT INTO accounts_1(user_id_1,account_id_1,addr_1,bal_1) VALUES (?,?,?,?) ON CONFLICT (user_id_1, account_id_1, addr_1, bal_1) DO UPDATE SET (user_id_1,account_id_1,addr_1,bal_1)=(excluded.user_id_1,excluded.account_id_1,excluded.addr_1,excluded.bal_1)
                           bindings:
                               -   util: PrimaryIntGen
-                                  params: [ 1000000, 2000000 ]
+                                  params: [ 1000001, 2000000 ]
                               -   util: PrimaryIntGen
-                                  params: [ 1000000, 2000000 ]
+                                  params: [ 1000001, 2000000 ]
                               -   util: PrimaryStringGen
-                                  params: [ 1000000, 50 ]
+                                  params: [ 1000001, 50 ]
                               -   util: PrimaryFloatGen
-                                  params: [ 1000000, 2000000, 2 ]
+                                  params: [ 1000001, 2000000, 2 ]
 
-            - workload: CW2_3_2column_condition_10_upsert
+            - workload: CW2_3_2column_condition_1024_upsert
               run:
                   - name: statement1_insert
                     weight: 100
                     queries:
-                        - query: INSERT INTO accounts_1(account_id_1,user_id_1,addr_1,bal_1) VALUES (?,?,?,?) ON CONFLICT (user_id_1, account_id_1) DO UPDATE SET (account_id_1,user_id_1,addr_1,bal_1)=(excluded.account_id_1,excluded.user_id_1,excluded.addr_1,excluded.bal_1)
-                          count: 10
+                        - query: INSERT INTO accounts_1(user_id_1,account_id_1,addr_1,bal_1) VALUES (?,?,?,?) ON CONFLICT (user_id_1, account_id_1) DO UPDATE SET (user_id_1,account_id_1,addr_1,bal_1)=(excluded.user_id_1,excluded.account_id_1,excluded.addr_1,excluded.bal_1)
+                          count: 1024
                           bindings:
                               -   util: PrimaryIntGen
-                                  params: [ 2000000, 3000000 ]
+                                  params: [ 2000001, 3000000 ]
                               -   util: PrimaryIntGen
-                                  params: [ 2000000, 3000000 ]
+                                  params: [ 2000001, 3000000 ]
                               -   util: PrimaryStringGen
-                                  params: [ 2000000, 50 ]
+                                  params: [ 2000001, 50 ]
                               -   util: PrimaryFloatGen
-                                  params: [ 2000000, 3000000, 2 ]
+                                  params: [ 2000001, 3000000, 2 ]
 
-            - workload: CW2_4_4column_condition_10_upsert
+            - workload: CW2_4_2column_condition_2048_upsert
               run:
                   - name: statement1_insert
                     weight: 100
                     queries:
-                        - query: INSERT INTO accounts_1(account_id_1,user_id_1,addr_1,bal_1) VALUES (?,?,?,?) ON CONFLICT (user_id_1, account_id_1, user_id_1, bal_1) DO UPDATE SET (account_id_1,user_id_1,addr_1,bal_1)=(excluded.account_id_1,excluded.user_id_1,excluded.addr_1,excluded.bal_1)
-                          count: 10
+                        - query: INSERT INTO accounts_1(user_id_1,account_id_1,addr_1,bal_1) VALUES (?,?,?,?) ON CONFLICT (user_id_1, account_id_1) DO UPDATE SET (user_id_1,account_id_1,addr_1,bal_1)=(excluded.user_id_1,excluded.account_id_1,excluded.addr_1,excluded.bal_1)
+                          count: 2048
                           bindings:
                               -   util: PrimaryIntGen
-                                  params: [ 3000000, 4000000 ]
+                                  params: [ 3000001, 4000000 ]
                               -   util: PrimaryIntGen
-                                  params: [ 3000000, 4000000 ]
+                                  params: [ 3000001, 4000000 ]
                               -   util: PrimaryStringGen
-                                  params: [ 3000000, 50 ]
+                                  params: [ 3000001, 50 ]
                               -   util: PrimaryFloatGen
-                                  params: [ 3000000, 4000000, 2 ]
+                                  params: [ 3000001, 4000000, 2 ]
 
             - workload: CW2_5_2column_condition_1_upsert_with_returning
               run:
                   - name: statement1_insert
                     weight: 100
                     queries:
-                        - query: INSERT INTO accounts_1(account_id_1,user_id_1,addr_1,bal_1) VALUES (?,?,?,?) ON CONFLICT (user_id_1, account_id_1) DO UPDATE SET (account_id_1,user_id_1,addr_1,bal_1)=(excluded.account_id_1,excluded.user_id_1,excluded.addr_1,excluded.bal_1) RETURNING *
+                        - query: INSERT INTO accounts_1(user_id_1,account_id_1,addr_1,bal_1) VALUES (?,?,?,?) ON CONFLICT (user_id_1, account_id_1) DO UPDATE SET (user_id_1,account_id_1,addr_1,bal_1)=(excluded.user_id_1,excluded.account_id_1,excluded.addr_1,excluded.bal_1) RETURNING *
                           count: 10
                           bindings:
                               -   util: PrimaryIntGen
-                                  params: [ 4000000, 5000000 ]
+                                  params: [ 4000001, 5000000 ]
                               -   util: PrimaryIntGen
-                                  params: [ 4000000, 5000000 ]
+                                  params: [ 4000001, 5000000 ]
                               -   util: PrimaryStringGen
-                                  params: [ 4000000, 50 ]
+                                  params: [ 4000001, 50 ]
                               -   util: PrimaryFloatGen
-                                  params: [ 4000000, 5000000, 2 ]
+                                  params: [ 4000001, 5000000, 2 ]
 
             - workload: CW2_6_4column_condition_1_upsert_with_returning
               run:
                   - name: statement1_insert
                     weight: 100
                     queries:
-                        - query: INSERT INTO accounts_1(account_id_1,user_id_1,addr_1,bal_1) VALUES (?,?,?,?) ON CONFLICT (user_id_1, account_id_1, user_id_1, bal_1) DO UPDATE SET (account_id_1,user_id_1,addr_1,bal_1)=(excluded.account_id_1,excluded.user_id_1,excluded.addr_1,excluded.bal_1) RETURNING *
+                        - query: INSERT INTO accounts_1(user_id_1,account_id_1,addr_1,bal_1) VALUES (?,?,?,?) ON CONFLICT (user_id_1, account_id_1, addr_1, bal_1) DO UPDATE SET (user_id_1,account_id_1,addr_1,bal_1)=(excluded.user_id_1,excluded.account_id_1,excluded.addr_1,excluded.bal_1) RETURNING *
                           bindings:
                               -   util: PrimaryIntGen
-                                  params: [ 5000000, 6000000 ]
+                                  params: [ 5000001, 6000000 ]
                               -   util: PrimaryIntGen
-                                  params: [ 5000000, 6000000 ]
+                                  params: [ 5000001, 6000000 ]
                               -   util: PrimaryStringGen
-                                  params: [ 5000000, 50 ]
+                                  params: [ 5000001, 50 ]
                               -   util: PrimaryFloatGen
-                                  params: [ 5000000, 6000000, 2 ]
+                                  params: [ 5000001, 6000000, 2 ]
 
             - workload: CW2_7_2column_condition_10values_in_1upsert_with_returning
               run:
                   - name: statement1_insert
                     weight: 100
                     queries:
-                        - query: INSERT INTO accounts_1(account_id_1,user_id_1,addr_1,bal_1) VALUES (?,?,?,?),(?,?,?,?),(?,?,?,?),(?,?,?,?),(?,?,?,?),(?,?,?,?),(?,?,?,?),(?,?,?,?),(?,?,?,?),(?,?,?,?) ON CONFLICT (user_id_1, account_id_1) DO UPDATE SET (account_id_1,user_id_1,addr_1,bal_1)=(excluded.account_id_1,excluded.user_id_1,excluded.addr_1,excluded.bal_1)
+                        - query: INSERT INTO accounts_1(user_id_1,account_id_1,addr_1,bal_1) VALUES (?,?,?,?),(?,?,?,?),(?,?,?,?),(?,?,?,?),(?,?,?,?),(?,?,?,?),(?,?,?,?),(?,?,?,?),(?,?,?,?),(?,?,?,?) ON CONFLICT (user_id_1, account_id_1) DO UPDATE SET (user_id_1,account_id_1,addr_1,bal_1)=(excluded.user_id_1,excluded.account_id_1,excluded.addr_1,excluded.bal_1)
                           bindings:
                               -   util: PrimaryIntGen
                                   params: [ 1, 6000000 ]
@@ -245,30 +245,30 @@ microbenchmark:
                   - name: statement1_insert
                     weight: 100
                     queries:
-                        - query: INSERT INTO accounts_1(account_id_1,user_id_1,addr_1,bal_1) VALUES (?,?,?,?) ON CONFLICT (user_id_1, account_id_1) DO UPDATE SET bal_1=accounts_1.bal_1+1 RETURNING *
+                        - query: INSERT INTO accounts_1(user_id_1,account_id_1,addr_1,bal_1) VALUES (?,?,?,?) ON CONFLICT (user_id_1, account_id_1) DO UPDATE SET bal_1=accounts_1.bal_1+1 RETURNING *
                           bindings:
                               -   util: PrimaryIntGen
-                                  params: [ 5000000, 6000000 ]
+                                  params: [ 6000001, 7000000 ]
                               -   util: PrimaryIntGen
-                                  params: [ 5000000, 6000000 ]
+                                  params: [ 6000001, 7000000 ]
                               -   util: PrimaryStringGen
-                                  params: [ 5000000, 50 ]
+                                  params: [ 6000001, 50 ]
                               -   util: PrimaryFloatGen
-                                  params: [ 5000000, 6000000, 2 ]
+                                  params: [ 6000001, 7000000, 2 ]
 
             - workload: CW2_9_2column_condition_10_upsert_with_returning
               run:
                   - name: statement1_insert
                     weight: 100
                     queries:
-                        - query: INSERT INTO accounts_1(account_id_1,user_id_1,addr_1,bal_1) VALUES (?,?,?,?) ON CONFLICT (user_id_1, account_id_1) DO UPDATE SET bal_1=accounts_1.bal_1+1 RETURNING *
+                        - query: INSERT INTO accounts_1(user_id_1,account_id_1,addr_1,bal_1) VALUES (?,?,?,?) ON CONFLICT (user_id_1, account_id_1) DO UPDATE SET bal_1=accounts_1.bal_1+1 RETURNING *
                           count: 10
                           bindings:
                               -   util: PrimaryIntGen
-                                  params: [ 5000000, 6000000 ]
+                                  params: [ 7000001, 8000000 ]
                               -   util: PrimaryIntGen
-                                  params: [ 5000000, 6000000 ]
+                                  params: [ 7000001, 8000000 ]
                               -   util: PrimaryStringGen
-                                  params: [ 5000000, 50 ]
+                                  params: [ 7000001, 50 ]
                               -   util: PrimaryFloatGen
-                                  params: [ 5000000, 6000000, 2 ]
+                                  params: [ 7000001, 8000000, 2 ]

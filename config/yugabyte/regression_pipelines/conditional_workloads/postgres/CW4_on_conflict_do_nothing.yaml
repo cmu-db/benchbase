@@ -1,0 +1,258 @@
+type: POSTGRES
+driver: org.postgresql.Driver
+url: jdbc:postgresql://{{endpoint}}:5432/postgres?sslmode=require&ApplicationName=featurebench&reWriteBatchedInserts=true
+username: {{username}}
+password: {{password}}
+batchsize: 128
+isolation: TRANSACTION_REPEATABLE_READ
+loaderThreads: 1
+terminals: 1
+collect_pg_stat_statements: true
+yaml_version: v1.0
+works:
+    work:
+        time_secs: 180
+        rate: unlimited
+        warmup: 60
+microbenchmark:
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
+    properties:
+        setAutoCommit: true
+        create:
+            - DROP TABLE IF EXISTS CW4_accounts_1;
+            - CREATE TABLE IF NOT EXISTS CW4_accounts_1(account_id_1 bigint, user_id_1 bigint, addr_1 varchar(50), bal_1 float(2),PRIMARY KEY(account_id_1));
+            - CREATE UNIQUE INDEX CW4_user_accounts_1 ON CW4_accounts_1(account_id_1, user_id_1);
+
+            - DROP TABLE IF EXISTS CW4_accounts_2;
+            - CREATE TABLE IF NOT EXISTS CW4_accounts_2(account_id_1 bigint, user_id_1 bigint, addr_1 varchar(50), bal_1 float(2),PRIMARY KEY(account_id_1)) PARTITION BY HASH (account_id_1);
+            - CREATE TABLE IF NOT EXISTS CW4_0_2M_accounts_0 PARTITION OF CW4_accounts_2 FOR VALUES WITH (MODULUS 4, REMAINDER 0);
+            - CREATE TABLE IF NOT EXISTS CW4_0_2M_accounts_1 PARTITION OF CW4_accounts_2 FOR VALUES WITH (MODULUS 4, REMAINDER 1);
+            - CREATE TABLE IF NOT EXISTS CW4_0_2M_accounts_2 PARTITION OF CW4_accounts_2 FOR VALUES WITH (MODULUS 4, REMAINDER 2);
+            - CREATE TABLE IF NOT EXISTS CW4_0_2M_accounts_3 PARTITION OF CW4_accounts_2 FOR VALUES WITH (MODULUS 4, REMAINDER 3);
+
+
+            - DROP TABLE IF EXISTS CW4_cardinality_tbl1_1
+            - CREATE TABLE CW4_cardinality_tbl1_1(col_bigint_card1_1 bigint, col_bigint_card2_1 bigint, col_bigint_card3_1 bigint, col_bigint_id_1 bigint, col_bigint_id_2 bigint, col_bigint_id_3 bigint, col_bigint_id_4 bigint, col_bigint_id_5 bigint, col_bigint_id_6 bigint, col_int_id_1 int, col_int_id_2 int, col_int_id_3 int, col_int_id_4 int, col_int_card1_1 int, col_int_card1_2 int,  col_int_card1_3 int, col_int_card1_4 int, col_varchar500_id_1 varchar(500), PRIMARY KEY(col_bigint_id_1));
+            - CREATE INDEX ON CW4_cardinality_tbl1_1(col_bigint_id_2) INCLUDE (col_bigint_card3_1) # update multiple(1000) rows with point select
+            - CREATE INDEX ON CW4_cardinality_tbl1_1(col_bigint_id_3) INCLUDE (col_bigint_id_2) # update all(1M) rows with point select
+            - CREATE INDEX ON CW4_cardinality_tbl1_1(col_bigint_id_4) INCLUDE (col_int_id_4) # update single column + 1 row with point select
+            - CREATE INDEX ON CW4_cardinality_tbl1_1(col_bigint_id_5 ASC) INCLUDE (col_int_card1_4) # update single column + 1M row
+            - CREATE UNIQUE INDEX ON CW4_cardinality_tbl1_1(col_bigint_id_2);
+            - CREATE UNIQUE INDEX ON CW4_cardinality_tbl1_1(col_bigint_id_3);
+            - CREATE UNIQUE INDEX ON CW4_cardinality_tbl1_1(col_bigint_id_4);
+
+        cleanup:
+            - DROP TABLE IF EXISTS CW4_accounts_1;
+            - DROP TABLE IF EXISTS CW4_accounts_2;
+            - DROP TABLE IF EXISTS CW4_cardinality_tbl1_1;
+
+        loadRules:
+            -   table: CW4_accounts_
+                count: 2
+                rows: 8000000
+                columns:
+                    -   name: account_id_
+                        count: 1
+                        util: PrimaryIntGen
+                        params: [ 1, 8000000 ]
+                    -   name: user_id_
+                        count: 1
+                        util: PrimaryIntGen
+                        params: [ 1, 8000000 ]
+                    -   name: addr_
+                        count: 1
+                        util: PrimaryStringGen
+                        params: [ 1, 50 ]
+                    -   name: bal_
+                        count: 1
+                        util: PrimaryFloatGen
+                        params: [ 1, 8000000, 2 ]
+
+            -   table: CW4_cardinality_tbl1_
+                count: 1
+                rows: 1000000
+                columns:
+                    - name: col_bigint_card1_
+                      count: 1
+                      util: OneNumberFromArray
+                      params: [ 1000000 ]
+                    - name: col_bigint_card2_
+                      count: 1
+                      util: RandomInt
+                      params: [ 1000000,1001000 ]
+                    - name: col_bigint_card3_
+                      count: 1
+                      util: RandomInt
+                      params: [ 1000000,1010000]
+                    - name: col_bigint_id_
+                      count: 6
+                      util: PrimaryIntGen
+                      params: [ 1, 1000000 ]
+                    - name: col_int_id_
+                      count: 4
+                      util: PrimaryIntGen
+                      params: [ 1, 1000000 ]
+                    - name: col_int_card1_
+                      count: 4
+                      util: OneNumberFromArray
+                      params: [ 1000000 ]
+                    - name: col_varchar500_id_
+                      count: 1
+                      util: PrimaryStringGen
+                      params: [1, 500]
+
+        executeRules:
+            - workload: CW4_1_2column_condition_no_conflict_on_pkey_so_single_insert
+              run:
+                  - name: statement1_insert
+                    weight: 100
+                    queries:
+                        - query: INSERT INTO CW4_accounts_1(account_id_1,user_id_1,addr_1,bal_1) VALUES (?,?,?,?) ON CONFLICT (account_id_1) DO NOTHING
+                          bindings:
+                              -   util: PrimaryIntGen
+                                  params: [ 1000001, 5000000 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 1000001, 5000000 ]
+                              -   util: PrimaryStringGen
+                                  params: [ 1, 50 ]
+                              -   util: PrimaryFloatGen
+                                  params: [ 1000001, 5000000, 2 ]
+
+            - workload: CW4_2_2column_condition_no_conflict_on_pkey_so_1024_insert
+              run:
+                  - name: statement1_insert
+                    weight: 100
+                    queries:
+                        - query: INSERT INTO CW4_accounts_1(account_id_1,user_id_1,addr_1,bal_1) VALUES (?,?,?,?) ON CONFLICT (account_id_1) DO NOTHING
+                          count: 1024
+                          bindings:
+                              -   util: PrimaryIntGen
+                                  params: [ 10000000, 15000000 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 10000000, 15000000 ]
+                              -   util: PrimaryStringGen
+                                  params: [ 1, 50 ]
+                              -   util: PrimaryFloatGen
+                                  params: [ 10000000, 15000000, 2 ]
+
+            - workload: CW4_3_no_condition_for_on_conflict_1row
+              run:
+                  - name: statement1_insert
+                    weight: 100
+                    queries:
+                        - query: INSERT INTO CW4_cardinality_tbl1_1(col_bigint_card1_1, col_bigint_card2_1, col_bigint_card3_1, col_bigint_id_1, col_bigint_id_2, col_bigint_id_3, col_bigint_id_4, col_bigint_id_5, col_bigint_id_6, col_int_id_1, col_int_id_2, col_int_id_3, col_int_id_4, col_int_card1_1, col_int_card1_2,  col_int_card1_3, col_int_card1_4, col_varchar500_id_1) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT DO NOTHING
+                          bindings:
+                            -  util: OneNumberFromArray
+                               params: [ 1000000 ]
+                            -  util: RandomInt
+                               params: [ 1000000,1001000 ]
+                            -  util: RandomInt
+                               params: [ 1000000,1010000]
+                            -  util: PrimaryIntGen
+                               params: [ 1, 1000000 ]
+                            -  util: PrimaryIntGen
+                               params: [ 1, 1000000 ]
+                            -  util: PrimaryIntGen
+                               params: [ 1, 1000000 ]
+                            -  util: PrimaryIntGen
+                               params: [ 1, 1000000 ]
+                            -  util: PrimaryIntGen
+                               params: [ 1, 1000000 ]
+                            -  util: PrimaryIntGen
+                               params: [ 1, 1000000 ]
+                            -  util: PrimaryIntGen
+                               params: [ 1, 1000000 ]
+                            -  util: PrimaryIntGen
+                               params: [ 1, 1000000 ]
+                            -  util: PrimaryIntGen
+                               params: [ 1, 1000000 ]
+                            -  util: PrimaryIntGen
+                               params: [ 1, 1000000 ]
+                            -  util: OneNumberFromArray
+                               params: [ 1000000 ]
+                            -  util: OneNumberFromArray
+                               params: [ 1000000 ]
+                            -  util: OneNumberFromArray
+                               params: [ 1000000 ]
+                            -  util: OneNumberFromArray
+                               params: [ 1000000 ]
+                            -  util: PrimaryStringGen
+                               params: [1, 500]
+
+            - workload: CW4_4_no_condition_for_on_conflict_1024row
+              run:
+                  - name: statement1_insert
+                    weight: 100
+                    queries:
+                        - query: INSERT INTO CW4_cardinality_tbl1_1(col_bigint_card1_1, col_bigint_card2_1, col_bigint_card3_1, col_bigint_id_1, col_bigint_id_2, col_bigint_id_3, col_bigint_id_4, col_bigint_id_5, col_bigint_id_6, col_int_id_1, col_int_id_2, col_int_id_3, col_int_id_4, col_int_card1_1, col_int_card1_2,  col_int_card1_3, col_int_card1_4, col_varchar500_id_1) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT DO NOTHING
+                          count: 1024
+                          bindings:
+                            -  util: OneNumberFromArray
+                               params: [ 1000000 ]
+                            -  util: RandomInt
+                               params: [ 1000000,1001000 ]
+                            -  util: RandomInt
+                               params: [ 1000000,1010000]
+                            -  util: PrimaryIntGen
+                               params: [ 1, 1000000 ]
+                            -  util: PrimaryIntGen
+                               params: [ 1, 1000000 ]
+                            -  util: PrimaryIntGen
+                               params: [ 1, 1000000 ]
+                            -  util: PrimaryIntGen
+                               params: [ 1, 1000000 ]
+                            -  util: PrimaryIntGen
+                               params: [ 1, 1000000 ]
+                            -  util: PrimaryIntGen
+                               params: [ 1, 1000000 ]
+                            -  util: PrimaryIntGen
+                               params: [ 1, 1000000 ]
+                            -  util: PrimaryIntGen
+                               params: [ 1, 1000000 ]
+                            -  util: PrimaryIntGen
+                               params: [ 1, 1000000 ]
+                            -  util: PrimaryIntGen
+                               params: [ 1, 1000000 ]
+                            -  util: OneNumberFromArray
+                               params: [ 1000000 ]
+                            -  util: OneNumberFromArray
+                               params: [ 1000000 ]
+                            -  util: OneNumberFromArray
+                               params: [ 1000000 ]
+                            -  util: OneNumberFromArray
+                               params: [ 1000000 ]
+                            -  util: PrimaryStringGen
+                               params: [1, 500]
+
+            - workload: CW4_5_no_conflict_on_pkey_so_single_insert_on_partitioned_tbl_by_hash
+              run:
+                  - name: statement1_insert
+                    weight: 100
+                    queries:
+                        - query: INSERT INTO CW4_accounts_2(account_id_1,user_id_1,addr_1,bal_1) VALUES (?,?,?,?) ON CONFLICT (account_id_1) DO NOTHING
+                          bindings:
+                              -   util: PrimaryIntGen
+                                  params: [ 1, 8000000 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 1, 8000000 ]
+                              -   util: PrimaryStringGen
+                                  params: [ 1, 50 ]
+                              -   util: PrimaryFloatGen
+                                  params: [ 1, 8000000, 2 ]
+
+            - workload: CW4_6_no_conflict_on_pkey_so_1024_insert_on_partitioned_tbl_by_hash
+              run:
+                  - name: statement1_insert
+                    weight: 100
+                    queries:
+                        - query: INSERT INTO CW4_accounts_2(account_id_1,user_id_1,addr_1,bal_1) VALUES (?,?,?,?) ON CONFLICT (account_id_1) DO NOTHING
+                          count: 1024
+                          bindings:
+                              -   util: PrimaryIntGen
+                                  params: [ 1, 8000000 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 1, 8000000 ]
+                              -   util: PrimaryStringGen
+                                  params: [ 1, 50 ]
+                              -   util: PrimaryFloatGen
+                                  params: [ 1, 8000000, 2 ]
