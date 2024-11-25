@@ -238,6 +238,11 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
                 jsonObject.put("Execution Time(ms)", matcher.group(2));
                 jsonObject.put("Peak Memory Usage(kB)", matcher.group(3));
             }
+            Pattern rowsPattern = Pattern.compile("\\(actual[^)]*rows=(\\d+)\\s+loops=");
+            Matcher rowsMatcher = rowsPattern.matcher(data.toString());
+            if (rowsMatcher.find()) {
+                jsonObject.put("ExplainPlanRows", rowsMatcher.group(1));
+            }
 
             jsonObject.put("ClientSideExplainTime(ms)", explainEnd - explainStart);
             queryToExplainMap.put(query, jsonObject);
@@ -299,10 +304,11 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
             boolean shouldCollect = this.getWorkloadConfiguration().getXmlConfig().getBoolean("collect_pg_stat_statements", false);
             if (!this.configuration.getNewConnectionPerTxn() && (shouldCollect && !isPGStatStatementCollected.get()) && this.conn != null) {
 
-                List<String> queryStrings = new ArrayList<>();
+                Map<String, Integer> queryStringsAndRC = new LinkedHashMap<>();
                 for (ExecuteRule er : executeRules) {
                     for (int i = 0; i < er.getQueries().size(); i++) {
-                        queryStrings.add(er.getQueries().get(i).getQuery());
+                        Query q = er.getQueries().get(i);
+                        queryStringsAndRC.put(q.getQuery(), q.getExplainPlanRCValidateCount());
                     }
                 }
 
@@ -318,12 +324,16 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
                     throw new RuntimeException(e);
                 }
 
-
-                for (String queryString : queryStrings) {
+                for (Map.Entry<String, Integer> entry : queryStringsAndRC.entrySet()) {
                     JSONObject inner = new JSONObject();
-                    inner.put("query", queryString);
-                    inner.put("pg_stat_statements", pgStatOutputs == null ? new JSONObject() : findQueryInPgStat(pgStatOutputs, queryString));
-                    inner.put("explain", queryToExplainMap.getOrDefault(queryString, new JSONObject()));
+                    inner.put("query", entry.getKey());
+                    inner.put("pg_stat_statements", pgStatOutputs == null ? new JSONObject() : findQueryInPgStat(pgStatOutputs, entry.getKey()));
+
+//                    System.out.printf("Explain plan RC %s%n", queryToExplainMap.getOrDefault(entry.getKey(), new JSONObject()).get("ExplainPlanRows"));
+//                    System.out.printf("user provided RC %d%n", entry.getValue());
+                    if (entry.getValue() != -1)
+                        inner.put("explainPlanRcValidationSuccess", Integer.parseInt((String) queryToExplainMap.getOrDefault(entry.getKey(), new JSONObject()).get("ExplainPlanRows")) == entry.getValue());
+                    inner.put("explain", queryToExplainMap.getOrDefault(entry.getKey(), new JSONObject()));
                     /*TODO: remove prepared_statements*/
                     inner.put("prepared_statements", pgPreparedStatementOutputs == null ? new JSONObject() : pgPreparedStatementOutputs);
                     jsonResultsList.add(inner);
