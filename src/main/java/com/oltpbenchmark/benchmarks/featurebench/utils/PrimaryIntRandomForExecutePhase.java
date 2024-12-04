@@ -26,7 +26,6 @@ public class PrimaryIntRandomForExecutePhase implements BaseUtil {
         this.lowerRange = workerId == 0 ? low : low + workerId * diff + 1;
         this.upperRange = Math.min(low + diff * (workerId + 1), high);
         this.currentValue = this.lowerRange;
-        LOG.info("lowerRange: {} upperRange: {} currentVal: {} totalWorkers: {} workerID: {}", lowerRange, upperRange, currentValue, totalWorkers, workerId);
         if (upperRange < lowerRange) {
             throw new RuntimeException("Upper bound less than lower bound");
         }
