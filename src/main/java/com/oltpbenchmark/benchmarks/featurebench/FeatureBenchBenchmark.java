@@ -138,6 +138,28 @@ public class FeatureBenchBenchmark extends BenchmarkModule {
                             UtilToMethod obj = new UtilToMethod(bindingsList.getString("util"), bindingsList.getList("params"), workerId, totalWorker);
                             baseutils.add(obj);
                         }
+                    } else if (bindingsList.containsKey("split_min_max_for_count")) {
+                        int count = bindingsList.getInt("split_min_max_for_count");
+                        if (bindingsList.getList("params").size() == 2) {
+                            List<Object> bindings = bindingsList.getList("params");
+                            int min = (int) bindings.get(0);
+                            int max = (int) bindings.get(1);
+                            int range = max - min + 1;
+                            int splitSize = range / count;
+                            int remainder = range % count;
+
+                            int currentMin = min;
+                            for (int i = 0; i < count; i++) {
+                                int currentMax = currentMin + splitSize - 1;
+                                if (remainder > 0) {
+                                    currentMax++;
+                                    remainder--;
+                                }
+                                UtilToMethod obj = new UtilToMethod(bindingsList.getString("util"), List.of(currentMin, currentMax), workerId, totalWorker);
+                                baseutils.add(obj);
+                                currentMin = currentMax + 1;
+                            }
+                        }
                     } else {
                         UtilToMethod obj = new UtilToMethod(bindingsList.getString("util"), bindingsList.getList("params"), workerId, totalWorker);
                         baseutils.add(obj);
