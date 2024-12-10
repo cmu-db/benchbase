@@ -1,0 +1,120 @@
+CREATE TABLE warehouse (
+    W_ID       INT64      NOT NULL,
+    W_YTD      FLOAT64    NOT NULL,
+    W_TAX      FLOAT64    NOT NULL,
+    W_NAME     STRING(10) NOT NULL,
+    W_STREET_1 STRING(20) NOT NULL,
+    W_STREET_2 STRING(20) NOT NULL,
+    W_CITY     STRING(20) NOT NULL,
+    W_STATE    STRING(2)  NOT NULL,
+    W_ZIP      STRING(9)  NOT NULL
+) PRIMARY KEY (W_ID);
+
+CREATE TABLE item (
+    I_ID    INT64        NOT NULL,
+    I_NAME  STRING(24)   NOT NULL,
+    I_PRICE FLOAT64      NOT NULL,
+    I_DATA  STRING(50)   NOT NULL,
+    I_IM_ID INT64        NOT NULL
+) PRIMARY KEY (I_ID);
+
+CREATE TABLE stock (
+    S_W_ID       INT64        NOT NULL,
+    S_I_ID       INT64        NOT NULL,
+    S_QUANTITY   INT64        NOT NULL,
+    S_YTD        FLOAT64      NOT NULL,
+    S_ORDER_CNT  INT64        NOT NULL,
+    S_REMOTE_CNT INT64        NOT NULL,
+    S_DATA       STRING(50)   NOT NULL,
+    S_DIST_01    STRING(24)   NOT NULL,
+    S_DIST_02    STRING(24)   NOT NULL,
+    S_DIST_03    STRING(24)   NOT NULL,
+    S_DIST_04    STRING(24)   NOT NULL,
+    S_DIST_05    STRING(24)   NOT NULL,
+    S_DIST_06    STRING(24)   NOT NULL,
+    S_DIST_07    STRING(24)   NOT NULL,
+    S_DIST_08    STRING(24)   NOT NULL,
+    S_DIST_09    STRING(24)   NOT NULL,
+    S_DIST_10    STRING(24)   NOT NULL
+) PRIMARY KEY (S_W_ID, S_I_ID);
+
+CREATE TABLE district (
+    D_W_ID       INT64        NOT NULL,
+    D_ID         INT64        NOT NULL,
+    D_YTD        FLOAT64      NOT NULL,
+    D_TAX        FLOAT64      NOT NULL,
+    D_NEXT_O_ID  INT64        NOT NULL,
+    D_NAME       STRING(10)   NOT NULL,
+    D_STREET_1   STRING(20)   NOT NULL,
+    D_STREET_2   STRING(20)   NOT NULL,
+    D_CITY       STRING(20)   NOT NULL,
+    D_STATE      STRING(2)    NOT NULL,
+    D_ZIP        STRING(9)    NOT NULL
+) PRIMARY KEY (D_W_ID, D_ID);
+
+CREATE TABLE customer (
+    C_W_ID           INT64       NOT NULL,
+    C_D_ID           INT64       NOT NULL,
+    C_ID             INT64       NOT NULL,
+    C_DISCOUNT       FLOAT64     NOT NULL,
+    C_CREDIT         STRING(2)   NOT NULL,
+    C_LAST           STRING(16)  NOT NULL,
+    C_FIRST          STRING(16)  NOT NULL,
+    C_CREDIT_LIM     FLOAT64     NOT NULL,
+    C_BALANCE        FLOAT64     NOT NULL,
+    C_YTD_PAYMENT    FLOAT64     NOT NULL,
+    C_PAYMENT_CNT    INT64       NOT NULL,
+    C_DELIVERY_CNT   INT64       NOT NULL,
+    C_STREET_1       STRING(20)  NOT NULL,
+    C_STREET_2       STRING(20)  NOT NULL,
+    C_CITY           STRING(20)  NOT NULL,
+    C_STATE          STRING(2)   NOT NULL,
+    C_ZIP            STRING(9)   NOT NULL,
+    C_PHONE          STRING(16)  NOT NULL,
+    C_SINCE          TIMESTAMP   NOT NULL,
+    C_MIDDLE         STRING(2)   NOT NULL,
+    C_DATA           STRING(500) NOT NULL
+) PRIMARY KEY (C_W_ID, C_D_ID, C_ID);
+
+CREATE INDEX idx_customer_name ON customer (C_W_ID, C_D_ID, C_LAST, C_FIRST);
+
+CREATE TABLE history (
+    H_C_W_ID   INT64        NOT NULL,
+    H_C_D_ID   INT64        NOT NULL,
+    H_C_ID     INT64        NOT NULL,
+    H_D_ID   INT64        NOT NULL,
+    H_W_ID   INT64        NOT NULL,
+    H_DATE   TIMESTAMP    NOT NULL,
+    H_AMOUNT FLOAT64      NOT NULL,
+    H_DATA   STRING(24)   NOT NULL
+) PRIMARY KEY (H_C_W_ID, H_C_D_ID, H_C_ID, H_DATE);
+
+CREATE TABLE oorder (
+    O_W_ID         INT64      NOT NULL,
+    O_D_ID         INT64      NOT NULL,
+    O_ID           INT64      NOT NULL,
+    O_C_ID         INT64      NOT NULL,
+    O_CARRIER_ID   INT64,
+    O_OL_CNT       INT64      NOT NULL,
+    O_ALL_LOCAL    INT64      NOT NULL,
+    O_ENTRY_D      TIMESTAMP  NOT NULL
+) PRIMARY KEY (O_W_ID, O_D_ID, O_ID);
+
+CREATE TABLE new_order (
+    NO_W_ID INT64 NOT NULL,
+    NO_D_ID INT64 NOT NULL,
+    NO_O_ID INT64 NOT NULL
+) PRIMARY KEY (NO_W_ID, NO_D_ID, NO_O_ID);
+
+CREATE TABLE order_line (
+    OL_W_ID        INT64        NOT NULL,
+    OL_D_ID        INT64        NOT NULL,
+    OL_O_ID        INT64        NOT NULL,
+    OL_NUMBER      INT64        NOT NULL,
+    OL_I_ID        INT64        NOT NULL,
+    OL_DELIVERY_D  TIMESTAMP,
+    OL_AMOUNT      FLOAT64      NOT NULL,
+    OL_SUPPLY_W_ID INT64        NOT NULL,
+    OL_QUANTITY    FLOAT64      NOT NULL,
+    OL_DIST_INFO   STRING(24)   NOT NULL
+) PRIMARY KEY (OL_W_ID, OL_D_ID, OL_O_ID, OL_NUMBER);
