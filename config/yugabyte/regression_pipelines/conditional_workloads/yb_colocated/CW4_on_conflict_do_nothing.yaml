@@ -10,7 +10,7 @@ loaderThreads: 1
 terminals: 1
 collect_pg_stat_statements: true
 use_dist_in_explain : true
-yaml_version: v1.0
+yaml_version: v1.1
 works:
     work:
         time_secs: 180
@@ -226,6 +226,7 @@ microbenchmark:
                             -  util: PrimaryStringGen
                                params: [1, 500]
 
+
             - workload: CW4_5_no_conflict_on_pkey_so_single_insert_on_partitioned_tbl_by_hash
               run:
                   - name: statement1_insert
@@ -234,13 +235,13 @@ microbenchmark:
                         - query: INSERT INTO CW4_accounts_2(account_id_1,user_id_1,addr_1,bal_1) VALUES (?,?,?,?) ON CONFLICT (account_id_1) DO NOTHING
                           bindings:
                               -   util: PrimaryIntGen
-                                  params: [ 1, 8000000 ]
+                                  params: [ 1, 4000000 ]
                               -   util: PrimaryIntGen
-                                  params: [ 1, 8000000 ]
+                                  params: [ 1, 4000000 ]
                               -   util: PrimaryStringGen
                                   params: [ 1, 50 ]
                               -   util: PrimaryFloatGen
-                                  params: [ 1, 8000000, 2 ]
+                                  params: [ 1, 4000000, 2 ]
 
             - workload: CW4_6_no_conflict_on_pkey_so_1024_insert_on_partitioned_tbl_by_hash
               run:
@@ -251,12 +252,44 @@ microbenchmark:
                           count: 1024
                           bindings:
                               -   util: PrimaryIntGen
-                                  params: [ 1, 8000000 ]
+                                  params: [ 1, 4000000 ]
                               -   util: PrimaryIntGen
-                                  params: [ 1, 8000000 ]
+                                  params: [ 1, 4000000 ]
                               -   util: PrimaryStringGen
                                   params: [ 1, 50 ]
                               -   util: PrimaryFloatGen
-                                  params: [ 1, 8000000, 2 ]
-CW4_on_conflict_do_nothing:
-    yaml:
+                                  params: [ 1, 4000000, 2 ]
+
+            - workload: CW4_7_2column_condition_no_conflict_on_pkey_so_1024_insert
+              run:
+                  - name: statement1_insert
+                    weight: 100
+                    queries:
+                        - query: INSERT INTO CW4_accounts_1(account_id_1,user_id_1,addr_1,bal_1) VALUES  [(?,?,?,?)][pattern_count] ON CONFLICT (account_id_1) DO NOTHING
+                          pattern_count: 1024
+                          bindings:
+                              -   util: RandomNumber
+                                  params: [ 4000001, 8000000 ]
+                              -   util: RandomNumber
+                                  params: [ 4000001, 8000000 ]
+                              -   util: RandomAString
+                                  params: [ 50, 50 ]
+                              -   util: RandomFloat
+                                  params: [ 4000001, 8000000, 2 ]
+
+            - workload: CW4_8_no_conflict_on_pkey_so_1024_insert_on_partitioned_tbl_by_hash
+              run:
+                  - name: statement1_insert
+                    weight: 100
+                    queries:
+                        - query: INSERT INTO CW4_accounts_2(account_id_1,user_id_1,addr_1,bal_1) VALUES  [(?,?,?,?)][pattern_count] ON CONFLICT (account_id_1) DO NOTHING
+                          pattern_count: 1024
+                          bindings:
+                              -   util: RandomNumber
+                                  params: [ 4000001, 8000000 ]
+                              -   util: RandomNumber
+                                  params: [ 4000001, 8000000 ]
+                              -   util: RandomAString
+                                  params: [ 50, 50 ]
+                              -   util: RandomFloat
+                                  params: [ 4000001, 8000000, 2 ]
