@@ -10,6 +10,7 @@ isolation: TRANSACTION_REPEATABLE_READ
 collect_pg_stat_statements: false
 loaderthreads: 1
 terminals: 1
+yaml_version: v1.0
 works:
     work:
         rate: unlimited

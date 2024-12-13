@@ -11,6 +11,7 @@ loaderthreads: 1
 terminals: 24
 collect_pg_stat_statements: true
 use_dist_in_explain : true
+yaml_version: v1.0
 works:
     work:
         time_secs: 120
