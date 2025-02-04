@@ -1,0 +1,357 @@
+type: YUGABYTE
+driver: com.yugabyte.Driver
+url: jdbc:yugabytedb://{{endpoint}}:5433/yugabyte?sslmode=require&ApplicationName=featurebench&reWriteBatchedInserts=true&load-balance=true
+username: {{username}}
+password: {{password}}
+batchsize: 128
+isolation: TRANSACTION_REPEATABLE_READ
+loaderthreads: 1
+terminals: 1
+collect_pg_stat_statements: true
+yaml_version: v1.0
+disable_explain: true
+works:
+    work:
+        time_secs: 1800
+        active_terminals: 1
+        rate: unlimited
+        warmup: 60
+microbenchmark:
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
+    properties:
+        setAutoCommit: true
+        create:
+            - drop table IF EXISTS nets_10M_1;
+            - drop table IF EXISTS nets_50M_1;
+            - drop table IF EXISTS nets_100M_1;
+            - drop table IF EXISTS nets_200M_1;
+            - create table nets_10M_1(op_id_1 text,work_type_1 text,work_id_1 text,sequence_id_1 text,source_1 text,owner_1 text,state_1 text,resource_id_1 text,tracing_data_1 text,created_1 timestamp with time zone,modified_1 timestamp with time zone,timeout_1 timestamp with time zone,retry_count_1 bigint,db_user_id_1 text,shard_id_1 smallint,ingest_time_1 timestamp with time zone,label_1 text,metadata_1 text,primary key (db_user_id_1 ASC, shard_id_1 ASC, op_id_1 ASC));
+            - create table nets_50M_1(op_id_1 text,work_type_1 text,work_id_1 text,sequence_id_1 text,source_1 text,owner_1 text,state_1 text,resource_id_1 text,tracing_data_1 text,created_1 timestamp with time zone,modified_1 timestamp with time zone,timeout_1 timestamp with time zone,retry_count_1 bigint,db_user_id_1 text,shard_id_1 smallint,ingest_time_1 timestamp with time zone,label_1 text,metadata_1 text,primary key (db_user_id_1 ASC, shard_id_1 ASC, op_id_1 ASC));
+            - create table nets_100M_1(op_id_1 text,work_type_1 text,work_id_1 text,sequence_id_1 text,source_1 text,owner_1 text,state_1 text,resource_id_1 text,tracing_data_1 text,created_1 timestamp with time zone,modified_1 timestamp with time zone,timeout_1 timestamp with time zone,retry_count_1 bigint,db_user_id_1 text,shard_id_1 smallint,ingest_time_1 timestamp with time zone,label_1 text,metadata_1 text,primary key (db_user_id_1 ASC, shard_id_1 ASC, op_id_1 ASC));
+            - create table nets_200M_1(op_id_1 text,work_type_1 text,work_id_1 text,sequence_id_1 text,source_1 text,owner_1 text,state_1 text,resource_id_1 text,tracing_data_1 text,created_1 timestamp with time zone,modified_1 timestamp with time zone,timeout_1 timestamp with time zone,retry_count_1 bigint,db_user_id_1 text,shard_id_1 smallint,ingest_time_1 timestamp with time zone,label_1 text,metadata_1 text,primary key (db_user_id_1 ASC, shard_id_1 ASC, op_id_1 ASC));
+
+        cleanup:
+            - drop table IF EXISTS nets_10M_1;
+            - drop table IF EXISTS nets_50M_1;
+            - drop table IF EXISTS nets_100M_1;
+            - drop table IF EXISTS nets_200M_1;
+
+        loadRules:
+
+            - table: nets_10M_
+              count: 1
+              rows: 10000000
+              columns:
+                    - name: op_id_
+                      count: 1
+                      util: PrimaryStringGen
+                      params: [ 1, 50 ]
+                    - name: work_type_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: work_id_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: sequence_id_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: source_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: owner_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: state_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: resource_id_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: tracing_data_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: created_
+                      count: 1
+                      util: CurrentTime
+                    - name: modified_
+                      count: 1
+                      util: CurrentTime
+                    - name: timeout_
+                      count: 1
+                      util: CurrentTime
+                    - name: retry_count_
+                      count: 1
+                      util: RandomInt
+                      params: [ 1, 50 ]
+                    - name: db_user_id_
+                      count: 1
+                      util: HashedRandomString
+                      params: [ 1, 500, 10]
+                    - name: shard_id_
+                      count: 1
+                      util: RandomNumber
+                      params: [ 1, 50 ]
+                    - name: ingest_time_
+                      count: 1
+                      util: CurrentTime
+                    - name: label_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: metadata_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+
+            - table: nets_50M_
+              count: 1
+              rows: 50000000
+              columns:
+                    - name: op_id_
+                      count: 1
+                      util: PrimaryStringGen
+                      params: [ 1, 50 ]
+                    - name: work_type_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: work_id_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: sequence_id_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: source_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: owner_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: state_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: resource_id_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: tracing_data_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: created_
+                      count: 1
+                      util: CurrentTime
+                    - name: modified_
+                      count: 1
+                      util: CurrentTime
+                    - name: timeout_
+                      count: 1
+                      util: CurrentTime
+                    - name: retry_count_
+                      count: 1
+                      util: RandomInt
+                      params: [ 1, 50 ]
+                    - name: db_user_id_
+                      count: 1
+                      util: HashedRandomString
+                      params: [ 1, 500, 10]
+                    - name: shard_id_
+                      count: 1
+                      util: RandomNumber
+                      params: [ 1, 50 ]
+                    - name: ingest_time_
+                      count: 1
+                      util: CurrentTime
+                    - name: label_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: metadata_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+
+            - table: nets_100M_
+              count: 1
+              rows: 100000000
+              columns:
+                    - name: op_id_
+                      count: 1
+                      util: PrimaryStringGen
+                      params: [ 1, 50 ]
+                    - name: work_type_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: work_id_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: sequence_id_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: source_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: owner_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: state_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: resource_id_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: tracing_data_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: created_
+                      count: 1
+                      util: CurrentTime
+                    - name: modified_
+                      count: 1
+                      util: CurrentTime
+                    - name: timeout_
+                      count: 1
+                      util: CurrentTime
+                    - name: retry_count_
+                      count: 1
+                      util: RandomInt
+                      params: [ 1, 50 ]
+                    - name: db_user_id_
+                      count: 1
+                      util: HashedRandomString
+                      params: [ 1, 500, 10]
+                    - name: shard_id_
+                      count: 1
+                      util: RandomNumber
+                      params: [ 1, 50 ]
+                    - name: ingest_time_
+                      count: 1
+                      util: CurrentTime
+                    - name: label_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: metadata_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+
+            - table: nets_200M_
+              count: 1
+              rows: 200000000
+              columns:
+                    - name: op_id_
+                      count: 1
+                      util: PrimaryStringGen
+                      params: [ 1, 50 ]
+                    - name: work_type_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: work_id_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: sequence_id_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: source_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: owner_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: state_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: resource_id_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: tracing_data_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: created_
+                      count: 1
+                      util: CurrentTime
+                    - name: modified_
+                      count: 1
+                      util: CurrentTime
+                    - name: timeout_
+                      count: 1
+                      util: CurrentTime
+                    - name: retry_count_
+                      count: 1
+                      util: RandomInt
+                      params: [ 1, 50 ]
+                    - name: db_user_id_
+                      count: 1
+                      util: HashedRandomString
+                      params: [ 1, 500, 10]
+                    - name: shard_id_
+                      count: 1
+                      util: RandomNumber
+                      params: [ 1, 50 ]
+                    - name: ingest_time_
+                      count: 1
+                      util: CurrentTime
+                    - name: label_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+                    - name: metadata_
+                      count: 1
+                      util: RandomAString
+                      params: [ 50, 50 ]
+
+        executeRules:
+
+            - workload: MG1_1_Analyze_50M
+              time_secs: 1800
+              run:
+                  - name: analyze_1
+                    weight: 100
+                    queries:
+                        - query: analyze nets_50M_1
+
+            - workload: MG1_2_Analyze_100M
+              time_secs: 1800
+              run:
+                  - name: analyze_1
+                    weight: 100
+                    queries:
+                        - query: analyze nets_100M_1
+
+            - workload: MG1_3_Analyze_200M
+              time_secs: 1800
+              run:
+                  - name: analyze_1
+                    weight: 100
+                    queries:
+                        - query: analyze nets_200M_1
