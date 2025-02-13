@@ -1,3 +1,13 @@
+/*
+For MySQL, TPCH indices are created post-load. which improves load 
+performance. See src/main/resources/benchmarks/tpch/postload-mysql.sql
+(specified in <afterload> in mysql/sample_tpch_config.xml). When indices
+are created before the load, the insert operations increases overall
+load time by >30%. This happens because every insert needs to update 
+all table indices, which results into additional binlog/redo log updates,
+index seeks, and more data IOPS (if data does not fit in memory).
+*/
+
 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 

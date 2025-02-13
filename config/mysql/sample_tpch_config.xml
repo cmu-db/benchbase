@@ -14,10 +14,12 @@
     <!-- Control scale factor to generate different amount of data -->
     <scalefactor>0.1</scalefactor>
 
-    <!-- The post load script is crucial for creating TPCH indices after loading the database. -->
-    <!-- Index creation was removed from the DDL script to speed up the load process. -->
-    <!-- Creating indices post load improves performance by nearly 30%. -->
-    <!-- See src/main/resources/benchmarks/tpch/postload-mysql.sql -->
+    <!--
+        The post load script is crucial for creating TPCH indices after loading the database.
+        Index creation was removed from the DDL script to speed up the load process.
+        Creating indices post load improves performance by nearly 30%.
+        See src/main/resources/benchmarks/tpch/postload-mysql.sql
+    -->
     <afterload>/benchmarks/tpch/postload-mysql.sql</afterload>
 
     <!-- The workload -->
