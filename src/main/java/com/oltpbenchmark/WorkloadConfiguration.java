@@ -121,11 +121,11 @@ public class WorkloadConfiguration {
     this.batchSize = batchSize;
   }
 
-  public String getSessionSetupFile(){
+  public String getSessionSetupFile() {
     return sessionSetupFile;
   }
 
-  public void setSessionSetupFile(String sessionSetupFile){
+  public void setSessionSetupFile(String sessionSetupFile) {
     this.sessionSetupFile = sessionSetupFile;
   }
 
