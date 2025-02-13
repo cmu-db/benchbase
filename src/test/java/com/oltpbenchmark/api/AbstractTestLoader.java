@@ -17,7 +17,6 @@
 package com.oltpbenchmark.api;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.fail;
 
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.Histogram;
@@ -52,6 +51,8 @@ public abstract class AbstractTestLoader<T extends BenchmarkModule> extends Abst
 
     validateLoad();
   }
+
+  // TODO: add another version of this test that uses external files (#600).
 
   /** testLoad with after load script */
   @Test

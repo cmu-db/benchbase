@@ -19,7 +19,6 @@ import com.oltpbenchmark.api.TransactionTypes;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.FileUtil;
 import com.oltpbenchmark.util.ThreadUtil;
-
 import java.io.FileNotFoundException;
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -141,7 +140,7 @@ public class WorkloadConfiguration {
     }
   }
 
-  public void setSessionSetupFile(String sessionSetupFile) throws FileNotFoundException{
+  public void setSessionSetupFile(String sessionSetupFile) throws FileNotFoundException {
     this.sessionSetupFile = checkPath(sessionSetupFile, "sessionsetupfile");
   }
 

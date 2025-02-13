@@ -16,9 +16,21 @@
 
 package com.oltpbenchmark.benchmarks.noop;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import com.oltpbenchmark.api.AbstractTestWorker;
+import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Procedure;
+import com.oltpbenchmark.api.Worker;
+import com.oltpbenchmark.catalog.Table;
+import com.oltpbenchmark.util.SQLUtil;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.List;
+import org.junit.Test;
 
 public class TestNoOpWorker extends AbstractTestWorker<NoOpBenchmark> {
 
@@ -30,5 +42,37 @@ public class TestNoOpWorker extends AbstractTestWorker<NoOpBenchmark> {
   @Override
   public Class<NoOpBenchmark> benchmarkClass() {
     return NoOpBenchmark.class;
+  }
+
+  // TODO: Do the same for another test, but this time with a sessionSetupFile
+  // specified that inserts rows as a dummy operation we can check for.
+
+  @Test
+  public void testNoSessionSetupFile() throws Exception {
+    // Check that there is no session setup file assigned to the worker's config
+    assertNull("Session setup file should be null", this.workConf.getSessionSetupFile());
+
+    List<Worker<? extends BenchmarkModule>> workers = this.benchmark.makeWorkers();
+    Worker<?> worker = workers.get(0);
+    assertNull(
+        "Session setup file should be null",
+        worker.getWorkloadConfiguration().getSessionSetupFile());
+
+    // Make sure there are no rows in the table
+    this.testExecuteWork();
+
+    Table catalog_tbl = this.catalog.getTable("FAKE2");
+    String sql = SQLUtil.getCountSQL(this.workConf.getDatabaseType(), catalog_tbl);
+    try (Statement stmt = conn.createStatement();
+        ResultSet result = stmt.executeQuery(sql); ) {
+
+      assertNotNull(result);
+
+      boolean adv = result.next();
+      assertTrue(sql, adv);
+
+      int count = result.getInt(1);
+      assertEquals(0, count);
+    }
   }
 }
