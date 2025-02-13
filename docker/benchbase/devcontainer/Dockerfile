@@ -17,7 +17,8 @@ ARG CONTAINERUSER_GID=1000
 RUN groupadd --non-unique --gid ${CONTAINERUSER_GID} containergroup \
     && useradd --non-unique --create-home --no-user-group --comment 'Container User' \
         --uid ${CONTAINERUSER_UID} --gid ${CONTAINERUSER_GID} containeruser \
-    && echo 'containeruser ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+    && echo 'containeruser ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers \
+    && echo 'ubuntu ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 RUN mkdir -p /benchbase/results && chown -R containeruser:containergroup /benchbase/
 USER containeruser
 # Unset the upstream MVN_CONFIG value - it interacts poorly with the mvnw wrapper.
