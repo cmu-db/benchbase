@@ -56,7 +56,7 @@ public class ScriptRunner {
 
   public void runScript(String path) throws IOException, SQLException {
 
-    LOG.debug("trying to find file by path {}", path);
+    LOG.debug("trying to find file by resource stream path {}", path);
 
     try (InputStream in = this.getClass().getResourceAsStream(path);
         Reader reader = new InputStreamReader(in)) {
