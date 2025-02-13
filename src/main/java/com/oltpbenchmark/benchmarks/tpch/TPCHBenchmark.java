@@ -15,13 +15,13 @@
  *
  */
 
-/***
+/*
  *   TPC-H implementation
  *
  *   Ben Reilly (bd.reilly@gmail.com)
  *   Ippokratis Pandis (ipandis@us.ibm.com)
  *
- ***/
+ */
 
 package com.oltpbenchmark.benchmarks.tpch;
 
