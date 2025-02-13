@@ -119,9 +119,9 @@ public final class HYADAPTWorker extends Worker<HYADAPTBenchmark> {
     return (TransactionStatus.SUCCESS);
   }
 
-  /////////////////////////
+  //
   // READ
-  /////////////////////////
+  //
 
   private void readRecord1(Connection conn) throws SQLException {
     ReadRecord1 proc = this.getProcedure(ReadRecord1.class);
@@ -183,9 +183,9 @@ public final class HYADAPTWorker extends Worker<HYADAPTBenchmark> {
     proc.run(conn, key_lower_bound, new HashMap<>());
   }
 
-  /////////////////////////
+  //
   // MAX
-  /////////////////////////
+  //
 
   private void maxRecord1(Connection conn) throws SQLException {
     MaxRecord1 proc = this.getProcedure(MaxRecord1.class);
@@ -247,9 +247,9 @@ public final class HYADAPTWorker extends Worker<HYADAPTBenchmark> {
     proc.run(conn, key_lower_bound);
   }
 
-  /////////////////////////
+  //
   // SUM
-  /////////////////////////
+  //
 
   private void sumRecord1(Connection conn) throws SQLException {
     SumRecord1 proc = this.getProcedure(SumRecord1.class);
