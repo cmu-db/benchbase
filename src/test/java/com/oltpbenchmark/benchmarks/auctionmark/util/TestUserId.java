@@ -43,7 +43,7 @@ public class TestUserId {
     } // FOR
   }
 
-  /** testEquals */
+  /* testEquals */
   //    @Test
   //    public void testEquals() {
   //        UserId user_id = new UserId(rand.nextLong());
