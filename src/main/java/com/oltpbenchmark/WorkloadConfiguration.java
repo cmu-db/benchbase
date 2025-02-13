@@ -17,7 +17,10 @@ package com.oltpbenchmark;
 
 import com.oltpbenchmark.api.TransactionTypes;
 import com.oltpbenchmark.types.DatabaseType;
+import com.oltpbenchmark.util.FileUtil;
 import com.oltpbenchmark.util.ThreadUtil;
+
+import java.io.FileNotFoundException;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
@@ -125,8 +128,21 @@ public class WorkloadConfiguration {
     return sessionSetupFile;
   }
 
-  public void setSessionSetupFile(String sessionSetupFile) {
-    this.sessionSetupFile = sessionSetupFile;
+  private String checkPath(String path, String name) throws FileNotFoundException {
+    if (path == null) return null;
+    path = path.trim();
+    if (path.isEmpty()) return null;
+    assert path != null && !path.isEmpty();
+
+    if (FileUtil.exists(path)) {
+      return path;
+    } else {
+      throw new FileNotFoundException(name + " not found:" + sessionSetupFile);
+    }
+  }
+
+  public void setSessionSetupFile(String sessionSetupFile) throws FileNotFoundException{
+    this.sessionSetupFile = checkPath(sessionSetupFile, "sessionsetupfile");
   }
 
   public int getMaxRetries() {
@@ -301,8 +317,8 @@ public class WorkloadConfiguration {
   }
 
   /** Set the path in which we can find the ddl script. */
-  public void setDDLPath(String ddlPath) {
-    this.ddlPath = ddlPath;
+  public void setDDLPath(String ddlPath) throws FileNotFoundException {
+    this.ddlPath = checkPath(ddlPath, "ddlpath");
   }
 
   /** A utility method that init the phaseIterator and dialectMap */
