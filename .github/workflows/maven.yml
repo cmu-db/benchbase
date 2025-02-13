@@ -187,8 +187,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # FIXME: Add tpch back in (#333).
-        benchmark: [ 'auctionmark', 'chbenchmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'templated', 'tpcc', 'tpcc-with-reconnects', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
+        benchmark: [ 'auctionmark', 'chbenchmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'templated', 'tpcc', 'tpcc-with-reconnects', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
     services:
       mariadb: # https://hub.docker.com/_/mariadb
         image: mariadb:latest
