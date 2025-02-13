@@ -79,11 +79,27 @@ public class DBWorkload {
       return;
     }
 
-    // Seconds
-    int intervalMonitor = 0;
+    // Monitoring setup.
+    ImmutableMonitorInfo.Builder builder = ImmutableMonitorInfo.builder();
     if (argsLine.hasOption("im")) {
-      intervalMonitor = Integer.parseInt(argsLine.getOptionValue("im"));
+      builder.monitoringInterval(Integer.parseInt(argsLine.getOptionValue("im")));
     }
+    if (argsLine.hasOption("mt")) {
+      switch (argsLine.getOptionValue("mt")) {
+        case "advanced":
+          builder.monitoringType(MonitorInfo.MonitoringType.ADVANCED);
+          break;
+        case "throughput":
+          builder.monitoringType(MonitorInfo.MonitoringType.THROUGHPUT);
+          break;
+        default:
+          throw new ParseException(
+              "Monitoring type '"
+                  + argsLine.getOptionValue("mt")
+                  + "' is undefined, allowed values are: advanced/throughput");
+      }
+    }
+    MonitorInfo monitorInfo = builder.build();
 
     // -------------------------------------------------------------------
     // GET PLUGIN LIST
@@ -150,6 +166,14 @@ public class DBWorkload {
         wrkld.setSelectivity(selectivity);
       } catch (NoSuchElementException nse) {
         // Nothing to do here !
+      }
+
+      // Set monitoring enabled, if all requirements are met.
+      if (monitorInfo.getMonitoringInterval() > 0
+          && monitorInfo.getMonitoringType() == MonitorInfo.MonitoringType.ADVANCED
+          && DatabaseType.get(xmlConfig.getString("type")).shouldCreateMonitoringPrefix()) {
+        LOG.info("Advanced monitoring enabled, prefix will be added to queries.");
+        wrkld.setAdvancedMonitoringEnabled(true);
       }
 
       // ----------------------------------------------------------------
@@ -516,11 +540,25 @@ public class DBWorkload {
       LOG.debug("Skipping loading benchmark database records");
     }
 
+    // Anonymize Datasets
+    // Currently, the system only parses the config but does not run any anonymization!
+    // Will be added in the future
+    if (isBooleanOptionSet(argsLine, "anonymize")) {
+      try {
+        if (xmlConfig.configurationsAt("/anonymization/table").size() > 0) {
+          applyAnonymization(xmlConfig, configFile);
+        }
+      } catch (Throwable ex) {
+        LOG.error("Unexpected error when anonymizing datasets", ex);
+        System.exit(1);
+      }
+    }
+
     // Execute Workload
     if (isBooleanOptionSet(argsLine, "execute")) {
       // Bombs away!
       try {
-        Results r = runWorkload(benchList, intervalMonitor);
+        Results r = runWorkload(benchList, monitorInfo);
         writeOutputs(r, activeTXTypes, argsLine, xmlConfig);
         writeHistograms(r);
 
@@ -557,11 +595,13 @@ public class DBWorkload {
     options.addOption(null, "create", true, "Initialize the database for this benchmark");
     options.addOption(null, "clear", true, "Clear all records in the database for this benchmark");
     options.addOption(null, "load", true, "Load data using the benchmark's data loader");
+    options.addOption(
+        null, "anonymize", true, "Anonymize specified datasets using differential privacy");
     options.addOption(null, "execute", true, "Execute the benchmark workload");
     options.addOption("h", "help", false, "Print this help");
     options.addOption("s", "sample", true, "Sampling window");
-    options.addOption(
-        "im", "interval-monitor", true, "Throughput Monitoring Interval in milliseconds");
+    options.addOption("im", "interval-monitor", true, "Monitoring Interval in milliseconds");
+    options.addOption("mt", "monitor-type", true, "Type of Monitoring (throughput/advanced)");
     options.addOption(
         "d",
         "directory",
@@ -735,7 +775,7 @@ public class DBWorkload {
     bench.loadDatabase();
   }
 
-  private static Results runWorkload(List<BenchmarkModule> benchList, int intervalMonitor)
+  private static Results runWorkload(List<BenchmarkModule> benchList, MonitorInfo monitorInfo)
       throws IOException {
     List<Worker<?>> workers = new ArrayList<>();
     List<WorkloadConfiguration> workConfs = new ArrayList<>();
@@ -750,7 +790,7 @@ public class DBWorkload {
               bench.getBenchmarkName().toUpperCase(), num_phases, (num_phases > 1 ? "s" : "")));
       workConfs.add(bench.getWorkloadConfiguration());
     }
-    Results r = ThreadBench.runRateLimitedBenchmark(workers, workConfs, intervalMonitor);
+    Results r = ThreadBench.runRateLimitedBenchmark(workers, workConfs, monitorInfo);
     LOG.info(SINGLE_LINE);
     LOG.info("Rate limited reqs/s: {}", r);
     return r;
@@ -776,5 +816,42 @@ public class DBWorkload {
       return (val != null && val.equalsIgnoreCase("true"));
     }
     return (false);
+  }
+
+  /**
+   * Handles the anonymization of specified tables with differential privacy and automatically
+   * creates an anonymized copy of the table. Adapts templated query file if sensitive values are
+   * present
+   *
+   * @param xmlConfig
+   * @param configFile
+   */
+  private static void applyAnonymization(XMLConfiguration xmlConfig, String configFile) {
+
+    String templatesPath = "";
+    if (xmlConfig.containsKey("query_templates_file")) {
+      templatesPath = xmlConfig.getString("query_templates_file");
+    }
+
+    LOG.info("Starting the Anonymization process");
+    LOG.info(SINGLE_LINE);
+    String osCommand = System.getProperty("os.name").startsWith("Windows") ? "python" : "python3";
+    ProcessBuilder processBuilder =
+        new ProcessBuilder(
+            osCommand, "scripts/anonymization/src/anonymizer.py", configFile, templatesPath);
+    try {
+      // Redirect Output stream of the script to get live feedback
+      processBuilder.inheritIO();
+      Process process = processBuilder.start();
+      int exitCode = process.waitFor();
+      if (exitCode != 0) {
+        throw new Exception("Anonymization program exited with a non-zero status code");
+      }
+      LOG.info("Finished the Anonymization process for all tables");
+      LOG.info(SINGLE_LINE);
+    } catch (Exception e) {
+      LOG.error(e.getMessage());
+      return;
+    }
   }
 }

@@ -6,10 +6,19 @@ cd "$scriptdir/"
 
 docker compose up -d
 
-network=$(docker ps --format "{{.Names}} {{.Networks}}" | awk '( $1 ~ /^'$BENCHBASE_PROFILE'/ ) { print $2 }')
+network=$(docker ps --format "{{.Names}} {{.Networks}}" | awk '( $1 ~ /^sqlserver/ ) { print $2 }')
 
 # Also setup the database for use with the sample configs.
 # See Also: .github/workflows/maven.yml
+
+# Wait until ready
+for i in {1..60}; do
+    if /usr/bin/docker inspect --format="{{print .State.Health.Status}}" sqlserver | grep -q -x healthy; then
+        break
+    else
+        sleep 5
+    fi
+done
 
 function run_sqlcmd_in_docker() {
     set -x

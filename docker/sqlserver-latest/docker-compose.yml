@@ -6,6 +6,12 @@ services:
     container_name: sqlserver
     hostname: sqlserver
     image: mcr.microsoft.com/mssql/server:latest
+    healthcheck:
+      test: ["CMD-SHELL", "find /opt/mssql-tools*/bin/ -name sqlcmd -executable -print -quit | xargs -t -I% sh -c '% -C -S localhost -U sa -P SApassword1 -b -Q \"SELECT 1;\"'"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
     environment:
       ACCEPT_EULA: Y
       SA_PASSWORD: SApassword1

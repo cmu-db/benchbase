@@ -19,6 +19,7 @@ package com.oltpbenchmark.api;
 
 import com.oltpbenchmark.jdbc.AutoIncrementPreparedStatement;
 import com.oltpbenchmark.types.DatabaseType;
+import com.oltpbenchmark.util.MonitoringUtil;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.sql.Connection;
@@ -157,6 +158,19 @@ public abstract class Procedure {
                 this.procName, stmtName));
       }
       stmt.setSQL(sql);
+    }
+  }
+
+  /** Enable monitoring for this procedure by adding a monitoring prefixes. */
+  protected final void enabledAdvancedMonitoring() {
+    for (String stmtName : this.getStatements().keySet()) {
+      SQLStmt stmt = this.name_stmt_xref.get(stmtName);
+      LOG.debug("Enabling advanced monitoring for query {}.", stmtName);
+      // Create monitoring prefix.
+      String prefix = MonitoringUtil.getMonitoringMarker();
+      prefix = prefix.replace(MonitoringUtil.getMonitoringQueryId(), stmtName);
+      // Update SQL string.
+      stmt.setSQL(prefix + stmt.getSQL());
     }
   }
 

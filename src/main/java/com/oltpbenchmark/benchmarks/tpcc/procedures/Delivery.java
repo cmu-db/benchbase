@@ -34,7 +34,7 @@ public class Delivery extends TPCCProcedure {
 
   public SQLStmt delivGetOrderIdSQL =
       new SQLStmt(
-              """
+          """
             SELECT NO_O_ID FROM %s
              WHERE NO_D_ID = ?
                AND NO_W_ID = ?
@@ -45,7 +45,7 @@ public class Delivery extends TPCCProcedure {
 
   public SQLStmt delivDeleteNewOrderSQL =
       new SQLStmt(
-              """
+          """
             DELETE FROM %s
             WHERE NO_O_ID = ?
             AND NO_D_ID = ?
@@ -55,7 +55,7 @@ public class Delivery extends TPCCProcedure {
 
   public SQLStmt delivGetCustIdSQL =
       new SQLStmt(
-              """
+          """
             SELECT O_C_ID FROM %s
             WHERE O_ID = ?
             AND O_D_ID = ?
@@ -65,7 +65,7 @@ public class Delivery extends TPCCProcedure {
 
   public SQLStmt delivUpdateCarrierIdSQL =
       new SQLStmt(
-              """
+          """
         UPDATE %s
            SET O_CARRIER_ID = ?
          WHERE O_ID = ?
@@ -76,7 +76,7 @@ public class Delivery extends TPCCProcedure {
 
   public SQLStmt delivUpdateDeliveryDateSQL =
       new SQLStmt(
-              """
+          """
         UPDATE %s
            SET OL_DELIVERY_D = ?
          WHERE OL_O_ID = ?
@@ -87,7 +87,7 @@ public class Delivery extends TPCCProcedure {
 
   public SQLStmt delivSumOrderAmountSQL =
       new SQLStmt(
-              """
+          """
         SELECT SUM(OL_AMOUNT) AS OL_TOTAL
           FROM %s
          WHERE OL_O_ID = ?
@@ -98,7 +98,7 @@ public class Delivery extends TPCCProcedure {
 
   public SQLStmt delivUpdateCustBalDelivCntSQL =
       new SQLStmt(
-              """
+          """
         UPDATE %s
            SET C_BALANCE = C_BALANCE + ?,
                C_DELIVERY_CNT = C_DELIVERY_CNT + 1
