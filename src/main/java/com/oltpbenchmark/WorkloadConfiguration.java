@@ -405,8 +405,14 @@ public class WorkloadConfiguration {
         + ", driverClass='"
         + driverClass
         + '\''
+        + ", reconnectOnFailure="
+        + reconnectOnConnectionFailure
+        + ", newConnectionPerTxn="
+        + newConnectionPerTxn
         + ", batchSize="
         + batchSize
+        + ", ddlpath="
+        + ddlPath
         + ", sessionSetupFile="
         + sessionSetupFile
         + ", maxRetries="
