@@ -37,4 +37,7 @@ run_sqlcmd_in_docker -Q "CREATE DATABASE benchbase;"
 run_sqlcmd_in_docker -Q "CREATE LOGIN benchuser01 WITH PASSWORD='P@ssw0rd';" || true
 
 # Setup access
-run_sqlcmd_in_docker -Q "USE benchbase; CREATE USER benchuser01 FROM LOGIN benchuser01; EXEC sp_addrolemember 'db_owner', 'benchuser01'; GRANT ALTER SERVER STATE, VIEW SERVER PERFORMANCE STATE TO 'benchuser01';" || true
+run_sqlcmd_in_docker -Q "USE benchbase; CREATE USER benchuser01 FROM LOGIN benchuser01; EXEC sp_addrolemember 'db_owner', 'benchuser01';" || true
+
+# Setup privileged access for monitoring and session start tests
+run_sqlcmd_in_docker -Q "USE master; GRANT ALTER SERVER STATE, VIEW SERVER PERFORMANCE STATE TO benchuser01;" || true
