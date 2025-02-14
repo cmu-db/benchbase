@@ -197,6 +197,8 @@ public class DBWorkload {
       initDebug.put("URL", wrkld.getUrl());
       initDebug.put("Isolation", wrkld.getIsolationString());
       initDebug.put("Batch Size", wrkld.getBatchSize());
+      initDebug.put("DDL Path", wrkld.getDDLPath());
+      initDebug.put("Loader Threads", wrkld.getLoaderThreads());
       initDebug.put("Session Setup File", wrkld.getSessionSetupFile());
       initDebug.put("Scale Factor", wrkld.getScaleFactor());
       initDebug.put("Terminals", wrkld.getTerminals());
@@ -249,6 +251,7 @@ public class DBWorkload {
         if (xmlConfig.containsKey("afterload")) {
           bench.setAfterLoadScriptPath(xmlConfig.getString("afterload"));
         }
+        initDebug.put("After Load Script", bench.getAfterLoadScriptPath());
 
         TransactionType tmpType =
             bench.initTransactionType(
