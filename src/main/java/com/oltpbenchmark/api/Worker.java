@@ -753,6 +753,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
       try (Statement stmt = conn.createStatement()) {
         stmt.execute(statements);
       }
+      // conn.commit();
     } catch (SQLException | IOException ex) {
       throw new RuntimeException("Failed setting up session", ex);
     }

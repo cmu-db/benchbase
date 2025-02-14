@@ -86,7 +86,7 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> {
     this.createDatabase = createDatabase;
     this.loadDatabase = loadDatabase;
     this.ddlOverridePath = ddlOverridePath;
-    this.sessionSetupFile = ddlOverridePath;
+    this.sessionSetupFile = null;
   }
 
   public AbstractTestCase(
