@@ -247,6 +247,7 @@ public class DBWorkload {
         if (xmlConfig.containsKey("afterload")) {
           bench.setAfterLoadScriptPath(xmlConfig.getString("afterload"));
         }
+        initDebug.put("After Load Script", bench.getAfterLoadScriptPath());
 
         TransactionType tmpType =
             bench.initTransactionType(
