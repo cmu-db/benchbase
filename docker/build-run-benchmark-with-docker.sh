@@ -87,12 +87,20 @@ if [ "${WITH_SERVICE_INTERRUPTIONS:-false}" == 'true' ]; then
     (sleep 10 && ./scripts/interrupt-docker-db-service.sh "$BENCHBASE_PROFILE") &
 fi
 
+if [ "${WITH_ADVANCED_MONITORING:-false}" == 'true' ]; then
+    # Run the benchmark with advanced monitoring enabled.
+    mt_args="-mt advanced"
+else
+    # Run the benchmark without monitoring.
+    mt_args=""
+fi
+
 rm -f results/histograms.json
 BUILD_IMAGE=false EXTRA_DOCKER_ARGS="--network=host $EXTRA_DOCKER_ARGS" \
 ./docker/benchbase/run-full-image.sh \
     --config "config/sample_${benchmark}_config.xml" --bench "$benchmark" \
     --create=false --load=false --execute=true \
-    --sample 1 --interval-monitor 1000 \
+    --sample 1 --interval-monitor 1000 $mt_args \
     --json-histograms results/histograms.json
 rc=$?
 wait    # for the interrupt script, if any
