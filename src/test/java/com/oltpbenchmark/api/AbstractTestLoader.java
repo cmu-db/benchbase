@@ -52,8 +52,6 @@ public abstract class AbstractTestLoader<T extends BenchmarkModule> extends Abst
     validateLoad();
   }
 
-  // TODO: add another version of this test that uses external files (#600).
-
   /** testLoad with after load script */
   @Test
   public void testLoadWithAfterLoad() throws Exception {
