@@ -18,6 +18,7 @@
 package com.oltpbenchmark.util;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.regex.Pattern;
@@ -81,6 +82,16 @@ public abstract class FileUtil {
 
   public static boolean exists(String path) {
     return (new File(path).exists());
+  }
+
+  public static String checkPath(String path, String name) throws FileNotFoundException {
+    if (path != null) path = path.trim();
+    if (path == null || path.isEmpty()) return null;
+
+    if (!FileUtil.exists(path)) {
+      throw new FileNotFoundException(name + " not found:" + path);
+    }
+    return path;
   }
 
   /**

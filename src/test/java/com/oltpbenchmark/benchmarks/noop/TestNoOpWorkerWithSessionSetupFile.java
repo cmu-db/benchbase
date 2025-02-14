@@ -16,9 +16,7 @@
 
 package com.oltpbenchmark.benchmarks.noop;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import com.oltpbenchmark.api.AbstractTestWorker;
@@ -27,12 +25,21 @@ import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
+import java.nio.file.Paths;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.List;
 import org.junit.Test;
 
-public class TestNoOpWorker extends AbstractTestWorker<NoOpBenchmark> {
+public class TestNoOpWorkerWithSessionSetupFile extends AbstractTestWorker<NoOpBenchmark> {
+
+  public TestNoOpWorkerWithSessionSetupFile() {
+    super(
+        null,
+        Paths.get("src", "test", "resources", "benchmarks", "noop", "sessionSetupFile-hsqldb.sql")
+            .toAbsolutePath()
+            .toString());
+  }
 
   @Override
   public List<Class<? extends Procedure>> procedures() {
@@ -45,14 +52,14 @@ public class TestNoOpWorker extends AbstractTestWorker<NoOpBenchmark> {
   }
 
   @Test
-  public void testNoSessionSetupFile() throws Exception {
+  public void testSessionSetupFile() throws Exception {
     // Check that there is no session setup file assigned to the worker's config
-    assertNull("Session setup file should be null", this.workConf.getSessionSetupFile());
+    assertNotNull("Session setup file should not be null", this.workConf.getSessionSetupFile());
 
     List<Worker<? extends BenchmarkModule>> workers = this.benchmark.makeWorkers();
     Worker<?> worker = workers.get(0);
-    assertNull(
-        "Session setup file should be null",
+    assertNotNull(
+        "Session setup file should not be null",
         worker.getWorkloadConfiguration().getSessionSetupFile());
 
     // Make sure there are no rows in the table
@@ -69,7 +76,7 @@ public class TestNoOpWorker extends AbstractTestWorker<NoOpBenchmark> {
       assertTrue(sql, adv);
 
       int count = result.getInt(1);
-      assertEquals(0, count);
+      assertTrue("FAKE2 table should have more 0 rows.", count > 0);
     }
   }
 }
