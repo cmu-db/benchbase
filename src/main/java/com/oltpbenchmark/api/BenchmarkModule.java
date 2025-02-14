@@ -113,6 +113,10 @@ public abstract class BenchmarkModule {
     return this.afterLoadScriptPath;
   }
 
+  public String getAfterLoadScriptPath() {
+    return this.afterLoadScriptPath;
+  }
+
   // --------------------------------------------------------------------------
   // IMPLEMENTING CLASS INTERFACE
   // --------------------------------------------------------------------------

@@ -138,6 +138,7 @@ public class DBWorkload {
       wrkld.setPassword(xmlConfig.getString("password"));
       wrkld.setRandomSeed(xmlConfig.getInt("randomSeed", -1));
       wrkld.setBatchSize(xmlConfig.getInt("batchsize", 128));
+      wrkld.setSessionSetupFile(xmlConfig.getString("sessionsetupfile"));
       wrkld.setMaxRetries(xmlConfig.getInt("retries", 3));
       wrkld.setNewConnectionPerTxn(xmlConfig.getBoolean("newConnectionPerTxn", false));
       wrkld.setReconnectOnConnectionFailure(
@@ -198,6 +199,7 @@ public class DBWorkload {
       initDebug.put("Batch Size", wrkld.getBatchSize());
       initDebug.put("DDL Path", wrkld.getDDLPath());
       initDebug.put("Loader Threads", wrkld.getLoaderThreads());
+      initDebug.put("Session Setup File", wrkld.getSessionSetupFile());
       initDebug.put("Scale Factor", wrkld.getScaleFactor());
       initDebug.put("Terminals", wrkld.getTerminals());
       initDebug.put("New Connection Per Txn", wrkld.getNewConnectionPerTxn());
