@@ -85,10 +85,8 @@ public abstract class FileUtil {
   }
 
   public static String checkPath(String path, String name) throws FileNotFoundException {
-    if (path != null)
-      path = path.trim();
-    if (path == null || path.isEmpty())
-      return null;
+    if (path != null) path = path.trim();
+    if (path == null || path.isEmpty()) return null;
 
     if (!FileUtil.exists(path)) {
       throw new FileNotFoundException(name + " not found:" + path);
