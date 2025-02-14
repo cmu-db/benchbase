@@ -95,6 +95,7 @@ public abstract class BenchmarkModule {
     if (scriptPath != null) scriptPath = scriptPath.trim();
     try {
       this.afterLoadScriptPath = FileUtil.checkPath(scriptPath, "afterload");
+      return;
     } catch (FileNotFoundException ex) {
       this.afterLoadScriptPath = null;
     }
