@@ -17,7 +17,6 @@
 package com.oltpbenchmark.api;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.fail;
 
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.Histogram;
