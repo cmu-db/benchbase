@@ -1,18 +1,18 @@
-/******************************************************************************
- *  Copyright 2015 by OLTPBenchmark Project                                   *
- *                                                                            *
- *  Licensed under the Apache License, Version 2.0 (the "License");           *
- *  you may not use this file except in compliance with the License.          *
- *  You may obtain a copy of the License at                                   *
- *                                                                            *
- *    http://www.apache.org/licenses/LICENSE-2.0                              *
- *                                                                            *
- *  Unless required by applicable law or agreed to in writing, software       *
- *  distributed under the License is distributed on an "AS IS" BASIS,         *
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
- *  See the License for the specific language governing permissions and       *
- *  limitations under the License.                                            *
- ******************************************************************************/
+/*
+ *  Copyright 2015 by OLTPBenchmark Project
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 
 package com.oltpbenchmark.api;
 
@@ -68,6 +68,7 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> {
   protected final boolean createDatabase;
   protected final boolean loadDatabase;
   protected final String ddlOverridePath;
+  protected final String sessionSetupFile;
 
   private static final AtomicInteger portCounter = new AtomicInteger(9001);
   private static final int MAX_PORT_NUMBER = 65535;
@@ -77,6 +78,7 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> {
     this.createDatabase = createDatabase;
     this.loadDatabase = loadDatabase;
     this.ddlOverridePath = null;
+    this.sessionSetupFile = null;
   }
 
   public AbstractTestCase(boolean createDatabase, boolean loadDatabase, String ddlOverridePath) {
@@ -84,6 +86,19 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> {
     this.createDatabase = createDatabase;
     this.loadDatabase = loadDatabase;
     this.ddlOverridePath = ddlOverridePath;
+    this.sessionSetupFile = null;
+  }
+
+  public AbstractTestCase(
+      boolean createDatabase,
+      boolean loadDatabase,
+      String ddlOverridePath,
+      String sessionSetupFile) {
+    this.benchmark = null;
+    this.createDatabase = createDatabase;
+    this.loadDatabase = loadDatabase;
+    this.ddlOverridePath = ddlOverridePath;
+    this.sessionSetupFile = sessionSetupFile;
   }
 
   public abstract List<Class<? extends Procedure>> procedures();
@@ -127,6 +142,7 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> {
     this.workConf.setBenchmarkName(
         BenchmarkModule.convertBenchmarkClassToBenchmarkName(benchmarkClass()));
     this.workConf.setDDLPath(this.ddlOverridePath);
+    this.workConf.setSessionSetupFile(this.sessionSetupFile);
 
     customWorkloadConfiguration(this.workConf);
 

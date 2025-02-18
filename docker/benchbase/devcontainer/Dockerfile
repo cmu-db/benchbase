@@ -1,5 +1,5 @@
 # For the devcontainer we need a full JDK.
-FROM maven:3-eclipse-temurin-21 AS devcontainer
+FROM maven:3-eclipse-temurin-23 AS devcontainer
 
 LABEL org.opencontainers.image.source = "https://github.com/cmu-db/benchbase/"
 
@@ -17,6 +17,7 @@ ARG CONTAINERUSER_GID=1000
 RUN groupadd --non-unique --gid ${CONTAINERUSER_GID} containergroup \
     && useradd --non-unique --create-home --no-user-group --comment 'Container User' \
         --uid ${CONTAINERUSER_UID} --gid ${CONTAINERUSER_GID} containeruser \
+    && echo 'ubuntu ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers \
     && echo 'containeruser ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 RUN mkdir -p /benchbase/results && chown -R containeruser:containergroup /benchbase/
 USER containeruser

@@ -25,8 +25,15 @@
         "--env-file=.env"
     ],
     "features": {
-        "ghcr.io/devcontainers/features/docker-outside-of-docker": {},
-        "ghcr.io/stuartleeks/dev-container-features/shell-history": {}
+        "ghcr.io/devcontainers/features/docker-outside-of-docker": {
+            "moby": true,
+            "installDockerBuildx": true,
+            "installDockerComposeSwitch": true,
+            "version": "latest",
+            "dockerDashComposeVersion": "v2"
+        },
+        "ghcr.io/stuartleeks/dev-container-features/shell-history": {},
+        "ghcr.io/devcontainers/features/git": {}
     },
     "containerEnv": {
         "http_proxy": "${localEnv:http_proxy}",

@@ -33,7 +33,7 @@ on:
 
 env:
   POM_VERSION: 2023-SNAPSHOT
-  JAVA_VERSION: 21
+  JAVA_VERSION: 23
   ERRORS_THRESHOLD: 0.01
   PYTHON_VERSION: "3.10"
 
@@ -187,8 +187,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # FIXME: Add tpch back in (#333).
-        benchmark: [ 'auctionmark', 'chbenchmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'templated', 'tpcc', 'tpcc-with-reconnects', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
+        benchmark: [ 'auctionmark', 'chbenchmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'templated', 'tpcc', 'tpcc-with-reconnects', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
     services:
       mariadb: # https://hub.docker.com/_/mariadb
         image: mariadb:latest
@@ -689,6 +688,13 @@ jobs:
         with:
           entrypoint: /opt/mssql-tools/bin/sqlcmd
           args: -U sa -P SApassword1 -S sqlserver -b -Q "USE benchbase; CREATE USER benchuser01 FROM LOGIN benchuser01; EXEC sp_addrolemember 'db_owner', 'benchuser01';"
+
+      - name: Setup privileged access for monitoring and session start tests
+        uses: docker://mcr.microsoft.com/mssql-tools:latest
+        with:
+          entrypoint: /opt/mssql-tools/bin/sqlcmd
+          args: -U sa -P SApassword1 -S sqlserver -b -Q "USE master; GRANT ALTER SERVER STATE, VIEW SERVER PERFORMANCE STATE to benchuser01;"
+
 
       - name: Run benchmark
         # Note: user/pass should match those used in sample configs.
