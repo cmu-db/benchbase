@@ -68,6 +68,7 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> {
   protected final boolean createDatabase;
   protected final boolean loadDatabase;
   protected final String ddlOverridePath;
+  protected final String sessionSetupFile;
 
   private static final AtomicInteger portCounter = new AtomicInteger(9001);
   private static final int MAX_PORT_NUMBER = 65535;
@@ -77,6 +78,7 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> {
     this.createDatabase = createDatabase;
     this.loadDatabase = loadDatabase;
     this.ddlOverridePath = null;
+    this.sessionSetupFile = null;
   }
 
   public AbstractTestCase(boolean createDatabase, boolean loadDatabase, String ddlOverridePath) {
@@ -84,6 +86,19 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> {
     this.createDatabase = createDatabase;
     this.loadDatabase = loadDatabase;
     this.ddlOverridePath = ddlOverridePath;
+    this.sessionSetupFile = null;
+  }
+
+  public AbstractTestCase(
+      boolean createDatabase,
+      boolean loadDatabase,
+      String ddlOverridePath,
+      String sessionSetupFile) {
+    this.benchmark = null;
+    this.createDatabase = createDatabase;
+    this.loadDatabase = loadDatabase;
+    this.ddlOverridePath = ddlOverridePath;
+    this.sessionSetupFile = sessionSetupFile;
   }
 
   public abstract List<Class<? extends Procedure>> procedures();
@@ -127,6 +142,7 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> {
     this.workConf.setBenchmarkName(
         BenchmarkModule.convertBenchmarkClassToBenchmarkName(benchmarkClass()));
     this.workConf.setDDLPath(this.ddlOverridePath);
+    this.workConf.setSessionSetupFile(this.sessionSetupFile);
 
     customWorkloadConfiguration(this.workConf);
 

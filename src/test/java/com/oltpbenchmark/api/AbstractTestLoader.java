@@ -17,11 +17,11 @@
 package com.oltpbenchmark.api;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.fail;
 
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.Histogram;
 import com.oltpbenchmark.util.SQLUtil;
+import java.nio.file.Paths;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -69,6 +69,34 @@ public abstract class AbstractTestLoader<T extends BenchmarkModule> extends Abst
       }
     } catch (Exception e) {
       fail("Table 'extra' from after-load.sql was not created");
+    }
+
+    validateLoad();
+  }
+
+  /** testLoad with external after load script */
+  @Test
+  public void testLoadWithExternalAfterLoad() throws Exception {
+    String afterLoadScriptPath =
+        Paths.get("src", "test", "java", "com", "oltpbenchmark", "api", "after-load-external.sql")
+            .toAbsolutePath()
+            .toString();
+
+    this.benchmark.setAfterLoadScriptPath(afterLoadScriptPath);
+
+    this.benchmark.loadDatabase();
+
+    // A table called extra is added with after-load, with one entry zero
+    try (PreparedStatement stmt = conn.prepareStatement("SELECT * FROM extra_external");
+        ResultSet rs = stmt.executeQuery()) {
+      while (rs.next()) {
+        assertEquals(
+            "Table 'extra_external' from " + afterLoadScriptPath + " has value different than 1",
+            rs.getInt(1),
+            1);
+      }
+    } catch (Exception e) {
+      fail("Table 'extra_external' from " + afterLoadScriptPath + " was not created");
     }
 
     validateLoad();
