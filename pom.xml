@@ -12,9 +12,9 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>23</java.version>
-        <maven.compiler.source>23</maven.compiler.source>
-        <maven.compiler.target>23</maven.compiler.target>
+        <java.version>21</java.version>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         <buildDirectory>${project.basedir}/target</buildDirectory>
         <!--
             Provids a way to limit which assembly package formats we produce.
@@ -84,6 +84,26 @@
                     <groupId>org.postgresql</groupId>
                     <artifactId>postgresql</artifactId>
                     <version>42.7.4</version>
+                    <scope>runtime</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>snowflake</id>
+            <activation>
+                <property>
+                    <name>env.BENCHBASE_PROFILE</name>
+                    <value>snowflake</value>
+                </property>
+            </activation>
+            <properties>
+                <classifier>snowflake</classifier>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>net.snowflake</groupId>
+                    <artifactId>snowflake-jdbc</artifactId>
+                    <version>3.22.0</version>
                     <scope>runtime</scope>
                 </dependency>
             </dependencies>
@@ -319,7 +339,7 @@
         <dependency>
             <groupId>org.hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
-            <version>2.7.4</version>
+            <version>2.7.3</version>
             <scope>test</scope>
         </dependency>
 
