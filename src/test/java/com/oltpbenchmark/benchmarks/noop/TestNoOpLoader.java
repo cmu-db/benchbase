@@ -34,6 +34,6 @@ public class TestNoOpLoader extends AbstractTestLoader<NoOpBenchmark> {
 
   @Override
   public List<String> ignorableTables() {
-    return List.of("FAKE");
+    return List.of("FAKE", "FAKE2");
   }
 }

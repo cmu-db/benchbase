@@ -11,6 +11,10 @@
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
     <batchsize>128</batchsize>
 
+    <!-- Session setup statements file -->
+    <!-- uncommented here for CI pipeline testing -->
+    <sessionsetupfile>config/sqlserver/session_setup_sqlserver_cmds_example.sql</sessionsetupfile>
+
     <!-- This parameter has no affect on this benchmark-->
     <!-- There is no data to load -->
     <scalefactor>1</scalefactor>
