@@ -19,9 +19,11 @@ import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.catalog.AbstractCatalog;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.ClassUtil;
+import com.oltpbenchmark.util.FileUtil;
 import com.oltpbenchmark.util.SQLUtil;
 import com.oltpbenchmark.util.ScriptRunner;
 import com.oltpbenchmark.util.ThreadUtil;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
@@ -62,7 +64,7 @@ public abstract class BenchmarkModule {
     this.workConf = workConf;
     this.dialects = new StatementDialects(workConf);
     // setClassLoader();
-    this.classLoader = ClassLoader.getSystemClassLoader();
+    this.classLoader = Thread.currentThread().getContextClassLoader();
   }
 
   /**
@@ -70,7 +72,7 @@ public abstract class BenchmarkModule {
    * implementation.
    */
   protected void setClassLoader() {
-    this.classLoader = ClassLoader.getSystemClassLoader();
+    this.classLoader = Thread.currentThread().getContextClassLoader();
   }
 
   // --------------------------------------------------------------------------
@@ -89,8 +91,26 @@ public abstract class BenchmarkModule {
 
   private String afterLoadScriptPath = null;
 
-  public final void setAfterLoadScriptPath(String scriptPath) {
-    this.afterLoadScriptPath = scriptPath;
+  public final void setAfterLoadScriptPath(String scriptPath) throws FileNotFoundException {
+    if (scriptPath != null) scriptPath = scriptPath.trim();
+    try {
+      this.afterLoadScriptPath = FileUtil.checkPath(scriptPath, "afterload");
+      return;
+    } catch (FileNotFoundException ex) {
+      this.afterLoadScriptPath = null;
+    }
+
+    if (this.afterLoadScriptPath == null && scriptPath != null && !scriptPath.isEmpty()) {
+      if (this.getClass().getResourceAsStream(scriptPath) == null) {
+        throw new FileNotFoundException(
+            "Couldn't find " + scriptPath + " as local file or resource.");
+      }
+      this.afterLoadScriptPath = scriptPath;
+    }
+  }
+
+  public String getAfterLoadScriptPath() {
+    return this.afterLoadScriptPath;
   }
 
   // --------------------------------------------------------------------------
@@ -237,8 +257,23 @@ public abstract class BenchmarkModule {
     try (Connection conn = this.makeConnection()) {
       DatabaseType dbType = this.workConf.getDatabaseType();
       ScriptRunner runner = new ScriptRunner(conn, true, true);
-      LOG.debug("Executing script [{}] for database type [{}]", scriptPath, dbType);
-      runner.runScript(scriptPath);
+      LOG.debug(
+          "Checking for script [{}] on local filesystem for database type [{}]",
+          scriptPath,
+          dbType);
+      if (FileUtil.exists(scriptPath)) {
+        LOG.debug(
+            "Executing script [{}] from local filesystem for database type [{}]",
+            scriptPath,
+            dbType);
+        runner.runExternalScript(scriptPath);
+      } else {
+        LOG.debug(
+            "Executing script [{}] from resource stream for database type [{}]",
+            scriptPath,
+            dbType);
+        runner.runScript(scriptPath);
+      }
     }
   }
 
@@ -270,11 +305,13 @@ public abstract class BenchmarkModule {
 
     if (this.afterLoadScriptPath != null) {
       LOG.debug(
-          "Running script after load for {} benchmark...",
+          "Running script {} after load for {} benchmark...",
+          this.afterLoadScriptPath,
           this.workConf.getBenchmarkName().toUpperCase());
       runScript(this.afterLoadScriptPath);
       LOG.debug(
-          "Finished running script after load for {} benchmark...",
+          "Finished running script {} after load for {} benchmark...",
+          this.afterLoadScriptPath,
           this.workConf.getBenchmarkName().toUpperCase());
     }
 

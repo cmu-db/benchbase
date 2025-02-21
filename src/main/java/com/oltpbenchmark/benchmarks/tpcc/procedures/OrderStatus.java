@@ -39,7 +39,7 @@ public class OrderStatus extends TPCCProcedure {
 
   public SQLStmt ordStatGetNewestOrdSQL =
       new SQLStmt(
-              """
+          """
         SELECT O_ID, O_CARRIER_ID, O_ENTRY_D
           FROM  %s
          WHERE O_W_ID = ?
@@ -51,7 +51,7 @@ public class OrderStatus extends TPCCProcedure {
 
   public SQLStmt ordStatGetOrderLinesSQL =
       new SQLStmt(
-              """
+          """
         SELECT OL_I_ID, OL_SUPPLY_W_ID, OL_QUANTITY, OL_AMOUNT, OL_DELIVERY_D
           FROM  %s
          WHERE OL_O_ID = ?
@@ -62,7 +62,7 @@ public class OrderStatus extends TPCCProcedure {
 
   public SQLStmt payGetCustSQL =
       new SQLStmt(
-              """
+          """
         SELECT C_FIRST, C_MIDDLE, C_LAST, C_STREET_1, C_STREET_2,
                C_CITY, C_STATE, C_ZIP, C_PHONE, C_CREDIT, C_CREDIT_LIM,
                C_DISCOUNT, C_BALANCE, C_YTD_PAYMENT, C_PAYMENT_CNT, C_SINCE
@@ -75,7 +75,7 @@ public class OrderStatus extends TPCCProcedure {
 
   public SQLStmt customerByNameSQL =
       new SQLStmt(
-              """
+          """
         SELECT C_FIRST, C_MIDDLE, C_ID, C_STREET_1, C_STREET_2, C_CITY,
                C_STATE, C_ZIP, C_PHONE, C_CREDIT, C_CREDIT_LIM, C_DISCOUNT,
                C_BALANCE, C_YTD_PAYMENT, C_PAYMENT_CNT, C_SINCE

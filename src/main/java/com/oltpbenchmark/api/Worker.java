@@ -26,6 +26,9 @@ import com.oltpbenchmark.types.State;
 import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.Histogram;
 import com.oltpbenchmark.util.SQLUtil;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.SQLRecoverableException;
@@ -187,6 +190,13 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
     // In case of reuse reset the measurements
     latencies = new LatencyRecord(workloadState.getTestStartNs());
+
+    // Invoke setup session
+    try {
+      this.setupSession();
+    } catch (Throwable ex) {
+      throw new RuntimeException("Unexpected error when setting up the session " + this, ex);
+    }
 
     // Invoke initialize callback
     try {
@@ -721,6 +731,32 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
    */
   protected void initialize() {
     // The default is to do nothing
+  }
+
+  /**
+   * Set up the session by running a set of statements before benchmark execution begins. The path
+   * of the file where a set of statements defined should be added in &lt;sessionsetupfile&gt;
+   * &lt;/sessionsetupfile&gt;
+   */
+  protected void setupSession() {
+    try {
+      String setupSessionFile = configuration.getSessionSetupFile();
+      if (setupSessionFile == null || setupSessionFile.isEmpty()) {
+        return;
+      }
+
+      String statements = new String(Files.readAllBytes(Paths.get(setupSessionFile)));
+      if (statements.isEmpty()) {
+        return;
+      }
+
+      try (Statement stmt = conn.createStatement()) {
+        stmt.execute(statements);
+      }
+      // conn.commit();
+    } catch (SQLException | IOException ex) {
+      throw new RuntimeException("Failed setting up session", ex);
+    }
   }
 
   /**
