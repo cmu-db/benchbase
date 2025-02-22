@@ -24,7 +24,7 @@ microbenchmark:
             - CREATE UNIQUE INDEX CW6_user_accounts_1 ON CW6_accounts_1(account_id_1, user_id_1);
 
             - DROP TABLE IF EXISTS CW6_accounts_2;
-            - CREATE TABLE IF NOT EXISTS CW6_accounts_2(account_id_1 bigint, user_id_1 bigint, addr_1 varchar(50), bal_1 float(2),PRIMARY KEY(account_id_1 ASC)) PARTITION BY RANGE (account_id_1);
+            - CREATE TABLE IF NOT EXISTS CW6_accounts_2(account_id_1 bigint, user_id_1 bigint, addr_1 varchar(50), bal_1 float(2),PRIMARY KEY(account_id_1)) PARTITION BY RANGE (account_id_1);
             - CREATE TABLE IF NOT EXISTS CW6_0_2M_accounts_0 PARTITION OF CW6_accounts_2 FOR VALUES FROM (1) TO (2000000);
             - CREATE TABLE IF NOT EXISTS CW6_0_2M_accounts_1 PARTITION OF CW6_accounts_2 FOR VALUES FROM (2000000) TO (4000000);
             - CREATE TABLE IF NOT EXISTS CW6_0_2M_accounts_2 PARTITION OF CW6_accounts_2 FOR VALUES FROM (4000000) TO (6000000);
