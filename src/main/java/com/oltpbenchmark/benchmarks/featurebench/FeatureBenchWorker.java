@@ -135,12 +135,17 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
 
             String explainSelect = "explain (analyze,verbose,costs,buffers) ";
             String explainUpdate = "explain (analyze) ";
+            String explainOthers = "explain ";
 
+            if (this.getWorkloadConfiguration().getXmlConfig().getBoolean("force_capture_explain_analyze", false)) {
+                explainOthers = "explain (analyze,verbose,costs,buffers) ";
+            }
             if (this.getWorkloadConfiguration().getXmlConfig().containsKey("use_dist_in_explain")
                 && this.getWorkloadConfiguration().getXmlConfig().getBoolean("use_dist_in_explain")) {
                 if (this.getWorkloadConfiguration().getXmlConfig().getString("type").equalsIgnoreCase("YUGABYTE")) {
-                    explainSelect = "explain (analyze,dist,verbose,costs,buffers,debug) ";
-                    explainUpdate = "explain (analyze, dist, debug) ";
+                    explainSelect = explainSelect.replace(") ", ",debug,dist) ");
+                    explainUpdate = explainUpdate.replace(") ", ",debug,dist) ");
+                    explainOthers = explainOthers.replace(") ", ",debug,dist) ");
                 } else {
                     throw new RuntimeException("dist and debug option for explain not supported by this database type, Please remove key!");
                 }
@@ -151,25 +156,22 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
             if (!this.getWorkloadConfiguration().getXmlConfig().getBoolean("disable_explain", false)) {
                 for (ExecuteRule er : executeRules) {
                     for (Query query : er.getQueries()) {
-                        if (query.isSelectQuery() || query.isUpdateQuery()) {
-                            String querystmt = query.getQuery();
-                            try {
-
-                                PreparedStatement stmt = conn.prepareStatement((query.isSelectQuery() ? explainSelect : explainUpdate) + querystmt);
-                                List<UtilToMethod> baseUtils = query.getBaseUtils();
-                                for (int j = 0; j < baseUtils.size(); j++) {
-                                    try {
-                                        stmt.setObject(j + 1, baseUtils.get(j).get());
-                                    } catch (SQLException | InvocationTargetException | IllegalAccessException |
-                                             ClassNotFoundException | NoSuchMethodException |
-                                             InstantiationException e) {
-                                        throw new RuntimeException(e);
-                                    }
+                        String querystmt = query.getQuery();
+                        try {
+                            PreparedStatement stmt = conn.prepareStatement((query.isSelectQuery() ? explainSelect : query.isUpdateQuery() ? explainUpdate : explainOthers) + querystmt);
+                            List<UtilToMethod> baseUtils = query.getBaseUtils();
+                            for (int j = 0; j < baseUtils.size(); j++) {
+                                try {
+                                    stmt.setObject(j + 1, baseUtils.get(j).get());
+                                } catch (SQLException | InvocationTargetException | IllegalAccessException |
+                                         ClassNotFoundException | NoSuchMethodException |
+                                         InstantiationException e) {
+                                    throw new RuntimeException(e);
                                 }
-                                explainDDLMap.put(query.getQuery(), stmt);
-                            } catch (SQLException e) {
-                                throw new RuntimeException(e);
                             }
+                            explainDDLMap.put(query.getQuery(), stmt);
+                        } catch (SQLException e) {
+                            throw new RuntimeException(e);
                         }
 
                     }
