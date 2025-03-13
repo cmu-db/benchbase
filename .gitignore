@@ -61,3 +61,4 @@ docker-compose-*.tar.gz
 # Python
 __pycache__/
 *.py[cod]
+*.pytest_cache
