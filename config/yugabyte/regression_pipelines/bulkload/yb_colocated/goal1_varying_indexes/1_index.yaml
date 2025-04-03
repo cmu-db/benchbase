@@ -9,7 +9,7 @@ isolation: TRANSACTION_REPEATABLE_READ
 collect_pg_stat_statements: false
 loaderthreads: 1
 terminals: 1
-yaml_version: v1.1
+yaml_version: v1.2
 works:
     work:
         rate: unlimited
@@ -25,6 +25,6 @@ microbenchmark:
         columns: 15
         rows: 3000000
         indexes: 1
-        filePath: orders.csv
+        filePath: bulkload/goal1_2/orders.csv
         stringLength: 32
         recreateCsvIfExists: false
