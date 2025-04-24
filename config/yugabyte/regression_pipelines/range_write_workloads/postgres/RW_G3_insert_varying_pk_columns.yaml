@@ -1,0 +1,87 @@
+type: POSTGRES
+driver: org.postgresql.Driver
+url: jdbc:postgresql://{{endpoint}}:5432/postgres?sslmode=require&ApplicationName=featurebench&reWriteBatchedInserts=true
+username: {{username}}
+password: {{password}}
+batchsize: 128
+isolation: TRANSACTION_REPEATABLE_READ
+loaderthreads: 4
+terminals: 24
+collect_pg_stat_statements: true
+yaml_version: v1.0
+works:
+    work:
+        time_secs: 300
+        rate: unlimited
+        warmup: 60
+microbenchmark:
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
+    properties:
+        setAutoCommit: false
+        create:
+            - drop table if exists table_test_1;
+            - drop table if exists table_test_2;
+            - drop table if exists table_test_3;
+            - drop table if exists table_test_4;
+            - create table table_test_1 (col_int_1 bigint, col_int_2 bigint, col_int_3 bigint, col_int_4 bigint, col_int_5 bigint, col_int_6 bigint, col_int_7 bigint, primary key (col_int_1));
+            - create table table_test_2 (col_int_1 bigint, col_int_2 bigint, col_int_3 bigint, col_int_4 bigint, col_int_5 bigint, col_int_6 bigint, col_int_7 bigint, primary key (col_int_1, col_int_2));
+            - create table table_test_3 (col_int_1 bigint, col_int_2 bigint, col_int_3 bigint, col_int_4 bigint, col_int_5 bigint, col_int_6 bigint, col_int_7 bigint, primary key (col_int_1, col_int_2, col_int_3));
+            - create table table_test_4 (col_int_1 bigint, col_int_2 bigint, col_int_3 bigint, col_int_4 bigint, col_int_5 bigint, col_int_6 bigint, col_int_7 bigint, primary key (col_int_1, col_int_2, col_int_3, col_int_4, col_int_5));
+
+        cleanup:
+            - drop table if exists table_test_1;
+            - drop table if exists table_test_2;
+            - drop table if exists table_test_3;
+            - drop table if exists table_test_4;
+        loadRules:
+            -   table: table_test_
+                count: 4
+                rows: 1000000
+                columns:
+                    -   name: col_int_
+                        count: 7
+                        util: PrimaryIntGen
+                        params:
+                            - 1
+                            - 1000000
+        executeRules:
+            -   workload: RW_G3_1_range_column_test
+                run:
+                    -   name: Insert_1_range_column_test
+                        weight: 100
+                        queries:
+                            -   query: INSERT INTO table_test_1 (col_int_1, col_int_2, col_int_3, col_int_4, col_int_5, col_int_6, col_int_7) values (?, ?,?,?,?,?,?)
+                                bindings:
+                                    -   util: PrimaryIntGen
+                                        count: 7
+                                        params: [ 1000001, 100000000 ]
+            -   workload: RW_G3_2_range_column_test
+                run:
+                    -   name: Insert_2_range_column_test
+                        weight: 100
+                        queries:
+                            -   query: INSERT INTO table_test_2 (col_int_1, col_int_2, col_int_3, col_int_4, col_int_5, col_int_6, col_int_7) values (?,?, ?,?,?,?,?)
+                                bindings:
+                                    -   util: PrimaryIntGen
+                                        count: 7
+                                        params: [ 1000001, 100000000 ]
+            -   workload: RW_G3_3_range_column_test
+                run:
+                    -   name: Insert_3_range_column_test
+                        weight: 100
+                        queries:
+                            -   query: INSERT INTO table_test_3 (col_int_1, col_int_2, col_int_3, col_int_4, col_int_5, col_int_6, col_int_7) values (?,?,?, ?,?,?,?)
+                                bindings:
+                                    -   util: PrimaryIntGen
+                                        count: 7
+                                        params: [ 1000001, 100000000 ]
+            -   workload: RW_G3_5_range_column_test
+                run:
+                    -   name: Insert_5_range_column_test
+                        weight: 100
+                        queries:
+                            -   query: INSERT INTO table_test_4 (col_int_1, col_int_2, col_int_3, col_int_4, col_int_5, col_int_6, col_int_7) values (?,?,?,?,?, ?,?)
+                                bindings:
+                                    -   util: PrimaryIntGen
+                                        count: 7
+                                        params: [ 1000001, 100000000 ]

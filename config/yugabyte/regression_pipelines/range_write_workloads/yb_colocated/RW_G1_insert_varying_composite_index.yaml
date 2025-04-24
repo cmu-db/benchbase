@@ -1,0 +1,135 @@
+type: YUGABYTE
+driver: com.yugabyte.Driver
+url: jdbc:yugabytedb://{{endpoint}}:5433/yugabyte?sslmode=require&ApplicationName=featurebench&reWriteBatchedInserts=true
+username: {{username}}
+password: {{password}}
+createdb: drop database if exists yb_colocated; create database yb_colocated with colocated=true
+batchsize: 128
+isolation: TRANSACTION_REPEATABLE_READ
+loaderthreads: 4
+terminals: 24
+collect_pg_stat_statements: true
+use_dist_in_explain : true
+yaml_version: v1.0
+works:
+    work:
+        time_secs: 300
+        rate: unlimited
+        warmup: 60
+microbenchmark:
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
+    properties:
+        setAutoCommit: false
+        create:
+            - drop table if exists index_test_1;
+            - drop table if exists index_test_2;
+            - drop table if exists index_test_3;
+            - drop table if exists index_test_4;
+            - create table index_test_1 (id bigint, col_int_1 int, col_int_2 int, col_int_3 int, col_int_4 int, col_int_5 int, col_int_6 int, col_int_7 int, col_int_8 int, col_int_9 int, col_int_10 int, col_varchar_1 varchar(20), col_varchar_2 varchar(20), col_varchar_3 varchar(20), col_date text, col_boolean boolean, primary key (id asc))
+            - create table index_test_2 (id bigint, col_int_1 int, col_int_2 int, col_int_3 int, col_int_4 int, col_int_5 int, col_int_6 int, col_int_7 int, col_int_8 int, col_int_9 int, col_int_10 int, col_varchar_1 varchar(20), col_varchar_2 varchar(20), col_varchar_3 varchar(20), col_date text, col_boolean boolean, primary key (id asc))
+            - create table index_test_3 (id bigint, col_int_1 int, col_int_2 int, col_int_3 int, col_int_4 int, col_int_5 int, col_int_6 int, col_int_7 int, col_int_8 int, col_int_9 int, col_int_10 int, col_varchar_1 varchar(20), col_varchar_2 varchar(20), col_varchar_3 varchar(20), col_date text, col_boolean boolean, primary key (id asc))
+            - create table index_test_4 (id bigint, col_int_1 int, col_int_2 int, col_int_3 int, col_int_4 int, col_int_5 int, col_int_6 int, col_int_7 int, col_int_8 int, col_int_9 int, col_int_10 int, col_varchar_1 varchar(20), col_varchar_2 varchar(20), col_varchar_3 varchar(20), col_date text, col_boolean boolean, primary key (id asc))
+            - create index index_test_2_idx1 on index_test_2(col_int_1 asc);
+            - create index index_test_3_idx1 on index_test_3(col_int_1 asc, col_int_2 asc);
+            - create index index_test_4_idx1 on index_test_4(col_int_1 asc, col_int_2 asc, col_int_3 asc, col_int_4 asc, col_int_5 asc);
+        cleanup:
+            - drop table if exists index_test_1;
+            - drop table if exists index_test_2;
+            - drop table if exists index_test_3;
+            - drop table if exists index_test_4;
+        loadRules:
+            -   table: index_test_
+                count: 4
+
+                rows: 1000000
+                columns:
+                    -   name: id
+                        util: PrimaryIntGen
+                        params:
+                            - 1
+                            - 1000000
+                    -   name: col_int_
+                        count: 10
+                        util: RandomNumber
+                        params:
+                            - 1
+                            - 1000000
+                    -   name: col_varchar_
+                        count: 3
+                        util: RandomAString
+                        params:
+                            - 5
+                            - 5
+                    -   name: col_date
+                        util: RandomAString
+                        params:
+                            - 5
+                            - 5
+                    -   name: col_boolean
+                        util: RandomBoolean
+        executeRules:
+            -   workload: RW_G1_0_column_composite_index_test
+                run:
+                    -   name: Insert_0_column_composite_index_test
+                        weight: 100
+                        queries:
+                            -   query: INSERT INTO index_test_1 (id, col_int_1, col_int_2, col_int_3, col_int_4, col_int_5, col_int_6, col_int_7, col_int_8, col_int_9, col_int_10, col_varchar_1, col_varchar_2, col_varchar_3, col_date, col_boolean) values (?, ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                                bindings:
+                                    -   util: PrimaryIntGen
+                                        params: [ 1000001, 100000000 ]
+                                    -   util: RandomNumber
+                                        count: 10
+                                        params: [ 1000001, 100000000 ]
+                                    -   util: RandomAString
+                                        count: 4
+                                        params: [ 20, 20 ]
+                                    -   util: RandomBoolean
+            -   workload: RW_G1_1_column_composite_index_test
+                run:
+                    -   name: Insert_1_column_composite_index_test
+                        weight: 100
+                        queries:
+                            -   query: INSERT INTO index_test_2 (id, col_int_1, col_int_2, col_int_3, col_int_4, col_int_5, col_int_6, col_int_7, col_int_8, col_int_9, col_int_10, col_varchar_1, col_varchar_2, col_varchar_3, col_date, col_boolean) values (?, ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                                bindings:
+                                    -   util: PrimaryIntGen
+                                        params: [ 1000001, 100000000 ]
+                                    -   util: RandomNumber
+                                        count: 10
+                                        params: [ 1000001, 100000000 ]
+                                    -   util: RandomAString
+                                        count: 4
+                                        params: [ 20, 20 ]
+                                    -   util: RandomBoolean
+            -   workload: RW_G1_2_column_composite_index_test
+                run:
+                    -   name: Insert_column_composite_index_test
+                        weight: 100
+                        queries:
+                            -   query: INSERT INTO index_test_3 (id, col_int_1, col_int_2, col_int_3, col_int_4, col_int_5, col_int_6, col_int_7, col_int_8, col_int_9, col_int_10, col_varchar_1, col_varchar_2, col_varchar_3, col_date, col_boolean) values (?, ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                                bindings:
+                                    -   util: PrimaryIntGen
+                                        params: [ 1000001, 100000000 ]
+                                    -   util: RandomNumber
+                                        count: 10
+                                        params: [ 1000001, 100000000 ]
+                                    -   util: RandomAString
+                                        count: 4
+                                        params: [ 20, 20 ]
+                                    -   util: RandomBoolean
+            -   workload: RW_G1_5_column_composite_index_test
+                run:
+                    -   name: Insert_column_composite_index_test
+                        weight: 100
+                        queries:
+                            -   query: INSERT INTO index_test_4 (id, col_int_1, col_int_2, col_int_3, col_int_4, col_int_5, col_int_6, col_int_7, col_int_8, col_int_9, col_int_10, col_varchar_1, col_varchar_2, col_varchar_3, col_date, col_boolean) values (?, ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                                bindings:
+                                    -   util: PrimaryIntGen
+                                        params: [ 1000001, 100000000 ]
+                                    -   util: RandomNumber
+                                        count: 10
+                                        params: [ 1000001, 100000000 ]
+                                    -   util: RandomAString
+                                        count: 4
+                                        params: [ 20, 20 ]
+                                    -   util: RandomBoolean
+

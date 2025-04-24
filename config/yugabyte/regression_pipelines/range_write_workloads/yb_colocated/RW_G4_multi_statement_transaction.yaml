@@ -1,0 +1,143 @@
+type: YUGABYTE
+driver: com.yugabyte.Driver
+createdb: drop database if exists yb_colocated; create database yb_colocated with colocated=true
+url: jdbc:yugabytedb://{{endpoint}}:5433/yugabyte?sslmode=require&ApplicationName=featurebench&reWriteBatchedInserts=true&load-balance=false
+username: {{username}}
+password: {{password}}
+batchsize: 128
+isolation: TRANSACTION_REPEATABLE_READ
+loaderthreads: 4
+terminals: 24
+collect_pg_stat_statements: true
+use_dist_in_explain : true
+yaml_version: v1.0
+works:
+    work:
+        time_secs: 300
+        rate: unlimited
+        warmup: 30
+microbenchmark:
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
+    properties:
+        setAutoCommit: true
+        create:
+            - DROP TABLE IF EXISTS users_1;
+            - DROP TABLE IF EXISTS accounts_1;
+            - DROP TABLE IF EXISTS audit_table_1;
+            - CREATE TABLE IF NOT EXISTS users_1(user_id_1 bigint, user_id_2 bigint, user_name_1 varchar(10), addr_1 varchar(50), bal_1 float(2), PRIMARY KEY(user_id_1 ASC, user_id_2 ASC));
+            - CREATE INDEX users_1_index_user_name ON users_1(user_name_1 ASC, addr_1 ASC);
+            - CREATE INDEX users_1_index_addr ON users_1(addr_1 ASC, user_name_1 ASC);
+            - CREATE TABLE IF NOT EXISTS accounts_1(account_id_1 bigint, account_id_2 bigint, user_id_1 bigint, user_id_2 bigint, addr_1 varchar(50), bal_1 float(2), PRIMARY KEY(account_id_1 ASC, account_id_2 ASC));
+            - CREATE INDEX user_accounts_addr1 ON accounts_1( user_id_1 ASC, user_id_2 ASC, addr_1 ASC);
+            - CREATE INDEX user_accounts_addr2 ON accounts_1( addr_1 ASC, user_id_1 ASC, user_id_2 ASC);
+            - CREATE TABLE IF NOT EXISTS audit_table_1(account_id_1 bigint, account_id_2 bigint, event_id_1 date, user_id_1 bigint, user_id_2 bigint, delta_1 float(2), PRIMARY KEY(account_id_1 ASC, account_id_2 ASC, event_id_1 ASC));
+            - CREATE INDEX audit_table_1_index1 ON audit_table_1(user_id_1 ASC, user_id_2 ASC, event_id_1 ASC);
+            - CREATE INDEX audit_table_1_index2 ON audit_table_1(event_id_1 ASC, user_id_1 ASC, user_id_2 ASC);
+        cleanup:
+            - DROP TABLE IF EXISTS users_1;
+            - DROP TABLE IF EXISTS accounts_1;
+            - DROP TABLE IF EXISTS audit_table_1;
+
+        loadRules:
+            -   table: users_
+                count: 1
+                rows: 3000000
+                columns:
+                    -   name: user_id_
+                        count: 2
+                        util: PrimaryIntGen
+                        params: [ 1, 3000000 ]
+                    -   name: user_name_
+                        count: 1
+                        util: PrimaryStringGen
+                        params: [ 1, 10 ]
+                    -   name: addr_
+                        count: 1
+                        util: PrimaryStringGen
+                        params: [ 1, 50 ]
+                    -   name: bal_
+                        count: 1
+                        util: RandomNoWithDecimalPoints
+                        params: [ 1, 1000000, 2 ]
+
+            -   table: accounts_
+                count: 1
+                rows: 3000000
+                columns:
+                    -   name: account_id_
+                        count: 2
+                        util: PrimaryIntGen
+                        params: [ 1, 3000000 ]
+                    -   name: user_id_
+                        count: 2
+                        util: PrimaryIntGen
+                        params: [ 1, 3000000 ]
+                    -   name: addr_
+                        count: 1
+                        util: PrimaryStringGen
+                        params: [ 1, 50 ]
+                    -   name: bal_
+                        count: 1
+                        util: RandomNoWithDecimalPoints
+                        params: [ 1, 1000000, 2 ]
+
+            -   table: audit_table_
+                count: 1
+                rows: 3000000
+                columns:
+                    -   name: account_id_
+                        count: 2
+                        util: PrimaryIntGen
+                        params: [ 1, 3000000 ]
+                    -   name: event_id_
+                        count: 1
+                        util: PrimaryDateGen
+                        params: [2000000]
+                    -   name: user_id_
+                        count: 2
+                        util: PrimaryIntGen
+                        params: [ 1, 3000000 ]
+                    -   name: delta_
+                        count: 1
+                        util: RandomNoWithDecimalPoints
+                        params: [ 1, 1000000, 2 ]
+
+
+        executeRules:
+            - workload: RW_G4_multi_statement_transaction_run1
+              customTags: customer=10,schematype=regular,partition=range,pkey=composite,cardinality=single,projection=all,filtercount=one
+              run:
+                  - name: statement1_insert
+                    weight: 100
+                    queries:
+                        - query: INSERT INTO audit_table_1(account_id_1, account_id_2, event_id_1, user_id_1, user_id_2, delta_1) VALUES(?,?,?,?,?,?)
+                          bindings:
+                              -   util: PrimaryIntGen
+                                  count: 2
+                                  params: [ 10000000, 10000000000 ]
+                              -   util: PrimaryDateGen
+                                  params: [ 100000000 ]
+                              -   util: PrimaryIntGen
+                                  count: 2
+                                  params: [ 10000000, 10000000000 ]
+                              -   util: RandomNoWithDecimalPoints
+                                  params: [ 1, 1000000, 2 ]
+                        - query: UPDATE accounts_1 SET addr_1 = ? WHERE account_id_1 = ? and account_id_2 = ? and user_id_1 = ? and user_id_2 = ?
+                          bindings:
+                              -   util: PrimaryStringGen
+                                  params: [ 1, 50 ]
+                              -   util: RandomInt
+                                  count: 2
+                                  params: [ 1, 3000000 ]
+                              -   util: RandomInt
+                                  count: 2
+                                  params: [ 1, 3000000 ]
+                        - query: UPDATE users_1 SET user_name_1 = ?, addr_1 = ? WHERE user_id_1 = ? and user_id_2 = ?
+                          bindings:
+                              -   util: PrimaryStringGen
+                                  params: [ 1, 10 ]
+                              -   util: PrimaryStringGen
+                                  params: [ 1, 50 ]
+                              -   util: RandomInt
+                                  count: 2
+                                  params: [ 1, 3000000 ]

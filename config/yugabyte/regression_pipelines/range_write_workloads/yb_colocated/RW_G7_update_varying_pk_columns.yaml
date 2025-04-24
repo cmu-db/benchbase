@@ -1,0 +1,106 @@
+type: YUGABYTE
+driver: com.yugabyte.Driver
+url: jdbc:yugabytedb://{{endpoint}}:5433/yugabyte?sslmode=require&ApplicationName=featurebench&reWriteBatchedInserts=true&load-balance=false
+username: {{username}}
+password: {{password}}
+createdb: drop database if exists yb_colocated; create database yb_colocated with colocated=true
+batchsize: 128
+isolation: TRANSACTION_REPEATABLE_READ
+loaderthreads: 4
+terminals: 24
+collect_pg_stat_statements: true
+use_dist_in_explain : true
+yaml_version: v1.0
+works:
+    work:
+        time_secs: 300
+        rate: unlimited
+        warmup: 60
+microbenchmark:
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
+    properties:
+        setAutoCommit: false
+        create:
+            - drop table if exists table_test_1;
+            - drop table if exists table_test_2;
+            - drop table if exists table_test_3;
+            - drop table if exists table_test_4;
+            - create table table_test_1 (col_int_1 bigint, col_int_2 bigint, col_int_3 bigint, col_int_4 bigint, col_int_5 bigint, col_int_6 bigint, col_varchar_1 varchar(20), primary key (col_int_1 asc));
+            - create table table_test_2 (col_int_1 bigint, col_int_2 bigint, col_int_3 bigint, col_int_4 bigint, col_int_5 bigint, col_int_6 bigint, col_varchar_1 varchar(20), primary key (col_int_1 asc, col_int_2 asc));
+            - create table table_test_3 (col_int_1 bigint, col_int_2 bigint, col_int_3 bigint, col_int_4 bigint, col_int_5 bigint, col_int_6 bigint, col_varchar_1 varchar(20), primary key (col_int_1 asc, col_int_2 asc, col_int_3 asc));
+            - create table table_test_4 (col_int_1 bigint, col_int_2 bigint, col_int_3 bigint, col_int_4 bigint, col_int_5 bigint, col_int_6 bigint, col_varchar_1 varchar(20), primary key (col_int_1 asc, col_int_2 asc, col_int_3 asc, col_int_4 asc, col_int_5 asc));
+
+        cleanup:
+            - drop table if exists table_test_1;
+            - drop table if exists table_test_2;
+            - drop table if exists table_test_3;
+            - drop table if exists table_test_4;
+        loadRules:
+            -   table: table_test_
+                count: 4
+                rows: 2000000
+                columns:
+                    -   name: col_int_
+                        count: 6
+                        util: PrimaryIntGen
+                        params:
+                            - 1
+                            - 2000000
+                    -   name: col_varchar_
+                        count: 1
+                        util: RandomAString
+                        params: [20, 20]
+
+        executeRules:
+            -   workload: RW_G7_1_range_column_test
+                run:
+                    -   name: Update_1_range_column_test
+                        weight: 100
+                        queries:
+                            -   query: UPDATE table_test_1 SET col_varchar_1 = ? WHERE col_int_1 = ?
+                                count: 1
+                                bindings:
+                                    -   util: RandomAString
+                                        params: [20, 20]
+                                    -   util: RandomNumber
+                                        params: [ 1, 2000000 ]
+            -   workload: RW_G7_2_range_column_test
+                run:
+                    -   name: Update_2_range_column_test
+                        weight: 100
+                        queries:
+                            -   query: UPDATE table_test_2 SET col_varchar_1 = ? WHERE col_int_1 = ? and col_int_2 = ?
+                                count: 1
+                                bindings:
+                                    -   util: RandomAString
+                                        params: [20, 20]
+                                    -   util: RandomNumber
+                                        count: 2
+                                        params: [ 1, 2000000 ]
+            -   workload: RW_G7_3_range_column_test
+                run:
+                    -   name: Update_3_range_column_test
+                        weight: 100
+                        queries:
+                            -   query: UPDATE table_test_3 SET col_varchar_1 = ? WHERE col_int_1 = ? and col_int_2 = ? and col_int_3 = ?
+                                count: 1
+                                bindings:
+                                    -   util: RandomAString
+                                        params: [20, 20]
+                                    -   util: RandomNumber
+                                        count: 3
+                                        params: [ 1, 2000000 ]
+            -   workload: RW_G7_5_range_column_test
+                run:
+                    -   name: Update_5_range_column_test
+                        weight: 100
+                        queries:
+                            -   query: UPDATE table_test_4 SET col_varchar_1 = ? WHERE col_int_1 = ? and col_int_2 = ? and col_int_3 = ? and col_int_4 = ? and col_int_5 = ?
+                                count: 1
+                                bindings:
+                                    -   util: RandomAString
+                                        params: [20, 20]
+                                    -   util: RandomNumber
+                                        count: 5
+                                        params: [ 1, 2000000 ]
+

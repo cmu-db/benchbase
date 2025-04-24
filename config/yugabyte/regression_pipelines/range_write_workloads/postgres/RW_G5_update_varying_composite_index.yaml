@@ -1,0 +1,114 @@
+type: POSTGRES
+driver: org.postgresql.Driver
+url: jdbc:postgresql://{{endpoint}}:5432/postgres?sslmode=require&ApplicationName=featurebench&reWriteBatchedInserts=true
+username: {{username}}
+password: {{password}}
+batchsize: 128
+isolation: TRANSACTION_REPEATABLE_READ
+loaderthreads: 4
+terminals: 24
+collect_pg_stat_statements: true
+yaml_version: v1.0
+works:
+    work:
+        time_secs: 300
+        rate: unlimited
+        warmup: 60
+microbenchmark:
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
+    properties:
+        setAutoCommit: false
+        create:
+            - drop table if exists index_test_1;
+            - drop table if exists index_test_2;
+            - drop table if exists index_test_3;
+            - drop table if exists index_test_4;
+            - create table index_test_1 (id bigint, col_int_1 int, col_int_2 int, col_int_3 int, col_int_4 int, col_int_5 int, col_int_6 int, col_int_7 int, col_int_8 int, col_int_9 int, col_int_10 int, col_varchar_1 varchar(20), col_varchar_2 varchar(20), col_varchar_3 varchar(20), col_date text, col_boolean boolean, primary key (id))
+            - create table index_test_2 (id bigint, col_int_1 int, col_int_2 int, col_int_3 int, col_int_4 int, col_int_5 int, col_int_6 int, col_int_7 int, col_int_8 int, col_int_9 int, col_int_10 int, col_varchar_1 varchar(20), col_varchar_2 varchar(20), col_varchar_3 varchar(20), col_date text, col_boolean boolean, primary key (id))
+            - create table index_test_3 (id bigint, col_int_1 int, col_int_2 int, col_int_3 int, col_int_4 int, col_int_5 int, col_int_6 int, col_int_7 int, col_int_8 int, col_int_9 int, col_int_10 int, col_varchar_1 varchar(20), col_varchar_2 varchar(20), col_varchar_3 varchar(20), col_date text, col_boolean boolean, primary key (id))
+            - create table index_test_4 (id bigint, col_int_1 int, col_int_2 int, col_int_3 int, col_int_4 int, col_int_5 int, col_int_6 int, col_int_7 int, col_int_8 int, col_int_9 int, col_int_10 int, col_varchar_1 varchar(20), col_varchar_2 varchar(20), col_varchar_3 varchar(20), col_date text, col_boolean boolean, primary key (id))
+            - create index index_test_2_idx1 on index_test_2(col_int_1);
+            - create index index_test_3_idx1 on index_test_3(col_int_1, col_int_2);
+            - create index index_test_4_idx1 on index_test_4(col_int_1, col_int_2, col_int_3, col_int_4, col_int_5);
+        cleanup:
+            - drop table if exists index_test_1;
+            - drop table if exists index_test_2;
+            - drop table if exists index_test_3;
+            - drop table if exists index_test_4;
+        loadRules:
+            -   table: index_test_
+                count: 4
+
+                rows: 2000000
+                columns:
+                    -   name: id
+                        util: PrimaryIntGen
+                        params:
+                            - 1
+                            - 2000000
+                    -   name: col_int_
+                        count: 10
+                        util: RandomNumber
+                        params:
+                            - 1
+                            - 2000000
+                    -   name: col_varchar_
+                        count: 3
+                        util: RandomAString
+                        params:
+                            - 5
+                            - 5
+                    -   name: col_date
+                        util: RandomAString
+                        params:
+                            - 5
+                            - 5
+                    -   name: col_boolean
+                        util: RandomBoolean
+        executeRules:
+            -   workload: RW_G5_0_column_composite_index_test
+                run:
+                    -   name: Update_0_column_composite_index_test
+                        weight: 100
+                        queries:
+                             -   query: UPDATE index_test_1 SET col_int_1 = ? where id = ?
+                                 bindings:
+                                     -   util: RandomNumber
+                                         params: [ 1, 2000000 ]
+                                     -   util: RandomNumber
+                                         params: [ 1, 2000000 ]
+            -   workload: RW_G5_1_column_composite_index_test
+                run:
+                    -   name: Update_1_column_composite_index_test
+                        weight: 100
+                        queries:
+                             -   query: UPDATE index_test_2 SET col_int_1 = ? where id = ?
+                                 bindings:
+                                     -   util: RandomNumber
+                                         params: [ 1, 2000000 ]
+                                     -   util: RandomNumber
+                                         params: [ 1, 2000000 ]
+            -   workload: RW_G5_2_column_composite_index_test
+                run:
+                    -   name: Update_column_composite_index_test
+                        weight: 100
+                        queries:
+                             -   query: UPDATE index_test_3 SET col_int_1 = ?, col_int_2 = ? where id = ?
+                                 bindings:
+                                     -   util: RandomNumber
+                                         count: 2
+                                         params: [ 1, 2000000 ]
+                                     -   util: RandomNumber
+                                         params: [ 1, 2000000 ]
+            -   workload: RW_G5_5_column_composite_index_test
+                run:
+                    -   name: Update_column_composite_index_test
+                        weight: 100
+                        queries:
+                              -   query: UPDATE index_test_4 SET col_int_1 = ?, col_int_2 = ?, col_int_3 = ?, col_int_4 = ?, col_int_5 = ? where id = ?
+                                  bindings:
+                                      -   util: RandomNumber
+                                          count: 5
+                                          params: [ 1, 2000000 ]
+                                      -   util: RandomNumber
+                                          params: [ 1, 2000000 ]
