@@ -329,10 +329,8 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
                 for (Map.Entry<String, Integer> entry : queryStringsAndRC.entrySet()) {
                     JSONObject inner = new JSONObject();
                     inner.put("query", entry.getKey());
-                    inner.put("pg_stat_statements", pgStatOutputs == null ? new JSONObject() : findQueryInPgStat(pgStatOutputs, entry.getKey()));
+                    inner.put("pg_stat_statements", pgStatOutputs == null ? new JSONObject() : findQueryInPgStatUsingCosine(pgStatOutputs, entry.getKey()));
 
-//                    System.out.printf("Explain plan RC %s%n", queryToExplainMap.getOrDefault(entry.getKey(), new JSONObject()).get("ExplainPlanRows"));
-//                    System.out.printf("user provided RC %d%n", entry.getValue());
                     if (entry.getValue() != -1)
                         inner.put("explainPlanRcValidationSuccess", Integer.parseInt((String) queryToExplainMap.getOrDefault(entry.getKey(), new JSONObject()).get("ExplainPlanRows")) == entry.getValue());
                     inner.put("explain", queryToExplainMap.getOrDefault(entry.getKey(), new JSONObject()));
@@ -385,21 +383,80 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
         return pgStatOutputs;
     }
 
-    private JSONObject findQueryInPgStat(JSONObject pgStatOutputs, String query) {
-        int minDistance = Integer.MAX_VALUE;
-        String keymatters = null;
+    private List<String> tokenizeQuery(String query) {
+        // Remove placeholders
+        String cleaned = query.replaceAll("\\?", "");
+
+        // Remove huge IN (...) clauses completely
+        cleaned = cleaned.replaceAll("(?i)in\\s*\\(([^)]*)\\)", "in()");
+
+        // Normalize whitespace and lowercase
+        cleaned = cleaned.replaceAll("\\s+", " ").trim().toLowerCase();
+
+        // Tokenize by word characters
+        return Arrays.asList(cleaned.split("\\W+"));
+    }
+
+    private double cosineSimilarity(List<String> tokens1, List<String> tokens2) {
+        Map<String, Integer> freq1 = getFrequencyMap(tokens1);
+        Map<String, Integer> freq2 = getFrequencyMap(tokens2);
+
+        Set<String> allTokens = new HashSet<>();
+        allTokens.addAll(freq1.keySet());
+        allTokens.addAll(freq2.keySet());
+
+        double dotProduct = 0.0;
+        double norm1 = 0.0;
+        double norm2 = 0.0;
+
+        for (String token : allTokens) {
+            int v1 = freq1.getOrDefault(token, 0);
+            int v2 = freq2.getOrDefault(token, 0);
+
+            dotProduct += v1 * v2;
+            norm1 += v1 * v1;
+            norm2 += v2 * v2;
+        }
+
+        return (norm1 == 0 || norm2 == 0) ? 0.0 : dotProduct / (Math.sqrt(norm1) * Math.sqrt(norm2));
+    }
+
+    private Map<String, Integer> getFrequencyMap(List<String> tokens) {
+        Map<String, Integer> freqMap = new HashMap<>();
+        for (String token : tokens) {
+            freqMap.put(token, freqMap.getOrDefault(token, 0) + 1);
+        }
+        return freqMap;
+    }
+
+    private JSONObject findQueryInPgStatUsingCosine(JSONObject pgStatOutputs, String inputQuery) {
+        List<String> inputTokens = tokenizeQuery(inputQuery);
+
+        double maxSimilarity = -1.0;
+        int minLengthDiff = Integer.MAX_VALUE;
+        String matchedKey = null;
+
         for (String key : pgStatOutputs.keySet()) {
             JSONObject value = (JSONObject) pgStatOutputs.get(key);
-            String onlyquery = value.getString("query");
-            if (minDistance > similarity(onlyquery, query)) {
-                minDistance = similarity(onlyquery, query);
-                keymatters = key;
+            String pgQuery = value.getString("query").trim();
+
+            // ❌ Skip explain queries
+            if (pgQuery.toLowerCase().startsWith("explain")) {
+                continue;
+            }
+
+            List<String> pgTokens = tokenizeQuery(pgQuery);
+            double similarity = cosineSimilarity(inputTokens, pgTokens);
+            int lengthDiff = Math.abs(inputTokens.size() - pgTokens.size());
+
+            if (similarity > maxSimilarity || (similarity == maxSimilarity && lengthDiff < minLengthDiff)) {
+                maxSimilarity = similarity;
+                minLengthDiff = lengthDiff;
+                matchedKey = key;
             }
         }
-        return (JSONObject) pgStatOutputs.get(keymatters);
-    }
-    int similarity(String pg_query, String actual_query) {
-        return new LevenshteinDistance().apply(pg_query, actual_query);
+
+        return matchedKey != null ? (JSONObject) pgStatOutputs.get(matchedKey) : null;
     }
 
     /*TODO: remove collectPgPreparedStatements*/
