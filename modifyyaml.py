@@ -3,6 +3,7 @@
 import json
 import sys
 import yaml
+import os  # Import the 'os' module for path manipulation
 from jinja2 import Environment, FileSystemLoader, Undefined
 from functools import reduce
 from operator import getitem
@@ -19,8 +20,22 @@ class SilentUndefined(Undefined):
 
 
 def jinja2_modification(context, input_yaml):
-    template_env = Environment(loader=FileSystemLoader("./"), undefined=SilentUndefined)
-    template = template_env.get_template(input_yaml)
+    """
+    Renders the input YAML file as a Jinja2 template, supporting both
+    relative and absolute file paths.
+    """
+    # Get the absolute path of the directory containing the template
+    template_dir = os.path.dirname(os.path.abspath(input_yaml))
+    # Get the base name of the template file
+    template_file = os.path.basename(input_yaml)
+
+    # Initialize Jinja2 environment with the correct template directory
+    template_env = Environment(loader=FileSystemLoader(searchpath=template_dir), undefined=SilentUndefined)
+    
+    # Load the template using its base name
+    template = template_env.get_template(template_file)
+    
+    # Write the rendered content back to the original file path
     with open(input_yaml, 'w') as f:
         f.write(template.render(context))
 
@@ -72,9 +87,23 @@ def set_nested_item(dataDict, mapList, val):
 
 
 def main():
+    if len(sys.argv) != 3:
+        print(f"Usage: {sys.argv[0]} <json_context> <yaml_file_path>")
+        sys.exit(1)
+        
     context = sys.argv[1]
     yaml_file = sys.argv[2]
-    data = json.loads(context, strict=False)
+    
+    try:
+        data = json.loads(context, strict=False)
+    except json.JSONDecodeError as e:
+        print(f"Error: Invalid JSON context provided. {e}")
+        sys.exit(1)
+
+    if not os.path.exists(yaml_file):
+        print(f"Error: YAML file not found at '{yaml_file}'")
+        sys.exit(1)
+
     jinja2_modification(data, yaml_file)
 
     with open(yaml_file) as f:
@@ -102,4 +131,5 @@ def main():
     return
 
 
-main()
+if __name__ == "__main__":
+    main()
