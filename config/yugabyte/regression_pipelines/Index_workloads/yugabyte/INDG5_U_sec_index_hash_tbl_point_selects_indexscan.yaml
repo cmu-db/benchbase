@@ -1,0 +1,98 @@
+type: YUGABYTE
+driver: com.yugabyte.Driver
+url: jdbc:yugabytedb://{{endpoint}}:5433/yugabyte?sslmode=require&ApplicationName=featurebench&reWriteBatchedInserts=true&load-balance=false
+username: {{username}}
+password: {{password}}
+batchsize: 128
+isolation: TRANSACTION_REPEATABLE_READ
+loaderthreads: 1
+terminals: 1
+collect_pg_stat_statements: true
+use_dist_in_explain : true
+yaml_version: v1.0
+works:
+    work:
+        time_secs: 180
+        active_terminals: 1
+        rate: unlimited
+        warmup: 60
+microbenchmark:
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
+    properties:
+        setAutoCommit: true
+        create:
+            - DROP TABLE IF EXISTS INDG5_U_Hashtbl_comp_skey_1;
+            - CREATE TABLE INDG5_U_Hashtbl_comp_skey_1(col_bigint_id_1 bigint, col_bigint_id_2 bigint, col_bigint_id_3 bigint, col_bigint_id_4 bigint, col_bigint_id_5 bigint, col_bigint_id_6 bigint, col_float2_1 float(2), col_float2_2 float(2), col_float5_1 float(5), col_float5_2 float(5), col_boolean_1 boolean, col_varchar10_id_1 varchar(10), col_varchar100_id_1 varchar(100), col_varchar100_id_2 varchar(100), col_varchar500_id_1 varchar(500), PRIMARY KEY(col_bigint_id_1));
+            - CREATE INDEX ON INDG5_U_Hashtbl_comp_skey_1(col_bigint_id_2, col_bigint_id_3);
+            - CREATE INDEX ON INDG5_U_Hashtbl_comp_skey_1(col_bigint_id_4, col_bigint_id_5 ASC);
+
+        cleanup:
+            - DROP TABLE IF EXISTS INDG5_U_Hashtbl_comp_skey_1;
+
+        loadRules:
+
+              - table: INDG5_U_Hashtbl_comp_skey_
+                count: 1
+                rows: 1000000
+                columns:
+                    - name: col_bigint_id_
+                      count: 6
+                      util: RandomUniqueIntGen
+                      params: [ 1, 1000000 ]
+                    - name: col_float2_
+                      count: 2
+                      util: RandomNoWithDecimalPoints
+                      params: [ 1, 1000000, 2 ]
+                    - name: col_float5_
+                      count: 2
+                      util: RandomNoWithDecimalPoints
+                      params: [ 1, 1000000, 5 ]
+                    - name: col_boolean_
+                      count: 1
+                      util: RandomBoolean
+                    - name: col_varchar10_id_
+                      count: 1
+                      util: PrimaryStringGen
+                      params: [1, 10]
+                    - name: col_varchar100_id_
+                      count: 2
+                      util: PrimaryStringGen
+                      params: [1, 100]
+                    - name: col_varchar500_id_
+                      count: 1
+                      util: PrimaryStringGen
+                      params: [1, 500]
+
+        executeRules:
+
+            - workload: INDG5_1_hashtbl_point_lookup_index_scan_using_comp_skey_first_part_hash
+              customTags: customer=9,schematype=regular,partition=hash,skey=composite,cardinality=single,projection=all,filtercount=one,filteron=hashskey,filtertype=pointselect,queryshape=scan
+              run:
+                  - name: hashtbl_index_scan_using_sec_index
+                    weight: 100
+                    queries:
+                        - query: select * from INDG5_U_Hashtbl_comp_skey_1 where col_bigint_id_2=500009
+
+            - workload: INDG5_2_hashtbl_point_lookup_index_scan_using_comp_skey_sec_part_hash
+              customTags: schematype=regular,partition=hash,skey=composite,cardinality=single,projection=all,filtercount=one,filteron=rangeskey,filtertype=pointselect,queryshape=scan
+              run:
+                  - name: hashtbl_index_scan_using_sec_index
+                    weight: 100
+                    queries:
+                        - query: select * from INDG5_U_Hashtbl_comp_skey_1 where col_bigint_id_3=500009
+
+            - workload: INDG5_3_hashtbl_point_lookup_index_scan_using_mixed_comp_skey_first_part_hash
+              customTags: customer=1,schematype=regular,partition=hash,skey=composite,cardinality=single,projection=all,filtercount=one,filteron=hashskey,filtertype=pointselect,queryshape=scan
+              run:
+                  - name: hashtbl_index_scan_using_sec_index
+                    weight: 100
+                    queries:
+                        - query: select * from INDG5_U_Hashtbl_comp_skey_1 where col_bigint_id_4=500009
+
+            - workload: INDG5_4_hashtbl_point_lookup_index_scan_using_mixed_comp_skey_sec_part_range
+              customTags: schematype=regular,partition=hash,skey=composite,cardinality=single,projection=all,filtercount=one,filteron=rangeskey,filtertype=pointselect,queryshape=scan
+              run:
+                  - name: hashtbl_index_scan_using_sec_index
+                    weight: 100
+                    queries:
+                        - query: select * from INDG5_U_Hashtbl_comp_skey_1 where col_bigint_id_5=500009

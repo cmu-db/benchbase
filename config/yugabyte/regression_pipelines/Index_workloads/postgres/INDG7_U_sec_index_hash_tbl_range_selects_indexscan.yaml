@@ -1,0 +1,114 @@
+type: POSTGRES
+driver: org.postgresql.Driver
+url: jdbc:postgresql://{{endpoint}}:5432/postgres?sslmode=require
+username: {{username}}
+password: {{password}}
+batchsize: 128
+isolation: TRANSACTION_REPEATABLE_READ
+loaderthreads: 1
+terminals: 1
+collect_pg_stat_statements: true
+yaml_version: v1.0
+works:
+    work:
+        time_secs: 180
+        active_terminals: 1
+        rate: unlimited
+        warmup: 60
+microbenchmark:
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
+    properties:
+        setAutoCommit: true
+        create:
+            - DROP TABLE IF EXISTS INDG7_U_Hashtbl_comp_skey_1;
+            - CREATE TABLE INDG7_U_Hashtbl_comp_skey_1(col_bigint_id_1 bigint, col_bigint_id_2 bigint, col_bigint_id_3 bigint, col_bigint_id_4 bigint, col_bigint_id_5 bigint, col_bigint_id_6 bigint, col_float2_1 float(2), col_float2_2 float(2), col_float5_1 float(5), col_float5_2 float(5), col_boolean_1 boolean, col_varchar10_id_1 varchar(10), col_varchar100_id_1 varchar(100), col_varchar100_id_2 varchar(100), col_varchar500_id_1 varchar(500), PRIMARY KEY(col_bigint_id_1));
+            - CREATE INDEX ON INDG7_U_Hashtbl_comp_skey_1(col_bigint_id_2, col_bigint_id_3);
+            - CREATE INDEX ON INDG7_U_Hashtbl_comp_skey_1(col_bigint_id_4, col_bigint_id_5);
+
+        cleanup:
+            - DROP TABLE IF EXISTS INDG7_U_Hashtbl_comp_skey_1;
+
+        loadRules:
+
+              - table: INDG7_U_Hashtbl_comp_skey_
+                count: 1
+                rows: 1000000
+                columns:
+                    - name: col_bigint_id_
+                      count: 6
+                      util: RandomUniqueIntGen
+                      params: [ 1, 1000000 ]
+                    - name: col_float2_
+                      count: 2
+                      util: RandomNoWithDecimalPoints
+                      params: [ 1, 1000000, 2 ]
+                    - name: col_float5_
+                      count: 2
+                      util: RandomNoWithDecimalPoints
+                      params: [ 1, 1000000, 5 ]
+                    - name: col_boolean_
+                      count: 1
+                      util: RandomBoolean
+                    - name: col_varchar10_id_
+                      count: 1
+                      util: PrimaryStringGen
+                      params: [1, 10]
+                    - name: col_varchar100_id_
+                      count: 2
+                      util: PrimaryStringGen
+                      params: [1, 100]
+                    - name: col_varchar500_id_
+                      count: 1
+                      util: PrimaryStringGen
+                      params: [1, 500]
+
+        executeRules:
+
+            - workload: INDG7_1_hashtbl_range_lookup_index_scan_using_comp_skey_first_part_hash
+              run:
+                  - name: hashtbl_index_scan_using_sec_index
+                    weight: 100
+                    queries:
+                        - query: select * from INDG7_U_Hashtbl_comp_skey_1 where col_bigint_id_2>500000
+
+            - workload: INDG7_2_hashtbl_range_lookup_index_scan_using_comp_skey_sec_part_range
+              run:
+                  - name: hashtbl_index_scan_using_sec_index
+                    weight: 100
+                    queries:
+                        - query: select * from INDG7_U_Hashtbl_comp_skey_1 where col_bigint_id_3>500000
+
+            - workload: INDG7_3_hashtbl_range_lookup_index_scan_using_mixed_comp_skey_first_part_hash
+              run:
+                  - name: hashtbl_index_scan_using_sec_index
+                    weight: 100
+                    queries:
+                        - query: select * from INDG7_U_Hashtbl_comp_skey_1 where col_bigint_id_4>500000
+
+            - workload: INDG7_4_hashtbl_range_lookup_index_scan_using_mixed_comp_skey_sec_part_range
+              run:
+                  - name: hashtbl_index_scan_using_sec_index
+                    weight: 100
+                    queries:
+                        - query: select * from INDG7_U_Hashtbl_comp_skey_1 where col_bigint_id_5>500000
+
+            - workload: INDG7_5_hashtbl_range_lookup_index_scan_using_comp_skey_two_conditions_both_hash
+              run:
+                  - name: hashtbl_index_scan_using_sec_index
+                    weight: 100
+                    queries:
+                        - query: select * from INDG7_U_Hashtbl_comp_skey_1 where col_bigint_id_2>250000 and col_bigint_id_3<750000
+
+            - workload: INDG7_6_hashtbl_range_lookup_index_scan_using_mixed_comp_skey_two_conditions_hash_range
+              run:
+                  - name: hashtbl_index_scan_using_sec_index
+                    weight: 100
+                    queries:
+                        - query: select * from INDG7_U_Hashtbl_comp_skey_1 where col_bigint_id_4>250000 and col_bigint_id_5<750000
+
+            - workload: INDG7_7_hashtbl_range_lookup_index_scan_using_skey_two_conditions_on_hash
+              run:
+                  - name: hashtbl_index_scan_pkey
+                    weight: 100
+                    queries:
+                        - query: select * from INDG7_U_Hashtbl_comp_skey_1 where col_bigint_id_2>250000 and col_bigint_id_2<750000
