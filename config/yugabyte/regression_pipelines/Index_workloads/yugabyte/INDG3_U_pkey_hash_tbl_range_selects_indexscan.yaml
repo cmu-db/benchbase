@@ -21,15 +21,15 @@ microbenchmark:
     properties:
         setAutoCommit: true
         create:
-            - DROP TABLE IF EXISTS INDG3_U_CompositeHashtbl_;
-            - CREATE TABLE INDG3_U_CompositeHashtbl_(col_bigint_id_1 bigint, col_bigint_id_2 bigint, col_bigint_id_3 bigint, col_bigint_id_4 bigint, col_bigint_1 bigint, col_bigint_2 bigint, col_float2_1 float(2), col_float2_2 float(2), col_float5_1 float(5), col_float5_2 float(5), col_boolean_1 boolean, col_varchar10_id_1 varchar(10), col_varchar100_id_1 varchar(100), col_varchar100_id_2 varchar(100), col_varchar500_id_1 varchar(500), PRIMARY KEY(col_bigint_id_1, col_bigint_id_2));
+            - DROP TABLE IF EXISTS INDG3_U_CompositeHashtbl_1;
+            - CREATE TABLE INDG3_U_CompositeHashtbl_1(col_bigint_id_1 bigint, col_bigint_id_2 bigint, col_bigint_id_3 bigint, col_bigint_id_4 bigint, col_bigint_1 bigint, col_bigint_2 bigint, col_float2_1 float(2), col_float2_2 float(2), col_float5_1 float(5), col_float5_2 float(5), col_boolean_1 boolean, col_varchar10_id_1 varchar(10), col_varchar100_id_1 varchar(100), col_varchar100_id_2 varchar(100), col_varchar500_id_1 varchar(500), PRIMARY KEY(col_bigint_id_1, col_bigint_id_2));
 
         cleanup:
-            - DROP TABLE IF EXISTS INDG3_U_CompositeHashtbl_;
+            - DROP TABLE IF EXISTS INDG3_U_CompositeHashtbl_1;
 
         loadRules:
 
-              - table: CompositeHashtbl_
+              - table: INDG3_U_CompositeHashtbl_
                 count: 1
                 rows: 1000000
                 columns:
@@ -73,7 +73,7 @@ microbenchmark:
                   - name: hashtbl_index_scan_using_sec_index
                     weight: 100
                     queries:
-                        - query: select * from INDG3_U_CompositeHashtbl_ where col_bigint_id_1>500000
+                        - query: select * from INDG3_U_CompositeHashtbl_1 where col_bigint_id_1>500000
 
             - workload: INDG3_2_hashtbl_range_lookup_index_scan_using_comp_pkey_sec_part_range
               customTags: schematype=regular,partition=hash,pkey=composite,cardinality=single,projection=all,filtercount=one,filteron=rangepkey,filtertype=comparision,queryshape=scan
@@ -81,7 +81,7 @@ microbenchmark:
                   - name: hashtbl_index_scan_using_sec_index
                     weight: 100
                     queries:
-                        - query: select * from INDG3_U_CompositeHashtbl_ where col_bigint_id_2>500000
+                        - query: select * from INDG3_U_CompositeHashtbl_1 where col_bigint_id_2>500000
 
             - workload: INDG3_3_hashtbl_range_lookup_index_scan_using_comp_pkey_using_two_conditions_hash_range
               customTags: schematype=regular,partition=hash,pkey=composite,cardinality=single,projection=all,filtercount=two,filteron=mixedpkey,filtertype=comparision,queryshape=scan
@@ -89,7 +89,7 @@ microbenchmark:
                   - name: hashtbl_index_scan_using_sec_index
                     weight: 100
                     queries:
-                        - query: select * from INDG3_U_CompositeHashtbl_ where col_bigint_id_1>250000 and col_bigint_id_2<750000
+                        - query: select * from INDG3_U_CompositeHashtbl_1 where col_bigint_id_1>250000 and col_bigint_id_2<750000
 
             - workload: INDG3_4_hashtbl_range_lookup_index_scan_using_pkey_two_conditions_both_hash
               customTags: schematype=regular,partition=hash,pkey=composite,cardinality=single,projection=all,filtercount=two,filteron=hashpkey,filtertype=comparision,queryshape=scan
@@ -97,4 +97,4 @@ microbenchmark:
                   - name: hashtbl_index_scan_pkey
                     weight: 100
                     queries:
-                        - query: select * from INDG3_U_CompositeHashtbl_ where col_bigint_id_1>250000 and col_bigint_id_1<750000
+                        - query: select * from INDG3_U_CompositeHashtbl_1 where col_bigint_id_1>250000 and col_bigint_id_1<750000
