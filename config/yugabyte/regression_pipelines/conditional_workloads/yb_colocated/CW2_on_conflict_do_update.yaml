@@ -10,7 +10,7 @@ loaderThreads: 1
 terminals: 1
 collect_pg_stat_statements: true
 use_dist_in_explain : true
-yaml_version: v1.1
+yaml_version: v2.0
 works:
     work:
         time_secs: 180
@@ -22,7 +22,7 @@ microbenchmark:
         setAutoCommit: true
         create:
             - DROP TABLE IF EXISTS accounts_1;
-            - CREATE TABLE IF NOT EXISTS accounts_1(account_id_1 bigint, user_id_1 bigint, addr_1 varchar(50), bal_1 float(2),PRIMARY KEY(account_id_1));
+            - CREATE TABLE IF NOT EXISTS accounts_1(account_id_1 bigint, user_id_1 bigint, addr_1 varchar(50), bal_1 bigint,PRIMARY KEY(account_id_1));
             - CREATE UNIQUE INDEX user_accounts_1 ON accounts_1( user_id_1, account_id_1);
             - CREATE UNIQUE INDEX user_accounts_2 ON accounts_1( user_id_1, account_id_1, addr_1, bal_1);
 
@@ -48,8 +48,8 @@ microbenchmark:
                         params: [ 1, 50 ]
                     -   name: bal_
                         count: 1
-                        util: PrimaryFloatGen
-                        params: [ 1, 8000000, 2 ]
+                        util: PrimaryIntGen
+                        params: [ 1, 6000000 ]
 
         executeRules:
             - workload: CW2_1_2column_condition_single_upsert
@@ -65,8 +65,8 @@ microbenchmark:
                                   params: [ 1, 1000000 ]
                               -   util: PrimaryStringGen
                                   params: [ 1, 50 ]
-                              -   util: PrimaryFloatGen
-                                  params: [ 1, 1000000, 2 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 1, 1000000 ]
 
 
             - workload: CW2_2_4column_condition_single_upsert
@@ -82,8 +82,8 @@ microbenchmark:
                                   params: [ 1000001, 2000000 ]
                               -   util: PrimaryStringGen
                                   params: [ 1000001, 50 ]
-                              -   util: PrimaryFloatGen
-                                  params: [ 1000001, 2000000, 2 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 1000001, 2000000]
 
             - workload: CW2_3_2column_condition_1024_upsert
               run:
@@ -99,8 +99,8 @@ microbenchmark:
                                   params: [ 2000001, 3000000 ]
                               -   util: PrimaryStringGen
                                   params: [ 2000001, 50 ]
-                              -   util: PrimaryFloatGen
-                                  params: [ 2000001, 3000000, 2 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 2000001, 3000000]
 
             - workload: CW2_4_2column_condition_2048_upsert
               run:
@@ -116,8 +116,8 @@ microbenchmark:
                                   params: [ 3000001, 4000000 ]
                               -   util: PrimaryStringGen
                                   params: [ 3000001, 50 ]
-                              -   util: PrimaryFloatGen
-                                  params: [ 3000001, 4000000, 2 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 3000001, 4000000]
 
             - workload: CW2_5_2column_condition_1_upsert_with_returning
               run:
@@ -133,8 +133,8 @@ microbenchmark:
                                   params: [ 4000001, 5000000 ]
                               -   util: PrimaryStringGen
                                   params: [ 4000001, 50 ]
-                              -   util: PrimaryFloatGen
-                                  params: [ 4000001, 5000000, 2 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 4000001, 5000000]
 
             - workload: CW2_6_4column_condition_1_upsert_with_returning
               run:
@@ -149,8 +149,8 @@ microbenchmark:
                                   params: [ 5000001, 6000000 ]
                               -   util: PrimaryStringGen
                                   params: [ 5000001, 50 ]
-                              -   util: PrimaryFloatGen
-                                  params: [ 5000001, 6000000, 2 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 5000001, 6000000]
 
             - workload: CW2_7_2column_condition_10values_in_1upsert_with_returning
               run:
@@ -165,80 +165,80 @@ microbenchmark:
                                   params: [ 1, 6000000 ]
                               -   util: PrimaryStringGen
                                   params: [ 1, 50 ]
-                              -   util: PrimaryFloatGen
-                                  params: [ 1, 6000000, 2 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 1, 6000000]
                               -   util: PrimaryIntGen
                                   params: [ 1, 6000000 ]
                               -   util: PrimaryIntGen
                                   params: [ 1, 6000000 ]
                               -   util: PrimaryStringGen
                                   params: [ 1, 50 ]
-                              -   util: PrimaryFloatGen
-                                  params: [ 1, 6000000, 2 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 1, 6000000]
                               -   util: PrimaryIntGen
                                   params: [ 1, 6000000 ]
                               -   util: PrimaryIntGen
                                   params: [ 1, 6000000 ]
                               -   util: PrimaryStringGen
                                   params: [ 1, 50 ]
-                              -   util: PrimaryFloatGen
-                                  params: [ 1, 6000000, 2 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 1, 6000000]
                               -   util: PrimaryIntGen
                                   params: [ 1, 6000000 ]
                               -   util: PrimaryIntGen
                                   params: [ 1, 6000000 ]
                               -   util: PrimaryStringGen
                                   params: [ 1, 50 ]
-                              -   util: PrimaryFloatGen
-                                  params: [ 1, 6000000, 2 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 1, 6000000]
                               -   util: PrimaryIntGen
                                   params: [ 1, 6000000 ]
                               -   util: PrimaryIntGen
                                   params: [ 1, 6000000 ]
                               -   util: PrimaryStringGen
                                   params: [ 1, 50 ]
-                              -   util: PrimaryFloatGen
-                                  params: [ 1, 6000000, 2 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 1, 6000000]
                               -   util: PrimaryIntGen
                                   params: [ 1, 6000000 ]
                               -   util: PrimaryIntGen
                                   params: [ 1, 6000000 ]
                               -   util: PrimaryStringGen
                                   params: [ 1, 50 ]
-                              -   util: PrimaryFloatGen
-                                  params: [ 1, 6000000, 2 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 1, 6000000]
                               -   util: PrimaryIntGen
                                   params: [ 1, 6000000 ]
                               -   util: PrimaryIntGen
                                   params: [ 1, 6000000 ]
                               -   util: PrimaryStringGen
                                   params: [ 1, 50 ]
-                              -   util: PrimaryFloatGen
-                                  params: [ 1, 6000000, 2 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 1, 6000000]
                               -   util: PrimaryIntGen
                                   params: [ 1, 6000000 ]
                               -   util: PrimaryIntGen
                                   params: [ 1, 6000000 ]
                               -   util: PrimaryStringGen
                                   params: [ 1, 50 ]
-                              -   util: PrimaryFloatGen
-                                  params: [ 1, 6000000, 2 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 1, 6000000]
                               -   util: PrimaryIntGen
                                   params: [ 1, 6000000 ]
                               -   util: PrimaryIntGen
                                   params: [ 1, 6000000 ]
                               -   util: PrimaryStringGen
                                   params: [ 1, 50 ]
-                              -   util: PrimaryFloatGen
-                                  params: [ 1, 6000000, 2 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 1, 6000000]
                               -   util: PrimaryIntGen
                                   params: [ 1, 6000000 ]
                               -   util: PrimaryIntGen
                                   params: [ 1, 6000000 ]
                               -   util: PrimaryStringGen
                                   params: [ 1, 50 ]
-                              -   util: PrimaryFloatGen
-                                  params: [ 1, 6000000, 2 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 1, 6000000]
 
             - workload: CW2_8_2column_condition_1_upsert_with_returning
               run:
@@ -253,8 +253,8 @@ microbenchmark:
                                   params: [ 6000001, 7000000 ]
                               -   util: PrimaryStringGen
                                   params: [ 6000001, 50 ]
-                              -   util: PrimaryFloatGen
-                                  params: [ 6000001, 7000000, 2 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 6000001, 7000000]
 
             - workload: CW2_9_2column_condition_10_upsert_with_returning
               run:
@@ -270,5 +270,5 @@ microbenchmark:
                                   params: [ 7000001, 8000000 ]
                               -   util: PrimaryStringGen
                                   params: [ 7000001, 50 ]
-                              -   util: PrimaryFloatGen
-                                  params: [ 7000001, 8000000, 2 ]
+                              -   util: PrimaryIntGen
+                                  params: [ 7000001, 8000000]
