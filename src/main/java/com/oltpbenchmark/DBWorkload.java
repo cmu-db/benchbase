@@ -22,6 +22,8 @@ package com.oltpbenchmark;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
@@ -48,6 +50,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -55,6 +59,8 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.sql.Connection;
+import java.sql.ResultSet;
 
 public class DBWorkload {
     private static final Logger LOG = LoggerFactory.getLogger(DBWorkload.class);
@@ -68,6 +74,16 @@ public class DBWorkload {
      * @param args
      * @throws Exception
      */
+    private static boolean isOptionTrueForOptimalThreads(XMLConfiguration config, String key) {
+        if (!config.containsKey(key)) return false;
+        Object val = config.getProperty(key);
+        if (val instanceof Boolean) {
+            return (Boolean) val;
+        } else if (val instanceof String) {
+            return ((String) val).equalsIgnoreCase("true");
+        }
+        return false;
+    }
     public static void main(String[] args) throws Exception {
 
         // create the command line parser
@@ -219,6 +235,12 @@ public class DBWorkload {
             List<HierarchicalConfiguration<ImmutableNode>> workloads =
                 xmlConfig.configurationsAt("microbenchmark/properties/executeRules");
 
+            if (isOptionTrueForOptimalThreads(xmlConfig, "optimalThreads")) {
+                if (workloads != null && workloads.size() > 1) {
+                    LOG.error("Error: optimalThreads can only be used when there is exactly one workload. Found {} workloads.", workloads.size());
+                    System.exit(1);
+                }
+            }
             int totalWorkloadCount =
                 plugin.equalsIgnoreCase("featurebench") ?
                     (workloads == null ? 1 : (workloads.size() == 0 ? 1 : workloads.size())) : 1;
@@ -663,6 +685,52 @@ public class DBWorkload {
                     String val = workloads.get(workCount - 1).getString("workload");
                     if (uniqueRunWorkloads.contains(val) || uniqueRunWorkloads.contains("DEFAULT_WORKLOAD")) {
                         LOG.info("Starting Workload " + (workloads.get(workCount - 1).containsKey("workload") ? workloads.get(workCount - 1).getString("workload") : workCount));
+                        // Add optimal thread finding here for current workload
+                        if (xmlConfig.containsKey("optimalThreads") && xmlConfig.getBoolean("optimalThreads")) {
+                            int minThreads = xmlConfig.getInt("minThreads", terminals);
+                            double targetCPU = xmlConfig.getDouble("targetCPU", 80.0);
+                            double toleranceCPU = xmlConfig.getDouble("toleranceCPU", 5.0);
+
+                            LOG.info("Finding optimal threads for workload: {}", val);
+                            LOG.info("First BenchmarkModule: {}", benchList.get(0));
+                            LOG.info("targetCPU: {}, toleranceCPU: {}", targetCPU, toleranceCPU);
+
+                            // Store original terminal count
+                            int originalTerminals = benchList.get(0).getWorkloadConfiguration().getTerminals();
+                            LOG.info("Terminal for starting: {}", originalTerminals);
+                            String workloadName = executeRules == null ? null : workloads.get(workCount - 1).getString("workload");
+                            // Find optimal threads for this workload
+                            int optimalThreads = findOptimalThreadCount(benchList.get(0), minThreads, targetCPU, toleranceCPU, workloadName);
+
+                            // Update the configuration with optimal thread count
+                            for (BenchmarkModule benchi : benchList) {
+                                Phase oldPhase = benchi.getWorkloadConfiguration().getPhases().get(0);
+                                Phase newPhase = new Phase(
+                                    // Use the correct constructor arguments for Phase
+                                    "FEATUREBENCH",
+                                    oldPhase.getId(),
+                                    oldPhase.getTime(),
+                                    oldPhase.getWarmupTime(),
+                                    oldPhase.getRate(),
+                                    oldPhase.getWeights(),
+                                    oldPhase.isRateLimited(),
+                                    oldPhase.isDisabled(),
+                                    oldPhase.isSerial(),
+                                    oldPhase.isTimed(),
+                                    optimalThreads,
+                                    oldPhase.getArrival()
+                                );
+                                // Replace the phase in the config
+                                benchi.getWorkloadConfiguration().getPhases().clear();
+                                benchi.getWorkloadConfiguration().getPhases().add(newPhase);
+                                benchi.getWorkloadConfiguration().setTerminals(optimalThreads);
+                                benchi.getWorkloadConfiguration().setTerminals(optimalThreads);
+                            }
+
+                            LOG.info("Using optimal thread count for workload {}: {} (original was: {})",
+                                val, optimalThreads, originalTerminals);
+                        }
+
                         try {
                             Results r = runWorkload(benchList, intervalMonitor, workCount);
                             writeOutputs(r, activeTXTypes, argsLine, xmlConfig,
@@ -692,6 +760,51 @@ public class DBWorkload {
                         LOG.info("Starting Workload " + workCount);
                     } else {
                         LOG.info("Starting Workload " + (workloads.get(workCount - 1).containsKey("workload") ? workloads.get(workCount - 1).getString("workload") : workCount));
+                        if (xmlConfig.containsKey("optimalThreads") && xmlConfig.getBoolean("optimalThreads")) {
+                            String val = workloads.get(workCount - 1).getString("workload");
+                            int minThreads = xmlConfig.getInt("minThreads", terminals);
+                            double targetCPU = xmlConfig.getDouble("targetCPU", 80.0);
+                            double toleranceCPU = xmlConfig.getDouble("toleranceCPU", 5.0);
+
+                            LOG.info("Finding optimal threads for workload: {}", val);
+                            LOG.info("First BenchmarkModule: {}", benchList.get(0));
+                            LOG.info("targetCPU: {}, toleranceCPU: {}", targetCPU, toleranceCPU);
+
+                            // Store original terminal count
+                            int originalTerminals = benchList.get(0).getWorkloadConfiguration().getTerminals();
+                            LOG.info("Terminal for starting: {}", originalTerminals);
+                            String workloadName = executeRules == null ? null : workloads.get(workCount - 1).getString("workload");
+                            // Find optimal threads for this workload
+                            int optimalThreads = findOptimalThreadCount(benchList.get(0), minThreads, targetCPU, toleranceCPU, workloadName);
+
+                            // Update the configuration with optimal thread count
+                            for (BenchmarkModule benchi : benchList) {
+                                Phase oldPhase = benchi.getWorkloadConfiguration().getPhases().get(0);
+                                Phase newPhase = new Phase(
+                                    // Use the correct constructor arguments for Phase
+                                    "FEATUREBENCH",
+                                    oldPhase.getId(),
+                                    oldPhase.getTime(),
+                                    oldPhase.getWarmupTime(),
+                                    oldPhase.getRate(),
+                                    oldPhase.getWeights(),
+                                    oldPhase.isRateLimited(),
+                                    oldPhase.isDisabled(),
+                                    oldPhase.isSerial(),
+                                    oldPhase.isTimed(),
+                                    optimalThreads,
+                                    oldPhase.getArrival()
+                                );
+                                // Replace the phase in the config
+                                benchi.getWorkloadConfiguration().getPhases().clear();
+                                benchi.getWorkloadConfiguration().getPhases().add(newPhase);
+                                benchi.getWorkloadConfiguration().setTerminals(optimalThreads);
+                                benchi.getWorkloadConfiguration().setTerminals(optimalThreads);
+                            }
+
+                            LOG.info("Using optimal thread count for workload {}: {} (original was: {})",
+                                val, optimalThreads, originalTerminals);
+                        }
                     }
                     // Bombs away!
                     try {
@@ -1126,5 +1239,188 @@ public class DBWorkload {
             LOG.info("No match!");
         }
 
+    }
+
+    // Returns a list of CPU utilizations (percent) for all nodes
+    private static List<Double> getYBCPUUtilizationAllNodes(BenchmarkModule bench) {
+        List<Double> cpuList = new ArrayList<>();
+        try (Connection conn = bench.makeConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery("select uuid, metrics, status, error from yb_servers_metrics()")) {
+            while (rs.next()) {
+                String metricsJson = rs.getString("metrics");
+                try {
+                    ObjectMapper mapper = new ObjectMapper();
+                    JsonNode rootNode = mapper.readTree(metricsJson);
+                    double cpuUser = 0.0, cpuSystem = 0.0;
+                    if (rootNode.has("cpu_usage_user")) {
+                        cpuUser = Double.parseDouble(rootNode.get("cpu_usage_user").asText());
+                    }
+                    if (rootNode.has("cpu_usage_system")) {
+                        cpuSystem = Double.parseDouble(rootNode.get("cpu_usage_system").asText());
+                    }
+                    double totalCPU = (cpuUser + cpuSystem) * 100.0; // percent
+                    cpuList.add(totalCPU);
+                } catch (JsonProcessingException | NumberFormatException e) {
+                    LOG.error("Error parsing metrics JSON", e);
+                }
+            }
+        } catch (SQLException e) {
+            LOG.error("Error getting YugabyteDB metrics", e);
+        }
+        return cpuList;
+    }
+
+    private static int findOptimalThreadCount(BenchmarkModule bench, int minThreads, double targetCPU, double toleranceCPU, String workloadName) {
+        double minTargetCPU = targetCPU - toleranceCPU;
+        double maxTargetCPU = targetCPU + toleranceCPU;
+        LOG.info("minTargetCPU: {}, maxTargetCPU: {}", minTargetCPU, maxTargetCPU);
+        int interval_gap = 5;
+        ObjectMapper mapper = new ObjectMapper();
+        // Prepare for logging
+        String outputDir = "results/" + workloadName;
+        String logFile = outputDir + "/optimal_threads_log.csv";
+        String jsonFile = outputDir + "/optimal_threads_log.json";
+        try {
+            Files.createDirectories(Paths.get(outputDir));
+            // Write header if file does not exist
+            if (!Files.exists(Paths.get(logFile))) {
+                StringBuilder header = new StringBuilder("threads");
+                for (int i = 1; i <= 3; i++) header.append(",reading" + i);
+                header.append(",");
+                header.append("max_node1,max_node2,max_node3,max_cpu\n");
+                Files.write(Paths.get(logFile), header.toString().getBytes());
+            }
+        } catch (Exception e) {
+            LOG.error("Error creating log directory or file", e);
+        }
+
+        int threads = minThreads;
+        int max_iterations =  50;
+        int optimalThreads = threads;
+        boolean found = false;
+        List<Map<String, Object>> jsonResults = new ArrayList<>();
+        Map<Integer, Double> threadCpuMap = new HashMap<>();
+        for(int iter=0; iter<max_iterations; iter++) {
+            LOG.info("Finding optimal threads.... iteration_no. {}, current_threads: {}", iter, threads);
+            Phase oldPhase = bench.getWorkloadConfiguration().getPhases().get(0);
+            Phase newPhase = new Phase(
+                "FEATUREBENCH",
+                oldPhase.getId(),
+                oldPhase.getTime(),
+                oldPhase.getWarmupTime(),
+                oldPhase.getRate(),
+                oldPhase.getWeights(),
+                oldPhase.isRateLimited(),
+                oldPhase.isDisabled(),
+                oldPhase.isSerial(),
+                oldPhase.isTimed(),
+                threads, // <-- set to your thread count
+                oldPhase.getArrival()
+            );
+            // Replace the phase in the config
+            bench.getWorkloadConfiguration().getPhases().clear();
+            bench.getWorkloadConfiguration().getPhases().add(newPhase);
+            bench.getWorkloadConfiguration().setTerminals(threads);
+
+            double avgMaxCPU = 0.0;
+            List<List<Double>> allNodeReadings = new ArrayList<>();
+            try {
+                // Get the current phase (assume first phase for test)
+                List<Phase> phases = bench.getWorkloadConfiguration().getPhases();
+                if (phases.isEmpty()) {
+                    LOG.error("No phases found in workload configuration");
+                    break;
+                }
+                Phase phase = phases.get(0);
+                int totalTime = phase.getWarmupTime() + phase.getTime(); // seconds
+
+                Thread workloadThread = new Thread(() -> {
+                    try {
+                        runWorkload(Collections.singletonList(bench), 0, 1);
+                    } catch (Exception e) {
+                        LOG.error("Error running workload for thread test", e);
+                    }
+                });
+                workloadThread.start();
+
+                // Wait until 3/4th of total time
+                Thread.sleep((long)(totalTime * 0.75 * 1000));
+
+                for (int i = 0; i < 3; i++) {
+                    List<Double> nodeReadings = getYBCPUUtilizationAllNodes(bench);
+                    LOG.info("CPU Reading {}: {}", i+1, nodeReadings);
+                    allNodeReadings.add(nodeReadings);
+                    Thread.sleep(interval_gap * 1000);
+                }
+
+                // For each node, find the max of its 3 readings
+                int numNodes = allNodeReadings.get(0).size();
+                List<Double> maxPerNode = new ArrayList<>();
+                for (int nodeIdx = 0; nodeIdx < numNodes; nodeIdx++) {
+                    double max = Math.max(allNodeReadings.get(0).get(nodeIdx),
+                                          Math.max(allNodeReadings.get(1).get(nodeIdx),
+                                                   allNodeReadings.get(2).get(nodeIdx)));
+                    maxPerNode.add(max);
+                    LOG.info("Node {} max CPU: {}", nodeIdx+1, max);
+                }
+//                avgMaxCPU = maxPerNode.stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
+                avgMaxCPU = maxPerNode.stream().mapToDouble(Double::doubleValue).max().orElse(0.0);
+                LOG.info("Node max CPU utilizations: {}", avgMaxCPU);
+
+                // Write to log file
+                StringBuilder logLine = new StringBuilder();
+                logLine.append(threads);
+                for (int i = 0; i < 3; i++) {
+                    logLine.append(",");
+                    logLine.append(allNodeReadings.get(i).toString().replaceAll("[\\[\\] ]", ""));
+                }
+                logLine.append(",");
+                for (int i = 0; i < maxPerNode.size(); i++) {
+                    logLine.append(maxPerNode.get(i));
+                    if (i < maxPerNode.size() - 1) logLine.append(",");
+                }
+                logLine.append(",").append(avgMaxCPU).append("\n");
+                Files.write(Paths.get(logFile), logLine.toString().getBytes(), java.nio.file.StandardOpenOption.APPEND);
+
+                // Add to JSON results
+                Map<String, Object> entry = new LinkedHashMap<>();
+                entry.put("threads", threads);
+                entry.put("readings", allNodeReadings);
+                entry.put("max_per_node", maxPerNode);
+                entry.put("max_cpu", avgMaxCPU);
+                jsonResults.add(entry);
+
+                workloadThread.join();
+                threadCpuMap.put(threads, avgMaxCPU);
+                if (avgMaxCPU >= minTargetCPU && avgMaxCPU <= maxTargetCPU) {
+                    optimalThreads = threads;
+                    found = true;
+                    LOG.info("Found optimal threads: {} with MaxCPU: {}", optimalThreads, avgMaxCPU);
+                    break;
+                }
+                else {
+                    if(avgMaxCPU<=targetCPU) optimalThreads=threads;
+                    LOG.info("finding new threads for run....");
+                    int newThreads = (int) Math.ceil((threads * targetCPU) / avgMaxCPU);
+                    if (threadCpuMap.containsKey(newThreads)) {
+                        LOG.info("newThreads={} already tested. Breaking loop to avoid duplicate testing.", newThreads);
+                        break;
+                    }
+                    threads = newThreads;
+                }
+
+            } catch (Exception e) {
+                LOG.error("Error during thread testing", e);
+            }
+
+        }
+        // Write JSON file
+        try {
+            mapper.writerWithDefaultPrettyPrinter().writeValue(new File(jsonFile), jsonResults);
+        } catch (Exception e) {
+            LOG.error("Error writing optimal threads JSON log", e);
+        }
+        return optimalThreads;
     }
 }
