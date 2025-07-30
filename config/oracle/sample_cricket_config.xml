@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    <type>ORACLE</type>
+    <driver>oracle.jdbc.OracleDriver</driver>
+    <url>jdbc:oracle:thin:@localhost:1521/xepdb1</url>
+    <username>benchbase</username>
+    <password>password</password>
+    <reconnectOnConnectionFailure>true</reconnectOnConnectionFailure>
+    <isolation>TRANSACTION_READ_COMMITTED</isolation>
+    <batchsize>128</batchsize>
+    <loaderThreads>1</loaderThreads>
+
+    <!-- Cricket Benchmark -->
+    <benchmark>cricket</benchmark>
+    <scalefactor>1</scalefactor>
+    
+    <!-- Number of terminals (each terminal maps to one team) -->
+    <terminals>10</terminals>
+    
+    <works>
+        <work>
+            <time>30</time>
+            <rate>unlimited</rate>
+            <!-- Weights for each transaction type: GamePlayed, DeleteGame, UpdateTeam, UpdatePlayer -->
+            <weights>60,20,10,10</weights>
+        </work>
+    </works>
+
+    <!-- Cricket Procedures declaration -->
+    <transactiontypes>
+        <transactiontype>
+            <n>GamePlayed</n>
+        </transactiontype>
+        <transactiontype>
+            <n>DeleteGame</n>
+        </transactiontype>
+        <transactiontype>
+            <n>UpdateTeam</n>
+        </transactiontype>
+        <transactiontype>
+            <n>UpdatePlayer</n>
+        </transactiontype>
+    </transactiontypes>
+</parameters> 
