@@ -9,7 +9,7 @@ loaderthreads: 1
 terminals: 1
 collect_pg_stat_statements: true
 use_dist_in_explain : true
-yaml_version: v1.0
+yaml_version: v2.0
 works:
     work:
         time_secs: 180
@@ -81,13 +81,6 @@ microbenchmark:
                     queries:
                         - query: select * from Rangetbl_comp_skey_1 where col_bigint_id_3=500009
 
-            - workload: INDG6_3_rangetbl_point_lookup_index_scan_using_comp_skey_two_conditions_range
-              customTags: customer=5,schematype=regular,partition=range,skey=composite,cardinality=single,projection=all,filtercount=two,filteron=mixedskey,filtertype=pointselect,queryshape=scan
-              run:
-                  - name: hashtbl_index_scan_using_sec_index
-                    weight: 100
-                    queries:
-                        - query: select * from Rangetbl_comp_skey_1 where col_bigint_id_3=500009 and col_bigint_id_4=500009
 
             - workload: INDG6_4_rangetbl_point_lookup_index_scan_using_mixed_comp_skey_first_part_hash
               customTags: customer=1,schematype=regular,partition=range,skey=composite,cardinality=single,projection=all,filtercount=one,filteron=hashskey,filtertype=pointselect,queryshape=scan
