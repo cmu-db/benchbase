@@ -63,7 +63,7 @@ microbenchmark:
                               -   util: PrimaryIntGen
                                   params: [ 1, 1000000 ]
                               -   util: OneStringFromArray
-                                  params: [ "Addr1 for the client" ]
+                                  params: [ "addr for the client" ]
                               -   util: PrimaryIntGen
                                   params: [ 1, 1000000]
 
@@ -80,7 +80,7 @@ microbenchmark:
                               -   util: PrimaryIntGen
                                   params: [ 1000001, 2000000 ]
                               -   util: OneStringFromArray
-                                  params: [ "Addr2 for the client" ]
+                                  params: [ "addr for the client" ]
                               -   util: PrimaryIntGen
                                   params: [ 1000001, 2000000]
 
@@ -97,7 +97,7 @@ microbenchmark:
                               -   util: PrimaryIntGen
                                   params: [ 2000001, 3000000 ]
                               -   util: OneStringFromArray
-                                  params: [ "Addr3 for the client" ]
+                                  params: [ "addr for the client" ]
                               -   util: PrimaryIntGen
                                   params: [ 2000001, 3000000]
 
@@ -114,7 +114,7 @@ microbenchmark:
                               -   util: PrimaryIntGen
                                   params: [ 3000001, 4000000 ]
                               -   util: OneStringFromArray
-                                  params: [ "Addr4 for the client" ]
+                                  params: [ "addr for the client" ]
                               -   util: PrimaryIntGen
                                   params: [ 3000001, 4000000]
 
@@ -131,7 +131,7 @@ microbenchmark:
                               -   util: PrimaryIntGen
                                   params: [ 4000001, 5000000 ]
                               -   util: OneStringFromArray
-                                  params: [ "Addr5 for the client" ]
+                                  params: [ "addr for the client" ]
                               -   util: PrimaryIntGen
                                   params: [ 4000001, 5000000]
 
@@ -147,7 +147,7 @@ microbenchmark:
                               -   util: PrimaryIntGen
                                   params: [ 5000001, 6000000 ]
                               -   util: OneStringFromArray
-                                  params: [ "Addr6 for the client" ]
+                                  params: [ "addr for the client" ]
                               -   util: PrimaryIntGen
                                   params: [ 5000001, 6000000]
 
@@ -163,7 +163,7 @@ microbenchmark:
                               -   util: CyclicSeqIntGen
                                   params: [ 1, 500000 ]
                               -   util: OneStringFromArray
-                                  params: [ "Addr7 for the client" ]
+                                  params: [ "addr for the client" ]
                               -   util: CyclicSeqIntGen
                                   params: [ 1, 500000]
                               -   util: CyclicSeqIntGen
@@ -171,7 +171,7 @@ microbenchmark:
                               -   util: CyclicSeqIntGen
                                   params: [ 500001, 1000000 ]
                               -   util: OneStringFromArray
-                                  params: [ "Addr8 for the client" ]
+                                  params: [ "addr for the client" ]
                               -   util: CyclicSeqIntGen
                                   params: [ 500001, 1000000 ]
                               -   util: CyclicSeqIntGen
@@ -179,7 +179,7 @@ microbenchmark:
                               -   util: CyclicSeqIntGen
                                   params: [ 2000001, 2500000 ]
                               -   util: OneStringFromArray
-                                  params: [ "Addr9 for the client" ]
+                                  params: [ "addr for the client" ]
                               -   util: CyclicSeqIntGen
                                   params: [ 2000001, 2500000 ]
                               -   util: CyclicSeqIntGen
@@ -187,7 +187,7 @@ microbenchmark:
                               -   util: CyclicSeqIntGen
                                   params: [ 2500001, 3000000 ]
                               -   util: OneStringFromArray
-                                  params: [ "Addr10 for the client" ]
+                                  params: [ "addr for the client" ]
                               -   util: CyclicSeqIntGen
                                   params: [ 2500001, 3000000 ]
                               -   util: CyclicSeqIntGen
@@ -195,7 +195,7 @@ microbenchmark:
                               -   util: CyclicSeqIntGen
                                   params: [ 3000001, 3500000 ]
                               -   util: OneStringFromArray
-                                  params: [ "Addr11 for the client" ]
+                                  params: [ "addr for the client" ]
                               -   util: CyclicSeqIntGen
                                   params: [ 3000001, 3500000 ]
                               -   util: CyclicSeqIntGen
@@ -203,7 +203,7 @@ microbenchmark:
                               -   util: CyclicSeqIntGen
                                   params: [ 3500001, 4000000 ]
                               -   util: OneStringFromArray
-                                  params: [ "Addr12 for the client" ]
+                                  params: [ "addr for the client" ]
                               -   util: CyclicSeqIntGen
                                   params: [ 3500001, 4000000 ]
                               -   util: CyclicSeqIntGen
@@ -211,7 +211,7 @@ microbenchmark:
                               -   util: CyclicSeqIntGen
                                   params: [ 4000001, 4500000 ]
                               -   util: OneStringFromArray
-                                  params: [ "Addr13 for the client" ]
+                                  params: [ "addr for the client" ]
                               -   util: CyclicSeqIntGen
                                   params: [ 4000001, 4500000 ]
                               -   util: CyclicSeqIntGen
@@ -219,7 +219,7 @@ microbenchmark:
                               -   util: CyclicSeqIntGen
                                   params: [ 4500001, 5000000 ]
                               -   util: OneStringFromArray
-                                  params: [ "Addr14 for the client" ]
+                                  params: [ "addr for the client" ]
                               -   util: CyclicSeqIntGen
                                   params: [ 4500001, 5000000 ]
                               -   util: CyclicSeqIntGen
@@ -227,7 +227,7 @@ microbenchmark:
                               -   util: CyclicSeqIntGen
                                   params: [ 4250001, 4750000 ]
                               -   util: OneStringFromArray
-                                  params: [ "Addr15 for the client" ]
+                                  params: [ "addr for the client" ]
                               -   util: CyclicSeqIntGen
                                   params: [ 4250001, 4750000 ]
                               -   util: CyclicSeqIntGen
@@ -235,7 +235,7 @@ microbenchmark:
                               -   util: CyclicSeqIntGen
                                   params: [ 3250001, 3750000 ]
                               -   util: OneStringFromArray
-                                  params: [ "Addr16 for the client" ]
+                                  params: [ "addr for the client" ]
                               -   util: CyclicSeqIntGen
                                   params: [ 3250001, 3750000 ]
 
@@ -251,7 +251,7 @@ microbenchmark:
                               -   util: PrimaryIntGen
                                   params: [ 6000001, 7000000 ]
                               -   util: OneStringFromArray
-                                  params: [ "Addr17 for the client" ]
+                                  params: [ "addr for the client" ]
                               -   util: PrimaryIntGen
                                   params: [ 6000001, 7000000]
 
@@ -268,6 +268,6 @@ microbenchmark:
                               -   util: PrimaryIntGen
                                   params: [ 7000001, 8000000 ]
                               -   util: OneStringFromArray
-                                  params: [ "Addr18 for the client" ]
+                                  params: [ "addr for the client" ]
                               -   util: PrimaryIntGen
                                   params: [ 7000001, 8000000]
