@@ -149,7 +149,7 @@ public final class TPCHLoader extends Loader<TPCHBenchmark> {
   }
 
   @Override
-  public List<LoaderThread> createLoaderThreads() {
+  public List<LoaderThread> createLoaderThreads(int tableIndex) {
     List<LoaderThread> threads = new ArrayList<>();
 
     final CountDownLatch regionLatch = new CountDownLatch(1);

@@ -40,7 +40,7 @@ public final class TATPLoader extends Loader<TATPBenchmark> {
   }
 
   @Override
-  public List<LoaderThread> createLoaderThreads() {
+  public List<LoaderThread> createLoaderThreads(int tableIndex) {
     List<LoaderThread> threads = new ArrayList<>();
     final int numLoaders = this.benchmark.getWorkloadConfiguration().getLoaderThreads();
     final long itemsPerThread = Math.max(this.subscriberSize / numLoaders, 1);

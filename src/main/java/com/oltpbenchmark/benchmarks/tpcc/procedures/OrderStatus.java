@@ -37,55 +37,59 @@ public class OrderStatus extends TPCCProcedure {
 
   private static final Logger LOG = LoggerFactory.getLogger(OrderStatus.class);
 
-  public SQLStmt ordStatGetNewestOrdSQL =
-      new SQLStmt(
-          """
-        SELECT O_ID, O_CARRIER_ID, O_ENTRY_D
-          FROM  %s
-         WHERE O_W_ID = ?
-           AND O_D_ID = ?
-           AND O_C_ID = ?
-         ORDER BY O_ID DESC LIMIT 1
-    """
-              .formatted(TPCCConstants.TABLENAME_OPENORDER));
+  private SQLStmt getOrdStatGetNewestOrdSQL(int tableIndex) {
+    return new SQLStmt(
+        """
+      SELECT O_ID, O_CARRIER_ID, O_ENTRY_D
+        FROM  %s
+       WHERE O_W_ID = ?
+         AND O_D_ID = ?
+         AND O_C_ID = ?
+       ORDER BY O_ID DESC LIMIT 1
+  """
+            .formatted(getTableName(TPCCConstants.TABLENAME_OPENORDER, tableIndex)));
+  }
 
-  public SQLStmt ordStatGetOrderLinesSQL =
-      new SQLStmt(
-          """
-        SELECT OL_I_ID, OL_SUPPLY_W_ID, OL_QUANTITY, OL_AMOUNT, OL_DELIVERY_D
-          FROM  %s
-         WHERE OL_O_ID = ?
-           AND OL_D_ID = ?
-           AND OL_W_ID = ?
-    """
-              .formatted(TPCCConstants.TABLENAME_ORDERLINE));
+  private SQLStmt getOrdStatGetOrderLinesSQL(int tableIndex) {
+    return new SQLStmt(
+        """
+      SELECT OL_I_ID, OL_SUPPLY_W_ID, OL_QUANTITY, OL_AMOUNT, OL_DELIVERY_D
+        FROM  %s
+       WHERE OL_O_ID = ?
+         AND OL_D_ID = ?
+         AND OL_W_ID = ?
+  """
+            .formatted(getTableName(TPCCConstants.TABLENAME_ORDERLINE, tableIndex)));
+  }
 
-  public SQLStmt payGetCustSQL =
-      new SQLStmt(
-          """
-        SELECT C_FIRST, C_MIDDLE, C_LAST, C_STREET_1, C_STREET_2,
-               C_CITY, C_STATE, C_ZIP, C_PHONE, C_CREDIT, C_CREDIT_LIM,
-               C_DISCOUNT, C_BALANCE, C_YTD_PAYMENT, C_PAYMENT_CNT, C_SINCE
-          FROM  %s
-         WHERE C_W_ID = ?
-           AND C_D_ID = ?
-           AND C_ID = ?
-    """
-              .formatted(TPCCConstants.TABLENAME_CUSTOMER));
+  private SQLStmt getPayGetCustSQL(int tableIndex) {
+    return new SQLStmt(
+        """
+      SELECT C_FIRST, C_MIDDLE, C_LAST, C_STREET_1, C_STREET_2,
+             C_CITY, C_STATE, C_ZIP, C_PHONE, C_CREDIT, C_CREDIT_LIM,
+             C_DISCOUNT, C_BALANCE, C_YTD_PAYMENT, C_PAYMENT_CNT, C_SINCE
+        FROM  %s
+       WHERE C_W_ID = ?
+         AND C_D_ID = ?
+         AND C_ID = ?
+  """
+            .formatted(getTableName(TPCCConstants.TABLENAME_CUSTOMER, tableIndex)));
+  }
 
-  public SQLStmt customerByNameSQL =
-      new SQLStmt(
-          """
-        SELECT C_FIRST, C_MIDDLE, C_ID, C_STREET_1, C_STREET_2, C_CITY,
-               C_STATE, C_ZIP, C_PHONE, C_CREDIT, C_CREDIT_LIM, C_DISCOUNT,
-               C_BALANCE, C_YTD_PAYMENT, C_PAYMENT_CNT, C_SINCE
-          FROM  %s
-         WHERE C_W_ID = ?
-           AND C_D_ID = ?
-           AND C_LAST = ?
-         ORDER BY C_FIRST
-    """
-              .formatted(TPCCConstants.TABLENAME_CUSTOMER));
+  private SQLStmt getCustomerByNameSQL(int tableIndex) {
+    return new SQLStmt(
+        """
+      SELECT C_FIRST, C_MIDDLE, C_ID, C_STREET_1, C_STREET_2, C_CITY,
+             C_STATE, C_ZIP, C_PHONE, C_CREDIT, C_CREDIT_LIM, C_DISCOUNT,
+             C_BALANCE, C_YTD_PAYMENT, C_PAYMENT_CNT, C_SINCE
+        FROM  %s
+       WHERE C_W_ID = ?
+         AND C_D_ID = ?
+         AND C_LAST = ?
+       ORDER BY C_FIRST
+  """
+            .formatted(getTableName(TPCCConstants.TABLENAME_CUSTOMER, tableIndex)));
+  }
 
   public void run(
       Connection conn,
@@ -94,6 +98,7 @@ public class OrderStatus extends TPCCProcedure {
       int numWarehouses,
       int terminalDistrictLowerID,
       int terminalDistrictUpperID,
+      int tableIndex,
       TPCCWorker w)
       throws SQLException {
 
@@ -115,15 +120,15 @@ public class OrderStatus extends TPCCProcedure {
     Customer c;
 
     if (c_by_name) {
-      c = getCustomerByName(w_id, d_id, c_last, conn);
+      c = getCustomerByName(w_id, d_id, c_last, conn, tableIndex);
     } else {
-      c = getCustomerById(w_id, d_id, c_id, conn);
+      c = getCustomerById(w_id, d_id, c_id, conn, tableIndex);
     }
 
-    Oorder o = getOrderDetails(conn, w_id, d_id, c);
+    Oorder o = getOrderDetails(conn, w_id, d_id, c, tableIndex);
 
     // retrieve the order lines for the most recent order
-    List<String> orderLines = getOrderLines(conn, w_id, d_id, o.o_id, c);
+    List<String> orderLines = getOrderLines(conn, w_id, d_id, o.o_id, c, tableIndex);
 
     if (LOG.isTraceEnabled()) {
       StringBuilder sb = new StringBuilder();
@@ -172,10 +177,10 @@ public class OrderStatus extends TPCCProcedure {
     }
   }
 
-  private Oorder getOrderDetails(Connection conn, int w_id, int d_id, Customer c)
+  private Oorder getOrderDetails(Connection conn, int w_id, int d_id, Customer c, int tableIndex)
       throws SQLException {
     try (PreparedStatement ordStatGetNewestOrd =
-        this.getPreparedStatement(conn, ordStatGetNewestOrdSQL)) {
+        this.getPreparedStatement(conn, getOrdStatGetNewestOrdSQL(tableIndex))) {
 
       // find the newest order for the customer
       // retrieve the carrier & order date for the most recent order.
@@ -203,12 +208,13 @@ public class OrderStatus extends TPCCProcedure {
     }
   }
 
-  private List<String> getOrderLines(Connection conn, int w_id, int d_id, int o_id, Customer c)
+  private List<String> getOrderLines(
+      Connection conn, int w_id, int d_id, int o_id, Customer c, int tableIndex)
       throws SQLException {
     List<String> orderLines = new ArrayList<>();
 
     try (PreparedStatement ordStatGetOrderLines =
-        this.getPreparedStatement(conn, ordStatGetOrderLinesSQL)) {
+        this.getPreparedStatement(conn, getOrdStatGetOrderLinesSQL(tableIndex))) {
       ordStatGetOrderLines.setInt(1, o_id);
       ordStatGetOrderLines.setInt(2, d_id);
       ordStatGetOrderLines.setInt(3, w_id);
@@ -250,10 +256,11 @@ public class OrderStatus extends TPCCProcedure {
 
   // attention duplicated code across trans... ok for now to maintain separate
   // prepared statements
-  public Customer getCustomerById(int c_w_id, int c_d_id, int c_id, Connection conn)
+  public Customer getCustomerById(int c_w_id, int c_d_id, int c_id, Connection conn, int tableIndex)
       throws SQLException {
 
-    try (PreparedStatement payGetCust = this.getPreparedStatement(conn, payGetCustSQL)) {
+    try (PreparedStatement payGetCust =
+        this.getPreparedStatement(conn, getPayGetCustSQL(tableIndex))) {
 
       payGetCust.setInt(1, c_w_id);
       payGetCust.setInt(2, c_d_id);
@@ -279,11 +286,12 @@ public class OrderStatus extends TPCCProcedure {
 
   // attention this code is repeated in other transacitons... ok for now to
   // allow for separate statements.
-  public Customer getCustomerByName(int c_w_id, int c_d_id, String c_last, Connection conn)
-      throws SQLException {
+  public Customer getCustomerByName(
+      int c_w_id, int c_d_id, String c_last, Connection conn, int tableIndex) throws SQLException {
     ArrayList<Customer> customers = new ArrayList<>();
 
-    try (PreparedStatement customerByName = this.getPreparedStatement(conn, customerByNameSQL)) {
+    try (PreparedStatement customerByName =
+        this.getPreparedStatement(conn, getCustomerByNameSQL(tableIndex))) {
 
       customerByName.setInt(1, c_w_id);
       customerByName.setInt(2, c_d_id);

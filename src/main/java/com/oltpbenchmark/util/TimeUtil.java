@@ -22,8 +22,12 @@ import java.text.SimpleDateFormat;
 
 public abstract class TimeUtil {
 
-  public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
-  public static final SimpleDateFormat DATE_FORMAT_14 = new SimpleDateFormat("yyyyMMddHHmmss");
+  // Use ThreadLocal to ensure thread-safety for SimpleDateFormat instances
+  private static final ThreadLocal<SimpleDateFormat> DATE_FORMAT =
+      ThreadLocal.withInitial(() -> new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss"));
+
+  private static final ThreadLocal<SimpleDateFormat> DATE_FORMAT_14 =
+      ThreadLocal.withInitial(() -> new SimpleDateFormat("yyyyMMddHHmmss"));
 
   /**
    * TODO(djellel)
@@ -31,7 +35,7 @@ public abstract class TimeUtil {
    * @return
    */
   public static String getCurrentTimeString14() {
-    return TimeUtil.DATE_FORMAT_14.format(new java.util.Date());
+    return DATE_FORMAT_14.get().format(new java.util.Date());
   }
 
   /**
@@ -40,7 +44,7 @@ public abstract class TimeUtil {
    * @return
    */
   public static String getCurrentTimeString() {
-    return TimeUtil.DATE_FORMAT.format(new java.util.Date());
+    return DATE_FORMAT.get().format(new java.util.Date());
   }
 
   /** Get a timestamp of the current time */

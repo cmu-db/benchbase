@@ -578,6 +578,7 @@ public class Histogram<X extends Comparable<X>> implements JSONSerializable {
       try {
         Field field = Histogram.class.getDeclaredField(element.toString().toLowerCase());
         if (element == Members.HISTOGRAM) {
+          LOG.info("stringer ", Members.HISTOGRAM.name());
           stringer.key(Members.HISTOGRAM.name()).object();
           for (Object value : this.histogram.keySet()) {
             if (value != null && value_type == null) {

@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    <type>SQLITE</type>
+    <driver>org.sqlite.JDBC</driver>
+    <url>jdbc:sqlite:tatp.db</url>
+    <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    <batchsize>500</batchsize>
+
+    <!-- Scalefactor increases the number of subscribers -->
+    <scalefactor>0.1</scalefactor>
+    
+    <!-- SQLITE only supports one writer thread -->
+    <loaderThreads>1</loaderThreads>
+
+    <!-- The workload -->
+    <terminals>1</terminals>
+    <works>
+        <work>
+            <time>60</time>
+            <rate>10000</rate>
+            <weights>2, 35, 10, 35, 2, 14, 2</weights>
+        </work>
+    </works>
+
+    <!-- Twitter Procedures declaration -->
+    <transactiontypes>
+        <transactiontype>
+            <name>DeleteCallForwarding</name>
+        </transactiontype>
+        <transactiontype>
+            <name>GetAccessData</name>
+        </transactiontype>
+        <transactiontype>
+            <name>GetNewDestination</name>
+        </transactiontype>
+        <transactiontype>
+            <name>GetSubscriberData</name>
+        </transactiontype>
+        <transactiontype>
+            <name>InsertCallForwarding</name>
+        </transactiontype>
+        <transactiontype>
+            <name>UpdateLocation</name>
+        </transactiontype>
+        <transactiontype>
+            <name>UpdateSubscriberData</name>
+        </transactiontype>
+    </transactiontypes>
+</parameters>

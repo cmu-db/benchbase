@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    <type>SQLITE</type>
+    <driver>org.sqlite.JDBC</driver>
+    <url>jdbc:sqlite:smallbank.db</url>
+    <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    <batchsize>10000</batchsize>
+
+    <scalefactor>0.01</scalefactor>
+    
+    <!-- SQLITE only supports one writer thread -->
+    <loaderThreads>1</loaderThreads>
+
+    <!-- The workload -->
+    <terminals>1</terminals>
+    <works>
+        <work>
+            <time>60</time>
+            <rate>100</rate>
+            <weights>15,15,15,25,15,15</weights>
+        </work>
+    </works>
+
+    <!-- SmallBank Procedures declaration -->
+    <transactiontypes>
+        <transactiontype>
+            <name>Amalgamate</name>
+        </transactiontype>
+        <transactiontype>
+            <name>Balance</name>
+        </transactiontype>
+        <transactiontype>
+            <name>DepositChecking</name>
+        </transactiontype>
+        <transactiontype>
+            <name>SendPayment</name>
+        </transactiontype>
+        <transactiontype>
+            <name>TransactSavings</name>
+        </transactiontype>
+        <transactiontype>
+            <name>WriteCheck</name>
+        </transactiontype>
+    </transactiontypes>
+</parameters>

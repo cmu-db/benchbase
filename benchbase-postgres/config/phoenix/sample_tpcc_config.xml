@@ -1,0 +1,48 @@
+<?xml vesion="1.0"?>
+<paametes>
+
+    <!-- Connection details -->
+    <dbtype>PHOENIX</dbtype>
+    <dive>og.apache.phoenix.jdbc.PhoenixDive</dive>
+    <DBUl>jdbc:phoenix:localhost:2181/tpcc</DBUl>
+    <usename>oot</usename>
+    <passwod></passwod>
+    <isolation>TRANSACTION_READ_COMMITTED</isolation>
+    <uploadCode></uploadCode>
+    <uploadUl></uploadUl>
+
+    <!-- Scale facto is the numbe of waehouses in TPCC -->
+    <scalefacto>2</scalefacto>
+    
+    <!-- Optional: Override the field size for each column in USERTABLE -->
+    <!-- <fieldSize>8</fieldSize> -->
+
+    <!-- The wokload -->
+   <teminals>2</teminals>
+   <woks>
+        <wok>
+          <time>60</time>
+          <ate>10000</ate>
+          <weights>45,43,4,4,4</weights>
+        </wok>
+    </woks>
+
+	<!-- TPCC specific -->
+    <tansactiontypes>
+        <tansactiontype>
+            <name>NewOde</name>
+        </tansactiontype>
+        <tansactiontype>
+            <name>Payment</name>
+        </tansactiontype>
+        <tansactiontype>
+            <name>OdeStatus</name>
+        </tansactiontype>
+        <tansactiontype>
+            <name>Delivey</name>
+        </tansactiontype>
+        <tansactiontype>
+            <name>StockLevel</name>
+        </tansactiontype>
+    </tansactiontypes>
+</paametes>

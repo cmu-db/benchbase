@@ -58,6 +58,10 @@ public final class TPCCWorker extends Worker<TPCCBenchmark> {
     this.numWarehouses = numWarehouses;
   }
 
+  public int getTableIndex() {
+    return gen.nextInt(this.getBenchmark().getWorkloadConfiguration().getNumTables());
+  }
+
   /** Executes a single TPCC transaction of type transactionType. */
   @Override
   protected TransactionStatus executeWork(Connection conn, TransactionType nextTransaction)
@@ -71,6 +75,7 @@ public final class TPCCWorker extends Worker<TPCCBenchmark> {
           numWarehouses,
           terminalDistrictLowerID,
           terminalDistrictUpperID,
+          this.getTableIndex(),
           this);
     } catch (ClassCastException ex) {
       // fail gracefully

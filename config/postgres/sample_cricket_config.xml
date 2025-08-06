@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    <type>POSTGRES</type>
+    <driver>org.postgresql.Driver</driver>
+    <url>jdbc:postgresql://harish-rds-test.chlee7xx28jo.us-west-2.rds.amazonaws.com:5432/postgres?sslmode=require&amp;ApplicationName=tpcc&amp;reWriteBatchedInserts=true</url>
+    <username>postgres</username>
+    <password>NewHireDatabricks</password>
+    <reconnectOnConnectionFailure>true</reconnectOnConnectionFailure>
+    <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    <batchsize>128</batchsize>
+
+    <!-- Cricket Benchmark -->
+    <benchmark>cricket</benchmark>
+    <scalefactor>10</scalefactor>
+    
+    <!-- Number of terminals (each terminal maps to one team) -->
+    <terminals>10</terminals>
+    
+    <works>
+        <work>
+            <time>30</time>
+            <rate>unlimited</rate>
+            <!-- Weights for each transaction type: GamePlayed, DeleteGame, UpdateTeam, UpdatePlayer -->
+            <weights>0,10,10,10</weights>
+        </work>
+    </works>
+
+    <!-- Cricket Procedures declaration -->
+    <transactiontypes>
+        <transactiontype>
+            <name>GamePlayed</name>
+        </transactiontype>
+        <transactiontype>
+            <name>DeleteGame</name>
+        </transactiontype>
+        <transactiontype>
+            <name>UpdateTeam</name>
+        </transactiontype>
+        <transactiontype>
+            <name>UpdatePlayer</name>
+        </transactiontype>
+    </transactiontypes>
+</parameters> 

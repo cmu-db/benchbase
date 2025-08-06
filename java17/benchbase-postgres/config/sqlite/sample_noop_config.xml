@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    <type>SQLITE</type>
+    <driver>org.sqlite.JDBC</driver>
+    <url>jdbc:sqlite:noop.db</url>
+    <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    <batchsize>128</batchsize>
+
+    <!-- This parameter has no affect on this benchmark-->
+    <!-- There is no data to load -->
+    <scalefactor>1</scalefactor>
+
+    <!-- The workload -->
+    <terminals>1</terminals>
+    <works>
+        <work>
+            <time>60</time>
+            <rate>1000</rate>
+            <weights>100</weights>
+        </work>
+    </works>
+
+    <!-- NoOp Procedures declaration -->
+    <transactiontypes>
+        <transactiontype>
+            <name>NoOp</name>
+        </transactiontype>
+    </transactiontypes>
+</parameters>
