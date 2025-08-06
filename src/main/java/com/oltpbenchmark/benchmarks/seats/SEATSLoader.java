@@ -87,7 +87,7 @@ public final class SEATSLoader extends Loader<SEATSBenchmark> {
   // -----------------------------------------------------------------
 
   @Override
-  public List<LoaderThread> createLoaderThreads() {
+  public List<LoaderThread> createLoaderThreads(int tableIndex) {
     List<LoaderThread> threads = new ArrayList<>();
 
     // High level locking overview, where step N+1 depends on step N

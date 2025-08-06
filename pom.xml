@@ -48,6 +48,8 @@
         </repository>
     </distributionManagement>
 
+
+
     <profiles>
         <profile>
             <id>sqlite</id>
@@ -251,6 +253,11 @@
             <artifactId>commons-configuration2</artifactId>
             <version>2.11.0</version>
         </dependency>
+        <dependency>
+            <groupId>commons-configuration</groupId>
+            <artifactId>commons-configuration</artifactId>
+            <version>1.10</version>
+        </dependency>
 
         <dependency>
             <!-- For templated benchmark -->
@@ -373,6 +380,9 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.13.0</version>
                 <configuration>
+                  <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
                     <showDeprecation>true</showDeprecation>
@@ -435,13 +445,25 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>3.7.1</version>
                 <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
                     <appendAssemblyId>false</appendAssemblyId>
                     <finalName>${project.artifactId}-${classifier}</finalName>
                     <recompressZippedFiles>false</recompressZippedFiles>
                     <descriptors>${descriptors}</descriptors>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                            <mainClass>com.oltpbenchmark.DBWorkload</mainClass>
+                        </manifest>
+                    </archive>
                 </configuration>
                 <executions>
                     <execution>
+                        <id>assemble-all</id>
                         <phase>package</phase>
                         <goals>
                             <goal>single</goal>

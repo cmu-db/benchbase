@@ -1,0 +1,1510 @@
+diff --git a/config/postgres/sample_cricket_config.xml b/config/postgres/sample_cricket_config.xml
+new file mode 100644
+index 0000000..9fc8fe2
+--- /dev/null
++++ b/config/postgres/sample_cricket_config.xml
+@@ -0,0 +1,45 @@
++<?xml version="1.0"?>
++<parameters>
++
++    <!-- Connection details -->
++    <type>POSTGRES</type>
++    <driver>org.postgresql.Driver</driver>
++    <url>jdbc:postgresql://localhost:5432/benchbase</url>
++    <username>replicant</username>
++    <password>replicant</password>
++    <reconnectOnConnectionFailure>true</reconnectOnConnectionFailure>
++    <isolation>TRANSACTION_READ_COMMITTED</isolation>
++    <batchsize>128</batchsize>
++
++    <!-- Cricket Benchmark -->
++    <benchmark>cricket</benchmark>
++    <scalefactor>1</scalefactor>
++    
++    <!-- Number of terminals (each terminal maps to one team) -->
++    <terminals>10</terminals>
++    
++    <works>
++        <work>
++            <time>30</time>
++            <rate>unlimited</rate>
++            <!-- Weights for each transaction type: GamePlayed, DeleteGame, UpdateTeam, UpdatePlayer -->
++            <weights>60,20,10,10</weights>
++        </work>
++    </works>
++
++    <!-- Cricket Procedures declaration -->
++    <transactiontypes>
++        <transactiontype>
++            <name>GamePlayed</name>
++        </transactiontype>
++        <transactiontype>
++            <name>DeleteGame</name>
++        </transactiontype>
++        <transactiontype>
++            <name>UpdateTeam</name>
++        </transactiontype>
++        <transactiontype>
++            <name>UpdatePlayer</name>
++        </transactiontype>
++    </transactiontypes>
++</parameters> 
+\ No newline at end of file
+diff --git a/src/main/java/com/oltpbenchmark/benchmarks/cricket/CricketBenchmark.java b/src/main/java/com/oltpbenchmark/benchmarks/cricket/CricketBenchmark.java
+new file mode 100644
+index 0000000..2be33c4
+--- /dev/null
++++ b/src/main/java/com/oltpbenchmark/benchmarks/cricket/CricketBenchmark.java
+@@ -0,0 +1,114 @@
++package com.oltpbenchmark.benchmarks.cricket;
++
++import com.oltpbenchmark.WorkloadConfiguration;
++import com.oltpbenchmark.api.BenchmarkModule;
++import com.oltpbenchmark.api.Loader;
++import com.oltpbenchmark.api.Worker;
++import com.oltpbenchmark.benchmarks.cricket.procedures.GamePlayed;
++import java.util.ArrayList;
++import java.util.List;
++import org.slf4j.Logger;
++import org.slf4j.LoggerFactory;
++
++/**
++ * Cricket Benchmark Implementation
++ *
++ * <p>Features: - 4 tables: teamDetails, playerDetails, gameDetails, pitchDetails - Each
++ * terminal/thread maps to exactly one team - Pre-loads teams and players - Main transaction:
++ * GamePlayed (inserts game and pitch records, updates player last_game_played)
++ */
++public final class CricketBenchmark extends BenchmarkModule {
++  private static final Logger LOG = LoggerFactory.getLogger(CricketBenchmark.class);
++
++  protected final int numTeams;
++  protected final int numPlayersPerTeam;
++  protected final int totalPlayers;
++
++  /**
++   * Constructor for Cricket Benchmark Number of teams = number of terminals/threads (as per
++   * requirement)
++   */
++  public CricketBenchmark(WorkloadConfiguration workConf) {
++    super(workConf);
++
++    // Number of teams equals number of terminals (each terminal maps to one team)
++    this.numTeams = workConf.getTerminals();
++    this.numPlayersPerTeam = CricketConstants.NUM_PLAYERS_PER_TEAM;
++    this.totalPlayers = this.numTeams * this.numPlayersPerTeam;
++
++    LOG.info("CricketBenchmark initialized with:");
++    LOG.info("  - Number of Teams: {}", this.numTeams);
++    LOG.info("  - Players per Team: {}", this.numPlayersPerTeam);
++    LOG.info("  - Total Players: {}", this.totalPlayers);
++    LOG.info("  - Number of Terminals: {}", workConf.getTerminals());
++    LOG.info("  - Database Type: {}", workConf.getDatabaseType());
++
++    // Validate that we have enough teams for terminals
++    if (this.numTeams > CricketConstants.NUM_TEAMS) {
++      LOG.warn(
++          "Number of terminals ({}) exceeds maximum teams ({}). Some terminals will use duplicate team assignments.",
++          this.numTeams,
++          CricketConstants.NUM_TEAMS);
++    }
++
++    if (this.numTeams < 1) {
++      throw new IllegalArgumentException("Number of teams/terminals must be at least 1");
++    }
++  }
++
++  /** Create workers - each worker is assigned to exactly one team */
++  @Override
++  protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
++    LOG.info("Creating {} cricket workers, each mapped to a specific team", this.numTeams);
++
++    List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
++
++    for (int i = 0; i < this.numTeams; i++) {
++      // Each worker gets assigned to a team (1-indexed team IDs)
++      int assignedTeamId = (i % CricketConstants.NUM_TEAMS) + 1;
++      CricketWorker worker = new CricketWorker(this, i, assignedTeamId);
++      workers.add(worker);
++
++      LOG.debug("Created worker {} assigned to team {}", i, assignedTeamId);
++    }
++
++    LOG.info("Successfully created {} cricket workers", workers.size());
++    return workers;
++  }
++
++  /** Create the loader for pre-loading teams and players */
++  @Override
++  protected Loader<CricketBenchmark> makeLoaderImpl() {
++    LOG.info("Creating cricket loader for pre-loading teams and players");
++    return new CricketLoader(this);
++  }
++
++  /** Get the package containing procedure classes */
++  @Override
++  protected Package getProcedurePackageImpl() {
++    return GamePlayed.class.getPackage();
++  }
++
++  // Getters for configuration values
++  public int getNumTeams() {
++    return numTeams;
++  }
++
++  public int getNumPlayersPerTeam() {
++    return numPlayersPerTeam;
++  }
++
++  public int getTotalPlayers() {
++    return totalPlayers;
++  }
++
++  /**
++   * Get the team ID for a specific worker/terminal
++   *
++   * @param workerId The worker ID (0-indexed)
++   * @return Team ID (1-indexed)
++   */
++  public int getTeamIdForWorker(int workerId) {
++    return (workerId % CricketConstants.NUM_TEAMS) + 1;
++  }
++}
+diff --git a/src/main/java/com/oltpbenchmark/benchmarks/cricket/CricketConstants.java b/src/main/java/com/oltpbenchmark/benchmarks/cricket/CricketConstants.java
+new file mode 100644
+index 0000000..6641ce7
+--- /dev/null
++++ b/src/main/java/com/oltpbenchmark/benchmarks/cricket/CricketConstants.java
+@@ -0,0 +1,69 @@
++package com.oltpbenchmark.benchmarks.cricket;
++
++public abstract class CricketConstants {
++
++  // Table Names
++  public static final String TABLENAME_TEAMS = "teamDetails";
++  public static final String TABLENAME_PLAYERS = "playerDetails";
++  public static final String TABLENAME_GAMES = "gameDetails";
++  public static final String TABLENAME_PITCHES = "pitchDetails";
++
++  // Pre-loading Configuration
++  public static final int NUM_TEAMS = 10;
++  public static final int NUM_PLAYERS_PER_TEAM = 11;
++  public static final int TOTAL_PLAYERS = NUM_TEAMS * NUM_PLAYERS_PER_TEAM;
++
++  // Initial Data Constants
++  public static final int INITIAL_LAST_GAME_PLAYED = 0;
++
++  // Sample Data for Teams
++  public static final String[] TEAM_CITIES = {
++    "Mumbai", "Chennai", "Kolkata", "Delhi", "Bangalore",
++    "Hyderabad", "Rajasthan", "Punjab", "Gujarat", "Lucknow"
++  };
++
++  public static final String[] TEAM_NAMES = {
++    "Indians", "Super Kings", "Knight Riders", "Capitals", "Royal Challengers",
++    "Sunrisers", "Royals", "Kings", "Titans", "Super Giants"
++  };
++
++  public static final String[] TEAM_ABBRS = {
++    "MI", "CSK", "KKR", "DC", "RCB", "SRH", "RR", "PBKS", "GT", "LSG"
++  };
++
++  // Sample Data for Players
++  public static final String[] FIRST_NAMES = {
++    "Rohit",
++    "Virat",
++    "MS",
++    "Jasprit",
++    "Hardik",
++    "KL",
++    "Shikhar",
++    "Rishabh",
++    "Yuzvendra",
++    "Mohammed",
++    "Ravindra",
++    "Suryakumar",
++    "Shreyas",
++    "Ishan",
++    "Washington",
++    "Axar",
++    "Deepak",
++    "Bhuvneshwar",
++    "Trent",
++    "Kane"
++  };
++
++  public static final String[] LAST_NAMES = {
++    "Sharma", "Kohli", "Dhoni", "Bumrah", "Pandya", "Rahul", "Dhawan", "Pant",
++    "Chahal", "Shami", "Jadeja", "Yadav", "Iyer", "Kishan", "Sundar", "Patel",
++    "Chahar", "Kumar", "Boult", "Williamson"
++  };
++
++  // Game and Pitch Data Constants
++  public static final int MAX_GAME_TYPE = 5;
++  public static final int MAX_GAME_STATUS = 3;
++  public static final int MAX_PITCH_TYPES = 10;
++  public static final int MAX_VELOCITY = 160;
++}
+diff --git a/src/main/java/com/oltpbenchmark/benchmarks/cricket/CricketLoader.java b/src/main/java/com/oltpbenchmark/benchmarks/cricket/CricketLoader.java
+new file mode 100644
+index 0000000..a31cf84
+--- /dev/null
++++ b/src/main/java/com/oltpbenchmark/benchmarks/cricket/CricketLoader.java
+@@ -0,0 +1,276 @@
++package com.oltpbenchmark.benchmarks.cricket;
++
++import com.oltpbenchmark.api.Loader;
++import com.oltpbenchmark.api.LoaderThread;
++import com.oltpbenchmark.catalog.Table;
++import com.oltpbenchmark.util.SQLUtil;
++import java.sql.Connection;
++import java.sql.PreparedStatement;
++import java.sql.SQLException;
++import java.sql.Timestamp;
++import java.util.ArrayList;
++import java.util.List;
++import java.util.Random;
++import java.util.concurrent.ThreadLocalRandom;
++import org.slf4j.Logger;
++import org.slf4j.LoggerFactory;
++
++/**
++ * CricketLoader - Loads initial data for cricket benchmark
++ *
++ * <p>Pre-loads: - Teams (10 teams by default, configurable based on terminals) - Players (11
++ * players per team with composite key teamid, playerid)
++ */
++public final class CricketLoader extends Loader<CricketBenchmark> {
++  private static final Logger LOG = LoggerFactory.getLogger(CricketLoader.class);
++
++  private final CricketBenchmark benchmark;
++
++  // Table catalogs and SQL statements
++  private final Table catalogTeams;
++  private final Table catalogPlayers;
++  private final String sqlInsertTeam;
++  private final String sqlInsertPlayer;
++
++  public CricketLoader(CricketBenchmark benchmark) {
++    super(benchmark);
++    this.benchmark = benchmark;
++
++    // Get table catalogs from benchmark
++    this.catalogTeams = this.benchmark.getCatalog().getTable(CricketConstants.TABLENAME_TEAMS);
++    this.catalogPlayers = this.benchmark.getCatalog().getTable(CricketConstants.TABLENAME_PLAYERS);
++
++    // Generate SQL INSERT statements using catalog
++    this.sqlInsertTeam = SQLUtil.getInsertSQL(this.catalogTeams, this.getDatabaseType());
++    this.sqlInsertPlayer = SQLUtil.getInsertSQL(this.catalogPlayers, this.getDatabaseType());
++
++    LOG.info(
++        "CricketLoader initialized for {} teams with {} players per team",
++        benchmark.getNumTeams(),
++        benchmark.getNumPlayersPerTeam());
++    LOG.debug("Team INSERT SQL: {}", this.sqlInsertTeam);
++    LOG.debug("Player INSERT SQL: {}", this.sqlInsertPlayer);
++  }
++
++  @Override
++  public List<LoaderThread> createLoaderThreads(int tableIndex) throws SQLException {
++    List<LoaderThread> loaderThreads = new ArrayList<>();
++
++    LOG.info(
++        "Creating loader threads for {} teams and {} total players",
++        benchmark.getNumTeams(),
++        benchmark.getTotalPlayers());
++
++    // Create one thread for teams, one for players
++    loaderThreads.add(new TeamLoader());
++    loaderThreads.add(new PlayerLoader());
++
++    return loaderThreads;
++  }
++
++  /** LoaderThread for loading teams */
++  private class TeamLoader extends LoaderThread {
++    public TeamLoader() {
++      super(CricketLoader.this.benchmark);
++    }
++
++    @Override
++    public void load(Connection conn) throws SQLException {
++      LOG.info("Loading {} teams...", benchmark.getNumTeams());
++
++      try (PreparedStatement stmt = conn.prepareStatement(CricketLoader.this.sqlInsertTeam)) {
++
++        for (int teamId = 1; teamId <= benchmark.getNumTeams(); teamId++) {
++          setTeamParameters(stmt, teamId);
++          stmt.addBatch();
++
++          if (teamId % 100 == 0) {
++            stmt.executeBatch();
++            LOG.debug("Loaded {} teams so far...", teamId);
++          }
++        }
++
++        // Execute remaining batches
++        stmt.executeBatch();
++
++        LOG.info("Successfully loaded {} teams", benchmark.getNumTeams());
++
++      } catch (SQLException ex) {
++        LOG.error("Failed to load teams", ex);
++        throw new RuntimeException("Error loading teams", ex);
++      }
++    }
++
++    /** Set parameters for team insertion */
++    private void setTeamParameters(PreparedStatement stmt, int teamId) throws SQLException {
++      Random rand = ThreadLocalRandom.current();
++      int cityIndex = (teamId - 1) % CricketConstants.TEAM_CITIES.length;
++
++      stmt.setInt(1, teamId); // teamid
++      stmt.setString(2, CricketConstants.TEAM_CITIES[cityIndex]); // city
++      stmt.setString(3, CricketConstants.TEAM_NAMES[cityIndex]); // name
++      stmt.setString(4, CricketConstants.TEAM_ABBRS[cityIndex]); // abbr
++      stmt.setInt(5, rand.nextInt(5) + 1); // leagueid
++      stmt.setInt(6, rand.nextInt(3) + 1); // divisionid
++      stmt.setInt(7, rand.nextInt(10) + 1); // organizationid
++      stmt.setInt(8, rand.nextInt(5) + 1); // levelid
++      stmt.setString(9, "https://team" + teamId + ".cricket.com"); // homepage
++      stmt.setInt(10, rand.nextInt(100) + 1); // homevenueid
++      stmt.setInt(11, teamId + 1000); // statsteamid
++      stmt.setInt(12, teamId + 2000); // mlbamteamid
++      stmt.setString(13, CricketConstants.TEAM_NAMES[cityIndex] + " Official"); // mlbamteamname
++      stmt.setString(14, CricketConstants.TEAM_ABBRS[cityIndex]); // mlbclub
++      stmt.setString(15, "C" + (teamId % 10)); // mlborg (max 3 chars)
++      stmt.setString(16, "L" + (rand.nextInt(3) + 1)); // mlblevel
++      stmt.setInt(17, teamId + 3000); // npbteamid
++      stmt.setInt(18, teamId + 4000); // boydteamid
++      stmt.setString(19, "CS" + String.format("%03d", teamId)); // csteamid
++      stmt.setInt(20, teamId + 5000); // bisteamid
++      stmt.setInt(21, teamId + 6000); // howeteamid
++      stmt.setInt(22, teamId + 7000); // pointstreakteamid
++      stmt.setString(23, "TM" + String.format("%05d", teamId)); // trackmanteamid
++      stmt.setInt(24, teamId + 8000); // sportvisionteamid
++      stmt.setInt(25, teamId + 9000); // ncaateamid
++      stmt.setInt(26, teamId + 10000); // schoolid
++      stmt.setBoolean(27, true); // active
++      stmt.setString(28, "CW" + String.format("%04d", teamId)); // cartwrightteamid
++      stmt.setInt(29, teamId + 11000); // kboteamid
++      stmt.setInt(30, teamId + 12000); // onitteamid
++      stmt.setInt(31, teamId + 13000); // fieldfxteamid
++    }
++  }
++
++  /** LoaderThread for loading players */
++  private class PlayerLoader extends LoaderThread {
++    public PlayerLoader() {
++      super(CricketLoader.this.benchmark);
++    }
++
++    @Override
++    public void load(Connection conn) throws SQLException {
++      LOG.info(
++          "Loading {} players across {} teams...",
++          benchmark.getTotalPlayers(),
++          benchmark.getNumTeams());
++
++      try (PreparedStatement stmt = conn.prepareStatement(CricketLoader.this.sqlInsertPlayer)) {
++
++        int totalPlayersLoaded = 0;
++
++        for (int teamId = 1; teamId <= benchmark.getNumTeams(); teamId++) {
++          for (int playerId = 1; playerId <= benchmark.getNumPlayersPerTeam(); playerId++) {
++            setPlayerParameters(stmt, teamId, playerId);
++            stmt.addBatch();
++            totalPlayersLoaded++;
++
++            if (totalPlayersLoaded % 500 == 0) {
++              stmt.executeBatch();
++              LOG.debug("Loaded {} players so far...", totalPlayersLoaded);
++            }
++          }
++        }
++
++        // Execute remaining batches
++        stmt.executeBatch();
++
++        LOG.info("Successfully loaded {} players", totalPlayersLoaded);
++
++      } catch (SQLException ex) {
++        LOG.error("Failed to load players", ex);
++        throw new RuntimeException("Error loading players", ex);
++      }
++    }
++
++    /** Set parameters for player insertion */
++    private void setPlayerParameters(PreparedStatement stmt, int teamId, int playerId)
++        throws SQLException {
++      Random rand = ThreadLocalRandom.current();
++      int firstNameIndex = rand.nextInt(CricketConstants.FIRST_NAMES.length);
++      int lastNameIndex = rand.nextInt(CricketConstants.LAST_NAMES.length);
++
++      stmt.setInt(1, teamId); // teamid
++      stmt.setInt(2, playerId); // playerid
++      stmt.setString(3, CricketConstants.LAST_NAMES[lastNameIndex]); // lastname
++      stmt.setString(4, CricketConstants.FIRST_NAMES[firstNameIndex]); // firstname
++      stmt.setString(5, null); // middlename
++      stmt.setString(6, CricketConstants.FIRST_NAMES[firstNameIndex]); // usesname
++      stmt.setInt(7, rand.nextInt(3) + 1); // bats (1=Right, 2=Left, 3=Switch)
++      stmt.setInt(8, rand.nextInt(3) + 1); // throws (1=Right, 2=Left, 3=Switch)
++      stmt.setInt(9, rand.nextInt(100) + 1); // agentid
++      stmt.setInt(10, rand.nextInt(50) + 1); // agencyid
++      stmt.setInt(11, rand.nextInt(10) + 1); // organizationid
++      stmt.setInt(12, 2015 + rand.nextInt(10)); // firstyear
++      stmt.setInt(13, 2020 + rand.nextInt(5)); // lastyear
++      stmt.setTimestamp(
++          14,
++          new Timestamp(
++              System.currentTimeMillis()
++                  - rand.nextInt(365 * 10) * 24L * 60 * 60 * 1000)); // birthdate
++      stmt.setString(15, "Mumbai"); // birthcity
++      stmt.setString(16, "India"); // birthcountry
++      stmt.setString(17, "Maharashtra"); // birthstate
++      stmt.setString(18, "Cricket University"); // college
++      stmt.setBoolean(19, rand.nextBoolean()); // isamateur
++      stmt.setInt(20, rand.nextInt(5) + 1); // class
++      stmt.setInt(21, 165 + rand.nextInt(25)); // height (cm)
++      stmt.setInt(22, 60 + rand.nextInt(40)); // weight (kg)
++      stmt.setBoolean(23, true); // active
++      stmt.setInt(24, rand.nextInt(5) + 1); // fatype
++      stmt.setBoolean(25, rand.nextBoolean()); // ison40manroster
++      stmt.setBoolean(26, rand.nextBoolean()); // ebispotentialmnfa
++      stmt.setInt(27, rand.nextInt(11) + 1); // position (1-11 cricket positions)
++      stmt.setInt(28, rand.nextInt(11) + 1); // rosterposition
++      stmt.setInt(29, rand.nextInt(11) + 1); // primaryposition
++      stmt.setInt(30, rand.nextInt(99) + 1); // number
++      stmt.setBigDecimal(31, null); // openingdaymjservice
++      stmt.setBigDecimal(32, null); // mjservice
++      stmt.setBigDecimal(33, null); // projmjservice
++      stmt.setBoolean(34, rand.nextBoolean()); // establishedmlb
++      stmt.setInt(35, rand.nextInt(3)); // optionsused
++      stmt.setInt(36, rand.nextInt(5) + 1); // optionstotal
++      stmt.setBoolean(37, rand.nextBoolean()); // outofoptions
++      stmt.setBoolean(38, rand.nextBoolean()); // hadprioroutright
++      stmt.setBoolean(39, rand.nextBoolean()); // isr5elig
++      stmt.setInt(40, 2020 + rand.nextInt(5)); // r5eligyear
++      stmt.setInt(41, 2020 + rand.nextInt(5)); // mnfayear
++      stmt.setInt(42, rand.nextInt(5) + 1); // rosterstate
++      stmt.setInt(43, rand.nextInt(1000) + 1); // mlbdraftnumber
++      stmt.setTimestamp(44, null); // waiversrequireddate
++      stmt.setInt(45, rand.nextInt(30)); // assignmentoptiondays
++      stmt.setTimestamp(46, null); // prioroutrightdate
++      stmt.setInt(47, rand.nextInt(10) + 1); // mncontractyears
++      stmt.setInt(48, rand.nextInt(10) + 1); // mnserviceyears
++      stmt.setInt(49, rand.nextInt(5) + 1); // mnrosterstatus
++      stmt.setInt(50, rand.nextInt(5) + 1); // mjrosterstatus
++      stmt.setTimestamp(51, new Timestamp(System.currentTimeMillis())); // lastupdatedate
++      stmt.setInt(52, teamId + 10000); // schoolid
++      stmt.setInt(53, 2020 + rand.nextInt(5)); // r4eligyear
++      stmt.setString(54, "https://player" + teamId + "-" + playerId + ".bio.com"); // biourl
++      stmt.setString(
++          55, "https://player" + teamId + "-" + playerId + ".headshot.jpg"); // headshoturl
++      stmt.setBoolean(56, rand.nextBoolean()); // isinternational
++      stmt.setInt(57, rand.nextInt(50) + 1); // countryid
++      stmt.setInt(58, 2020 + rand.nextInt(5)); // mjfayear
++      stmt.setBoolean(59, rand.nextBoolean()); // isr5selection
++      stmt.setInt(60, 2020 + rand.nextInt(5)); // inteligyear
++      stmt.setInt(61, rand.nextInt(100) + 1); // coachid
++      stmt.setBoolean(62, rand.nextBoolean()); // isactivecoach
++      stmt.setInt(63, rand.nextInt(3) + 1); // twoway
++      stmt.setString(
++          64,
++          CricketConstants.FIRST_NAMES[firstNameIndex]
++              + " "
++              + CricketConstants.LAST_NAMES[lastNameIndex]); // search_column
++      stmt.setInt(65, rand.nextInt(3)); // fourthoptionyears
++      stmt.setString(66, "2021,2022"); // fourthoptionyearslist
++      stmt.setString(67, "2020,2021"); // optionyearschargedlist
++      stmt.setInt(68, rand.nextInt(180)); // optiondayscurrseason
++      stmt.setInt(69, rand.nextInt(3)); // currentyearoptions
++      stmt.setInt(70, rand.nextInt(162)); // currentseasonmlsdays
++      stmt.setInt(
++          71,
++          CricketConstants
++              .INITIAL_LAST_GAME_PLAYED); // last_game_played - CRITICAL for transactions
++    }
++  }
++}
+diff --git a/src/main/java/com/oltpbenchmark/benchmarks/cricket/CricketWorker.java b/src/main/java/com/oltpbenchmark/benchmarks/cricket/CricketWorker.java
+new file mode 100644
+index 0000000..506778e
+--- /dev/null
++++ b/src/main/java/com/oltpbenchmark/benchmarks/cricket/CricketWorker.java
+@@ -0,0 +1,164 @@
++package com.oltpbenchmark.benchmarks.cricket;
++
++import com.oltpbenchmark.api.Procedure.UserAbortException;
++import com.oltpbenchmark.api.TransactionType;
++import com.oltpbenchmark.api.Worker;
++import com.oltpbenchmark.benchmarks.cricket.procedures.DeleteGame;
++import com.oltpbenchmark.benchmarks.cricket.procedures.GamePlayed;
++import com.oltpbenchmark.benchmarks.cricket.procedures.UpdatePlayer;
++import com.oltpbenchmark.benchmarks.cricket.procedures.UpdateTeam;
++import com.oltpbenchmark.types.TransactionStatus;
++import java.sql.Connection;
++import java.sql.SQLException;
++import org.slf4j.Logger;
++import org.slf4j.LoggerFactory;
++
++/**
++ * CricketWorker - Executes cricket benchmark transactions
++ *
++ * <p>Key Features: - Each worker is assigned to exactly one team - Executes GamePlayed transactions
++ * for assigned team - Extensive logging for execution flow visibility
++ */
++public final class CricketWorker extends Worker<CricketBenchmark> {
++  private static final Logger LOG = LoggerFactory.getLogger(CricketWorker.class);
++
++  private final CricketBenchmark benchmark;
++  private final int assignedTeamId;
++  private final int workerId;
++
++  // Procedure instances
++  private GamePlayed procGamePlayed;
++  private DeleteGame procDeleteGame;
++  private UpdateTeam procUpdateTeam;
++  private UpdatePlayer procUpdatePlayer;
++
++  /**
++   * Constructor
++   *
++   * @param benchmarkModule The cricket benchmark instance
++   * @param id Worker ID (0-indexed)
++   * @param assignedTeamId The team ID this worker is assigned to (1-indexed)
++   */
++  public CricketWorker(CricketBenchmark benchmarkModule, int id, int assignedTeamId) {
++    super(benchmarkModule, id);
++    this.benchmark = benchmarkModule;
++    this.workerId = id;
++    this.assignedTeamId = assignedTeamId;
++  }
++
++  @Override
++  protected TransactionStatus executeWork(Connection conn, TransactionType txnType)
++      throws UserAbortException, SQLException {
++    try {
++      TransactionStatus status = null;
++
++      switch (txnType.getName()) {
++        case "GamePlayed":
++          status = executeGamePlayed(conn);
++          break;
++        case "DeleteGame":
++          status = executeDeleteGame(conn);
++          break;
++        case "UpdateTeam":
++          status = executeUpdateTeam(conn);
++          break;
++        case "UpdatePlayer":
++          status = executeUpdatePlayer(conn);
++          break;
++
++        default:
++          throw new RuntimeException("Unknown transaction type: " + txnType.getName());
++      }
++
++      return status;
++
++    } catch (SQLException e) {
++      throw e;
++    } catch (Exception e) {
++      throw new RuntimeException("Unexpected error in transaction", e);
++    }
++  }
++
++  /**
++   * Execute GamePlayed transaction
++   *
++   * <p>Transaction Logic: 1. Get all players for the assigned team 2. Find max(last_game_played)
++   * across all players 3. New game_id = max + 1 4. Insert new game record 5. Insert new pitch
++   * record 6. Update all players' last_game_played to new game_id
++   */
++  private TransactionStatus executeGamePlayed(Connection conn) throws SQLException {
++    try {
++      // Initialize procedure if not already done
++      if (this.procGamePlayed == null) {
++        this.procGamePlayed = this.getProcedure(GamePlayed.class);
++      }
++
++      // Execute the game played transaction for the assigned team
++      int result = this.procGamePlayed.run(conn, this.assignedTeamId, this.workerId);
++      return TransactionStatus.SUCCESS;
++
++    } catch (SQLException e) {
++      throw e;
++    }
++  }
++
++  private TransactionStatus executeDeleteGame(Connection conn) throws SQLException {
++    try {
++      // Initialize procedure if not already done
++      if (this.procDeleteGame == null) {
++        this.procDeleteGame = this.getProcedure(DeleteGame.class);
++      }
++
++      // Execute the delete game transaction for the assigned team
++      int result = this.procDeleteGame.run(conn, this.assignedTeamId, this.workerId);
++      return TransactionStatus.SUCCESS;
++
++    } catch (SQLException e) {
++      throw e;
++    }
++  }
++
++  private TransactionStatus executeUpdateTeam(Connection conn) throws SQLException {
++    try {
++      // Initialize procedure if not already done
++      if (this.procUpdateTeam == null) {
++        this.procUpdateTeam = this.getProcedure(UpdateTeam.class);
++      }
++
++      // Execute the update team transaction for the assigned team
++      int result = this.procUpdateTeam.run(conn, this.assignedTeamId, this.workerId);
++      return TransactionStatus.SUCCESS;
++
++    } catch (SQLException e) {
++      throw e;
++    }
++  }
++
++  private TransactionStatus executeUpdatePlayer(Connection conn) throws SQLException {
++    try {
++      // Initialize procedure if not already done
++      if (this.procUpdatePlayer == null) {
++        this.procUpdatePlayer = this.getProcedure(UpdatePlayer.class);
++      }
++
++      // Execute the update player transaction for the assigned team
++      int result = this.procUpdatePlayer.run(conn, this.assignedTeamId, this.workerId);
++      return TransactionStatus.SUCCESS;
++
++    } catch (SQLException e) {
++      throw e;
++    }
++  }
++
++  /** Get the assigned team ID for this worker */
++  public int getAssignedTeamId() {
++    return this.assignedTeamId;
++  }
++
++  /** Get worker info string for logging and debugging */
++  @Override
++  public String toString() {
++    return String.format(
++        "CricketWorker{workerId=%d, assignedTeamId=%d}", this.workerId, this.assignedTeamId);
++  }
++}
+diff --git a/src/main/java/com/oltpbenchmark/benchmarks/cricket/procedures/DeleteGame.java b/src/main/java/com/oltpbenchmark/benchmarks/cricket/procedures/DeleteGame.java
+new file mode 100644
+index 0000000..770c2ea
+--- /dev/null
++++ b/src/main/java/com/oltpbenchmark/benchmarks/cricket/procedures/DeleteGame.java
+@@ -0,0 +1,112 @@
++package com.oltpbenchmark.benchmarks.cricket.procedures;
++
++import com.oltpbenchmark.api.Procedure;
++import com.oltpbenchmark.api.SQLStmt;
++import com.oltpbenchmark.benchmarks.cricket.CricketConstants;
++import java.sql.Connection;
++import java.sql.PreparedStatement;
++import java.sql.ResultSet;
++import java.sql.SQLException;
++
++/**
++ * DeleteGame Procedure - Deletes the latest game for a team
++ *
++ * <p>Transaction Logic: 1. Get max(last_game_played) for the team - must be > 1 2. Delete game
++ * record from gameDetails 3. Delete pitch record from pitchDetails 4. Update all team players'
++ * last_game_played by reducing by 1
++ */
++public class DeleteGame extends Procedure {
++
++  // SQL Statements for the transaction
++  public final SQLStmt GetMaxGameId =
++      new SQLStmt(
++          "SELECT COALESCE(MAX(last_game_played), 0) AS max_game_id FROM "
++              + CricketConstants.TABLENAME_PLAYERS
++              + " WHERE teamid = ?");
++
++  public final SQLStmt DeleteGameRecord =
++      new SQLStmt(
++          "DELETE FROM " + CricketConstants.TABLENAME_GAMES + " WHERE teamid = ? AND gameid = ?");
++
++  public final SQLStmt DeletePitchRecord =
++      new SQLStmt(
++          "DELETE FROM " + CricketConstants.TABLENAME_PITCHES + " WHERE teamid = ? AND gameid = ?");
++
++  public final SQLStmt UpdatePlayersLastGame =
++      new SQLStmt(
++          "UPDATE "
++              + CricketConstants.TABLENAME_PLAYERS
++              + " SET last_game_played = last_game_played - 1 WHERE teamid = ?");
++
++  /**
++   * Execute the DeleteGame transaction
++   *
++   * @param conn Database connection
++   * @param teamId The team ID
++   * @param workerId The worker ID for logging purposes
++   * @return Number of records affected (for success indication)
++   * @throws SQLException
++   */
++  public int run(Connection conn, int teamId, int workerId) throws SQLException {
++    // Step 1: Get max game ID for this team
++    int maxGameId = getMaxGameIdForTeam(conn, teamId);
++
++    // Only proceed if there are games to delete (max > 1 to keep last_game_played > 0)
++    if (maxGameId <= 1) {
++      return 0; // No deletion performed
++    }
++
++    // Step 2: Delete game record
++    int gameRecordsDeleted = deleteGameRecord(conn, teamId, maxGameId);
++
++    // Step 3: Delete pitch record
++    int pitchRecordsDeleted = deletePitchRecord(conn, teamId, maxGameId);
++
++    // Step 4: Update all players' last_game_played by reducing by 1
++    int playersUpdated = updatePlayersLastGame(conn, teamId);
++
++    int totalRecordsAffected = gameRecordsDeleted + pitchRecordsDeleted + playersUpdated;
++    return totalRecordsAffected;
++  }
++
++  /** Get the maximum game ID for the given team */
++  private int getMaxGameIdForTeam(Connection conn, int teamId) throws SQLException {
++    try (PreparedStatement stmt = conn.prepareStatement(GetMaxGameId.getSQL())) {
++      stmt.setInt(1, teamId);
++
++      try (ResultSet rs = stmt.executeQuery()) {
++        if (rs.next()) {
++          return rs.getInt("max_game_id");
++        } else {
++          return 0;
++        }
++      }
++    }
++  }
++
++  /** Delete game record */
++  private int deleteGameRecord(Connection conn, int teamId, int gameId) throws SQLException {
++    try (PreparedStatement stmt = conn.prepareStatement(DeleteGameRecord.getSQL())) {
++      stmt.setInt(1, teamId);
++      stmt.setInt(2, gameId);
++      return stmt.executeUpdate();
++    }
++  }
++
++  /** Delete pitch record */
++  private int deletePitchRecord(Connection conn, int teamId, int gameId) throws SQLException {
++    try (PreparedStatement stmt = conn.prepareStatement(DeletePitchRecord.getSQL())) {
++      stmt.setInt(1, teamId);
++      stmt.setInt(2, gameId);
++      return stmt.executeUpdate();
++    }
++  }
++
++  /** Update all players' last_game_played by reducing by 1 */
++  private int updatePlayersLastGame(Connection conn, int teamId) throws SQLException {
++    try (PreparedStatement stmt = conn.prepareStatement(UpdatePlayersLastGame.getSQL())) {
++      stmt.setInt(1, teamId);
++      return stmt.executeUpdate();
++    }
++  }
++}
+diff --git a/src/main/java/com/oltpbenchmark/benchmarks/cricket/procedures/GamePlayed.java b/src/main/java/com/oltpbenchmark/benchmarks/cricket/procedures/GamePlayed.java
+new file mode 100644
+index 0000000..dcd6761
+--- /dev/null
++++ b/src/main/java/com/oltpbenchmark/benchmarks/cricket/procedures/GamePlayed.java
+@@ -0,0 +1,192 @@
++package com.oltpbenchmark.benchmarks.cricket.procedures;
++
++import com.oltpbenchmark.api.Procedure;
++import com.oltpbenchmark.api.SQLStmt;
++import com.oltpbenchmark.benchmarks.cricket.CricketConstants;
++import java.sql.Connection;
++import java.sql.PreparedStatement;
++import java.sql.ResultSet;
++import java.sql.SQLException;
++import java.sql.Timestamp;
++import java.util.Random;
++import java.util.concurrent.ThreadLocalRandom;
++import org.slf4j.Logger;
++import org.slf4j.LoggerFactory;
++
++/**
++ * GamePlayed Procedure - Main transaction for cricket benchmark
++ *
++ * <p>Transaction Logic: 1. Get all players for the given team 2. Find max(last_game_played) across
++ * all team players 3. New game_id = max + 1 4. Insert new game record in gameDetails 5. Insert new
++ * pitch record in pitchDetails 6. Update all team players' last_game_played to new game_id
++ */
++public class GamePlayed extends Procedure {
++  private static final Logger LOG = LoggerFactory.getLogger(GamePlayed.class);
++
++  // SQL Statements for the transaction
++  public final SQLStmt GetMaxGameId =
++      new SQLStmt(
++          "SELECT COALESCE(MAX(last_game_played), 0) AS max_game_id FROM "
++              + CricketConstants.TABLENAME_PLAYERS
++              + " WHERE teamid = ?");
++
++  public final SQLStmt InsertGame =
++      new SQLStmt(
++          "INSERT INTO "
++              + CricketConstants.TABLENAME_GAMES
++              + " (teamid, gameid, yearid, hometeamid, awayteamid, homescore, awayscore, gamedate, "
++              + "gametype, gamestatus, gamenum, levelid, leagueid, venueid, venueversion, "
++              + "inbats, inhd, hasplaydata, haspitchdata, isnight, isturf, lastupdatedate) "
++              + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
++
++  public final SQLStmt InsertPitch =
++      new SQLStmt(
++          "INSERT INTO "
++              + CricketConstants.TABLENAME_PITCHES
++              + " (teamid, gameid, eventseq, pitchseq, yearid, balls, strikes, result, type, "
++              + "velocity, batterid, pitcherid, islastpitch, ispitch, isball, isstrike, "
++              + "isswing, isinstrikezone, isofficial, pitchtotal, pitchtime) "
++              + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
++
++  public final SQLStmt UpdatePlayersLastGame =
++      new SQLStmt(
++          "UPDATE "
++              + CricketConstants.TABLENAME_PLAYERS
++              + " SET last_game_played = ? WHERE teamid = ?");
++
++  /**
++   * Execute the GamePlayed transaction
++   *
++   * @param conn Database connection
++   * @param teamId The team ID (each worker is assigned to one team)
++   * @param workerId The worker ID for logging purposes
++   * @return Number of records affected (for success indication)
++   * @throws SQLException
++   */
++  public int run(Connection conn, int teamId, int workerId) throws SQLException {
++    // Step 1: Get max game ID for this team
++    int maxGameId = getMaxGameIdForTeam(conn, teamId, workerId);
++    int newGameId = maxGameId + 1;
++
++    // Step 2: Insert new game record
++    int gameRecordsInserted = insertGameRecord(conn, teamId, newGameId, workerId);
++
++    // Step 3: Insert new pitch record
++    int pitchRecordsInserted = insertPitchRecord(conn, teamId, newGameId, workerId);
++
++    // Step 4: Update all players' last_game_played for this team
++    int playersUpdated = updatePlayersLastGame(conn, teamId, newGameId, workerId);
++
++    int totalRecordsAffected = gameRecordsInserted + pitchRecordsInserted + playersUpdated;
++
++    return totalRecordsAffected;
++  }
++
++  /** Get the maximum game ID for the given team */
++  private int getMaxGameIdForTeam(Connection conn, int teamId, int workerId) throws SQLException {
++    try (PreparedStatement stmt = conn.prepareStatement(GetMaxGameId.getSQL())) {
++      stmt.setInt(1, teamId);
++
++      try (ResultSet rs = stmt.executeQuery()) {
++        if (rs.next()) {
++          int maxGameId = rs.getInt("max_game_id");
++          return maxGameId;
++        } else {
++          return 0;
++        }
++      }
++    } catch (SQLException e) {
++      throw e;
++    }
++  }
++
++  /** Insert a new game record */
++  private int insertGameRecord(Connection conn, int teamId, int gameId, int workerId)
++      throws SQLException {
++    try (PreparedStatement stmt = conn.prepareStatement(InsertGame.getSQL())) {
++      Random rand = ThreadLocalRandom.current();
++
++      stmt.setInt(1, teamId); // teamid
++      stmt.setInt(2, gameId); // gameid
++      stmt.setInt(3, 2024); // yearid
++      stmt.setInt(4, teamId); // hometeamid (team plays at home)
++      stmt.setInt(5, (teamId % CricketConstants.NUM_TEAMS) + 1); // awayteamid (another team)
++      stmt.setInt(6, rand.nextInt(300) + 100); // homescore (cricket scores 100-400)
++      stmt.setInt(7, rand.nextInt(300) + 100); // awayscore
++      stmt.setTimestamp(8, new Timestamp(System.currentTimeMillis())); // gamedate
++      stmt.setInt(9, rand.nextInt(CricketConstants.MAX_GAME_TYPE) + 1); // gametype
++      stmt.setInt(10, rand.nextInt(CricketConstants.MAX_GAME_STATUS) + 1); // gamestatus
++      stmt.setInt(11, 1); // gamenum
++      stmt.setInt(12, rand.nextInt(5) + 1); // levelid
++      stmt.setInt(13, rand.nextInt(3) + 1); // leagueid
++      stmt.setInt(14, rand.nextInt(100) + 1); // venueid
++      stmt.setInt(15, 1); // venueversion
++      stmt.setBoolean(16, rand.nextBoolean()); // inbats
++      stmt.setBoolean(17, rand.nextBoolean()); // inhd
++      stmt.setBoolean(18, true); // hasplaydata
++      stmt.setBoolean(19, true); // haspitchdata
++      stmt.setBoolean(20, rand.nextBoolean()); // isnight
++      stmt.setBoolean(21, rand.nextBoolean()); // isturf
++      stmt.setTimestamp(22, new Timestamp(System.currentTimeMillis())); // lastupdatedate
++
++      int rowsInserted = stmt.executeUpdate();
++      return rowsInserted;
++
++    } catch (SQLException e) {
++      throw e;
++    }
++  }
++
++  /** Insert a new pitch record */
++  private int insertPitchRecord(Connection conn, int teamId, int gameId, int workerId)
++      throws SQLException {
++    try (PreparedStatement stmt = conn.prepareStatement(InsertPitch.getSQL())) {
++      Random rand = ThreadLocalRandom.current();
++
++      stmt.setInt(1, teamId); // teamid
++      stmt.setInt(2, gameId); // gameid
++      stmt.setInt(3, rand.nextInt(100) + 1); // eventseq
++      stmt.setInt(4, rand.nextInt(1000) + 1); // pitchseq
++      stmt.setInt(5, 2024); // yearid
++      stmt.setInt(6, rand.nextInt(4)); // balls (0-3)
++      stmt.setInt(7, rand.nextInt(3)); // strikes (0-2)
++      stmt.setInt(8, rand.nextInt(5) + 1); // result
++      stmt.setInt(9, rand.nextInt(CricketConstants.MAX_PITCH_TYPES) + 1); // type
++      stmt.setBigDecimal(
++          10,
++          new java.math.BigDecimal(rand.nextInt(CricketConstants.MAX_VELOCITY) + 80)); // velocity
++      stmt.setInt(11, rand.nextInt(CricketConstants.NUM_PLAYERS_PER_TEAM) + 1); // batterid
++      stmt.setInt(12, rand.nextInt(CricketConstants.NUM_PLAYERS_PER_TEAM) + 1); // pitcherid
++      stmt.setBoolean(13, rand.nextBoolean()); // islastpitch
++      stmt.setBoolean(14, true); // ispitch
++      stmt.setBoolean(15, rand.nextBoolean()); // isball
++      stmt.setBoolean(16, rand.nextBoolean()); // isstrike
++      stmt.setBoolean(17, rand.nextBoolean()); // isswing
++      stmt.setBoolean(18, rand.nextBoolean()); // isinstrikezone
++      stmt.setBoolean(19, true); // isofficial
++      stmt.setInt(20, rand.nextInt(150) + 1); // pitchtotal
++      stmt.setTimestamp(21, new Timestamp(System.currentTimeMillis())); // pitchtime
++
++      int rowsInserted = stmt.executeUpdate();
++      return rowsInserted;
++
++    } catch (SQLException e) {
++      throw e;
++    }
++  }
++
++  /** Update all players' last_game_played for the given team */
++  private int updatePlayersLastGame(Connection conn, int teamId, int gameId, int workerId)
++      throws SQLException {
++    try (PreparedStatement stmt = conn.prepareStatement(UpdatePlayersLastGame.getSQL())) {
++      stmt.setInt(1, gameId); // new last_game_played value
++      stmt.setInt(2, teamId); // teamid filter
++
++      int rowsUpdated = stmt.executeUpdate();
++      return rowsUpdated;
++
++    } catch (SQLException e) {
++      throw e;
++    }
++  }
++}
+diff --git a/src/main/java/com/oltpbenchmark/benchmarks/cricket/procedures/UpdatePlayer.java b/src/main/java/com/oltpbenchmark/benchmarks/cricket/procedures/UpdatePlayer.java
+new file mode 100644
+index 0000000..78e3110
+--- /dev/null
++++ b/src/main/java/com/oltpbenchmark/benchmarks/cricket/procedures/UpdatePlayer.java
+@@ -0,0 +1,84 @@
++package com.oltpbenchmark.benchmarks.cricket.procedures;
++
++import com.oltpbenchmark.api.Procedure;
++import com.oltpbenchmark.api.SQLStmt;
++import com.oltpbenchmark.benchmarks.cricket.CricketConstants;
++import java.sql.Connection;
++import java.sql.PreparedStatement;
++import java.sql.SQLException;
++import java.util.Random;
++import java.util.concurrent.ThreadLocalRandom;
++
++/**
++ * UpdatePlayer Procedure - Updates random player attributes
++ *
++ * <p>Transaction Logic: 1. Randomly choose a few players from the team 2. Update their attributes
++ * (excluding primary keys and last_game_played) 3. Fields updated: height, weight, position, active
++ * status, etc.
++ */
++public class UpdatePlayer extends Procedure {
++
++  // SQL Statement for updating player details
++  public final SQLStmt UpdatePlayerDetails =
++      new SQLStmt(
++          "UPDATE "
++              + CricketConstants.TABLENAME_PLAYERS
++              + " SET height = ?, weight = ?, position = ?, active = ?, "
++              + "college = ?, number = ?, rosterstate = ?, biourl = ? "
++              + "WHERE teamid = ? AND playerid = ?");
++
++  /**
++   * Execute the UpdatePlayer transaction
++   *
++   * @param conn Database connection
++   * @param teamId The team ID
++   * @param workerId The worker ID for logging purposes
++   * @return Number of records affected (for success indication)
++   * @throws SQLException
++   */
++  public int run(Connection conn, int teamId, int workerId) throws SQLException {
++    Random rand = ThreadLocalRandom.current();
++
++    // Randomly choose 2-5 players to update from the team (playerid 1-11)
++    int numPlayersToUpdate = rand.nextInt(4) + 2; // 2-5 players
++    int totalUpdated = 0;
++
++    for (int i = 0; i < numPlayersToUpdate; i++) {
++      int randomPlayerId = rand.nextInt(CricketConstants.NUM_PLAYERS_PER_TEAM) + 1; // 1-11
++      totalUpdated += updatePlayerDetails(conn, teamId, randomPlayerId);
++    }
++
++    return totalUpdated;
++  }
++
++  /** Update player details with random values */
++  private int updatePlayerDetails(Connection conn, int teamId, int playerId) throws SQLException {
++    try (PreparedStatement stmt = conn.prepareStatement(UpdatePlayerDetails.getSQL())) {
++      Random rand = ThreadLocalRandom.current();
++
++      // Generate random values for player updates
++      int newHeight = 165 + rand.nextInt(25); // 165-189 cm
++      int newWeight = 60 + rand.nextInt(40); // 60-99 kg
++      int newPosition = rand.nextInt(11) + 1; // 1-11 cricket positions
++      boolean newActiveStatus = rand.nextBoolean();
++      String newCollege = "Updated Cricket University " + rand.nextInt(10);
++      int newNumber = rand.nextInt(99) + 1; // 1-99
++      int newRosterState = rand.nextInt(5) + 1; // 1-5
++      String newBioUrl = "https://updated-player" + teamId + "-" + playerId + ".bio.com";
++
++      // Set parameters
++      stmt.setInt(1, newHeight);
++      stmt.setInt(2, newWeight);
++      stmt.setInt(3, newPosition);
++      stmt.setBoolean(4, newActiveStatus);
++      stmt.setString(5, newCollege);
++      stmt.setInt(6, newNumber);
++      stmt.setInt(7, newRosterState);
++      stmt.setString(8, newBioUrl);
++      stmt.setInt(9, teamId); // WHERE clause - teamid
++      stmt.setInt(10, playerId); // WHERE clause - playerid
++
++      return stmt.executeUpdate();
++    }
++  }
++}
+diff --git a/src/main/java/com/oltpbenchmark/benchmarks/cricket/procedures/UpdateTeam.java b/src/main/java/com/oltpbenchmark/benchmarks/cricket/procedures/UpdateTeam.java
+new file mode 100644
+index 0000000..744b5c8
+--- /dev/null
++++ b/src/main/java/com/oltpbenchmark/benchmarks/cricket/procedures/UpdateTeam.java
+@@ -0,0 +1,69 @@
++package com.oltpbenchmark.benchmarks.cricket.procedures;
++
++import com.oltpbenchmark.api.Procedure;
++import com.oltpbenchmark.api.SQLStmt;
++import com.oltpbenchmark.benchmarks.cricket.CricketConstants;
++import java.sql.Connection;
++import java.sql.PreparedStatement;
++import java.sql.SQLException;
++import java.util.Random;
++import java.util.concurrent.ThreadLocalRandom;
++
++/**
++ * UpdateTeam Procedure - Updates random team attributes
++ *
++ * <p>Transaction Logic: 1. Update random team details (excluding primary key) 2. Fields updated:
++ * homepage, leagueid, divisionid, active status, etc.
++ */
++public class UpdateTeam extends Procedure {
++
++  // SQL Statement for updating team details
++  public final SQLStmt UpdateTeamDetails =
++      new SQLStmt(
++          "UPDATE "
++              + CricketConstants.TABLENAME_TEAMS
++              + " SET homepage = ?, leagueid = ?, divisionid = ?, active = ?, "
++              + "homevenueid = ?, mlbamteamname = ?, mlblevel = ? "
++              + "WHERE teamid = ?");
++
++  /**
++   * Execute the UpdateTeam transaction
++   *
++   * @param conn Database connection
++   * @param teamId The team ID
++   * @param workerId The worker ID for logging purposes
++   * @return Number of records affected (for success indication)
++   * @throws SQLException
++   */
++  public int run(Connection conn, int teamId, int workerId) throws SQLException {
++    return updateTeamDetails(conn, teamId);
++  }
++
++  /** Update team details with random values */
++  private int updateTeamDetails(Connection conn, int teamId) throws SQLException {
++    try (PreparedStatement stmt = conn.prepareStatement(UpdateTeamDetails.getSQL())) {
++      Random rand = ThreadLocalRandom.current();
++
++      // Generate random values for team updates
++      String newHomepage = "https://updated-team" + teamId + ".cricket.com";
++      int newLeagueId = rand.nextInt(5) + 1; // 1-5
++      int newDivisionId = rand.nextInt(3) + 1; // 1-3
++      boolean newActiveStatus = rand.nextBoolean();
++      int newHomeVenueId = rand.nextInt(100) + 1; // 1-100
++      String newMlbamTeamName = "Updated Team " + teamId + " Official";
++      String newMlbLevel = "L" + (rand.nextInt(3) + 1); // L1, L2, L3
++
++      // Set parameters
++      stmt.setString(1, newHomepage);
++      stmt.setInt(2, newLeagueId);
++      stmt.setInt(3, newDivisionId);
++      stmt.setBoolean(4, newActiveStatus);
++      stmt.setInt(5, newHomeVenueId);
++      stmt.setString(6, newMlbamTeamName);
++      stmt.setString(7, newMlbLevel);
++      stmt.setInt(8, teamId); // WHERE clause
++
++      return stmt.executeUpdate();
++    }
++  }
++}
+diff --git a/src/main/resources/benchmarks/cricket/ddl-postgres.sql b/src/main/resources/benchmarks/cricket/ddl-postgres.sql
+new file mode 100644
+index 0000000..b9f5b93
+--- /dev/null
++++ b/src/main/resources/benchmarks/cricket/ddl-postgres.sql
+@@ -0,0 +1,323 @@
++-- Cricket Benchmark DDL for PostgreSQL
++DROP TABLE IF EXISTS teamDetails;
++DROP TABLE IF EXISTS playerDetails;
++DROP TABLE IF EXISTS gameDetails;
++DROP TABLE IF EXISTS pitchDetails;
++
++-- teamDetails table
++CREATE TABLE teamDetails (
++    teamid INTEGER NOT NULL,
++    city VARCHAR(50),
++    name VARCHAR(50),
++    abbr VARCHAR(5),
++    leagueid SMALLINT,
++    divisionid SMALLINT,
++    organizationid SMALLINT,
++    levelid SMALLINT,
++    homepage VARCHAR(200),
++    homevenueid INTEGER,
++    statsteamid SMALLINT,
++    mlbamteamid SMALLINT,
++    mlbamteamname VARCHAR(80),
++    mlbclub VARCHAR(20),
++    mlborg VARCHAR(3),
++    mlblevel VARCHAR(2),
++    npbteamid SMALLINT,
++    boydteamid INTEGER,
++    csteamid VARCHAR(5),
++    bisteamid SMALLINT,
++    howeteamid SMALLINT,
++    pointstreakteamid SMALLINT,
++    trackmanteamid VARCHAR(55),
++    sportvisionteamid SMALLINT,
++    ncaateamid INTEGER,
++    schoolid INTEGER,
++    active BOOLEAN,
++    cartwrightteamid VARCHAR(50),
++    kboteamid SMALLINT,
++    onitteamid INTEGER,
++    fieldfxteamid SMALLINT,
++    CONSTRAINT pk_teamDetails PRIMARY KEY (teamid)
++);
++
++-- playerDetails table
++CREATE TABLE playerDetails (
++    teamid INTEGER NOT NULL,
++    playerid INTEGER NOT NULL,
++    lastname VARCHAR(40),
++    firstname VARCHAR(40),
++    middlename VARCHAR(40),
++    usesname VARCHAR(40),
++    bats SMALLINT,
++    throws SMALLINT,
++    agentid SMALLINT,
++    agencyid SMALLINT,
++    organizationid SMALLINT,
++    firstyear SMALLINT,
++    lastyear SMALLINT,
++    birthdate TIMESTAMP,
++    birthcity VARCHAR(100),
++    birthcountry VARCHAR(40),
++    birthstate VARCHAR(40),
++    college VARCHAR(80),
++    isamateur BOOLEAN,
++    class SMALLINT,
++    height SMALLINT,
++    weight SMALLINT,
++    active BOOLEAN,
++    fatype SMALLINT,
++    ison40manroster BOOLEAN,
++    ebispotentialmnfa BOOLEAN,
++    position SMALLINT,
++    rosterposition SMALLINT,
++    primaryposition SMALLINT,
++    number SMALLINT,
++    openingdaymjservice DECIMAL(5,3),
++    mjservice DECIMAL(5,3),
++    projmjservice DECIMAL(5,3),
++    establishedmlb BOOLEAN,
++    optionsused SMALLINT,
++    optionstotal SMALLINT,
++    outofoptions BOOLEAN,
++    hadprioroutright BOOLEAN,
++    isr5elig BOOLEAN,
++    r5eligyear SMALLINT,
++    mnfayear SMALLINT,
++    rosterstate SMALLINT,
++    mlbdraftnumber SMALLINT,
++    waiversrequireddate TIMESTAMP,
++    assignmentoptiondays SMALLINT,
++    prioroutrightdate TIMESTAMP,
++    mncontractyears SMALLINT,
++    mnserviceyears SMALLINT,
++    mnrosterstatus SMALLINT,
++    mjrosterstatus SMALLINT,
++    lastupdatedate TIMESTAMP,
++    schoolid INTEGER,
++    r4eligyear SMALLINT,
++    biourl VARCHAR(200),
++    headshoturl VARCHAR(200),
++    isinternational BOOLEAN,
++    countryid SMALLINT,
++    mjfayear SMALLINT,
++    isr5selection BOOLEAN,
++    inteligyear SMALLINT,
++    coachid INTEGER,
++    isactivecoach BOOLEAN,
++    twoway SMALLINT,
++    search_column VARCHAR(4000),
++    fourthoptionyears SMALLINT,
++    fourthoptionyearslist VARCHAR(100),
++    optionyearschargedlist VARCHAR(100),
++    optiondayscurrseason INTEGER,
++    currentyearoptions SMALLINT,
++    currentseasonmlsdays SMALLINT,
++    last_game_played INTEGER DEFAULT 0,
++    CONSTRAINT pk_playerDetails PRIMARY KEY (teamid, playerid),
++    CONSTRAINT fk_playerDetails_team FOREIGN KEY (teamid) REFERENCES teamDetails(teamid)
++);
++
++-- gameDetails table
++CREATE TABLE gameDetails (
++    teamid INTEGER NOT NULL,
++    gameid INTEGER NOT NULL,
++    yearid SMALLINT,
++    hometeamid SMALLINT,
++    awayteamid SMALLINT,
++    homescore SMALLINT,
++    awayscore SMALLINT,
++    gamedate TIMESTAMP,
++    gametype SMALLINT,
++    gamestatus SMALLINT,
++    gamenum SMALLINT,
++    levelid SMALLINT,
++    leagueid SMALLINT,
++    venueid INTEGER,
++    venueversion SMALLINT,
++    statsgamecode INTEGER,
++    mlbamgamepk INTEGER,
++    mlbamgameid VARCHAR(50),
++    npbgameid BIGINT,
++    bisgameid INTEGER,
++    inbats BOOLEAN,
++    inhd BOOLEAN,
++    hasplaydata BOOLEAN,
++    haspitchdata BOOLEAN,
++    haspitchfxdata BOOLEAN,
++    hashitfxdata BOOLEAN,
++    wplayerid INTEGER,
++    lplayerid INTEGER,
++    splayerid INTEGER,
++    howegameid INTEGER,
++    boydgameid INTEGER,
++    csgameid VARCHAR(14),
++    svgameid INTEGER,
++    batsgameid INTEGER,
++    trackmangameid VARCHAR(75),
++    rvpclientid INTEGER,
++    rvpgameid INTEGER,
++    ncaagameid BIGINT,
++    lastupdatedate TIMESTAMP,
++    ieclientid INTEGER,
++    iegameid INTEGER,
++    cartwrightgameid VARCHAR(13),
++    isnight BOOLEAN,
++    isturf BOOLEAN,
++    dhtype SMALLINT,
++    hasstatcast BOOLEAN,
++    kbogameid BIGINT,
++    synergygameid CHAR(24),
++    hasfieldfxdata BOOLEAN,
++    usesabs BOOLEAN,
++    hawkeyegameid INTEGER,
++    pointstreakgameid INTEGER,
++    roofclosed BOOLEAN,
++    officialdate DATE,
++    originaldate DATE,
++    fieldfxgameid VARCHAR(26),
++    hasbattracking BOOLEAN,
++    CONSTRAINT pk_gameDetails PRIMARY KEY (teamid, gameid),
++    CONSTRAINT fk_gameDetails_team FOREIGN KEY (teamid) REFERENCES teamDetails(teamid)
++);
++
++-- pitchDetails table
++CREATE TABLE pitchDetails (
++    teamid INTEGER NOT NULL,
++    gameid INTEGER NOT NULL,
++    eventseq SMALLINT,
++    pitchseq INTEGER,
++    yearid SMALLINT,
++    balls SMALLINT,
++    strikes SMALLINT,
++    result SMALLINT,
++    type SMALLINT,
++    velocity DECIMAL(6,3),
++    batterid INTEGER,
++    pitcherid INTEGER,
++    islastpitch BOOLEAN,
++    count00 BOOLEAN,
++    count01 BOOLEAN,
++    count02 BOOLEAN,
++    count10 BOOLEAN,
++    count11 BOOLEAN,
++    count12 BOOLEAN,
++    count20 BOOLEAN,
++    count21 BOOLEAN,
++    count22 BOOLEAN,
++    count30 BOOLEAN,
++    count31 BOOLEAN,
++    count32 BOOLEAN,
++    ispitch BOOLEAN,
++    isball BOOLEAN,
++    isstrike BOOLEAN,
++    isswing BOOLEAN,
++    isinstrikezone BOOLEAN,
++    isaway BOOLEAN,
++    isin BOOLEAN,
++    isup BOOLEAN,
++    isdown BOOLEAN,
++    statszone1 CHAR(1),
++    statszone2 SMALLINT,
++    isofficial BOOLEAN,
++    outzaway BOOLEAN,
++    outzin BOOLEAN,
++    outzup BOOLEAN,
++    outzdown BOOLEAN,
++    istake BOOLEAN,
++    isinplay BOOLEAN,
++    isfoul BOOLEAN,
++    isbunt BOOLEAN,
++    iscontact BOOLEAN,
++    iscatcherblock BOOLEAN,
++    iscatcherdrop BOOLEAN,
++    iscrossup BOOLEAN,
++    npbcoorx SMALLINT,
++    npbcoory SMALLINT,
++    pitchtotal SMALLINT,
++    bcbefore SMALLINT,
++    bcafter SMALLINT,
++    outsbefore SMALLINT,
++    outsafter SMALLINT,
++    scorebattingbefore SMALLINT,
++    scorebattingafter SMALLINT,
++    islhp BOOLEAN,
++    islhb BOOLEAN,
++    repeatpitchseq SMALLINT,
++    abpitchseq SMALLINT,
++    statstype SMALLINT,
++    npbtype SMALLINT,
++    batstype SMALLINT,
++    charttype SMALLINT,
++    fxtype SMALLINT,
++    trackmantype SMALLINT,
++    rvptype SMALLINT,
++    statsvelocity SMALLINT,
++    npbvelocity DECIMAL(6,3),
++    batsvelocity SMALLINT,
++    chartvelocity SMALLINT,
++    fxvelocity DECIMAL(6,3),
++    trackmanvelocity DECIMAL(6,3),
++    rvpvelocity SMALLINT,
++    initspeed DECIMAL(6,3),
++    breakx DECIMAL(6,3),
++    breakz DECIMAL(6,3),
++    platex DECIMAL(6,3),
++    platez DECIMAL(6,3),
++    initposx_55 DECIMAL(6,3),
++    initposz_55 DECIMAL(6,3),
++    bisresultid SMALLINT,
++    source SMALLINT,
++    ietype SMALLINT,
++    ievelocity SMALLINT,
++    bistype SMALLINT,
++    bisvelocity SMALLINT,
++    extension DECIMAL(6,3),
++    spinrate DECIMAL(8,3),
++    correctedtype SMALLINT,
++    pitchindirt BOOLEAN,
++    statspseq SMALLINT,
++    mlbampseq SMALLINT,
++    batspseq SMALLINT,
++    trackmanpseq SMALLINT,
++    rvppseq INTEGER,
++    catcherbackpick SMALLINT,
++    catcherkneestart SMALLINT,
++    catcherkneefall SMALLINT,
++    runnersinmotion SMALLINT,
++    checkswing SMALLINT,
++    throwtoplate SMALLINT,
++    kbotype SMALLINT,
++    kbovelocity DECIMAL(6,3),
++    pstrike DECIMAL(9,7),
++    synergytype SMALLINT,
++    synergyvelocity DECIMAL(6,3),
++    playid UUID,
++    hawkeyetype SMALLINT,
++    hawkeyevelocity DECIMAL(6,3),
++    pitchtime TIMESTAMP,
++    breakx54 DECIMAL(6,3),
++    breakz54 DECIMAL(6,3),
++    pickoffbase SMALLINT,
++    mlbamvelocity DECIMAL(6,3),
++    mlbampitchtype SMALLINT,
++    mlbamspinrate DECIMAL(10,3),
++    priormoundvisit BOOLEAN,
++    priorbattertimeout BOOLEAN,
++    priordisengagementcount SMALLINT,
++    violationreason VARCHAR(50),
++    fxsubtype SMALLINT,
++    armangle DECIMAL(6,3),
++    armangle_source SMALLINT,
++    isdisengagement BOOLEAN,
++    initspeed54 DECIMAL(6,3),
++    correctedfxsubtype SMALLINT,
++    CONSTRAINT pk_pitchDetails PRIMARY KEY (teamid, gameid)
++    -- CONSTRAINT fk_pitchDetails_game FOREIGN KEY (teamid, gameid) REFERENCES gameDetails(teamid, gameid)
++);
++
++-- Create indexes for better performance
++CREATE INDEX idx_playerDetails_teamid ON playerDetails(teamid);
++CREATE INDEX idx_playerDetails_last_game_played ON playerDetails(last_game_played);
++CREATE INDEX idx_gameDetails_teamid ON gameDetails(teamid);
++CREATE INDEX idx_gameDetails_gamedate ON gameDetails(gamedate);
++CREATE INDEX idx_pitchDetails_teamid_gameid ON pitchDetails(teamid, gameid); 
+\ No newline at end of file

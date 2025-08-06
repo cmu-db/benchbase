@@ -53,7 +53,7 @@ public final class CricketLoader extends Loader<CricketBenchmark> {
   }
 
   @Override
-  public List<LoaderThread> createLoaderThreads() throws SQLException {
+  public List<LoaderThread> createLoaderThreads(int tableIndex) throws SQLException {
     List<LoaderThread> loaderThreads = new ArrayList<>();
 
     LOG.info(

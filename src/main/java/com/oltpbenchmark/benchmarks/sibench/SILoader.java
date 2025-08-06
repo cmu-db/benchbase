@@ -40,7 +40,7 @@ public final class SILoader extends Loader<SIBenchmark> {
   }
 
   @Override
-  public List<LoaderThread> createLoaderThreads() {
+  public List<LoaderThread> createLoaderThreads(int tableIndex) {
     List<LoaderThread> threads = new ArrayList<>();
     final int numLoaders = this.benchmark.getWorkloadConfiguration().getLoaderThreads();
     final int itemsPerThread = Math.max(this.num_record / numLoaders, 1);

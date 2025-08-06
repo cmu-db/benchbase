@@ -4,22 +4,24 @@
     <!-- Connection details -->
     <type>POSTGRES</type>
     <driver>org.postgresql.Driver</driver>
-    <url>jdbc:postgresql://localhost:5432/benchbase?sslmode=disable&amp;ApplicationName=tpcc&amp;reWriteBatchedInserts=true</url>
-    <username>admin</username>
-    <password>password</password>
+    <url>jdbc:postgresql://harish-rds-test.chlee7xx28jo.us-west-2.rds.amazonaws.com:5432/postgres?sslmode=require&amp;ApplicationName=tpcc&amp;reWriteBatchedInserts=true</url>
+    <username>postgres</username>
+    <password>NewHireDatabricks</password>
     <reconnectOnConnectionFailure>true</reconnectOnConnectionFailure>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
-    <batchsize>128</batchsize>
+    <batchsize>5000</batchsize>
 
     <!-- Scale factor is the number of warehouses in TPCC -->
-    <scalefactor>1</scalefactor>
+    <scalefactor>2</scalefactor>
 
-    <!-- The workload -->
-    <terminals>1</terminals>
+    <!-- The workload - Reduced terminals to reduce contention -->
+    <terminals>20</terminals>
+    <num_tables>10</num_tables>
     <works>
         <work>
-            <time>60</time>
-            <rate>10000</rate>
+            <time>30</time>
+            <warmup>5</warmup>
+            <rate>unlimited</rate>
             <weights>45,43,4,4,4</weights>
         </work>
     </works>

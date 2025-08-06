@@ -46,10 +46,17 @@ public final class TPCCBenchmark extends BenchmarkModule {
     List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
 
     try {
+      LOG.info(
+          "Creating TPCC terminals with scaleFactor={} terminals={}",
+          workConf.getScaleFactor(),
+          workConf.getTerminals());
       List<TPCCWorker> terminals = createTerminals();
+      LOG.info("Successfully created {} TPCC worker terminals", terminals.size());
       workers.addAll(terminals);
     } catch (Exception e) {
-      LOG.error(e.getMessage(), e);
+      LOG.error("FAILED TO CREATE TPCC WORKERS: " + e.getMessage(), e);
+      e.printStackTrace(); // Force print to stderr
+      throw new RuntimeException("Cannot create TPCC workers", e); // Don't silently fail
     }
 
     return workers;

@@ -75,7 +75,7 @@ public class TPCCUtil {
   }
 
   public static String getCurrentTime() {
-    return dateFormat.format(new java.util.Date());
+    return getDateFormat().format(new java.util.Date());
   }
 
   public static String formattedDouble(double d) {

@@ -1,0 +1,64 @@
+CRICKET BENCHMARK - CUSTOM DATABASE WORKLOAD
+
+OVERVIEW
+========
+A sports management database benchmark simulating cricket team operations with 4 tables 
+and 4 transaction types. Models realistic cricket scenarios including teams, players, 
+games, and detailed pitch data.
+
+SCHEMA DESIGN
+=============
+Four-table relational design with team-centric data partitioning:
+
+teamDetails: Core entity storing team information
+- Primary Key: teamid (INTEGER)
+- Contains: team name, city, league details, venue information
+- Capacity: 10 teams
+
+playerDetails: Team member roster with participation tracking  
+- Primary Key: (teamid, playerid) - composite key
+- Foreign Key: teamid -> teamDetails.teamid
+- Contains: player demographics, statistics, roster status
+- Special Field: last_game_played (tracks game participation for safe deletions)
+- Capacity: 11 players per team (110 total)
+
+gameDetails: Match records per team
+- Primary Key: (teamid, gameid) - composite key  
+- Foreign Key: teamid -> teamDetails.teamid
+- Contains: game metadata, scores, dates, venue details
+- Each team maintains independent game sequence
+
+pitchDetails: Ball-by-ball game analytics
+- Primary Key: (teamid, gameid) - composite key
+- Implicit Foreign Key: (teamid, gameid) -> gameDetails
+- Contains: pitch velocity, type, result, player involvement
+- One-to-one relationship with games
+
+Data isolation ensures each team operates independently while maintaining referential integrity across all related records.
+
+TRANSACTION PROCEDURES
+======================
+1. GamePlayed (60% weight) - Primary transaction creating new games with pitch data
+2. DeleteGame (20% weight) - Safely removes latest game with integrity checks  
+3. UpdateTeam (10% weight) - Administrative team information updates
+4. UpdatePlayer (10% weight) - Player roster and attribute modifications
+
+IMPLEMENTATION STATS
+====================
+Files Written: 3 new procedures (265 lines total)
+Files Modified: 2 existing files (~70 lines added)
+Total Implementation: ~335 lines of code across 5 files
+
+WORKLOAD CHARACTERISTICS
+========================
+Configurable transaction weights via XML configuration
+Team-isolated operations (10 concurrent teams)
+Realistic cricket data generation (IPL teams, Indian player names)
+Safety mechanisms prevent data corruption during deletions
+Mixed read/write workload with insert-heavy primary operations
+
+DOMAIN MODELING
+===============
+Authentic cricket elements: team cities (Mumbai, Chennai), player names (Rohit, Virat),
+pitch velocities (60-160 km/h), cricket positions (1-11), realistic game data.
+Supports comprehensive cricket analytics and performance tracking. 

@@ -40,7 +40,7 @@ public class UpdatePlayer extends Procedure {
     Random rand = ThreadLocalRandom.current();
 
     // Randomly choose 2-5 players to update from the team (playerid 1-11)
-    int numPlayersToUpdate = rand.nextInt(4) + 2; // 2-5 players
+    int numPlayersToUpdate = 1; // 2-5 players
     int totalUpdated = 0;
 
     for (int i = 0; i < numPlayersToUpdate; i++) {

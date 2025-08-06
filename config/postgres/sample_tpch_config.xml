@@ -4,9 +4,9 @@
     <!-- Connection details -->
     <type>POSTGRES</type>
     <driver>org.postgresql.Driver</driver>
-    <url>jdbc:postgresql://localhost:5432/benchbase?sslmode=disable&amp;ApplicationName=tpch&amp;reWriteBatchedInserts=true</url>
-    <username>admin</username>
-    <password>password</password>
+    <url>jdbc:postgresql://harish-rds-test.chlee7xx28jo.us-west-2.rds.amazonaws.com:5432/postgres?sslmode=require&amp;ApplicationName=tpcc&amp;reWriteBatchedInserts=true</url>
+    <username>postgres</username>
+    <password>NewHireDatabricks</password>
     <reconnectOnConnectionFailure>true</reconnectOnConnectionFailure>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
     <batchsize>1024</batchsize>

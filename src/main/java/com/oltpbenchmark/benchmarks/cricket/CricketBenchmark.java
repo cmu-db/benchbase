@@ -32,7 +32,7 @@ public final class CricketBenchmark extends BenchmarkModule {
     super(workConf);
 
     // Number of teams equals number of terminals (each terminal maps to one team)
-    this.numTeams = workConf.getTerminals();
+    this.numTeams = (int) workConf.getScaleFactor();
     this.numPlayersPerTeam = CricketConstants.NUM_PLAYERS_PER_TEAM;
     this.totalPlayers = this.numTeams * this.numPlayersPerTeam;
 

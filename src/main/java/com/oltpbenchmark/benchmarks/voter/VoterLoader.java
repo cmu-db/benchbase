@@ -34,7 +34,7 @@ public final class VoterLoader extends Loader<VoterBenchmark> {
   }
 
   @Override
-  public List<LoaderThread> createLoaderThreads() {
+  public List<LoaderThread> createLoaderThreads(int tableIndex) {
     List<LoaderThread> threads = new ArrayList<>();
 
     // CONTESTANTS

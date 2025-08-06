@@ -4,18 +4,18 @@
     <!-- Connection details -->
     <type>MYSQL</type>
     <driver>com.mysql.cj.jdbc.Driver</driver>
-    <url>jdbc:mysql://localhost:3306/benchbase?rewriteBatchedStatements=true&amp;allowPublicKeyRetrieval=True&amp;sslMode=DISABLED</url>
-    <username>admin</username>
-    <password>password</password>
+    <url>jdbc:mysql://harish-rds-test.chlee7xx28jo.us-west-2.rds.amazonaws.com:3306/benchbase?rewriteBatchedStatements=true&amp;allowPublicKeyRetrieval=True&amp;sslMode=require</url>
+    <username>postgres</username>
+    <password>NewHireDatabricks</password>
     <reconnectOnConnectionFailure>true</reconnectOnConnectionFailure>
-    <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    <isolation>READ_COMMITTED</isolation>
     <batchsize>128</batchsize>
 
     <!-- Scale factor is the number of warehouses in TPCC -->
-    <scalefactor>1</scalefactor>
+    <scalefactor>2</scalefactor>
 
     <!-- The workload -->
-    <terminals>1</terminals>
+    <terminals>2</terminals>
     <works>
         <work>
             <time>60</time>

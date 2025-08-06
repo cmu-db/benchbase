@@ -1,0 +1,1 @@
+./mvnw clean package -P postgres -Dmaven.compiler.release=17 -DskipTests -Dmaven.test.skip=true
