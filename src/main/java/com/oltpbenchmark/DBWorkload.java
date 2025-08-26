@@ -235,12 +235,7 @@ public class DBWorkload {
             List<HierarchicalConfiguration<ImmutableNode>> workloads =
                 xmlConfig.configurationsAt("microbenchmark/properties/executeRules");
 
-            if (isOptionTrueForOptimalThreads(xmlConfig, "optimalThreads")) {
-                if (workloads != null && workloads.size() > 1) {
-                    LOG.error("Error: optimalThreads can only be used when there is exactly one workload. Found {} workloads.", workloads.size());
-                    System.exit(1);
-                }
-            }
+            // optimalThreads check will be done later in execute phase only
             int totalWorkloadCount =
                 plugin.equalsIgnoreCase("featurebench") ?
                     (workloads == null ? 1 : (workloads.size() == 0 ? 1 : workloads.size())) : 1;
@@ -680,6 +675,26 @@ public class DBWorkload {
                     LOG.debug("Skipping loading benchmark database records");
                 }
 
+
+                // Check optimalThreads constraint for execute phase
+                if (isBooleanOptionSet(argsLine, "execute") && isOptionTrueForOptimalThreads(xmlConfig, "optimalThreads")) {
+                    // Determine the number of workloads to be executed
+                    int workloadsToExecute = 0;
+                    if (argsLine.hasOption("workloads") && !argsLine.getOptionValue("workloads").isEmpty()) {
+                        // If --workloads option is specified, count the workloads in that option
+                        List<String> runWorkloads = List.of(argsLine.getOptionValue("workloads").trim().split("\\s*,\\s*"));
+                        workloadsToExecute = runWorkloads.size();
+                    } else {
+                        // If no --workloads option, all workloads from XML configuration will be executed
+                        // For optimalThreads, we expect only one workload in the YAML file
+                        workloadsToExecute = workloads == null ? 1 : (workloads.size() == 0 ? 1 : workloads.size());
+                    }
+                    
+                    if (workloadsToExecute > 1) {
+                        LOG.error("Error: optimalThreads can only be used when there is exactly one workload. Found {} workloads to execute.", workloadsToExecute);
+                        System.exit(1);
+                    }
+                }
 
                 if (isBooleanOptionSet(argsLine, "execute") && (argsLine.hasOption("workloads")) && executeRules != null) {
                     String val = workloads.get(workCount - 1).getString("workload");

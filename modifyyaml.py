@@ -86,16 +86,48 @@ def set_nested_item(dataDict, mapList, val):
     return dataDict
 
 
+def handle_load_balance_url(url, driver, optimal_threads):
+    """
+    Handle load-balance parameter in URL based on driver and optimalThreads setting.
+    If optimalThreads is true and driver is com.yugabyte.Driver, ensure load-balance=true is present.
+    """
+    if not optimal_threads or driver != "com.yugabyte.Driver":
+        return url
+    
+    # Check if load-balance is already present in the URL
+    if "load-balance=" in url:
+        # If load-balance is present, ensure it's set to true
+        if "load-balance=false" in url:
+            url = url.replace("load-balance=false", "load-balance=true")
+        elif "load-balance=true" in url:
+            # Already set to true, no change needed
+            pass
+        else:
+            # load-balance is present but with no value, ensure it's true
+            # This handles cases like "load-balance" without a value
+            url = url.replace("load-balance&", "load-balance=true&")
+            url = url.replace("load-balance?", "load-balance=true?")
+            if url.endswith("load-balance"):
+                url = url.replace("load-balance", "load-balance=true")
+    else:
+        # load-balance is not present, add it
+        if "?" in url:
+            url += "&load-balance=true"
+        else:
+            url += "?load-balance=true"
+    
+    return url
+
+
 def main():
     if len(sys.argv) != 3:
         print(f"Usage: {sys.argv[0]} <json_context> <yaml_file_path>")
         sys.exit(1)
         
-    context = sys.argv[1]
     yaml_file = sys.argv[2]
     
     try:
-        data = json.loads(context, strict=False)
+        data = json.loads(sys.argv[1], strict=False)
     except json.JSONDecodeError as e:
         print(f"Error: Invalid JSON context provided. {e}")
         sys.exit(1)
@@ -108,6 +140,11 @@ def main():
 
     with open(yaml_file) as f:
         doc = ordered_yaml_loader(f, Loader=yaml.FullLoader)
+        
+        # Check if optimalThreads is set and handle load-balance URL modification
+        optimal_threads = data.get("optimalThreads", False)
+        driver = doc.get("driver", "")
+        
         for key, value in data.items():
             if key == "warmup":
                 doc["works"]["work"]["warmup"] = value
@@ -120,6 +157,15 @@ def main():
                         "require", "disable")
                 if "load-balance" in data and data['load-balance'] == True:
                     doc[key] = doc[key] + "&load-balance=true"
+                # Handle optimalThreads load-balance logic
+                if optimal_threads:
+                    doc[key] = handle_load_balance_url(doc[key], driver, optimal_threads)
+            elif key == "optimalThreads":
+                # Set the optimalThreads property in the YAML
+                doc[key] = value
+                # Also handle load-balance URL modification if URL exists
+                if "url" in doc:
+                    doc["url"] = handle_load_balance_url(doc["url"], driver, value)
             elif key == "setAutoCommit":
                 doc["microbenchmark"]["properties"]["setAutoCommit"] = value
             else:
