@@ -19,12 +19,10 @@
 package com.oltpbenchmark;
 
 
-
 import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.core.JsonProcessingException;
-
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.RenderResult;
@@ -51,16 +49,15 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.sql.Connection;
-import java.sql.ResultSet;
 
 public class DBWorkload {
     private static final Logger LOG = LoggerFactory.getLogger(DBWorkload.class);
@@ -689,7 +686,7 @@ public class DBWorkload {
                         // For optimalThreads, we expect only one workload in the YAML file
                         workloadsToExecute = workloads == null ? 1 : (workloads.size() == 0 ? 1 : workloads.size());
                     }
-                    
+
                     if (workloadsToExecute > 1) {
                         LOG.error("Error: optimalThreads can only be used when there is exactly one workload. Found {} workloads to execute.", workloadsToExecute);
                         System.exit(1);
@@ -754,6 +751,10 @@ public class DBWorkload {
                                     executeRules != null && workloads.get(workCount - 1).getBoolean("skipReport", false)
                                 );
                             writeHistograms(r);
+
+                            if(benchList.get(0).getBenchmarkName().equalsIgnoreCase("featurebench")){
+                                checkCompletedTransaction(r);
+                            }
 
                             if (argsLine.hasOption("json-histograms")) {
                                 String histogram_json = writeJSONHistograms(r);
@@ -836,6 +837,10 @@ public class DBWorkload {
                                 executeRules != null && workloads.get(workCount - 1).getBoolean("skipReport", false));
                         }
                         writeHistograms(r);
+
+                        if(benchList.get(0).getBenchmarkName().equalsIgnoreCase("featurebench")){
+                                checkCompletedTransaction(r);
+                        }
 
                         if (argsLine.hasOption("json-histograms")) {
                             String histogram_json = writeJSONHistograms(r);
@@ -1437,5 +1442,13 @@ public class DBWorkload {
             LOG.error("Error writing optimal threads JSON log", e);
         }
         return optimalThreads;
+    }
+
+
+    private static void checkCompletedTransaction(Results r){
+       if(r.getSuccess().getSampleCount() == 0){
+        LOG.error("ERROR: Zero completed transactions in Transaction Distribution Summary");
+        System.exit(1);
+       }
     }
 }
