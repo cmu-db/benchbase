@@ -10,7 +10,7 @@ loaderThreads: 1
 terminals: 1
 collect_pg_stat_statements: true
 use_dist_in_explain : true
-yaml_version: v1.0
+yaml_version: v1.1
 works:
     work:
         time_secs: 180
@@ -203,4 +203,4 @@ microbenchmark:
                   - name: update_10_cols
                     weight: 100
                     queries:
-                        - query: UPDATE ug5_cardinality_tbl2_child_1 SET col_bigint_id_3=1000000 where col_bigint_id_2<1001
+                        - query: UPDATE ug5_cardinality_tbl2_child_1 SET col_bigint_id_3=900000 where col_bigint_id_2<1001
