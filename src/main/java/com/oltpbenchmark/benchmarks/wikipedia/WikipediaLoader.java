@@ -500,6 +500,9 @@ public final class WikipediaLoader extends Loader<WikipediaBenchmark> {
         int old_text_length = h_textLength.nextValue();
         char[] old_text = TextGenerator.randomChars(rng(), old_text_length);
 
+        // FIXME: Need to break up the num_revised into multiple batches to avoid
+        // packet size limits in loader.
+        // See Also: #405
         for (int i = 0; i < num_revised; i++) {
           // Generate the User who's doing the revision and the Page revised
           // Makes sure that we always update their counter
