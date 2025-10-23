@@ -568,6 +568,10 @@ jobs:
           MEMORY_SIZE: .75
         ports:
           - 26257:26257
+        # Workaround need for volume mapping and user perms.
+        # See Also: Issue #625
+        options: >-
+          --user root
     steps:
       - name: Download artifact
         uses: actions/download-artifact@v4
