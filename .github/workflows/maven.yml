@@ -538,7 +538,7 @@ jobs:
           ./scripts/check_histogram_results.sh results/histograms.json $ERRORS_THRESHOLD
 
           # Running the monitor should create at least three files in the 'monitor' directory.
-          if ![ $(find "./results/monitor" -maxdepth 1 -mindepth 1 | wc -l) -gt 2]; then
+          if ! [ $(find "./results/monitor" -maxdepth 1 -mindepth 1 -type f | wc -l) -gt 2 ]; then
             echo "ERROR: Advanced monitoring unsuccessful, file directory and/or appropriate files not created." >&2
             exit 1
           fi
@@ -732,7 +732,7 @@ jobs:
           ./scripts/check_histogram_results.sh results/histograms.json $ERRORS_THRESHOLD
 
           # Running the monitor should create at least three files in the 'monitor' directory.
-          if ![ $(find "./results/monitor" -maxdepth 1 -mindepth 1 | wc -l) -gt 2]; then
+          if ! [ $(find "./results/monitor" -maxdepth 1 -mindepth 1 -type f | wc -l) -gt 2 ]; then
             echo "ERROR: Advanced monitoring unsuccessful, file directory and/or appropriate files not created." >&2
             exit 1
           fi
