@@ -831,17 +831,11 @@ public class DBWorkload {
    */
   private static void applyAnonymization(XMLConfiguration xmlConfig, String configFile) {
 
-    String templatesPath = "";
-    if (xmlConfig.containsKey("query_templates_file")) {
-      templatesPath = xmlConfig.getString("query_templates_file");
-    }
-
     LOG.info("Starting the Anonymization process");
     LOG.info(SINGLE_LINE);
     String osCommand = System.getProperty("os.name").startsWith("Windows") ? "python" : "python3";
     ProcessBuilder processBuilder =
-        new ProcessBuilder(
-            osCommand, "scripts/anonymization/src/anonymizer.py", configFile, templatesPath);
+        new ProcessBuilder(osCommand, "scripts/anonymization/src/anonymizer.py", configFile);
     try {
       // Redirect Output stream of the script to get live feedback
       processBuilder.inheritIO();

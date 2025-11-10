@@ -1,7 +1,5 @@
 # Anonymization
 
-**NOTE:ANONYMIZATION IS A WORK IN PROGRESS AND DOES CURRENTLY NOT ACTUALLY ANONYMIZE THE DATA. THIS FEATURE WILL BE ADDED LATER**
-
 The anonymization module allows applying privacy mechanisms such as differential privacy or column faking to the data.
 The system will pull data from the JDBC connection, anonymize the data and push it back to the DBMS by creating a new table.
 
@@ -30,10 +28,20 @@ pylint --rcfile=.pylintrc src/
 Pytest is automatically added by the requirements and can be run as follows:
 
 ```bash
-pytest ./src/test.py
+cd ./src
+pytest test.py
 ```
 
+## Applying the Anonymization
 
+To run the anonymization, add the --anonymization flag to your bash command.
+Anonymization is not a standalone benchmark. It will solely create an anonymized copy of input tables.
+
+```bash
+java -jar benchbase.jar -b tpcc -c config/postgres/sample_anonymization_config.xml --anonymize=true
+```
+
+Configuration examples can be found below.
 
 ## Configuration files (XML)
 
@@ -238,6 +246,7 @@ Possible methods for faking can be found on the official [Faker documentation](h
 ### Basic
 
 The most basic config will need only the name of the table and the privacy mechanism. All necessary information is collected automatically.
+This method is not recommended since it typically results in faulty behavior because the anonymization algorithms do not know how to handle certain columns.
 
 ```xml
 <anonymization>
