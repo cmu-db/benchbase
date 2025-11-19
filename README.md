@@ -18,6 +18,19 @@ BenchBase (formerly [OLTPBench](https://github.com/oltpbenchmark/oltpbench/)) is
 
 ## Quickstart
 
+### With Docker
+
+To pull and use the BenchBase Docker image for `postgres`:
+
+```bash
+docker pull benchbase.azurecr.io/benchbase-postgres:latest
+docker run -it --rm benchbase.azurecr.io/benchbase-postgres:latest -b tpcc -c config/postgres/sample_tpcc_config.xml --create=true --load=true --execute=true
+```
+
+> See below for additional details on using Docker and customizing the config and retrieving the results.
+
+### With Java
+
 To clone and build BenchBase using the `postgres` profile,
 
 ```bash
@@ -243,7 +256,7 @@ The original OLTPBench code was largely written by the authors of the original p
 
 A significant portion of the modernization was contributed by [Tim Veil @ Cockroach Labs](https://github.com/timveil-cockroach), including but not limited to:
 
-* Built with and for Java ~~17~~ 21.
+* Built with and for Java 17.
 * Migration from Ant to Maven.
   * Reorganized project to fit Maven structure.
   * Removed static `lib` directory and dependencies.
@@ -268,6 +281,16 @@ A significant portion of the modernization was contributed by [Tim Veil @ Cockro
 * Introduced [Dependabot](https://dependabot.com/) to keep Maven dependencies up to date.
 * Simplified output flags by removing most of them, generally leaving the reporting functionality enabled by default.
 * Provided an alternate `Catalog` that can be populated directly from the configured Benchmark database. The old catalog was proxied through `HSQLDB` -- this remains an option for DBMSes that may have incomplete catalog support.
+
+Some additional maintenance has been taken up by [Brian Kroth](https://github.com/bpkroth) and others at [Microsoft's Gray Systems Lab](https://aka.ms/gsl):
+
+* Docker support.
+* Java ~~21~~ 23 support.
+* Flexible templated benchmarking
+* Advanced metrics collection
+* Session startup scripts
+* Expanded DBMS support
+* Code maintenance and bug fixes.
 
 ## Citing This Repository
 
