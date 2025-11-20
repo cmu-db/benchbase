@@ -634,7 +634,7 @@ jobs:
       fail-fast: false
       matrix:
         # TODO: add auctionmark and seats benchmark
-        benchmark: [ 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'sibench', 'smallbank', 'tatp', 'templated', 'tpcc', 'tpcc-with-reconnects', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
+        benchmark: [ 'chbenchmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'sibench', 'smallbank', 'tatp', 'templated', 'tpcc', 'tpcc-with-reconnects', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
     services:
       sqlserver:
         image: mcr.microsoft.com/mssql/server:latest
