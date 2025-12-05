@@ -172,6 +172,16 @@ To modify the logging level you can update [`logging.properties`](src/main/resou
 
 ### How use with Docker
 
+#### Pre-built Docker Images
+
+**Note:** Pre-built Docker images are published to `benchbase.azurecr.io` when changes are pushed to the `main` branch or when version tags are created. Images are **not** published on a regular schedule to conserve GitHub Actions credits. If you encounter issues pulling the `:latest` tag, you have the following options:
+
+1. **Build images locally** using the instructions below (recommended for development)
+2. **Use a specific version tag** when available (e.g., `benchbase.azurecr.io/benchbase:v2024.1.0`)
+3. **Wait for maintainers to manually trigger a workflow run** to publish updated images
+
+#### Building Docker Images Locally
+
 - Build or pull a dev image to help building from source:
 
   ```sh
@@ -179,23 +189,14 @@ To modify the logging level you can update [`logging.properties`](src/main/resou
   ./docker/benchbase/run-dev-image.sh
   ```
 
-  or
-
-  ```sh
-  docker run -it --rm --pull \
-    -v /path/to/benchbase-source:/benchbase \
-    -v $HOME/.m2:/home/containeruser/.m2 \
-    benchbase.azure.cr.io/benchbase-dev
-  ```
-
 - Build the full image:
 
   ```sh
-  # build an image with all profiles
+  # build an image with all profiles (includes MySQL, CockroachDB, Postgres, Oracle, and more)
   ./docker/benchbase/build-full-image.sh
 
   # or if you only want to build some of them
-  BENCHBASE_PROFILES='postgres mysql' ./docker/benchbase/build-full-image.sh
+  BENCHBASE_PROFILES='postgres mysql cockroachdb oracle' ./docker/benchbase/build-full-image.sh
   ```
 
 - Run the image for a given profile:
@@ -204,12 +205,28 @@ To modify the logging level you can update [`logging.properties`](src/main/resou
   BENCHBASE_PROFILE='postgres' ./docker/benchbase/run-full-image.sh --help # or other benchbase args as before
   ```
 
-  or
+#### Using Pre-built Images (when available)
 
-  ```sh
-  docker run -it --rm --env BENCHBASE_PROFILE='postgres' \
-    -v results:/benchbase/results benchbase.azurecr.io/benchbase --help # or other benchbase args as before
-  ```
+```sh
+# Pull the dev image for building from source
+docker pull benchbase.azurecr.io/benchbase-dev:latest
+docker run -it --rm \
+  -v /path/to/benchbase-source:/benchbase \
+  -v $HOME/.m2:/home/containeruser/.m2 \
+  benchbase.azurecr.io/benchbase-dev
+```
+
+```sh
+# Pull and run the full image with a specific profile
+docker pull benchbase.azurecr.io/benchbase:latest
+docker run -it --rm --env BENCHBASE_PROFILE='postgres' \
+  -v results:/benchbase/results benchbase.azurecr.io/benchbase --help
+
+# Or use a profile-specific image
+docker pull benchbase.azurecr.io/benchbase-postgres:latest
+docker run -it --rm \
+  -v results:/benchbase/results benchbase.azurecr.io/benchbase-postgres --help
+```
 
 > See the [docker/benchbase/README.md](./docker/benchbase/) for further details.
 

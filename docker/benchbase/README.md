@@ -66,10 +66,12 @@ BENCHBASE_PROFILE='postgres' ./docker/benchbase/run-full-image.sh
 
 ### Prebuilt Containers
 
-To use prebuilt containers, the following can be used:
+**Note:** Pre-built images are published to `benchbase.azurecr.io` only when changes are merged to the main branch or when version tags are created. They are **not** updated on a regular schedule. If the `:latest` tag is unavailable or outdated, please build the images locally using the scripts above.
+
+To use prebuilt containers when available:
 
 ```sh
-docker pull benchbase.azurecr.io/benchbase-dev
+docker pull benchbase.azurecr.io/benchbase-dev:latest
 
 # Provide a build environment for working with the local source code:
 docker run -it --rm -v /path/to/src:/benchbase benchbase.azurecr.io/benchbase-dev
@@ -80,7 +82,7 @@ docker run -it --rm -v /path/to/src:/benchbase benchbase.azurecr.io/benchbase-de
 > `-v "${MAVEN_CONFIG_DIR:-$HOME/.m2}:/home/containeruser/.m2"`
 
 ```sh
-docker pull benchbase.azurecr.io/benchbase
+docker pull benchbase.azurecr.io/benchbase:latest
 
 # Run benchbase against a postgres instance and store the results in /results:
 docker run --rm --env BENCHBASE_PROFILE='postgres' -v /results:/benchbase/results benchbase.azurecr.io/benchbase --help
@@ -88,3 +90,14 @@ docker run --rm --env BENCHBASE_PROFILE='postgres' -v /results:/benchbase/result
 # Or by referencing the standalone image for that profile:
 docker run --rm -v /results:/benchbase/results benchbase.azurecr.io/benchbase-postgres --help
 ```
+
+Available profile-specific images include:
+- `benchbase-cockroachdb`
+- `benchbase-mariadb`
+- `benchbase-mysql`
+- `benchbase-oracle`
+- `benchbase-phoenix`
+- `benchbase-postgres`
+- `benchbase-spanner`
+- `benchbase-sqlite`
+- `benchbase-sqlserver`
