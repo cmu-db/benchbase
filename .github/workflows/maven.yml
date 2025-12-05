@@ -21,8 +21,8 @@ on:
   pull_request:
     branches: [ main ]
   # Run these workflows on a schedule so that docker images are regularly updated for security patches.
-  # schedule:
-  #   - cron: "1 0 * * *"
+  schedule:
+    - cron: "1 0 * * 1"
   # Give us a button to allow running the workflow on demand for testing.
   workflow_dispatch:
     inputs:
