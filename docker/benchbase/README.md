@@ -74,7 +74,7 @@ To use prebuilt containers when available:
 docker pull benchbase.azurecr.io/benchbase-dev:latest
 
 # Provide a build environment for working with the local source code:
-docker run -it --rm -v /path/to/src:/benchbase benchbase.azurecr.io/benchbase-dev
+docker run -it --rm -v /path/to/src:/benchbase benchbase.azurecr.io/benchbase-dev:latest
 ```
 
 > Optional: also reuse the local `MAVEN_CONFIG_DIR` and it's repository download cache with the following argument:
@@ -85,10 +85,10 @@ docker run -it --rm -v /path/to/src:/benchbase benchbase.azurecr.io/benchbase-de
 docker pull benchbase.azurecr.io/benchbase:latest
 
 # Run benchbase against a postgres instance and store the results in /results:
-docker run --rm --env BENCHBASE_PROFILE='postgres' -v /results:/benchbase/results benchbase.azurecr.io/benchbase --help
+docker run --rm --env BENCHBASE_PROFILE='postgres' -v /results:/benchbase/results benchbase.azurecr.io/benchbase:latest --help
 
 # Or by referencing the standalone image for that profile:
-docker run --rm -v /results:/benchbase/results benchbase.azurecr.io/benchbase-postgres --help
+docker run --rm -v /results:/benchbase/results benchbase.azurecr.io/benchbase-postgres:latest --help
 ```
 
 Available profile-specific images include:

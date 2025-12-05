@@ -213,19 +213,19 @@ docker pull benchbase.azurecr.io/benchbase-dev:latest
 docker run -it --rm \
   -v /path/to/benchbase-source:/benchbase \
   -v $HOME/.m2:/home/containeruser/.m2 \
-  benchbase.azurecr.io/benchbase-dev
+  benchbase.azurecr.io/benchbase-dev:latest
 ```
 
 ```sh
 # Pull and run the full image with a specific profile
 docker pull benchbase.azurecr.io/benchbase:latest
 docker run -it --rm --env BENCHBASE_PROFILE='postgres' \
-  -v results:/benchbase/results benchbase.azurecr.io/benchbase --help
+  -v results:/benchbase/results benchbase.azurecr.io/benchbase:latest --help
 
 # Or use a profile-specific image
 docker pull benchbase.azurecr.io/benchbase-postgres:latest
 docker run -it --rm \
-  -v results:/benchbase/results benchbase.azurecr.io/benchbase-postgres --help
+  -v results:/benchbase/results benchbase.azurecr.io/benchbase-postgres:latest --help
 ```
 
 > See the [docker/benchbase/README.md](./docker/benchbase/) for further details.
