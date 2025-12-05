@@ -211,7 +211,7 @@ To modify the logging level you can update [`logging.properties`](src/main/resou
 # Pull the dev image for building from source
 docker pull benchbase.azurecr.io/benchbase-dev:latest
 docker run -it --rm \
-  -v /path/to/benchbase-source:/benchbase \
+  -v /path/to/your/benchbase-source:/benchbase \
   -v $HOME/.m2:/home/containeruser/.m2 \
   benchbase.azurecr.io/benchbase-dev:latest
 ```

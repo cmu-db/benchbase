@@ -74,7 +74,7 @@ To use prebuilt containers when available:
 docker pull benchbase.azurecr.io/benchbase-dev:latest
 
 # Provide a build environment for working with the local source code:
-docker run -it --rm -v /path/to/src:/benchbase benchbase.azurecr.io/benchbase-dev:latest
+docker run -it --rm -v /path/to/your/benchbase-source:/benchbase benchbase.azurecr.io/benchbase-dev:latest
 ```
 
 > Optional: also reuse the local `MAVEN_CONFIG_DIR` and it's repository download cache with the following argument:
