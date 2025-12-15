@@ -13,7 +13,6 @@ CREATE TABLE region (
     r_comment   varchar(152),
     PRIMARY KEY (r_regionkey)
 );
-CREATE UNIQUE INDEX r_rk ON region (r_regionkey ASC);
 
 CREATE TABLE nation (
     n_nationkey integer  NOT NULL,
@@ -23,7 +22,6 @@ CREATE TABLE nation (
     PRIMARY KEY (n_nationkey),
     FOREIGN KEY (n_regionkey) REFERENCES region (r_regionkey) ON DELETE CASCADE
 );
-CREATE UNIQUE INDEX n_nk ON nation (n_nationkey ASC);
 CREATE INDEX n_rk ON nation (n_regionkey ASC);
 
 CREATE TABLE part (
@@ -38,7 +36,6 @@ CREATE TABLE part (
     p_comment     varchar(23)    NOT NULL,
     PRIMARY KEY (p_partkey)
 );
-CREATE UNIQUE INDEX p_pk ON part (p_partkey ASC);
 
 CREATE TABLE supplier (
     s_suppkey   integer        NOT NULL,
@@ -51,7 +48,6 @@ CREATE TABLE supplier (
     PRIMARY KEY (s_suppkey),
     FOREIGN KEY (s_nationkey) REFERENCES nation (n_nationkey) ON DELETE CASCADE
 );
-CREATE UNIQUE INDEX s_sk ON supplier (s_suppkey ASC);
 CREATE INDEX s_nk ON supplier (s_nationkey ASC);
 
 CREATE TABLE partsupp (
@@ -66,7 +62,6 @@ CREATE TABLE partsupp (
 );
 CREATE INDEX ps_pk ON partsupp (ps_partkey ASC);
 CREATE INDEX ps_sk ON partsupp (ps_suppkey ASC);
-CREATE UNIQUE INDEX ps_pk_sk ON partsupp (ps_partkey ASC, ps_suppkey ASC);
 CREATE UNIQUE INDEX ps_sk_pk ON partsupp (ps_suppkey ASC, ps_partkey ASC);
 
 CREATE TABLE customer (
@@ -81,7 +76,6 @@ CREATE TABLE customer (
     PRIMARY KEY (c_custkey),
     FOREIGN KEY (c_nationkey) REFERENCES nation (n_nationkey) ON DELETE CASCADE
 );
-CREATE UNIQUE INDEX c_ck ON customer (c_custkey ASC);
 CREATE INDEX c_nk ON customer (c_nationkey ASC);
 
 CREATE TABLE orders (
@@ -97,7 +91,6 @@ CREATE TABLE orders (
     PRIMARY KEY (o_orderkey),
     FOREIGN KEY (o_custkey) REFERENCES customer (c_custkey) ON DELETE CASCADE
 );
-CREATE UNIQUE INDEX o_ok ON orders (o_orderkey ASC);
 CREATE INDEX o_ck ON orders (o_custkey ASC);
 CREATE INDEX o_od ON orders (o_orderdate ASC);
 
