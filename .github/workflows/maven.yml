@@ -331,13 +331,12 @@ jobs:
           if [[ ${{matrix.benchmark}} == templated ]]; then
             java -jar benchbase.jar -b tpcc -c config/mysql/sample_tpcc_config.xml --create=true --load=true --execute=false --json-histograms results/histograms.json
             java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/mysql/sample_${{matrix.benchmark}}_config.xml --create=false --load=false --execute=true --json-histograms results/histograms.json
-          # For anonymization, we load tpcc and anonymize a single table. The workload itself is not executed
-          # FIXME: 'exit 0' is called because there is no benchmark executed and analyzed. Must be removed once the Anonymization script is
-          # fully implemented. See Pull Request 455.
+          # For anonymization, we load tpcc and anonymize a single table.
           elif [[ ${{matrix.benchmark}} == anonymization ]]; then
             java -jar benchbase.jar -b tpcc -c config/mysql/sample_tpcc_config.xml --create=true --load=true --execute=false --json-histograms results/histograms.json
             java -jar benchbase.jar -b tpcc -c config/mysql/sample_${{matrix.benchmark}}_config.xml --anonymize=true
-            exit 0
+            mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword benchbase -e "RENAME TABLE item TO item_original,item_anonymized TO item;"
+            java -jar benchbase.jar -b tpcc -c config/mysql/sample_tpcc_config.xml --execute=true --json-histograms results/histograms.json
           elif [[ ${{matrix.benchmark}} == tpcc-with-reconnects ]]; then
             # See Also: WITH_SERVICE_INTERRUPTIONS=true docker/build-run-benchmark-with-docker.sh
             java -jar benchbase.jar -b tpcc -c config/mysql/sample_tpcc_config.xml --create=true --load=true
@@ -358,6 +357,8 @@ jobs:
               ERRORS_THRESHOLD=0.05
           elif [ ${{matrix.benchmark}} == tpcc-with-reconnects ]; then
               ERRORS_THRESHOLD=0.02
+              results_benchmark=tpcc
+          elif [ ${{matrix.benchmark}} == anonymization ]; then
               results_benchmark=tpcc
           fi
           ./scripts/check_latest_benchmark_results.sh $results_benchmark
@@ -463,7 +464,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        benchmark: [ 'auctionmark', 'chbenchmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'templated', 'tpcc', 'tpcc-with-reconnects', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
+        benchmark: [ 'anonymization', 'auctionmark', 'chbenchmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'templated', 'tpcc', 'tpcc-with-reconnects', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
     steps:
       # Note: we download just the docker-compose scripts/configs rather than the
       # whole source code repo for better testing.
@@ -502,6 +503,21 @@ jobs:
           java-version: ${{env.JAVA_VERSION}}
           distribution: 'temurin'
 
+      - name: Set up Python
+        uses: actions/setup-python@v5  
+        with:  
+          python-version: ${{env.PYTHON_VERSION}}  
+
+      - name: Install Python dependencies  
+        working-directory: ./scripts/anonymization
+        run: |
+          if [[ ${{matrix.benchmark}} == anonymization ]]; then
+            python -m pip install --upgrade pip
+            pip install -r requirements.txt  
+          else
+            echo "Dependency installation not necessary for benchmark"
+          fi
+
       - name: Run benchmark
         run: |
           PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
@@ -512,6 +528,12 @@ jobs:
           if [[ ${{matrix.benchmark}} == templated ]]; then
             java -jar benchbase.jar -b tpcc -c config/postgres/sample_tpcc_config.xml --create=true --load=true --execute=false --json-histograms results/histograms.json
             java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/postgres/sample_${{matrix.benchmark}}_config.xml -im 1000 -mt advanced --create=false --load=false --execute=true --json-histograms results/histograms.json
+          # For anonymization, we load tpcc and anonymize a single table.
+          elif [[ ${{matrix.benchmark}} == anonymization ]]; then
+            java -jar benchbase.jar -b tpcc -c config/postgres/sample_tpcc_config.xml --create=true --load=true --execute=false --json-histograms results/histograms.json
+            java -jar benchbase.jar -b tpcc -c config/postgres/sample_${{matrix.benchmark}}_config.xml --anonymize=true
+            PGPASSWORD=password psql -h localhost -U admin -d benchbase -c "ALTER TABLE item RENAME TO item_original;" -c "ALTER TABLE item_anonymized RENAME TO item;"
+            java -jar benchbase.jar -b tpcc -c config/postgres/sample_tpcc_config.xml --execute=true --json-histograms results/histograms.json
           elif [[ ${{matrix.benchmark}} == tpcc-with-reconnects ]]; then
             # See Also: WITH_SERVICE_INTERRUPTIONS=true docker/build-run-benchmark-with-docker.sh
             java -jar benchbase.jar -b tpcc -c config/postgres/sample_tpcc_config.xml --create=true --load=true
@@ -532,6 +554,8 @@ jobs:
               ERRORS_THRESHOLD=0.05
           elif [ ${{matrix.benchmark}} == tpcc-with-reconnects ]; then
               ERRORS_THRESHOLD=0.02
+              results_benchmark=tpcc
+          elif [ ${{matrix.benchmark}} == anonymization ]; then
               results_benchmark=tpcc
           fi
           ./scripts/check_latest_benchmark_results.sh $results_benchmark

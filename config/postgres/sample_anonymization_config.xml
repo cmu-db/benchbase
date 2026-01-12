@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    <type>POSTGRES</type>
+    <driver>org.postgresql.Driver</driver>
+    <url>jdbc:postgresql://localhost:5432/benchbase?sslmode=disable&amp;ApplicationName=tpcc&amp;reWriteBatchedInserts=true</url>
+    <username>admin</username>
+    <password>password</password>
+    <reconnectOnConnectionFailure>true</reconnectOnConnectionFailure>
+    <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    <batchsize>128</batchsize>
+
+    <!-- Note: this example anonymizes the "item" table of the tpcc workload.
+        To run, use the `anonymize=true` flag
+    -->
+
+     <!-- The anonymization configuration -->
+    <anonymization>
+        <table name="item">
+            <differential_privacy epsilon="1.0" pre_epsilon="0.0" algorithm="mst">
+            <!-- Column categorization -->
+                <ignore>
+                    <column name="i_id"/>
+                    <column name="i_data" />
+                    <column name="i_im_id" />
+                </ignore>
+                <categorical>
+                    <column name="i_name" />
+                </categorical>
+            <!-- Continuous column fine-tuning -->
+                <continuous>
+                    <column name="i_price" bins="20" lower="2.0" upper="100.0" />
+                </continuous>
+            </differential_privacy>
+            <!-- Sensitive value handling -->
+            <value_faking>
+                <column name="i_name" method="pystr" locales="en_US" seed="0"/>
+            </value_faking>
+        </table>
+    </anonymization>
+
+    <!-- Scale factor is the number of warehouses in TPCC -->
+    <scalefactor>1</scalefactor>
+
+    <!-- The workload -->
+    <terminals>1</terminals>
+    <works>
+        <work>
+            <time>60</time>
+            <rate>10000</rate>
+            <weights>45,43,4,4,4</weights>
+        </work>
+    </works>
+
+    <!-- TPCC specific -->
+    <transactiontypes>
+        <transactiontype>
+            <name>NewOrder</name>
+            <!--<preExecutionWait>18000</preExecutionWait>-->
+            <!--<postExecutionWait>12000</postExecutionWait>-->
+        </transactiontype>
+        <transactiontype>
+            <name>Payment</name>
+            <!--<preExecutionWait>3000</preExecutionWait>-->
+            <!--<postExecutionWait>12000</postExecutionWait>-->
+        </transactiontype>
+        <transactiontype>
+            <name>OrderStatus</name>
+            <!--<preExecutionWait>2000</preExecutionWait>-->
+            <!--<postExecutionWait>10000</postExecutionWait>-->
+        </transactiontype>
+        <transactiontype>
+            <name>Delivery</name>
+            <!--<preExecutionWait>2000</preExecutionWait>-->
+            <!--<postExecutionWait>5000</postExecutionWait>-->
+        </transactiontype>
+        <transactiontype>
+            <name>StockLevel</name>
+            <!--<preExecutionWait>2000</preExecutionWait>-->
+            <!--<postExecutionWait>5000</postExecutionWait>-->
+        </transactiontype>
+    </transactiontypes>
+</parameters>

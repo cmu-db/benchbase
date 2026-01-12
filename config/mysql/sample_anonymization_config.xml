@@ -30,12 +30,12 @@
                 </categorical>
             <!-- Continuous column fine-tuning -->
                 <continuous>
-                    <column name="i_price" bins="1000" lower="2.0" upper="100.0" /> 
+                    <column name="i_price" bins="20" lower="2.0" upper="100.0" />
                 </continuous>
             </differential_privacy>
             <!-- Sensitive value handling -->
             <value_faking>
-                <column name="i_name" method="name" locales="en_US" seed="0"/>
+                <column name="i_name" method="pystr" locales="en_US" seed="0"/>
             </value_faking>
         </table>
     </anonymization>
