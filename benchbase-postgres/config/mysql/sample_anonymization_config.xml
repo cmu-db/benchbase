@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    <type>MYSQL</type>
+    <driver>com.mysql.cj.jdbc.Driver</driver>
+    <url>jdbc:mysql://localhost:3306/benchbase?rewriteBatchedStatements=true&amp;allowPublicKeyRetrieval=True&amp;sslMode=DISABLED</url>
+    <username>admin</username>
+    <password>password</password>
+    <reconnectOnConnectionFailure>true</reconnectOnConnectionFailure>
+    <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    <batchsize>128</batchsize>
+
+    <!-- Note: this example anonymizes the "item" table of the tpcc workload.
+        To run, use the `anonymize=true` flag
+    -->
+
+     <!-- The anonymization configuration -->
+    <anonymization>
+        <table name="item">
+            <differential_privacy epsilon="1.0" pre_epsilon="0.0" algorithm="mst">
+            <!-- Column categorization -->
+                <ignore>
+                    <column name="i_id"/>
+                    <column name="i_data" />
+                    <column name="i_im_id" />
+                </ignore>
+                <categorical>
+                    <column name="i_name" />
+                </categorical>
+            <!-- Continuous column fine-tuning -->
+                <continuous>
+                    <column name="i_price" bins="1000" lower="2.0" upper="100.0" /> 
+                </continuous>
+            </differential_privacy>
+            <!-- Sensitive value handling -->
+            <value_faking>
+                <column name="i_name" method="name" locales="en_US" seed="0"/>
+            </value_faking>
+        </table>
+    </anonymization>
+</parameters>

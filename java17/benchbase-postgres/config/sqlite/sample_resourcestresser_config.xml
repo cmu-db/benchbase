@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    <type>SQLITE</type>
+    <driver>org.sqlite.JDBC</driver>
+    <url>jdbc:sqlite:resourcestresser.db</url>
+    <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    <batchsize>128</batchsize>
+
+    <!-- Scalefactor in ResourceStresser scales by *100 the number of employees -->
+    <scalefactor>0.1</scalefactor>
+
+    <!-- SQLITE only supports one writer thread -->
+    <loaderThreads>1</loaderThreads>
+    
+    <!-- The workload -->
+    <terminals>1</terminals>
+    <works>
+        <work>
+            <time>60</time>
+            <rate>10000</rate>
+            <weights>16.66,16.66,16.66,16.66,16.66,16.7</weights>
+        </work>
+    </works>
+
+    <!-- R/S Procedures declaration -->
+    <transactiontypes>
+        <transactiontype>
+            <name>CPU1</name>
+        </transactiontype>
+        <transactiontype>
+            <name>CPU2</name>
+        </transactiontype>
+        <transactiontype>
+            <name>IO1</name>
+        </transactiontype>
+        <transactiontype>
+            <name>IO2</name>
+        </transactiontype>
+        <transactiontype>
+            <name>Contention1</name>
+        </transactiontype>
+        <transactiontype>
+            <name>Contention2</name>
+        </transactiontype>
+    </transactiontypes>
+
+</parameters>

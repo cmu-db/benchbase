@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    <type>POSTGRES</type>
+    <driver>org.postgresql.Driver</driver>
+    <url>jdbc:postgresql://localhost:5432/postgres2?sslmode=disable&amp;ApplicationName=tpcc&amp;reWriteBatchedInserts=true</url>
+    <username>replicant</username>
+    <password>replicant</password>
+    <reconnectOnConnectionFailure>true</reconnectOnConnectionFailure>
+    <isolation>TRANSACTION_READ_COMMITTED</isolation>
+    <batchsize>128</batchsize>
+
+    <!-- Scale factor is the number of warehouses in TPCC -->
+    <scalefactor>1</scalefactor>
+
+    <!-- The workload - Reduced terminals to reduce contention -->
+    <terminals>5</terminals>
+    <works>
+        <work>
+            <time>60</time>
+            <warmup>10</warmup>
+            <rate>2000</rate>
+            <weights>45,43,4,4,4</weights>
+        </work>
+    </works>
+
+    <!-- TPCC specific -->
+    <transactiontypes>
+        <transactiontype>
+            <n>NewOrder</n>
+            <!--<preExecutionWait>18000</preExecutionWait>-->
+            <!--<postExecutionWait>12000</postExecutionWait>-->
+        </transactiontype>
+        <transactiontype>
+            <n>Payment</n>
+            <!--<preExecutionWait>3000</preExecutionWait>-->
+            <!--<postExecutionWait>12000</postExecutionWait>-->
+        </transactiontype>
+        <transactiontype>
+            <n>OrderStatus</n>
+            <!--<preExecutionWait>2000</preExecutionWait>-->
+            <!--<postExecutionWait>10000</postExecutionWait>-->
+        </transactiontype>
+        <transactiontype>
+            <n>Delivery</n>
+            <!--<preExecutionWait>2000</preExecutionWait>-->
+            <!--<postExecutionWait>5000</postExecutionWait>-->
+        </transactiontype>
+        <transactiontype>
+            <n>StockLevel</n>
+            <!--<preExecutionWait>2000</preExecutionWait>-->
+            <!--<postExecutionWait>5000</postExecutionWait>-->
+        </transactiontype>
+    </transactiontypes>
+
+</parameters>

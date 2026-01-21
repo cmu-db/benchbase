@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    <type>SQLITE</type>
+    <driver>org.sqlite.JDBC</driver>
+    <url>jdbc:sqlite:auctionmark.db</url>
+    <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    <batchsize>128</batchsize>
+
+    <!-- Scalefactor in AuctionMark scales by *1000 the number of customers-->
+    <scalefactor>0.1</scalefactor>
+
+    <!-- SQLITE only supports one writer thread -->
+    <loaderThreads>1</loaderThreads>
+
+    <!-- The workload -->
+    <terminals>1</terminals>
+    <works>
+        <work>
+            <time>60</time>
+            <rate>10000</rate>
+            <weights>45, 10, 20, 2, 1, 4, 10, 5, 3</weights>
+        </work>
+    </works>
+
+    <!-- AuctionMark Procedures declaration -->
+    <transactiontypes>
+        <transactiontype>
+            <name>GetItem</name>
+        </transactiontype>
+        <transactiontype>
+            <name>GetUserInfo</name>
+        </transactiontype>
+        <transactiontype>
+            <name>NewBid</name>
+        </transactiontype>
+        <transactiontype>
+            <name>NewComment</name>
+        </transactiontype>
+        <transactiontype>
+            <name>NewCommentResponse</name>
+        </transactiontype>
+        <transactiontype>
+            <name>NewFeedback</name>
+        </transactiontype>
+        <transactiontype>
+            <name>NewItem</name>
+        </transactiontype>
+        <transactiontype>
+            <name>NewPurchase</name>
+        </transactiontype>
+        <transactiontype>
+            <name>UpdateItem</name>
+        </transactiontype>
+    </transactiontypes>
+</parameters>

@@ -48,6 +48,7 @@ public class WorkloadConfiguration {
   private int isolationMode = Connection.TRANSACTION_SERIALIZABLE;
   private String dataDir = null;
   private String ddlPath = null;
+  private int numTables = 1; // Number of table replicas for benchmarks that support it
   private boolean advancedMonitoringEnabled = false;
 
   /**
@@ -77,6 +78,14 @@ public class WorkloadConfiguration {
 
   public DatabaseType getDatabaseType() {
     return databaseType;
+  }
+
+  public int getNumTables() {
+    return numTables;
+  }
+
+  public void setNumTables(int numTables) {
+    this.numTables = numTables;
   }
 
   public void setDatabaseType(DatabaseType databaseType) {

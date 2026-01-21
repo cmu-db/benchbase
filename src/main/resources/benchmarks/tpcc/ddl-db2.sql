@@ -84,6 +84,16 @@ CREATE TABLE oorder (
   o_ol_cnt decimal(2,0) NOT NULL,
   o_all_local decimal(1,0) NOT NULL,
   o_entry_d timestamp NOT NULL,
+  o_custom_1 varchar(50) DEFAULT NULL,
+  o_custom_2 varchar(50) DEFAULT NULL,
+  o_custom_3 varchar(50) DEFAULT NULL,
+  o_custom_4 varchar(50) DEFAULT NULL,
+  o_custom_5 varchar(50) DEFAULT NULL,
+  o_custom_6 varchar(50) DEFAULT NULL,
+  o_custom_7 varchar(50) DEFAULT NULL,
+  o_custom_8 varchar(50) DEFAULT NULL,
+  o_custom_9 varchar(50) DEFAULT NULL,
+  o_custom_10 varchar(50) DEFAULT NULL,
   PRIMARY KEY (o_w_id,o_d_id,o_id),
   UNIQUE (o_w_id,o_d_id,o_c_id,o_id)
 );

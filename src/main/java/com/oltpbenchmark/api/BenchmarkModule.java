@@ -239,16 +239,26 @@ public abstract class BenchmarkModule {
   public final void createDatabase(DatabaseType dbType, Connection conn)
       throws SQLException, IOException {
 
-    ScriptRunner runner = new ScriptRunner(conn, true, true);
+    // Get numTables for table replication
+    int numTables = workConf.getNumTables();
+    ScriptRunner runner = new ScriptRunner(conn, true, true, numTables);
 
     if (workConf.getDDLPath() != null) {
       String ddlPath = workConf.getDDLPath();
       LOG.warn("Overriding default DDL script path");
-      LOG.debug("Executing script [{}] for database type [{}]", ddlPath, dbType);
+      LOG.debug(
+          "Executing script [{}] for database type [{}] with {} table replicas",
+          ddlPath,
+          dbType,
+          numTables);
       runner.runExternalScript(ddlPath);
     } else {
       String ddlPath = this.getDatabaseDDLPath(dbType);
-      LOG.debug("Executing script [{}] for database type [{}]", ddlPath, dbType);
+      LOG.debug(
+          "Executing script [{}] for database type [{}] with {} table replicas",
+          ddlPath,
+          dbType,
+          numTables);
       runner.runScript(ddlPath);
     }
   }
@@ -256,22 +266,31 @@ public abstract class BenchmarkModule {
   public final void runScript(String scriptPath) throws SQLException, IOException {
     try (Connection conn = this.makeConnection()) {
       DatabaseType dbType = this.workConf.getDatabaseType();
-      ScriptRunner runner = new ScriptRunner(conn, true, true);
-      LOG.debug(
-          "Checking for script [{}] on local filesystem for database type [{}]",
+      int numTables = workConf.getNumTables();
+      LOG.info(
+          "Running script [{}] for database type [{}] with {} table replicas",
           scriptPath,
-          dbType);
+          dbType,
+          numTables);
+      ScriptRunner runner = new ScriptRunner(conn, true, true, numTables);
+      LOG.debug(
+          "Checking for script [{}] on local filesystem for database type [{}] with {} table replicas",
+          scriptPath,
+          dbType,
+          numTables);
       if (FileUtil.exists(scriptPath)) {
         LOG.debug(
-            "Executing script [{}] from local filesystem for database type [{}]",
+            "Executing script [{}] from local filesystem for database type [{}] with {} table replicas",
             scriptPath,
-            dbType);
+            dbType,
+            numTables);
         runner.runExternalScript(scriptPath);
       } else {
         LOG.debug(
-            "Executing script [{}] from resource stream for database type [{}]",
+            "Executing script [{}] from resource stream for database type [{}] with {} table replicas",
             scriptPath,
-            dbType);
+            dbType,
+            numTables);
         runner.runScript(scriptPath);
       }
     }
@@ -286,7 +305,7 @@ public abstract class BenchmarkModule {
     if (loader != null) {
 
       try {
-        List<LoaderThread> loaderThreads = loader.createLoaderThreads();
+        List<LoaderThread> loaderThreads = loader.createLoaderForEachTable(workConf.getNumTables());
         int maxConcurrent = workConf.getLoaderThreads();
 
         ThreadUtil.runLoaderThreads(loaderThreads, maxConcurrent);

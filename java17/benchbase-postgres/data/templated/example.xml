@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Note: these example templates reuse TPC-C queries and data as a demonstration, but others are possible. -->
+<!-- TODO: Add additional parameter data types to increase test coverage. -->
+<templates>
+   <template name="GetOrder">
+      <query><![CDATA[SELECT NO_O_ID FROM new_order WHERE NO_D_ID = ? OR NO_D_ID = ? ORDER BY NO_O_ID ASC]]></query>
+      <types>
+         <type>INTEGER</type>
+         <type>INTEGER</type>
+      </types>
+      <values>
+         <value dist="uniform" min="1" max="3"/>
+         <value dist="zipfian" min="1" max="2"/>
+      </values>
+       <values>
+         <value dist="scrambled" min="0" max="4" seed="999"/>
+         <value dist="normal" min="1" max="3" seed="1"/>
+      </values>
+   </template>
+   <template name="GetCust">
+      <query><![CDATA[SELECT C_DISCOUNT, C_LAST, C_CREDIT FROM customer WHERE C_W_ID = ?]]></query>
+      <types>
+         <type>INTEGER</type>
+      </types>
+      <values>
+         <value>8</value>
+      </values>
+   </template>
+   <template name="GetCustNull">
+      <query><![CDATA[SELECT C_DISCOUNT, C_LAST, C_CREDIT FROM customer WHERE C_W_ID = ? OR C_W_ID = ?]]></query>
+      <types>
+         <type>NULL</type>
+         <type>INTEGER</type>
+      </types>
+      <values>
+        <value>1</value>
+        <value />
+      </values>
+   </template>
+   <template name="GetWarehouse">
+      <query><![CDATA[SELECT * FROM warehouse WHERE W_STREET_1 LIKE ?]]></query>
+      <types>
+         <type>VARCHAR</type>
+      </types>
+      <values>
+         <value>Str</value>
+      </values>
+   </template>
+   <template name="GetItemByPrice">
+      <query><![CDATA[SELECT COUNT(*) FROM item WHERE i_price BETWEEN ? AND ?]]></query>
+      <types>
+         <type>FLOAT</type>
+         <type>FLOAT</type>
+      </types>
+      <values>
+         <value dist="normal" min="10" max="12.5"/>
+         <value dist="uniform" min="15.1" max="100.22"/>
+      </values>
+      <values>
+         <value>10.50</value>
+         <value>11</value>
+      </values>
+   </template>
+    <template name="UpdateItemPrice">
+      <query><![CDATA[UPDATE item SET i_price = i_price + 1 WHERE i_price < ?]]></query>
+      <types>
+         <type>INTEGER</type>
+      </types>
+      <values>
+         <value dist="zipfian" min="10" max="40">2</value>
+      </values>
+   </template>
+   <template name="DeleteItem">
+      <query><![CDATA[DELETE FROM oorder WHERE o_entry_d < ?]]></query>
+      <types>
+         <type>TIMESTAMP</type>
+      </types>
+      <values>
+         <value dist="uniform" min="1000" max="300000"></value>
+      </values>
+       <values>
+         <value dist="normal" min="1000" max="300000"></value>
+      </values>
+       <values>
+         <value dist="zipfian" min="1000" max="300000"></value>
+      </values>
+       <values>
+         <value dist="scrambled" min="1000" max="300000"></value>
+      </values>
+   </template>
+   <template name="InsertItem">
+      <query><![CDATA[INSERT INTO history VALUES(?,?,?,?,?,?,?,?)]]></query>
+      <types>
+         <type>INTEGER</type>
+         <type>INTEGER</type>
+         <type>INTEGER</type>
+         <type>INTEGER</type>
+         <type>INTEGER</type>
+         <type>TIMESTAMP</type>
+         <type>FLOAT</type>
+         <type>VARCHAR</type>
+      </types>
+      <values>
+         <value>1</value>
+         <value>1</value>
+         <value>1</value>
+         <value>1</value>
+         <value>1</value>
+         <value dist="uniform" min="1999-12-12 01:01:55" max="2000-12-12 04:04:44"/>
+         <value dist="normal" min="0.5" max="12.5"/>
+         <value dist="uniform" min="0" max="23"/>
+      </values>
+   </template>
+</templates>

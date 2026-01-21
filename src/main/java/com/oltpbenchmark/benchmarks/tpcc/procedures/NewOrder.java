@@ -18,7 +18,6 @@
 package com.oltpbenchmark.benchmarks.tpcc.procedures;
 
 import com.oltpbenchmark.api.SQLStmt;
-import com.oltpbenchmark.benchmarks.tpcc.TPCCConfig;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCConstants;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCUtil;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCWorker;
@@ -32,104 +31,114 @@ public class NewOrder extends TPCCProcedure {
 
   private static final Logger LOG = LoggerFactory.getLogger(NewOrder.class);
 
-  public final SQLStmt stmtGetCustSQL =
-      new SQLStmt(
-          """
-        SELECT C_DISCOUNT, C_LAST, C_CREDIT
-          FROM %s
-         WHERE C_W_ID = ?
-           AND C_D_ID = ?
-           AND C_ID = ?
-    """
-              .formatted(TPCCConstants.TABLENAME_CUSTOMER));
+  private SQLStmt getStmtGetCustSQL(int tableIndex) {
+    return new SQLStmt(
+        """
+      SELECT C_DISCOUNT, C_LAST, C_CREDIT
+        FROM %s
+       WHERE C_W_ID = ?
+         AND C_D_ID = ?
+         AND C_ID = ?
+  """
+            .formatted(getTableName(TPCCConstants.TABLENAME_CUSTOMER, tableIndex)));
+  }
 
-  public final SQLStmt stmtGetWhseSQL =
-      new SQLStmt(
-          """
-        SELECT W_TAX
-          FROM %s
-         WHERE W_ID = ?
-    """
-              .formatted(TPCCConstants.TABLENAME_WAREHOUSE));
+  private SQLStmt getStmtGetWhseSQL(int tableIndex) {
+    return new SQLStmt(
+        """
+      SELECT W_TAX
+        FROM %s
+       WHERE W_ID = ?
+  """
+            .formatted(getTableName(TPCCConstants.TABLENAME_WAREHOUSE, tableIndex)));
+  }
 
-  public final SQLStmt stmtGetDistSQL =
-      new SQLStmt(
-          """
-        SELECT D_NEXT_O_ID, D_TAX
-          FROM %s
-         WHERE D_W_ID = ? AND D_ID = ? FOR UPDATE
-    """
-              .formatted(TPCCConstants.TABLENAME_DISTRICT));
+  private SQLStmt getStmtGetDistSQL(int tableIndex) {
+    return new SQLStmt(
+        """
+      SELECT D_NEXT_O_ID, D_TAX
+        FROM %s
+       WHERE D_W_ID = ? AND D_ID = ? FOR UPDATE
+  """
+            .formatted(getTableName(TPCCConstants.TABLENAME_DISTRICT, tableIndex)));
+  }
 
-  public final SQLStmt stmtInsertNewOrderSQL =
-      new SQLStmt(
-          """
-        INSERT INTO %s
-         (NO_O_ID, NO_D_ID, NO_W_ID)
-         VALUES ( ?, ?, ?)
-    """
-              .formatted(TPCCConstants.TABLENAME_NEWORDER));
+  private SQLStmt getStmtInsertNewOrderSQL(int tableIndex) {
+    return new SQLStmt(
+        """
+      INSERT INTO %s
+       (NO_O_ID, NO_D_ID, NO_W_ID)
+       VALUES ( ?, ?, ?)
+  """
+            .formatted(getTableName(TPCCConstants.TABLENAME_NEWORDER, tableIndex)));
+  }
 
-  public final SQLStmt stmtUpdateDistSQL =
-      new SQLStmt(
-          """
-        UPDATE %s
-           SET D_NEXT_O_ID = D_NEXT_O_ID + 1
-         WHERE D_W_ID = ?
-           AND D_ID = ?
-    """
-              .formatted(TPCCConstants.TABLENAME_DISTRICT));
+  private SQLStmt getStmtUpdateDistSQL(int tableIndex) {
+    return new SQLStmt(
+        """
+      UPDATE %s
+         SET D_NEXT_O_ID = D_NEXT_O_ID + 1
+       WHERE D_W_ID = ?
+         AND D_ID = ?
+  """
+            .formatted(getTableName(TPCCConstants.TABLENAME_DISTRICT, tableIndex)));
+  }
 
-  public final SQLStmt stmtInsertOOrderSQL =
-      new SQLStmt(
-          """
-        INSERT INTO %s
-         (O_ID, O_D_ID, O_W_ID, O_C_ID, O_ENTRY_D, O_OL_CNT, O_ALL_LOCAL)
-         VALUES (?, ?, ?, ?, ?, ?, ?)
-    """
-              .formatted(TPCCConstants.TABLENAME_OPENORDER));
+  private SQLStmt getStmtInsertOOrderSQL(int tableIndex) {
+    return new SQLStmt(
+        """
+      INSERT INTO %s
+       (O_ID, O_D_ID, O_W_ID, O_C_ID, O_ENTRY_D, O_OL_CNT, O_ALL_LOCAL)
+       VALUES (?, ?, ?, ?, ?, ?, ?)
+  """
+            .formatted(getTableName(TPCCConstants.TABLENAME_OPENORDER, tableIndex)));
+  }
 
-  public final SQLStmt stmtGetItemSQL =
-      new SQLStmt(
-          """
-        SELECT I_PRICE, I_NAME , I_DATA
-          FROM %s
-         WHERE I_ID = ?
-    """
-              .formatted(TPCCConstants.TABLENAME_ITEM));
+  private SQLStmt getStmtGetItemSQL(int tableIndex) {
+    return new SQLStmt(
+        """
+      SELECT I_PRICE, I_NAME , I_DATA
+        FROM %s
+       WHERE I_ID = ?
+  """
+            .formatted(getTableName(TPCCConstants.TABLENAME_ITEM, tableIndex)));
+  }
 
-  public final SQLStmt stmtGetStockSQL =
-      new SQLStmt(
-          """
-        SELECT S_QUANTITY, S_DATA, S_DIST_01, S_DIST_02, S_DIST_03, S_DIST_04, S_DIST_05,
-               S_DIST_06, S_DIST_07, S_DIST_08, S_DIST_09, S_DIST_10
-          FROM %s
-         WHERE S_I_ID = ?
-           AND S_W_ID = ? FOR UPDATE
-    """
-              .formatted(TPCCConstants.TABLENAME_STOCK));
+  private SQLStmt getStmtGetStockSQL(int tableIndex) {
+    return new SQLStmt(
+        """
+      SELECT S_QUANTITY, S_DATA, S_DIST_01, S_DIST_02, S_DIST_03, S_DIST_04, S_DIST_05,
+             S_DIST_06, S_DIST_07, S_DIST_08, S_DIST_09, S_DIST_10
+        FROM %s
+       WHERE S_I_ID = ?
+         AND S_W_ID = ? FOR UPDATE
+  """
+            .formatted(getTableName(TPCCConstants.TABLENAME_STOCK, tableIndex)));
+  }
 
-  public final SQLStmt stmtUpdateStockSQL =
-      new SQLStmt(
-          """
-        UPDATE %s
-           SET S_QUANTITY = ? ,
-               S_YTD = S_YTD + ?,
-               S_ORDER_CNT = S_ORDER_CNT + 1,
-               S_REMOTE_CNT = S_REMOTE_CNT + ?
-         WHERE S_I_ID = ?
-           AND S_W_ID = ?
-    """
-              .formatted(TPCCConstants.TABLENAME_STOCK));
+  private SQLStmt getStmtUpdateStockSQL(int tableIndex) {
+    return new SQLStmt(
+        """
+      UPDATE %s
+         SET S_QUANTITY = ? ,
+             S_YTD = S_YTD + ?,
+             S_ORDER_CNT = S_ORDER_CNT + 1,
+             S_REMOTE_CNT = S_REMOTE_CNT + ?
+       WHERE S_I_ID = ?
+         AND S_W_ID = ?
+  """
+            .formatted(getTableName(TPCCConstants.TABLENAME_STOCK, tableIndex)));
+  }
 
-  public final SQLStmt stmtInsertOrderLineSQL =
-      new SQLStmt(
-          """
-        INSERT INTO %s
-         (OL_O_ID, OL_D_ID, OL_W_ID, OL_NUMBER, OL_I_ID, OL_SUPPLY_W_ID, OL_QUANTITY, OL_AMOUNT, OL_DIST_INFO)
-         VALUES (?,?,?,?,?,?,?,?,?)
-    """
-              .formatted(TPCCConstants.TABLENAME_ORDERLINE));
+  private SQLStmt getStmtInsertOrderLineSQL(int tableIndex) {
+    return new SQLStmt(
+        """
+      INSERT INTO %s
+       (OL_O_ID, OL_D_ID, OL_W_ID, OL_NUMBER, OL_I_ID, OL_SUPPLY_W_ID, OL_QUANTITY, OL_AMOUNT, OL_DIST_INFO)
+       VALUES (?,?,?,?,?,?,?,?,?)
+  """
+            .formatted(getTableName(TPCCConstants.TABLENAME_ORDERLINE, tableIndex)));
+  }
 
   public void run(
       Connection conn,
@@ -138,6 +147,7 @@ public class NewOrder extends TPCCProcedure {
       int numWarehouses,
       int terminalDistrictLowerID,
       int terminalDistrictUpperID,
+      int tableIndex,
       TPCCWorker w)
       throws SQLException {
 
@@ -163,10 +173,10 @@ public class NewOrder extends TPCCProcedure {
       orderQuantities[i] = TPCCUtil.randomNumber(1, 10, gen);
     }
 
-    // we need to cause 1% of the new orders to be rolled back.
-    if (TPCCUtil.randomNumber(1, 100, gen) == 1) {
-      itemIDs[numItems - 1] = TPCCConfig.INVALID_ITEM_ID;
-    }
+    // // we need to cause 1% of the new orders to be rolled back.
+    // if (TPCCUtil.randomNumber(1, 100, gen) == 1) {
+    //   itemIDs[numItems - 1] = TPCCConfig.INVALID_ITEM_ID;
+    // }
 
     newOrderTransaction(
         terminalWarehouseID,
@@ -177,7 +187,8 @@ public class NewOrder extends TPCCProcedure {
         itemIDs,
         supplierWarehouseIDs,
         orderQuantities,
-        conn);
+        conn,
+        tableIndex);
   }
 
   private void newOrderTransaction(
@@ -189,24 +200,27 @@ public class NewOrder extends TPCCProcedure {
       int[] itemIDs,
       int[] supplierWarehouseIDs,
       int[] orderQuantities,
-      Connection conn)
+      Connection conn,
+      int tableIndex)
       throws SQLException {
 
-    getCustomer(conn, w_id, d_id, c_id);
+    getCustomer(conn, w_id, d_id, c_id, tableIndex);
 
-    getWarehouse(conn, w_id);
+    getWarehouse(conn, w_id, tableIndex);
 
-    int d_next_o_id = getDistrict(conn, w_id, d_id);
+    int d_next_o_id = getDistrict(conn, w_id, d_id, tableIndex);
 
-    updateDistrict(conn, w_id, d_id);
+    updateDistrict(conn, w_id, d_id, tableIndex);
 
-    insertOpenOrder(conn, w_id, d_id, c_id, o_ol_cnt, o_all_local, d_next_o_id);
+    insertOpenOrder(conn, w_id, d_id, c_id, o_ol_cnt, o_all_local, d_next_o_id, tableIndex);
 
-    insertNewOrder(conn, w_id, d_id, d_next_o_id);
+    insertNewOrder(conn, w_id, d_id, d_next_o_id, tableIndex);
 
-    try (PreparedStatement stmtUpdateStock = this.getPreparedStatement(conn, stmtUpdateStockSQL);
-        PreparedStatement stmtInsertOrderLine =
-            this.getPreparedStatement(conn, stmtInsertOrderLineSQL)) {
+    try (
+    // PreparedStatement stmtUpdateStock =
+    //       this.getPreparedStatement(conn, getStmtUpdateStockSQL(tableIndex));
+    PreparedStatement stmtInsertOrderLine =
+        this.getPreparedStatement(conn, getStmtInsertOrderLineSQL(tableIndex))) {
 
       for (int ol_number = 1; ol_number <= o_ol_cnt; ol_number++) {
         int ol_supply_w_id = supplierWarehouseIDs[ol_number - 1];
@@ -214,11 +228,11 @@ public class NewOrder extends TPCCProcedure {
         int ol_quantity = orderQuantities[ol_number - 1];
 
         // this may occasionally error and that's ok!
-        float i_price = getItemPrice(conn, ol_i_id);
+        float i_price = getItemPrice(conn, ol_i_id, tableIndex);
 
         float ol_amount = ol_quantity * i_price;
 
-        Stock s = getStock(conn, ol_supply_w_id, ol_i_id, ol_quantity);
+        Stock s = getStock(conn, ol_supply_w_id, ol_i_id, ol_quantity, tableIndex);
 
         String ol_dist_info = getDistInfo(d_id, s);
 
@@ -241,19 +255,19 @@ public class NewOrder extends TPCCProcedure {
           s_remote_cnt_increment = 1;
         }
 
-        stmtUpdateStock.setInt(1, s.s_quantity);
-        stmtUpdateStock.setInt(2, ol_quantity);
-        stmtUpdateStock.setInt(3, s_remote_cnt_increment);
-        stmtUpdateStock.setInt(4, ol_i_id);
-        stmtUpdateStock.setInt(5, ol_supply_w_id);
-        stmtUpdateStock.addBatch();
+        // stmtUpdateStock.setInt(1, s.s_quantity);
+        // stmtUpdateStock.setInt(2, ol_quantity);
+        // stmtUpdateStock.setInt(3, s_remote_cnt_increment);
+        // stmtUpdateStock.setInt(4, ol_i_id);
+        // stmtUpdateStock.setInt(5, ol_supply_w_id);
+        // stmtUpdateStock.addBatch();
       }
 
       stmtInsertOrderLine.executeBatch();
       stmtInsertOrderLine.clearBatch();
 
-      stmtUpdateStock.executeBatch();
-      stmtUpdateStock.clearBatch();
+      // stmtUpdateStock.executeBatch();
+      // stmtUpdateStock.clearBatch();
     }
   }
 
@@ -273,9 +287,11 @@ public class NewOrder extends TPCCProcedure {
     };
   }
 
-  private Stock getStock(Connection conn, int ol_supply_w_id, int ol_i_id, int ol_quantity)
+  private Stock getStock(
+      Connection conn, int ol_supply_w_id, int ol_i_id, int ol_quantity, int tableIndex)
       throws SQLException {
-    try (PreparedStatement stmtGetStock = this.getPreparedStatement(conn, stmtGetStockSQL)) {
+    try (PreparedStatement stmtGetStock =
+        this.getPreparedStatement(conn, getStmtGetStockSQL(tableIndex))) {
       stmtGetStock.setInt(1, ol_i_id);
       stmtGetStock.setInt(2, ol_supply_w_id);
       try (ResultSet rs = stmtGetStock.executeQuery()) {
@@ -306,12 +322,14 @@ public class NewOrder extends TPCCProcedure {
     }
   }
 
-  private float getItemPrice(Connection conn, int ol_i_id) throws SQLException {
-    try (PreparedStatement stmtGetItem = this.getPreparedStatement(conn, stmtGetItemSQL)) {
+  private float getItemPrice(Connection conn, int ol_i_id, int tableIndex) throws SQLException {
+    try (PreparedStatement stmtGetItem =
+        this.getPreparedStatement(conn, getStmtGetItemSQL(tableIndex))) {
       stmtGetItem.setInt(1, ol_i_id);
       try (ResultSet rs = stmtGetItem.executeQuery()) {
         if (!rs.next()) {
           // This is (hopefully) an expected error: this is an expected new order rollback
+          LOG.warn("EXPECTED new order rollback: I_ID=" + ol_i_id + " not found!");
           throw new UserAbortException(
               "EXPECTED new order rollback: I_ID=" + ol_i_id + " not found!");
         }
@@ -321,9 +339,10 @@ public class NewOrder extends TPCCProcedure {
     }
   }
 
-  private void insertNewOrder(Connection conn, int w_id, int d_id, int o_id) throws SQLException {
+  private void insertNewOrder(Connection conn, int w_id, int d_id, int o_id, int tableIndex)
+      throws SQLException {
     try (PreparedStatement stmtInsertNewOrder =
-        this.getPreparedStatement(conn, stmtInsertNewOrderSQL); ) {
+        this.getPreparedStatement(conn, getStmtInsertNewOrderSQL(tableIndex)); ) {
       stmtInsertNewOrder.setInt(1, o_id);
       stmtInsertNewOrder.setInt(2, d_id);
       stmtInsertNewOrder.setInt(3, w_id);
@@ -336,10 +355,17 @@ public class NewOrder extends TPCCProcedure {
   }
 
   private void insertOpenOrder(
-      Connection conn, int w_id, int d_id, int c_id, int o_ol_cnt, int o_all_local, int o_id)
+      Connection conn,
+      int w_id,
+      int d_id,
+      int c_id,
+      int o_ol_cnt,
+      int o_all_local,
+      int o_id,
+      int tableIndex)
       throws SQLException {
     try (PreparedStatement stmtInsertOOrder =
-        this.getPreparedStatement(conn, stmtInsertOOrderSQL); ) {
+        this.getPreparedStatement(conn, getStmtInsertOOrderSQL(tableIndex)); ) {
       stmtInsertOOrder.setInt(1, o_id);
       stmtInsertOOrder.setInt(2, d_id);
       stmtInsertOOrder.setInt(3, w_id);
@@ -356,8 +382,10 @@ public class NewOrder extends TPCCProcedure {
     }
   }
 
-  private void updateDistrict(Connection conn, int w_id, int d_id) throws SQLException {
-    try (PreparedStatement stmtUpdateDist = this.getPreparedStatement(conn, stmtUpdateDistSQL)) {
+  private void updateDistrict(Connection conn, int w_id, int d_id, int tableIndex)
+      throws SQLException {
+    try (PreparedStatement stmtUpdateDist =
+        this.getPreparedStatement(conn, getStmtUpdateDistSQL(tableIndex))) {
       stmtUpdateDist.setInt(1, w_id);
       stmtUpdateDist.setInt(2, d_id);
       int result = stmtUpdateDist.executeUpdate();
@@ -368,8 +396,9 @@ public class NewOrder extends TPCCProcedure {
     }
   }
 
-  private int getDistrict(Connection conn, int w_id, int d_id) throws SQLException {
-    try (PreparedStatement stmtGetDist = this.getPreparedStatement(conn, stmtGetDistSQL)) {
+  private int getDistrict(Connection conn, int w_id, int d_id, int tableIndex) throws SQLException {
+    try (PreparedStatement stmtGetDist =
+        this.getPreparedStatement(conn, getStmtGetDistSQL(tableIndex))) {
       stmtGetDist.setInt(1, w_id);
       stmtGetDist.setInt(2, d_id);
       try (ResultSet rs = stmtGetDist.executeQuery()) {
@@ -381,25 +410,32 @@ public class NewOrder extends TPCCProcedure {
     }
   }
 
-  private void getWarehouse(Connection conn, int w_id) throws SQLException {
-    try (PreparedStatement stmtGetWhse = this.getPreparedStatement(conn, stmtGetWhseSQL)) {
+  private void getWarehouse(Connection conn, int w_id, int tableIndex) throws SQLException {
+    try (PreparedStatement stmtGetWhse =
+        this.getPreparedStatement(conn, getStmtGetWhseSQL(tableIndex))) {
       stmtGetWhse.setInt(1, w_id);
       try (ResultSet rs = stmtGetWhse.executeQuery()) {
         if (!rs.next()) {
-          throw new RuntimeException("W_ID=" + w_id + " not found!");
+          String msg = "Warehouse not found: W_ID=" + w_id;
+          LOG.error("DATA CONSISTENCY ERROR: {}", msg);
+          throw new RuntimeException(msg);
         }
       }
     }
   }
 
-  private void getCustomer(Connection conn, int w_id, int d_id, int c_id) throws SQLException {
-    try (PreparedStatement stmtGetCust = this.getPreparedStatement(conn, stmtGetCustSQL)) {
+  private void getCustomer(Connection conn, int w_id, int d_id, int c_id, int tableIndex)
+      throws SQLException {
+    try (PreparedStatement stmtGetCust =
+        this.getPreparedStatement(conn, getStmtGetCustSQL(tableIndex))) {
       stmtGetCust.setInt(1, w_id);
       stmtGetCust.setInt(2, d_id);
       stmtGetCust.setInt(3, c_id);
       try (ResultSet rs = stmtGetCust.executeQuery()) {
         if (!rs.next()) {
-          throw new RuntimeException("C_D_ID=" + d_id + " C_ID=" + c_id + " not found!");
+          String msg = "Customer not found: C_W_ID=" + w_id + " C_D_ID=" + d_id + " C_ID=" + c_id;
+          LOG.error("DATA CONSISTENCY ERROR: {}", msg);
+          throw new RuntimeException(msg);
         }
       }
     }

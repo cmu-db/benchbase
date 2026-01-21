@@ -415,7 +415,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                 Duration delay = Duration.ofSeconds(Math.min(retryCount, 5));
                 LOG.info("Backing off {} seconds before reconnecting.", delay.toSeconds());
                 try {
-                  Thread.sleep(delay);
+                  Thread.sleep(delay.toMillis());
                 } catch (InterruptedException ex) {
                   // pass
                 }
@@ -587,25 +587,27 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
             retryCount++;
           } else if (isRetryable(ex)) {
-            LOG.debug(
-                String.format(
-                    "Retryable SQLException occurred during [%s]... current retry attempt [%d], max retry attempts [%d], sql state [%s], error code [%d].",
-                    transactionType,
-                    retryCount,
-                    maxRetryCount,
-                    ex.getSQLState(),
-                    ex.getErrorCode()),
-                ex);
+            // LOG.warn(
+            //     String.format(
+            //         "Retryable SQLException occurred during [%s]... current retry attempt [%d],
+            // max retry attempts [%d], sql state [%s], error code [%d].",
+            //         transactionType,
+            //         retryCount,
+            //         maxRetryCount,
+            //         ex.getSQLState(),
+            //         ex.getErrorCode()),
+            //     ex);
 
             status = TransactionStatus.RETRY;
 
             retryCount++;
           } else {
-            LOG.warn(
-                String.format(
-                    "SQLException occurred during [%s] and will not be retried... sql state [%s], error code [%d].",
-                    transactionType, ex.getSQLState(), ex.getErrorCode()),
-                ex);
+            // LOG.warn(
+            //     String.format(
+            //         "SQLException occurred during [%s] and will not be retried... sql state [%s],
+            // error code [%d].",
+            //         transactionType, ex.getSQLState(), ex.getErrorCode()),
+            //     ex);
 
             status = TransactionStatus.ERROR;
 
@@ -685,7 +687,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
     String sqlState = ex.getSQLState();
     int errorCode = ex.getErrorCode();
 
-    LOG.debug("sql state [{}] and error code [{}]", sqlState, errorCode);
+    // LOG.warn("sql state [{}] and error code [{}]", sqlState, errorCode);
 
     if (sqlState == null) {
       return false;

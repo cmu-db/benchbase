@@ -45,7 +45,7 @@ public final class OTMetricsLoader extends Loader<OTMetricsBenchmark> {
   }
 
   @Override
-  public List<LoaderThread> createLoaderThreads() {
+  public List<LoaderThread> createLoaderThreads(int tableIndex) {
     List<LoaderThread> threads = new ArrayList<>();
     final int numLoaders = this.benchmark.getWorkloadConfiguration().getLoaderThreads();
     final int loadPerThread = Math.max(this.benchmark.num_sessions / numLoaders, 1);

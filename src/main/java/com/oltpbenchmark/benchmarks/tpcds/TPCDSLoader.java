@@ -39,7 +39,7 @@ public final class TPCDSLoader extends Loader<TPCDSBenchmark> {
   }
 
   @Override
-  public List<LoaderThread> createLoaderThreads() {
+  public List<LoaderThread> createLoaderThreads(int tableIndex) {
     List<LoaderThread> threads = new ArrayList<>();
     final CountDownLatch custAddrLatch = new CountDownLatch(1);
     final CountDownLatch custDemLatch = new CountDownLatch(1);

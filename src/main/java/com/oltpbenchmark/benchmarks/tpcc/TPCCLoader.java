@@ -31,7 +31,7 @@ import java.util.concurrent.CountDownLatch;
 /** TPC-C Benchmark Loader */
 public final class TPCCLoader extends Loader<TPCCBenchmark> {
 
-  private static final int FIRST_UNPROCESSED_O_ID = 2101;
+  private static final int FIRST_UNPROCESSED_O_ID = 201;
 
   private final long numWarehouses;
 
@@ -41,7 +41,7 @@ public final class TPCCLoader extends Loader<TPCCBenchmark> {
   }
 
   @Override
-  public List<LoaderThread> createLoaderThreads() {
+  public List<LoaderThread> createLoaderThreads(int tableIndex) {
     List<LoaderThread> threads = new ArrayList<>();
     final CountDownLatch itemLatch = new CountDownLatch(1);
 
@@ -51,7 +51,7 @@ public final class TPCCLoader extends Loader<TPCCBenchmark> {
         new LoaderThread(this.benchmark) {
           @Override
           public void load(Connection conn) {
-            loadItems(conn, TPCCConfig.configItemCount);
+            loadItems(conn, TPCCConfig.configItemCount, tableIndex);
           }
 
           @Override
@@ -70,57 +70,123 @@ public final class TPCCLoader extends Loader<TPCCBenchmark> {
           new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) {
+              long warehouseStart, warehouseEnd, stockStart, stockEnd, districtStart, districtEnd;
+              long customerStart, customerEnd, historyStart, historyEnd, ordersStart, ordersEnd;
+              long newOrdersStart, newOrdersEnd, orderLinesStart, orderLinesEnd;
 
-              if (LOG.isDebugEnabled()) {
-                LOG.debug("Starting to load WAREHOUSE {}", w_id);
-              }
+              LOG.info("Starting full warehouse load for warehouse {}", w_id);
+              long totalStart = System.currentTimeMillis();
+
               // WAREHOUSE
-              loadWarehouse(conn, w_id);
+              LOG.info("Starting to load WAREHOUSE {}", w_id);
+              warehouseStart = System.currentTimeMillis();
+              loadWarehouse(conn, w_id, tableIndex);
+              warehouseEnd = System.currentTimeMillis();
+              LOG.info("Completed WAREHOUSE {} in {}ms", w_id, (warehouseEnd - warehouseStart));
 
-              if (LOG.isDebugEnabled()) {
-                LOG.debug("Starting to load STOCK {}", w_id);
-              }
               // STOCK
-              loadStock(conn, w_id, TPCCConfig.configItemCount);
+              LOG.info("Starting to load STOCK for warehouse {}", w_id);
+              stockStart = System.currentTimeMillis();
+              loadStock(conn, w_id, TPCCConfig.configItemCount, tableIndex);
+              stockEnd = System.currentTimeMillis();
+              LOG.info("Completed STOCK for warehouse {} in {}ms", w_id, (stockEnd - stockStart));
 
-              if (LOG.isDebugEnabled()) {
-                LOG.debug("Starting to load DISTRICT {}", w_id);
-              }
               // DISTRICT
-              loadDistricts(conn, w_id, TPCCConfig.configDistPerWhse);
+              LOG.info("Starting to load DISTRICT for warehouse {}", w_id);
+              districtStart = System.currentTimeMillis();
+              loadDistricts(conn, w_id, TPCCConfig.configDistPerWhse, tableIndex);
+              districtEnd = System.currentTimeMillis();
+              LOG.info(
+                  "Completed DISTRICT for warehouse {} in {}ms",
+                  w_id,
+                  (districtEnd - districtStart));
 
-              if (LOG.isDebugEnabled()) {
-                LOG.debug("Starting to load CUSTOMER {}", w_id);
-              }
               // CUSTOMER
-              loadCustomers(conn, w_id, TPCCConfig.configDistPerWhse, TPCCConfig.configCustPerDist);
+              LOG.info("Starting to load CUSTOMER for warehouse {}", w_id);
+              customerStart = System.currentTimeMillis();
+              loadCustomers(
+                  conn,
+                  w_id,
+                  TPCCConfig.configDistPerWhse,
+                  TPCCConfig.configCustPerDist,
+                  tableIndex);
+              customerEnd = System.currentTimeMillis();
+              LOG.info(
+                  "Completed CUSTOMER for warehouse {} in {}ms",
+                  w_id,
+                  (customerEnd - customerStart));
 
-              if (LOG.isDebugEnabled()) {
-                LOG.debug("Starting to load CUSTOMER HISTORY {}", w_id);
-              }
               // CUSTOMER HISTORY
+              LOG.info("Starting to load CUSTOMER HISTORY for warehouse {}", w_id);
+              historyStart = System.currentTimeMillis();
               loadCustomerHistory(
-                  conn, w_id, TPCCConfig.configDistPerWhse, TPCCConfig.configCustPerDist);
+                  conn,
+                  w_id,
+                  TPCCConfig.configDistPerWhse,
+                  TPCCConfig.configCustPerDist,
+                  tableIndex);
+              historyEnd = System.currentTimeMillis();
+              LOG.info(
+                  "Completed CUSTOMER HISTORY for warehouse {} in {}ms",
+                  w_id,
+                  (historyEnd - historyStart));
 
-              if (LOG.isDebugEnabled()) {
-                LOG.debug("Starting to load ORDERS {}", w_id);
-              }
               // ORDERS
+              LOG.info("Starting to load ORDERS for warehouse {}", w_id);
+              ordersStart = System.currentTimeMillis();
               loadOpenOrders(
-                  conn, w_id, TPCCConfig.configDistPerWhse, TPCCConfig.configCustPerDist);
+                  conn,
+                  w_id,
+                  TPCCConfig.configDistPerWhse,
+                  TPCCConfig.configCustPerDist,
+                  tableIndex);
+              ordersEnd = System.currentTimeMillis();
+              LOG.info(
+                  "Completed ORDERS for warehouse {} in {}ms", w_id, (ordersEnd - ordersStart));
 
-              if (LOG.isDebugEnabled()) {
-                LOG.debug("Starting to load NEW ORDERS {}", w_id);
-              }
               // NEW ORDERS
-              loadNewOrders(conn, w_id, TPCCConfig.configDistPerWhse, TPCCConfig.configCustPerDist);
+              LOG.info("Starting to load NEW ORDERS for warehouse {}", w_id);
+              newOrdersStart = System.currentTimeMillis();
+              loadNewOrders(
+                  conn,
+                  w_id,
+                  TPCCConfig.configDistPerWhse,
+                  TPCCConfig.configCustPerDist,
+                  tableIndex);
+              newOrdersEnd = System.currentTimeMillis();
+              LOG.info(
+                  "Completed NEW ORDERS for warehouse {} in {}ms",
+                  w_id,
+                  (newOrdersEnd - newOrdersStart));
 
-              if (LOG.isDebugEnabled()) {
-                LOG.debug("Starting to load ORDER LINES {}", w_id);
-              }
               // ORDER LINES
+              LOG.info("Starting to load ORDER LINES for warehouse {}", w_id);
+              orderLinesStart = System.currentTimeMillis();
               loadOrderLines(
-                  conn, w_id, TPCCConfig.configDistPerWhse, TPCCConfig.configCustPerDist);
+                  conn,
+                  w_id,
+                  TPCCConfig.configDistPerWhse,
+                  TPCCConfig.configCustPerDist,
+                  tableIndex);
+              orderLinesEnd = System.currentTimeMillis();
+              LOG.info(
+                  "Completed ORDER LINES for warehouse {} in {}ms",
+                  w_id,
+                  (orderLinesEnd - orderLinesStart));
+
+              long totalEnd = System.currentTimeMillis();
+              LOG.info(
+                  "WAREHOUSE {} COMPLETE - Total time: {}ms (Warehouse:{}ms, Stock:{}ms, District:{}ms, Customer:{}ms, History:{}ms, Orders:{}ms, NewOrders:{}ms, OrderLines:{}ms)",
+                  w_id,
+                  (totalEnd - totalStart),
+                  (warehouseEnd - warehouseStart),
+                  (stockEnd - stockStart),
+                  (districtEnd - districtStart),
+                  (customerEnd - customerStart),
+                  (historyEnd - historyStart),
+                  (ordersEnd - ordersStart),
+                  (newOrdersEnd - newOrdersStart),
+                  (orderLinesEnd - orderLinesStart));
             }
 
             @Override
@@ -140,19 +206,24 @@ public final class TPCCLoader extends Loader<TPCCBenchmark> {
     return (threads);
   }
 
-  private PreparedStatement getInsertStatement(Connection conn, String tableName)
+  private PreparedStatement getInsertStatement(Connection conn, String tableName, int tableIndex)
       throws SQLException {
-    Table catalog_tbl = benchmark.getCatalog().getTable(tableName);
+    Table catalog_tbl = benchmark.getCatalog().getTable(tableName + "_" + tableIndex);
     String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
     return conn.prepareStatement(sql);
   }
 
-  protected void loadItems(Connection conn, int itemCount) {
+  protected void loadItems(Connection conn, int itemCount, int tableIndex) {
+    LOG.info("Starting loadItems: itemCount={}, tableIndex={}", itemCount, tableIndex);
+    long methodStart = System.currentTimeMillis();
+    long dataGenTime = 0, dbExecTime = 0;
 
-    try (PreparedStatement itemPrepStmt = getInsertStatement(conn, TPCCConstants.TABLENAME_ITEM)) {
+    try (PreparedStatement itemPrepStmt =
+        getInsertStatement(conn, TPCCConstants.TABLENAME_ITEM, tableIndex)) {
 
       int batchSize = 0;
       for (int i = 1; i <= itemCount; i++) {
+        long dataGenStart = System.currentTimeMillis();
 
         Item item = new Item();
         item.i_id = i;
@@ -186,27 +257,46 @@ public final class TPCCLoader extends Loader<TPCCBenchmark> {
         itemPrepStmt.addBatch();
         batchSize++;
 
+        long dataGenEnd = System.currentTimeMillis();
+        dataGenTime += (dataGenEnd - dataGenStart);
+
         if (batchSize == workConf.getBatchSize()) {
+          long dbStart = System.currentTimeMillis();
           itemPrepStmt.executeBatch();
           itemPrepStmt.clearBatch();
+          long dbEnd = System.currentTimeMillis();
+          dbExecTime += (dbEnd - dbStart);
+          LOG.debug("Items batch executed: {} records in {}ms", batchSize, (dbEnd - dbStart));
           batchSize = 0;
         }
       }
 
       if (batchSize > 0) {
+        long dbStart = System.currentTimeMillis();
         itemPrepStmt.executeBatch();
         itemPrepStmt.clearBatch();
+        long dbEnd = System.currentTimeMillis();
+        dbExecTime += (dbEnd - dbStart);
+        LOG.debug("Items final batch executed: {} records in {}ms", batchSize, (dbEnd - dbStart));
       }
 
+      long methodEnd = System.currentTimeMillis();
+      LOG.info(
+          "Completed loadItems: Total={}ms, DataGen={}ms, DBExec={}ms, Items={}",
+          (methodEnd - methodStart),
+          dataGenTime,
+          dbExecTime,
+          itemCount);
+
     } catch (SQLException se) {
-      LOG.error(se.getMessage());
+      LOG.error("Error in loadItems", se);
     }
   }
 
-  protected void loadWarehouse(Connection conn, int w_id) {
+  protected void loadWarehouse(Connection conn, int w_id, int tableIndex) {
 
     try (PreparedStatement whsePrepStmt =
-        getInsertStatement(conn, TPCCConstants.TABLENAME_WAREHOUSE)) {
+        getInsertStatement(conn, TPCCConstants.TABLENAME_WAREHOUSE, tableIndex)) {
       Warehouse warehouse = new Warehouse();
 
       warehouse.w_id = w_id;
@@ -238,12 +328,12 @@ public final class TPCCLoader extends Loader<TPCCBenchmark> {
     }
   }
 
-  protected void loadStock(Connection conn, int w_id, int numItems) {
+  protected void loadStock(Connection conn, int w_id, int numItems, int tableIndex) {
 
     int k = 0;
 
     try (PreparedStatement stockPreparedStatement =
-        getInsertStatement(conn, TPCCConstants.TABLENAME_STOCK)) {
+        getInsertStatement(conn, TPCCConstants.TABLENAME_STOCK, tableIndex)) {
 
       for (int i = 1; i <= numItems; i++) {
         Stock stock = new Stock();
@@ -307,10 +397,11 @@ public final class TPCCLoader extends Loader<TPCCBenchmark> {
     }
   }
 
-  protected void loadDistricts(Connection conn, int w_id, int districtsPerWarehouse) {
+  protected void loadDistricts(
+      Connection conn, int w_id, int districtsPerWarehouse, int tableIndex) {
 
     try (PreparedStatement distPrepStmt =
-        getInsertStatement(conn, TPCCConstants.TABLENAME_DISTRICT)) {
+        getInsertStatement(conn, TPCCConstants.TABLENAME_DISTRICT, tableIndex)) {
 
       for (int d = 1; d <= districtsPerWarehouse; d++) {
         District district = new District();
@@ -350,15 +441,31 @@ public final class TPCCLoader extends Loader<TPCCBenchmark> {
   }
 
   protected void loadCustomers(
-      Connection conn, int w_id, int districtsPerWarehouse, int customersPerDistrict) {
+      Connection conn,
+      int w_id,
+      int districtsPerWarehouse,
+      int customersPerDistrict,
+      int tableIndex) {
 
+    int totalCustomers = districtsPerWarehouse * customersPerDistrict;
+    LOG.info(
+        "Starting loadCustomers: warehouse={}, districts={}, customersPerDistrict={}, totalCustomers={}",
+        w_id,
+        districtsPerWarehouse,
+        customersPerDistrict,
+        totalCustomers);
+    long methodStart = System.currentTimeMillis();
+    long dataGenTime = 0, dbExecTime = 0;
     int k = 0;
 
     try (PreparedStatement custPrepStmt =
-        getInsertStatement(conn, TPCCConstants.TABLENAME_CUSTOMER)) {
+        getInsertStatement(conn, TPCCConstants.TABLENAME_CUSTOMER, tableIndex)) {
 
       for (int d = 1; d <= districtsPerWarehouse; d++) {
+        long districtStart = System.currentTimeMillis();
         for (int c = 1; c <= customersPerDistrict; c++) {
+          long dataGenStart = System.currentTimeMillis();
+
           Timestamp sysdate = new Timestamp(System.currentTimeMillis());
 
           Customer customer = new Customer();
@@ -422,30 +529,63 @@ public final class TPCCLoader extends Loader<TPCCBenchmark> {
           custPrepStmt.setString(idx, customer.c_data);
           custPrepStmt.addBatch();
 
+          long dataGenEnd = System.currentTimeMillis();
+          dataGenTime += (dataGenEnd - dataGenStart);
+
           k++;
 
           if (k != 0 && (k % workConf.getBatchSize()) == 0) {
+            long dbStart = System.currentTimeMillis();
             custPrepStmt.executeBatch();
             custPrepStmt.clearBatch();
+            long dbEnd = System.currentTimeMillis();
+            dbExecTime += (dbEnd - dbStart);
+            LOG.info(
+                "Customer batch executed: {} records in {}ms",
+                workConf.getBatchSize(),
+                (dbEnd - dbStart));
           }
         }
+        long districtEnd = System.currentTimeMillis();
+        LOG.debug(
+            "Completed district {} for warehouse {}: {} customers in {}ms",
+            d,
+            w_id,
+            customersPerDistrict,
+            (districtEnd - districtStart));
       }
 
+      long dbStart = System.currentTimeMillis();
       custPrepStmt.executeBatch();
       custPrepStmt.clearBatch();
+      long dbEnd = System.currentTimeMillis();
+      dbExecTime += (dbEnd - dbStart);
+
+      long methodEnd = System.currentTimeMillis();
+      LOG.info(
+          "Completed loadCustomers warehouse {}: Total={}ms, DataGen={}ms, DBExec={}ms, Customers={}",
+          w_id,
+          (methodEnd - methodStart),
+          dataGenTime,
+          dbExecTime,
+          totalCustomers);
 
     } catch (SQLException se) {
-      LOG.error(se.getMessage());
+      LOG.error("Error in loadCustomers for warehouse " + w_id, se);
     }
   }
 
   protected void loadCustomerHistory(
-      Connection conn, int w_id, int districtsPerWarehouse, int customersPerDistrict) {
+      Connection conn,
+      int w_id,
+      int districtsPerWarehouse,
+      int customersPerDistrict,
+      int tableIndex) {
 
     int k = 0;
 
     try (PreparedStatement histPrepStmt =
-        getInsertStatement(conn, TPCCConstants.TABLENAME_HISTORY)) {
+        getInsertStatement(conn, TPCCConstants.TABLENAME_HISTORY, tableIndex)) {
 
       for (int d = 1; d <= districtsPerWarehouse; d++) {
         for (int c = 1; c <= customersPerDistrict; c++) {
@@ -490,12 +630,16 @@ public final class TPCCLoader extends Loader<TPCCBenchmark> {
   }
 
   protected void loadOpenOrders(
-      Connection conn, int w_id, int districtsPerWarehouse, int customersPerDistrict) {
+      Connection conn,
+      int w_id,
+      int districtsPerWarehouse,
+      int customersPerDistrict,
+      int tableIndex) {
 
     int k = 0;
 
     try (PreparedStatement openOrderStatement =
-        getInsertStatement(conn, TPCCConstants.TABLENAME_OPENORDER)) {
+        getInsertStatement(conn, TPCCConstants.TABLENAME_OPENORDER, tableIndex)) {
 
       for (int d = 1; d <= districtsPerWarehouse; d++) {
         // TPC-C 4.3.3.1: o_c_id must be a permutation of [1, 3000]
@@ -576,12 +720,16 @@ public final class TPCCLoader extends Loader<TPCCBenchmark> {
   }
 
   protected void loadNewOrders(
-      Connection conn, int w_id, int districtsPerWarehouse, int customersPerDistrict) {
+      Connection conn,
+      int w_id,
+      int districtsPerWarehouse,
+      int customersPerDistrict,
+      int tableIndex) {
 
     int k = 0;
 
     try (PreparedStatement newOrderStatement =
-        getInsertStatement(conn, TPCCConstants.TABLENAME_NEWORDER)) {
+        getInsertStatement(conn, TPCCConstants.TABLENAME_NEWORDER, tableIndex)) {
 
       for (int d = 1; d <= districtsPerWarehouse; d++) {
 
@@ -621,20 +769,38 @@ public final class TPCCLoader extends Loader<TPCCBenchmark> {
   }
 
   protected void loadOrderLines(
-      Connection conn, int w_id, int districtsPerWarehouse, int customersPerDistrict) {
+      Connection conn,
+      int w_id,
+      int districtsPerWarehouse,
+      int customersPerDistrict,
+      int tableIndex) {
 
+    LOG.info(
+        "Starting loadOrderLines: warehouse={}, districts={}, customersPerDistrict={}",
+        w_id,
+        districtsPerWarehouse,
+        customersPerDistrict);
+    long methodStart = System.currentTimeMillis();
+    long dataGenTime = 0, dbExecTime = 0;
     int k = 0;
+    int totalOrderLines = 0;
 
     try (PreparedStatement orderLineStatement =
-        getInsertStatement(conn, TPCCConstants.TABLENAME_ORDERLINE)) {
+        getInsertStatement(conn, TPCCConstants.TABLENAME_ORDERLINE, tableIndex)) {
 
       for (int d = 1; d <= districtsPerWarehouse; d++) {
+        long districtStart = System.currentTimeMillis();
+        int districtOrderLines = 0;
 
         for (int c = 1; c <= customersPerDistrict; c++) {
 
           int count = getRandomCount(w_id, c, d);
+          districtOrderLines += count;
+          totalOrderLines += count;
 
           for (int l = 1; l <= count; l++) {
+            long dataGenStart = System.currentTimeMillis();
+
             OrderLine order_line = new OrderLine();
             order_line.ol_w_id = w_id;
             order_line.ol_d_id = d;
@@ -672,21 +838,51 @@ public final class TPCCLoader extends Loader<TPCCBenchmark> {
             orderLineStatement.setString(idx, order_line.ol_dist_info);
             orderLineStatement.addBatch();
 
+            long dataGenEnd = System.currentTimeMillis();
+            dataGenTime += (dataGenEnd - dataGenStart);
+
             k++;
 
             if (k != 0 && (k % workConf.getBatchSize()) == 0) {
+              long dbStart = System.currentTimeMillis();
               orderLineStatement.executeBatch();
               orderLineStatement.clearBatch();
+              long dbEnd = System.currentTimeMillis();
+              dbExecTime += (dbEnd - dbStart);
+              LOG.debug(
+                  "OrderLine batch executed: {} records in {}ms",
+                  workConf.getBatchSize(),
+                  (dbEnd - dbStart));
             }
           }
         }
+
+        long districtEnd = System.currentTimeMillis();
+        LOG.debug(
+            "Completed district {} for warehouse {}: {} order lines in {}ms",
+            d,
+            w_id,
+            districtOrderLines,
+            (districtEnd - districtStart));
       }
 
+      long dbStart = System.currentTimeMillis();
       orderLineStatement.executeBatch();
       orderLineStatement.clearBatch();
+      long dbEnd = System.currentTimeMillis();
+      dbExecTime += (dbEnd - dbStart);
+
+      long methodEnd = System.currentTimeMillis();
+      LOG.info(
+          "Completed loadOrderLines warehouse {}: Total={}ms, DataGen={}ms, DBExec={}ms, OrderLines={}",
+          w_id,
+          (methodEnd - methodStart),
+          dataGenTime,
+          dbExecTime,
+          totalOrderLines);
 
     } catch (SQLException se) {
-      LOG.error(se.getMessage(), se);
+      LOG.error("Error in loadOrderLines for warehouse " + w_id, se);
     }
   }
 }

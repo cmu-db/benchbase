@@ -64,7 +64,7 @@ public final class SmallBankLoader extends Loader<SmallBankBenchmark> {
   }
 
   @Override
-  public List<LoaderThread> createLoaderThreads() throws SQLException {
+  public List<LoaderThread> createLoaderThreads(int tableIndex) throws SQLException {
     List<LoaderThread> threads = new ArrayList<>();
     int batchSize = 100000;
     long start = 0;

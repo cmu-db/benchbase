@@ -24,7 +24,6 @@ import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.types.State;
 import com.oltpbenchmark.util.*;
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.sql.SQLException;
@@ -60,7 +59,26 @@ public class DBWorkload {
     // create the command line parser
     CommandLineParser parser = new DefaultParser();
 
-    XMLConfiguration pluginConfig = buildConfiguration("config/plugin.xml");
+    // First, create minimal options to parse plugin-config parameter
+    Options preOptions = new Options();
+    preOptions.addOption(null, "plugin-config", true, "Custom plugin.xml configuration file path");
+    preOptions.addOption("h", "help", false, "Print this help");
+
+    // Parse args to get plugin config path (ignore unknown options for now)
+    CommandLine preArgsLine = null;
+    try {
+      preArgsLine = parser.parse(preOptions, args, true); // true = ignore unknown options
+    } catch (ParseException e) {
+      // If parsing fails, continue with default plugin path
+    }
+
+    // Get plugin config path from command line or use default
+    String pluginConfigPath = "config/plugin.xml";
+    if (preArgsLine != null && preArgsLine.hasOption("plugin-config")) {
+      pluginConfigPath = preArgsLine.getOptionValue("plugin-config");
+    }
+
+    XMLConfiguration pluginConfig = buildConfiguration(pluginConfigPath);
 
     Options options = buildOptions(pluginConfig);
 
@@ -159,6 +177,7 @@ public class DBWorkload {
       wrkld.setScaleFactor(xmlConfig.getDouble("scalefactor", 1.0));
       wrkld.setDataDir(xmlConfig.getString("datadir", "."));
       wrkld.setDDLPath(xmlConfig.getString("ddlpath", null));
+      wrkld.setNumTables(xmlConfig.getInt("num_tables", 1));
 
       double selectivity = -1;
       try {
@@ -183,7 +202,12 @@ public class DBWorkload {
       String classname = pluginConfig.getString("/plugin[@name='" + plugin + "']");
 
       if (classname == null) {
-        throw new ParseException("Plugin " + plugin + " is undefined in config/plugin.xml");
+        throw new ParseException(
+            "Plugin "
+                + plugin
+                + " is undefined in "
+                + pluginConfigPath
+                + ". Use --plugin-config to specify a custom plugin configuration file.");
       }
 
       BenchmarkModule bench =
@@ -562,15 +586,20 @@ public class DBWorkload {
       // Bombs away!
       try {
         Results r = runWorkload(benchList, monitorInfo);
-        writeOutputs(r, activeTXTypes, argsLine, xmlConfig);
+        // DISABLED: JSON writing causing library conflicts in Databricks environment
+        // writeOutputs(r, activeTXTypes, argsLine, xmlConfig);
         writeHistograms(r);
 
-        if (argsLine.hasOption("json-histograms")) {
-          String histogram_json = writeJSONHistograms(r);
-          String fileName = argsLine.getOptionValue("json-histograms");
-          FileUtil.writeStringToFile(new File(fileName), histogram_json);
-          LOG.info("Histograms JSON Data: " + fileName);
-        }
+        // DISABLED: JSON histograms to avoid library conflicts
+        // if (argsLine.hasOption("json-histograms")) {
+        //   String histogram_json = writeJSONHistograms(r);
+        //   String fileName = argsLine.getOptionValue("json-histograms");
+        //   FileUtil.writeStringToFile(new File(fileName), histogram_json);
+        //   LOG.info("Histograms JSON Data: " + fileName);
+        // }
+
+        LOG.info(
+            "Skipped JSON file outputs to avoid library conflicts. Histogram data still written.");
 
         if (r.getState() == State.ERROR) {
           throw new RuntimeException(
@@ -595,6 +624,11 @@ public class DBWorkload {
         "[required] Benchmark class. Currently supported: "
             + pluginConfig.getList("/plugin//@name"));
     options.addOption("c", "config", true, "[required] Workload configuration file");
+    options.addOption(
+        null,
+        "plugin-config",
+        true,
+        "Custom plugin.xml configuration file path (default: config/plugin.xml)");
     options.addOption(null, "create", true, "Initialize the database for this benchmark");
     options.addOption(null, "clear", true, "Clear all records in the database for this benchmark");
     options.addOption(null, "load", true, "Load data using the benchmark's data loader");
@@ -632,7 +666,7 @@ public class DBWorkload {
     StringBuilder sb = new StringBuilder();
     sb.append("\n");
 
-    sb.append(StringUtil.bold("Completed Transactions:"))
+    sb.append(StringUtil.bold("Completed Transactions updated:"))
         .append("\n")
         .append(r.getSuccess())
         .append("\n\n");
@@ -783,7 +817,9 @@ public class DBWorkload {
     List<Worker<?>> workers = new ArrayList<>();
     List<WorkloadConfiguration> workConfs = new ArrayList<>();
     for (BenchmarkModule bench : benchList) {
-      LOG.info("Creating {} virtual terminals...", bench.getWorkloadConfiguration().getTerminals());
+      LOG.info(
+          "Creating {} virtual mine changes terminals...",
+          bench.getWorkloadConfiguration().getTerminals());
       workers.addAll(bench.makeWorkers());
 
       int num_phases = bench.getWorkloadConfiguration().getNumberOfPhases();

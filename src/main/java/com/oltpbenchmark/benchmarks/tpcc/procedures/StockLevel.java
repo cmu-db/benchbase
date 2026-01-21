@@ -33,30 +33,34 @@ public class StockLevel extends TPCCProcedure {
 
   private static final Logger LOG = LoggerFactory.getLogger(StockLevel.class);
 
-  public SQLStmt stockGetDistOrderIdSQL =
-      new SQLStmt(
-          """
-        SELECT D_NEXT_O_ID
-          FROM  %s
-         WHERE D_W_ID = ?
-           AND D_ID = ?
-    """
-              .formatted(TPCCConstants.TABLENAME_DISTRICT));
+  private SQLStmt getStockGetDistOrderIdSQL(int tableIndex) {
+    return new SQLStmt(
+        """
+      SELECT D_NEXT_O_ID
+        FROM  %s
+       WHERE D_W_ID = ?
+         AND D_ID = ?
+  """
+            .formatted(getTableName(TPCCConstants.TABLENAME_DISTRICT, tableIndex)));
+  }
 
-  public SQLStmt stockGetCountStockSQL =
-      new SQLStmt(
-          """
-        SELECT COUNT(DISTINCT (S_I_ID)) AS STOCK_COUNT
-         FROM  %s, %s
-         WHERE OL_W_ID = ?
-         AND OL_D_ID = ?
-         AND OL_O_ID < ?
-         AND OL_O_ID >= ?
-         AND S_W_ID = ?
-         AND S_I_ID = OL_I_ID
-         AND S_QUANTITY < ?
-    """
-              .formatted(TPCCConstants.TABLENAME_ORDERLINE, TPCCConstants.TABLENAME_STOCK));
+  private SQLStmt getStockGetCountStockSQL(int tableIndex) {
+    return new SQLStmt(
+        """
+      SELECT COUNT(DISTINCT (S_I_ID)) AS STOCK_COUNT
+       FROM  %s, %s
+       WHERE OL_W_ID = ?
+       AND OL_D_ID = ?
+       AND OL_O_ID < ?
+       AND OL_O_ID >= ?
+       AND S_W_ID = ?
+       AND S_I_ID = OL_I_ID
+       AND S_QUANTITY < ?
+  """
+            .formatted(
+                getTableName(TPCCConstants.TABLENAME_ORDERLINE, tableIndex),
+                getTableName(TPCCConstants.TABLENAME_STOCK, tableIndex)));
+  }
 
   public void run(
       Connection conn,
@@ -65,15 +69,16 @@ public class StockLevel extends TPCCProcedure {
       int numWarehouses,
       int terminalDistrictLowerID,
       int terminalDistrictUpperID,
+      int tableIndex,
       TPCCWorker w)
       throws SQLException {
 
     int threshold = TPCCUtil.randomNumber(10, 20, gen);
     int d_id = TPCCUtil.randomNumber(terminalDistrictLowerID, terminalDistrictUpperID, gen);
 
-    int o_id = getOrderId(conn, w_id, d_id);
+    int o_id = getOrderId(conn, w_id, d_id, tableIndex);
 
-    int stock_count = getStockCount(conn, w_id, threshold, d_id, o_id);
+    int stock_count = getStockCount(conn, w_id, threshold, d_id, o_id, tableIndex);
 
     if (LOG.isTraceEnabled()) {
       String terminalMessage =
@@ -91,9 +96,9 @@ public class StockLevel extends TPCCProcedure {
     }
   }
 
-  private int getOrderId(Connection conn, int w_id, int d_id) throws SQLException {
+  private int getOrderId(Connection conn, int w_id, int d_id, int tableIndex) throws SQLException {
     try (PreparedStatement stockGetDistOrderId =
-        this.getPreparedStatement(conn, stockGetDistOrderIdSQL)) {
+        this.getPreparedStatement(conn, getStockGetDistOrderIdSQL(tableIndex))) {
       stockGetDistOrderId.setInt(1, w_id);
       stockGetDistOrderId.setInt(2, d_id);
 
@@ -107,10 +112,11 @@ public class StockLevel extends TPCCProcedure {
     }
   }
 
-  private int getStockCount(Connection conn, int w_id, int threshold, int d_id, int o_id)
+  private int getStockCount(
+      Connection conn, int w_id, int threshold, int d_id, int o_id, int tableIndex)
       throws SQLException {
     try (PreparedStatement stockGetCountStock =
-        this.getPreparedStatement(conn, stockGetCountStockSQL)) {
+        this.getPreparedStatement(conn, getStockGetCountStockSQL(tableIndex))) {
       stockGetCountStock.setInt(1, w_id);
       stockGetCountStock.setInt(2, d_id);
       stockGetCountStock.setInt(3, o_id);

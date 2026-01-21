@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    <type>MYSQL</type>
+    <driver>com.mysql.cj.jdbc.Driver</driver>
+    <url>jdbc:mysql://localhost:3306/source_db?rewriteBatchedStatements=true&amp;allowPublicKeyRetrieval=True&amp;sslMode=DISABLED</url>
+    <username>replicant</username>
+    <password>replicant</password>
+    <reconnectOnConnectionFailure>true</reconnectOnConnectionFailure>
+    <isolation>TRANSACTION_READ_COMMITTED</isolation>
+    <batchsize>128</batchsize>
+
+    <!-- Cricket Benchmark -->
+    <benchmark>cricket</benchmark>
+    <scalefactor>1</scalefactor>
+    
+    <!-- Number of terminals (each terminal maps to one team) -->
+    <terminals>10</terminals>
+    
+    <works>
+        <work>
+            <time>30</time>
+            <rate>unlimited</rate>
+            <!-- Weights for each transaction type: GamePlayed, DeleteGame, UpdateTeam, UpdatePlayer -->
+            <weights>60,20,10,10</weights>
+        </work>
+    </works>
+
+    <!-- Cricket Procedures declaration -->
+    <transactiontypes>
+        <transactiontype>
+            <name>GamePlayed</name>
+        </transactiontype>
+        <transactiontype>
+            <name>DeleteGame</name>
+        </transactiontype>
+        <transactiontype>
+            <name>UpdateTeam</name>
+        </transactiontype>
+        <transactiontype>
+            <name>UpdatePlayer</name>
+        </transactiontype>
+    </transactiontypes>
+</parameters> 

@@ -40,7 +40,7 @@ class YCSBLoader extends Loader<YCSBBenchmark> {
   }
 
   @Override
-  public List<LoaderThread> createLoaderThreads() {
+  public List<LoaderThread> createLoaderThreads(int tableIndex) {
     List<LoaderThread> threads = new ArrayList<>();
     int count = 0;
     while (count < this.num_record) {

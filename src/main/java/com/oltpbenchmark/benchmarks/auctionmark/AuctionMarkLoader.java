@@ -158,7 +158,7 @@ public final class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
   }
 
   @Override
-  public List<LoaderThread> createLoaderThreads() {
+  public List<LoaderThread> createLoaderThreads(int tableIndex) {
     List<LoaderThread> threads = new ArrayList<>();
 
     final CountDownLatch loadLatch = new CountDownLatch(this.generators.size());

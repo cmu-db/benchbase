@@ -27,7 +27,13 @@ public final class TPCCConfig {
 
   public static final String terminalPrefix = "Term-";
 
-  public static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+  // Use ThreadLocal to ensure thread-safety for SimpleDateFormat instance
+  private static final ThreadLocal<SimpleDateFormat> dateFormatThreadLocal =
+      ThreadLocal.withInitial(() -> new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+
+  public static SimpleDateFormat getDateFormat() {
+    return dateFormatThreadLocal.get();
+  }
 
   public static final int configWhseCount = 1;
   public static final int configItemCount = 100000; // tpc-c std = 100,000

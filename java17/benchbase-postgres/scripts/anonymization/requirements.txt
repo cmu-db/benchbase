@@ -1,0 +1,11 @@
+Faker~=15.3.4
+JayDeBeApi~=1.2.3
+JPype1~=1.5.0
+lxml~=4.9.3
+numpy~=1.26.4
+pandas~=2.2.1
+pytest~=8.1.1
+pylint~=3.0.2
+smartnoise-sql~=1.0.3
+smartnoise-synth~=1.0.3
+private-pgm @ git+https://github.com/ryan112358/private-pgm.git@5b9126295c110b741e5426ddbff419ea1e60e788

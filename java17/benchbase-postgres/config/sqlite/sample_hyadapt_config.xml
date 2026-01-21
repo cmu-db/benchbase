@@ -1,0 +1,121 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    <type>SQLITE</type>
+    <driver>org.sqlite.JDBC</driver>
+    <url>jdbc:sqlite:hyadapt.db</url>
+    <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    <batchsize>128</batchsize>
+
+    <scalefactor>0.1</scalefactor>
+
+    <!-- SQLITE only supports one writer thread -->
+    <loaderThreads>1</loaderThreads>
+
+    <terminals>1</terminals>
+    <works>
+        <work>
+            <time>60</time>
+            <rate>10000</rate>
+            <weights>1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1</weights>
+        </work>
+    </works>
+
+    <transactiontypes>
+        <transactiontype>
+            <name>MaxRecord1</name>
+        </transactiontype>
+        <transactiontype>
+            <name>MaxRecord2</name>
+        </transactiontype>
+        <transactiontype>
+            <name>MaxRecord3</name>
+        </transactiontype>
+        <transactiontype>
+            <name>MaxRecord4</name>
+        </transactiontype>
+        <transactiontype>
+            <name>MaxRecord5</name>
+        </transactiontype>
+        <transactiontype>
+            <name>MaxRecord6</name>
+        </transactiontype>
+        <transactiontype>
+            <name>MaxRecord7</name>
+        </transactiontype>
+        <transactiontype>
+            <name>MaxRecord8</name>
+        </transactiontype>
+        <transactiontype>
+            <name>MaxRecord9</name>
+        </transactiontype>
+        <transactiontype>
+            <name>MaxRecord10</name>
+        </transactiontype>
+
+        <transactiontype>
+            <name>ReadRecord1</name>
+        </transactiontype>
+        <transactiontype>
+            <name>ReadRecord2</name>
+        </transactiontype>
+        <transactiontype>
+            <name>ReadRecord3</name>
+        </transactiontype>
+        <transactiontype>
+            <name>ReadRecord4</name>
+        </transactiontype>
+        <transactiontype>
+            <name>ReadRecord5</name>
+        </transactiontype>
+        <transactiontype>
+            <name>ReadRecord6</name>
+        </transactiontype>
+        <transactiontype>
+            <name>ReadRecord7</name>
+        </transactiontype>
+        <transactiontype>
+            <name>ReadRecord8</name>
+        </transactiontype>
+        <transactiontype>
+            <name>ReadRecord9</name>
+        </transactiontype>
+        <transactiontype>
+            <name>ReadRecord10</name>
+        </transactiontype>
+
+
+        <transactiontype>
+            <name>SumRecord1</name>
+        </transactiontype>
+        <transactiontype>
+            <name>SumRecord2</name>
+        </transactiontype>
+        <transactiontype>
+            <name>SumRecord3</name>
+        </transactiontype>
+        <transactiontype>
+            <name>SumRecord4</name>
+        </transactiontype>
+        <transactiontype>
+            <name>SumRecord5</name>
+        </transactiontype>
+        <transactiontype>
+            <name>SumRecord6</name>
+        </transactiontype>
+        <transactiontype>
+            <name>SumRecord7</name>
+        </transactiontype>
+        <transactiontype>
+            <name>SumRecord8</name>
+        </transactiontype>
+        <transactiontype>
+            <name>SumRecord9</name>
+        </transactiontype>
+        <transactiontype>
+            <name>SumRecord10</name>
+        </transactiontype>
+        
+    </transactiontypes>
+</parameters>

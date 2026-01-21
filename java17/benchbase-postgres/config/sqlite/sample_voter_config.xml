@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    <type>SQLITE</type>
+    <driver>org.sqlite.JDBC</driver>
+    <url>jdbc:sqlite:voter.db</url>
+    <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    <batchsize>128</batchsize>
+
+    <scalefactor>1</scalefactor>
+    
+    <!-- SQLITE only supports one writer thread -->
+    <loaderThreads>1</loaderThreads>
+
+    <!-- The workload -->
+    <terminals>1</terminals>
+    <works>
+        <work>
+            <time>60</time>
+            <rate>10000</rate>
+            <weights>100</weights>
+        </work>
+    </works>
+
+    <!-- Voter Procedures declaration -->
+    <transactiontypes>
+        <transactiontype>
+            <name>Vote</name>
+        </transactiontype>
+    </transactiontypes>
+</parameters>

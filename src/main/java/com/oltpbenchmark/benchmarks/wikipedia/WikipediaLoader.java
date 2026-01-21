@@ -78,7 +78,7 @@ public final class WikipediaLoader extends Loader<WikipediaBenchmark> {
   }
 
   @Override
-  public List<LoaderThread> createLoaderThreads() {
+  public List<LoaderThread> createLoaderThreads(int tableIndex) {
     List<LoaderThread> threads = new ArrayList<>();
     final int numLoaders = this.benchmark.getWorkloadConfiguration().getLoaderThreads();
     final int numItems = this.benchmark.num_pages + this.benchmark.num_users;

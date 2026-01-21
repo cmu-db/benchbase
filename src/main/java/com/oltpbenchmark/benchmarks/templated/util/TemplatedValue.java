@@ -13,7 +13,10 @@ import java.util.Random;
  * hold static values but also generators for value distributions
  */
 public class TemplatedValue {
-  static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+  // Use ThreadLocal to ensure thread-safety for SimpleDateFormat instance
+  private static final ThreadLocal<SimpleDateFormat> dateFormatThreadLocal =
+      ThreadLocal.withInitial(() -> new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+
   ValueGenerator distribution;
   Long min;
   Long max;
@@ -121,7 +124,7 @@ public class TemplatedValue {
       timestamp = Long.parseLong(timeSource);
     } catch (NumberFormatException ex) {
       try {
-        timestamp = dateFormat.parse(timeSource).getTime();
+        timestamp = dateFormatThreadLocal.get().parse(timeSource).getTime();
       } catch (ParseException e) {
         throw new RuntimeException(
             String.format("Error occurred while trying to parse date: %s", timeSource));

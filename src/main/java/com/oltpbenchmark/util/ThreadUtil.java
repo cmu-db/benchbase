@@ -95,12 +95,12 @@ public abstract class ThreadUtil {
         service.execute(new LatchRunnable(loaderThread, latch));
       }
 
-      LOG.trace("All Loader Threads executed; waiting on latches...");
+      LOG.info("All Loader Threads executed; waiting on latches...");
       latch.await();
 
     } finally {
 
-      LOG.trace("Attempting to shutdown the pool...");
+      LOG.info("Attempting to shutdown the pool...");
 
       service.shutdown();
 
@@ -149,15 +149,21 @@ public abstract class ThreadUtil {
     @Override
     public void run() {
       try {
+        LOG.debug("Starting loader thread: {}", this.loaderThread.getClass().getSimpleName());
         this.loaderThread.run();
+        LOG.debug("Completed loader thread: {}", this.loaderThread.getClass().getSimpleName());
       } catch (Exception e) {
         LOG.error(
             String.format(
-                "Exception in Loader Thread with message: [%s]; will count down latch with count %d and then exit :(",
-                e.getMessage(), this.latch.getCount()),
+                "Exception in Loader Thread [%s] with message: [%s]; will count down latch with count %d and then exit :(",
+                this.loaderThread.getClass().getSimpleName(),
+                e.getMessage(),
+                this.latch.getCount()),
             e);
+        e.printStackTrace(); // Print full stack trace
         System.exit(1);
       } finally {
+        LOG.debug("Counting down latch, remaining count: {}", this.latch.getCount() - 1);
         this.latch.countDown();
       }
     }

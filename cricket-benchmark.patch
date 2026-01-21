@@ -1,0 +1,537 @@
+diff --git a/config/cockroachdb/sample_tpcc_config.xml b/config/cockroachdb/sample_tpcc_config.xml
+index d965608..284e7e0 100644
+--- a/config/cockroachdb/sample_tpcc_config.xml
++++ b/config/cockroachdb/sample_tpcc_config.xml
+@@ -22,6 +22,11 @@
+             <rate>10000</rate>
+             <weights>45,43,4,4,4</weights>
+         </work>
++        <work>
++            <time>60</time>
++            <rate>10000</rate>
++            <weights>45,43,4,4,4</weights>
++        </work>
+     </works>
+ 
+     <!-- TPCC specific -->
+diff --git a/config/plugin.xml b/config/plugin.xml
+index baf6991..611fc32 100644
+--- a/config/plugin.xml
++++ b/config/plugin.xml
+@@ -18,4 +18,6 @@
+     <plugin name="hyadapt">com.oltpbenchmark.benchmarks.hyadapt.HYADAPTBenchmark</plugin>
+     <plugin name="otmetrics">com.oltpbenchmark.benchmarks.otmetrics.OTMetricsBenchmark</plugin>
+     <plugin name="templated">com.oltpbenchmark.benchmarks.templated.TemplatedBenchmark</plugin>
++    <plugin name="manav">com.oltpbenchmark.benchmarks.manav.ManavBenchmark</plugin>
++    <plugin name="cricket">com.oltpbenchmark.benchmarks.cricket.CricketBenchmark</plugin>
+ </plugins>
+diff --git a/config/postgres/sample_tpcc_config.xml b/config/postgres/sample_tpcc_config.xml
+index f486e74..bf2396c 100644
+--- a/config/postgres/sample_tpcc_config.xml
++++ b/config/postgres/sample_tpcc_config.xml
+@@ -4,22 +4,23 @@
+     <!-- Connection details -->
+     <type>POSTGRES</type>
+     <driver>org.postgresql.Driver</driver>
+-    <url>jdbc:postgresql://localhost:5432/benchbase?sslmode=disable&amp;ApplicationName=tpcc&amp;reWriteBatchedInserts=true</url>
+-    <username>admin</username>
+-    <password>password</password>
++    <url>jdbc:postgresql://localhost:5432/postgres2?sslmode=disable&amp;ApplicationName=tpcc&amp;reWriteBatchedInserts=true</url>
++    <username>replicant</username>
++    <password>replicant</password>
+     <reconnectOnConnectionFailure>true</reconnectOnConnectionFailure>
+     <isolation>TRANSACTION_SERIALIZABLE</isolation>
+-    <batchsize>128</batchsize>
++    <batchsize>256</batchsize>
+ 
+     <!-- Scale factor is the number of warehouses in TPCC -->
+-    <scalefactor>1</scalefactor>
++    <scalefactor>10</scalefactor>
+ 
+-    <!-- The workload -->
+-    <terminals>1</terminals>
++    <!-- The workload - Reduced terminals to reduce contention -->
++    <terminals>10</terminals>
+     <works>
+         <work>
+             <time>60</time>
+-            <rate>10000</rate>
++            <warmup>10</warmup>
++            <rate>unlimited</rate>
+             <weights>45,43,4,4,4</weights>
+         </work>
+     </works>
+diff --git a/src/main/java/com/oltpbenchmark/benchmarks/templated/util/TemplatedValue.java b/src/main/java/com/oltpbenchmark/benchmarks/templated/util/TemplatedValue.java
+index d302ab1..2dfa335 100644
+--- a/src/main/java/com/oltpbenchmark/benchmarks/templated/util/TemplatedValue.java
++++ b/src/main/java/com/oltpbenchmark/benchmarks/templated/util/TemplatedValue.java
+@@ -13,7 +13,10 @@ import java.util.Random;
+  * hold static values but also generators for value distributions
+  */
+ public class TemplatedValue {
+-  static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
++  // Use ThreadLocal to ensure thread-safety for SimpleDateFormat instance
++  private static final ThreadLocal<SimpleDateFormat> dateFormatThreadLocal =
++      ThreadLocal.withInitial(() -> new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
++
+   ValueGenerator distribution;
+   Long min;
+   Long max;
+@@ -121,7 +124,7 @@ public class TemplatedValue {
+       timestamp = Long.parseLong(timeSource);
+     } catch (NumberFormatException ex) {
+       try {
+-        timestamp = dateFormat.parse(timeSource).getTime();
++        timestamp = dateFormatThreadLocal.get().parse(timeSource).getTime();
+       } catch (ParseException e) {
+         throw new RuntimeException(
+             String.format("Error occurred while trying to parse date: %s", timeSource));
+diff --git a/src/main/java/com/oltpbenchmark/benchmarks/tpcc/TPCCConfig.java b/src/main/java/com/oltpbenchmark/benchmarks/tpcc/TPCCConfig.java
+index 7842d40..068e373 100644
+--- a/src/main/java/com/oltpbenchmark/benchmarks/tpcc/TPCCConfig.java
++++ b/src/main/java/com/oltpbenchmark/benchmarks/tpcc/TPCCConfig.java
+@@ -27,7 +27,13 @@ public final class TPCCConfig {
+ 
+   public static final String terminalPrefix = "Term-";
+ 
+-  public static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
++  // Use ThreadLocal to ensure thread-safety for SimpleDateFormat instance
++  private static final ThreadLocal<SimpleDateFormat> dateFormatThreadLocal =
++      ThreadLocal.withInitial(() -> new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
++
++  public static SimpleDateFormat getDateFormat() {
++    return dateFormatThreadLocal.get();
++  }
+ 
+   public static final int configWhseCount = 1;
+   public static final int configItemCount = 100000; // tpc-c std = 100,000
+diff --git a/src/main/java/com/oltpbenchmark/benchmarks/tpcc/TPCCLoader.java b/src/main/java/com/oltpbenchmark/benchmarks/tpcc/TPCCLoader.java
+index 5a299d5..4b44322 100644
+--- a/src/main/java/com/oltpbenchmark/benchmarks/tpcc/TPCCLoader.java
++++ b/src/main/java/com/oltpbenchmark/benchmarks/tpcc/TPCCLoader.java
+@@ -545,6 +545,7 @@ public final class TPCCLoader extends Loader<TPCCBenchmark> {
+           openOrderStatement.setInt(idx++, oorder.o_ol_cnt);
+           openOrderStatement.setInt(idx++, oorder.o_all_local);
+           openOrderStatement.setTimestamp(idx, oorder.o_entry_d);
++
+           openOrderStatement.addBatch();
+ 
+           k++;
+diff --git a/src/main/java/com/oltpbenchmark/benchmarks/tpcc/TPCCUtil.java b/src/main/java/com/oltpbenchmark/benchmarks/tpcc/TPCCUtil.java
+index 066f68c..4f602fb 100644
+--- a/src/main/java/com/oltpbenchmark/benchmarks/tpcc/TPCCUtil.java
++++ b/src/main/java/com/oltpbenchmark/benchmarks/tpcc/TPCCUtil.java
+@@ -75,7 +75,7 @@ public class TPCCUtil {
+   }
+ 
+   public static String getCurrentTime() {
+-    return dateFormat.format(new java.util.Date());
++    return getDateFormat().format(new java.util.Date());
+   }
+ 
+   public static String formattedDouble(double d) {
+diff --git a/src/main/java/com/oltpbenchmark/benchmarks/tpcc/pojo/Oorder.java b/src/main/java/com/oltpbenchmark/benchmarks/tpcc/pojo/Oorder.java
+index e2833c8..f1114ab 100644
+--- a/src/main/java/com/oltpbenchmark/benchmarks/tpcc/pojo/Oorder.java
++++ b/src/main/java/com/oltpbenchmark/benchmarks/tpcc/pojo/Oorder.java
+@@ -29,6 +29,16 @@ public class Oorder {
+   public int o_ol_cnt;
+   public int o_all_local;
+   public Timestamp o_entry_d;
++  public String o_custom_1;
++  public String o_custom_2;
++  public String o_custom_3;
++  public String o_custom_4;
++  public String o_custom_5;
++  public String o_custom_6;
++  public String o_custom_7;
++  public String o_custom_8;
++  public String o_custom_9;
++  public String o_custom_10;
+ 
+   @Override
+   public String toString() {
+@@ -49,6 +59,26 @@ public class Oorder {
+         + o_all_local
+         + "\n*    o_entry_d = "
+         + o_entry_d
++        + "\n*   o_custom_1 = "
++        + o_custom_1
++        + "\n*   o_custom_2 = "
++        + o_custom_2
++        + "\n*   o_custom_3 = "
++        + o_custom_3
++        + "\n*   o_custom_4 = "
++        + o_custom_4
++        + "\n*   o_custom_5 = "
++        + o_custom_5
++        + "\n*   o_custom_6 = "
++        + o_custom_6
++        + "\n*   o_custom_7 = "
++        + o_custom_7
++        + "\n*   o_custom_8 = "
++        + o_custom_8
++        + "\n*   o_custom_9 = "
++        + o_custom_9
++        + "\n*  o_custom_10 = "
++        + o_custom_10
+         + "\n**********************************************");
+   }
+ }
+diff --git a/src/main/java/com/oltpbenchmark/benchmarks/tpcc/procedures/NewOrder.java b/src/main/java/com/oltpbenchmark/benchmarks/tpcc/procedures/NewOrder.java
+index e98f9eb..2d3b3b2 100644
+--- a/src/main/java/com/oltpbenchmark/benchmarks/tpcc/procedures/NewOrder.java
++++ b/src/main/java/com/oltpbenchmark/benchmarks/tpcc/procedures/NewOrder.java
+@@ -232,6 +232,12 @@ public class NewOrder extends TPCCProcedure {
+         stmtInsertOrderLine.setDouble(8, ol_amount);
+         stmtInsertOrderLine.setString(9, ol_dist_info);
+         stmtInsertOrderLine.addBatch();
++        //     """
++        //     INSERT INTO %s
++        //      (OL_O_ID, OL_D_ID, OL_W_ID, OL_NUMBER, OL_I_ID, OL_SUPPLY_W_ID, OL_QUANTITY,
++        // OL_AMOUNT, OL_DIST_INFO)
++        //      VALUES (?,?,?,?,?,?,?,?,?)
++        // """
+ 
+         int s_remote_cnt_increment;
+ 
+diff --git a/src/main/java/com/oltpbenchmark/util/TimeUtil.java b/src/main/java/com/oltpbenchmark/util/TimeUtil.java
+index 82675c8..372a3a2 100644
+--- a/src/main/java/com/oltpbenchmark/util/TimeUtil.java
++++ b/src/main/java/com/oltpbenchmark/util/TimeUtil.java
+@@ -22,8 +22,12 @@ import java.text.SimpleDateFormat;
+ 
+ public abstract class TimeUtil {
+ 
+-  public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+-  public static final SimpleDateFormat DATE_FORMAT_14 = new SimpleDateFormat("yyyyMMddHHmmss");
++  // Use ThreadLocal to ensure thread-safety for SimpleDateFormat instances
++  private static final ThreadLocal<SimpleDateFormat> DATE_FORMAT =
++      ThreadLocal.withInitial(() -> new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss"));
++
++  private static final ThreadLocal<SimpleDateFormat> DATE_FORMAT_14 =
++      ThreadLocal.withInitial(() -> new SimpleDateFormat("yyyyMMddHHmmss"));
+ 
+   /**
+    * TODO(djellel)
+@@ -31,7 +35,7 @@ public abstract class TimeUtil {
+    * @return
+    */
+   public static String getCurrentTimeString14() {
+-    return TimeUtil.DATE_FORMAT_14.format(new java.util.Date());
++    return DATE_FORMAT_14.get().format(new java.util.Date());
+   }
+ 
+   /**
+@@ -40,7 +44,7 @@ public abstract class TimeUtil {
+    * @return
+    */
+   public static String getCurrentTimeString() {
+-    return TimeUtil.DATE_FORMAT.format(new java.util.Date());
++    return DATE_FORMAT.get().format(new java.util.Date());
+   }
+ 
+   /** Get a timestamp of the current time */
+diff --git a/src/main/resources/benchmarks/tpcc/ddl-cockroachdb.sql b/src/main/resources/benchmarks/tpcc/ddl-cockroachdb.sql
+index aa66a08..b7aefb7 100644
+--- a/src/main/resources/benchmarks/tpcc/ddl-cockroachdb.sql
++++ b/src/main/resources/benchmarks/tpcc/ddl-cockroachdb.sql
+@@ -117,6 +117,16 @@ CREATE TABLE oorder (
+     o_ol_cnt     int       NOT NULL,
+     o_all_local  int       NOT NULL,
+     o_entry_d    timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
++    o_custom_1   varchar(50)        DEFAULT NULL,
++    o_custom_2   varchar(50)        DEFAULT NULL,
++    o_custom_3   varchar(50)        DEFAULT NULL,
++    o_custom_4   varchar(50)        DEFAULT NULL,
++    o_custom_5   varchar(50)        DEFAULT NULL,
++    o_custom_6   varchar(50)        DEFAULT NULL,
++    o_custom_7   varchar(50)        DEFAULT NULL,
++    o_custom_8   varchar(50)        DEFAULT NULL,
++    o_custom_9   varchar(50)        DEFAULT NULL,
++    o_custom_10  varchar(50)        DEFAULT NULL,
+     FOREIGN KEY (o_w_id, o_d_id, o_c_id) REFERENCES customer (c_w_id, c_d_id, c_id) ON DELETE CASCADE,
+     UNIQUE INDEX order_idx (o_w_id, o_d_id, o_c_id, o_id DESC) STORING (o_entry_d, o_carrier_id),
+     PRIMARY KEY (o_w_id, o_d_id, o_id DESC)
+diff --git a/src/main/resources/benchmarks/tpcc/ddl-db2.sql b/src/main/resources/benchmarks/tpcc/ddl-db2.sql
+index b881867..59e713b 100644
+--- a/src/main/resources/benchmarks/tpcc/ddl-db2.sql
++++ b/src/main/resources/benchmarks/tpcc/ddl-db2.sql
+@@ -84,6 +84,16 @@ CREATE TABLE oorder (
+   o_ol_cnt decimal(2,0) NOT NULL,
+   o_all_local decimal(1,0) NOT NULL,
+   o_entry_d timestamp NOT NULL,
++  o_custom_1 varchar(50) DEFAULT NULL,
++  o_custom_2 varchar(50) DEFAULT NULL,
++  o_custom_3 varchar(50) DEFAULT NULL,
++  o_custom_4 varchar(50) DEFAULT NULL,
++  o_custom_5 varchar(50) DEFAULT NULL,
++  o_custom_6 varchar(50) DEFAULT NULL,
++  o_custom_7 varchar(50) DEFAULT NULL,
++  o_custom_8 varchar(50) DEFAULT NULL,
++  o_custom_9 varchar(50) DEFAULT NULL,
++  o_custom_10 varchar(50) DEFAULT NULL,
+   PRIMARY KEY (o_w_id,o_d_id,o_id),
+   UNIQUE (o_w_id,o_d_id,o_c_id,o_id)
+ );
+diff --git a/src/main/resources/benchmarks/tpcc/ddl-generic.sql b/src/main/resources/benchmarks/tpcc/ddl-generic.sql
+index e26c7a6..5f2035c 100644
+--- a/src/main/resources/benchmarks/tpcc/ddl-generic.sql
++++ b/src/main/resources/benchmarks/tpcc/ddl-generic.sql
+@@ -79,6 +79,16 @@ CREATE TABLE OORDER
+     O_OL_CNT     INT       NOT NULL,
+     O_ALL_LOCAL  INT       NOT NULL,
+     O_ENTRY_D    TIMESTAMP NOT NULL,
++    O_CUSTOM_1   VARCHAR(50) DEFAULT NULL,
++    O_CUSTOM_2   VARCHAR(50) DEFAULT NULL,
++    O_CUSTOM_3   VARCHAR(50) DEFAULT NULL,
++    O_CUSTOM_4   VARCHAR(50) DEFAULT NULL,
++    O_CUSTOM_5   VARCHAR(50) DEFAULT NULL,
++    O_CUSTOM_6   VARCHAR(50) DEFAULT NULL,
++    O_CUSTOM_7   VARCHAR(50) DEFAULT NULL,
++    O_CUSTOM_8   VARCHAR(50) DEFAULT NULL,
++    O_CUSTOM_9   VARCHAR(50) DEFAULT NULL,
++    O_CUSTOM_10  VARCHAR(50) DEFAULT NULL,
+     PRIMARY KEY (O_W_ID, O_D_ID, O_ID),
+     UNIQUE (O_W_ID, O_D_ID, O_C_ID, O_ID),
+     CONSTRAINT O_FKEY_C FOREIGN KEY (O_W_ID, O_D_ID, O_C_ID) REFERENCES CUSTOMER (C_W_ID, C_D_ID, C_ID)
+diff --git a/src/main/resources/benchmarks/tpcc/ddl-monetdb.sql b/src/main/resources/benchmarks/tpcc/ddl-monetdb.sql
+index e601579..307384e 100644
+--- a/src/main/resources/benchmarks/tpcc/ddl-monetdb.sql
++++ b/src/main/resources/benchmarks/tpcc/ddl-monetdb.sql
+@@ -84,6 +84,16 @@ CREATE TABLE oorder (
+   o_ol_cnt decimal(2,0) NOT NULL,
+   o_all_local decimal(1,0) NOT NULL,
+   o_entry_d timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
++  o_custom_1 varchar(50) DEFAULT NULL,
++  o_custom_2 varchar(50) DEFAULT NULL,
++  o_custom_3 varchar(50) DEFAULT NULL,
++  o_custom_4 varchar(50) DEFAULT NULL,
++  o_custom_5 varchar(50) DEFAULT NULL,
++  o_custom_6 varchar(50) DEFAULT NULL,
++  o_custom_7 varchar(50) DEFAULT NULL,
++  o_custom_8 varchar(50) DEFAULT NULL,
++  o_custom_9 varchar(50) DEFAULT NULL,
++  o_custom_10 varchar(50) DEFAULT NULL,
+   PRIMARY KEY (o_w_id,o_d_id,o_id),
+   UNIQUE (o_w_id,o_d_id,o_c_id,o_id)
+ );
+diff --git a/src/main/resources/benchmarks/tpcc/ddl-myrocks.sql b/src/main/resources/benchmarks/tpcc/ddl-myrocks.sql
+index 7961c49..b2e1330 100644
+--- a/src/main/resources/benchmarks/tpcc/ddl-myrocks.sql
++++ b/src/main/resources/benchmarks/tpcc/ddl-myrocks.sql
+@@ -98,6 +98,16 @@ CREATE TABLE OORDER (
+   O_OL_CNT DECIMAL(2,0) NOT NULL,
+   O_ALL_LOCAL DECIMAL(1,0) NOT NULL,
+   O_ENTRY_D TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
++  O_CUSTOM_1 VARCHAR(50) DEFAULT NULL,
++  O_CUSTOM_2 VARCHAR(50) DEFAULT NULL,
++  O_CUSTOM_3 VARCHAR(50) DEFAULT NULL,
++  O_CUSTOM_4 VARCHAR(50) DEFAULT NULL,
++  O_CUSTOM_5 VARCHAR(50) DEFAULT NULL,
++  O_CUSTOM_6 VARCHAR(50) DEFAULT NULL,
++  O_CUSTOM_7 VARCHAR(50) DEFAULT NULL,
++  O_CUSTOM_8 VARCHAR(50) DEFAULT NULL,
++  O_CUSTOM_9 VARCHAR(50) DEFAULT NULL,
++  O_CUSTOM_10 VARCHAR(50) DEFAULT NULL,
+   PRIMARY KEY (O_W_ID,O_D_ID,O_ID),
+   UNIQUE (O_W_ID,O_D_ID,O_C_ID,O_ID)
+ );
+diff --git a/src/main/resources/benchmarks/tpcc/ddl-mysql.sql b/src/main/resources/benchmarks/tpcc/ddl-mysql.sql
+index c3c6a3f..5c2e127 100644
+--- a/src/main/resources/benchmarks/tpcc/ddl-mysql.sql
++++ b/src/main/resources/benchmarks/tpcc/ddl-mysql.sql
+@@ -120,6 +120,16 @@ CREATE TABLE oorder (
+     o_ol_cnt     int       NOT NULL,
+     o_all_local  int       NOT NULL,
+     o_entry_d    timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
++    o_custom_1   varchar(50)        DEFAULT NULL,
++    o_custom_2   varchar(50)        DEFAULT NULL,
++    o_custom_3   varchar(50)        DEFAULT NULL,
++    o_custom_4   varchar(50)        DEFAULT NULL,
++    o_custom_5   varchar(50)        DEFAULT NULL,
++    o_custom_6   varchar(50)        DEFAULT NULL,
++    o_custom_7   varchar(50)        DEFAULT NULL,
++    o_custom_8   varchar(50)        DEFAULT NULL,
++    o_custom_9   varchar(50)        DEFAULT NULL,
++    o_custom_10  varchar(50)        DEFAULT NULL,
+     PRIMARY KEY (o_w_id, o_d_id, o_id),
+     FOREIGN KEY (o_w_id, o_d_id, o_c_id) REFERENCES customer (c_w_id, c_d_id, c_id) ON DELETE CASCADE,
+     UNIQUE (o_w_id, o_d_id, o_c_id, o_id)
+diff --git a/src/main/resources/benchmarks/tpcc/ddl-noisepage.sql b/src/main/resources/benchmarks/tpcc/ddl-noisepage.sql
+index d485ad9..0f7d0c3 100644
+--- a/src/main/resources/benchmarks/tpcc/ddl-noisepage.sql
++++ b/src/main/resources/benchmarks/tpcc/ddl-noisepage.sql
+@@ -117,6 +117,16 @@ CREATE TABLE oorder (
+     o_ol_cnt     int       NOT NULL,
+     o_all_local  int       NOT NULL,
+     o_entry_d    timestamp NOT NULL, /* DEFAULT CURRENT_TIMESTAMP, */
++    o_custom_1   varchar(50)        DEFAULT NULL,
++    o_custom_2   varchar(50)        DEFAULT NULL,
++    o_custom_3   varchar(50)        DEFAULT NULL,
++    o_custom_4   varchar(50)        DEFAULT NULL,
++    o_custom_5   varchar(50)        DEFAULT NULL,
++    o_custom_6   varchar(50)        DEFAULT NULL,
++    o_custom_7   varchar(50)        DEFAULT NULL,
++    o_custom_8   varchar(50)        DEFAULT NULL,
++    o_custom_9   varchar(50)        DEFAULT NULL,
++    o_custom_10  varchar(50)        DEFAULT NULL,
+     PRIMARY KEY (o_w_id, o_d_id, o_id)
+     /* FOREIGN KEY (o_w_id, o_d_id, o_c_id) REFERENCES customer (c_w_id, c_d_id, c_id) ON DELETE CASCADE,
+     UNIQUE (o_w_id, o_d_id, o_c_id, o_id) */
+diff --git a/src/main/resources/benchmarks/tpcc/ddl-nuodb.sql b/src/main/resources/benchmarks/tpcc/ddl-nuodb.sql
+index 507d151..52a6724 100644
+--- a/src/main/resources/benchmarks/tpcc/ddl-nuodb.sql
++++ b/src/main/resources/benchmarks/tpcc/ddl-nuodb.sql
+@@ -92,6 +92,16 @@ CREATE TABLE OORDER (
+   O_OL_CNT DECIMAL(2,0) NOT NULL,
+   O_ALL_LOCAL DECIMAL(1,0) NOT NULL,
+   O_ENTRY_D TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
++  O_CUSTOM_1 VARCHAR(50) DEFAULT NULL,
++  O_CUSTOM_2 VARCHAR(50) DEFAULT NULL,
++  O_CUSTOM_3 VARCHAR(50) DEFAULT NULL,
++  O_CUSTOM_4 VARCHAR(50) DEFAULT NULL,
++  O_CUSTOM_5 VARCHAR(50) DEFAULT NULL,
++  O_CUSTOM_6 VARCHAR(50) DEFAULT NULL,
++  O_CUSTOM_7 VARCHAR(50) DEFAULT NULL,
++  O_CUSTOM_8 VARCHAR(50) DEFAULT NULL,
++  O_CUSTOM_9 VARCHAR(50) DEFAULT NULL,
++  O_CUSTOM_10 VARCHAR(50) DEFAULT NULL,
+   PRIMARY KEY (O_W_ID,O_D_ID,O_ID),
+   UNIQUE (O_W_ID,O_D_ID,O_C_ID,O_ID)
+ );
+diff --git a/src/main/resources/benchmarks/tpcc/ddl-oracle.sql b/src/main/resources/benchmarks/tpcc/ddl-oracle.sql
+index 1741bee..e0a8fa5 100644
+--- a/src/main/resources/benchmarks/tpcc/ddl-oracle.sql
++++ b/src/main/resources/benchmarks/tpcc/ddl-oracle.sql
+@@ -86,6 +86,16 @@ CREATE TABLE OORDER (
+   O_OL_CNT NUMBER(2,0) NOT NULL,
+   O_ALL_LOCAL NUMBER(1,0) NOT NULL,
+   O_ENTRY_D DATE NOT NULL,
++  O_CUSTOM_1 VARCHAR2(50) DEFAULT NULL,
++  O_CUSTOM_2 VARCHAR2(50) DEFAULT NULL,
++  O_CUSTOM_3 VARCHAR2(50) DEFAULT NULL,
++  O_CUSTOM_4 VARCHAR2(50) DEFAULT NULL,
++  O_CUSTOM_5 VARCHAR2(50) DEFAULT NULL,
++  O_CUSTOM_6 VARCHAR2(50) DEFAULT NULL,
++  O_CUSTOM_7 VARCHAR2(50) DEFAULT NULL,
++  O_CUSTOM_8 VARCHAR2(50) DEFAULT NULL,
++  O_CUSTOM_9 VARCHAR2(50) DEFAULT NULL,
++  O_CUSTOM_10 VARCHAR2(50) DEFAULT NULL,
+   PRIMARY KEY (O_W_ID,O_D_ID,O_ID),
+   UNIQUE (O_W_ID,O_D_ID,O_C_ID,O_ID)
+ );
+diff --git a/src/main/resources/benchmarks/tpcc/ddl-phoenix.sql b/src/main/resources/benchmarks/tpcc/ddl-phoenix.sql
+index 548af75..7da33e4 100644
+--- a/src/main/resources/benchmarks/tpcc/ddl-phoenix.sql
++++ b/src/main/resources/benchmarks/tpcc/ddl-phoenix.sql
+@@ -67,6 +67,16 @@ CREATE TABLE OORDER (
+   O_OL_CNT DECIMAL(2,0) NOT NULL,
+   O_ALL_LOCAL DECIMAL(1,0) NOT NULL,
+   O_ENTRY_D TIMESTAMP NOT NULL,
++  O_CUSTOM_1 VARCHAR(50) DEFAULT NULL,
++  O_CUSTOM_2 VARCHAR(50) DEFAULT NULL,
++  O_CUSTOM_3 VARCHAR(50) DEFAULT NULL,
++  O_CUSTOM_4 VARCHAR(50) DEFAULT NULL,
++  O_CUSTOM_5 VARCHAR(50) DEFAULT NULL,
++  O_CUSTOM_6 VARCHAR(50) DEFAULT NULL,
++  O_CUSTOM_7 VARCHAR(50) DEFAULT NULL,
++  O_CUSTOM_8 VARCHAR(50) DEFAULT NULL,
++  O_CUSTOM_9 VARCHAR(50) DEFAULT NULL,
++  O_CUSTOM_10 VARCHAR(50) DEFAULT NULL,
+   CONSTRAINT order_pk PRIMARY KEY (O_W_ID,O_D_ID,O_ID)
+   --UNIQUE (O_W_ID,O_D_ID,O_C_ID,O_ID)
+ ) IMMUTABLE_ROWS=true,TRANSACTIONAL=true;
+diff --git a/src/main/resources/benchmarks/tpcc/ddl-postgres.sql b/src/main/resources/benchmarks/tpcc/ddl-postgres.sql
+index 2402e94..371dd5c 100644
+--- a/src/main/resources/benchmarks/tpcc/ddl-postgres.sql
++++ b/src/main/resources/benchmarks/tpcc/ddl-postgres.sql
+@@ -117,6 +117,16 @@ CREATE TABLE oorder (
+     o_ol_cnt     int       NOT NULL,
+     o_all_local  int       NOT NULL,
+     o_entry_d    timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
++    o_custom_1   varchar(50)        DEFAULT CONCAT('AUTO_CUSTOM_1_', EXTRACT(EPOCH FROM CURRENT_TIMESTAMP)::text),
++    o_custom_2   varchar(50)        DEFAULT CONCAT('AUTO_CUSTOM_2_', EXTRACT(EPOCH FROM CURRENT_TIMESTAMP)::text),
++    o_custom_3   varchar(50)        DEFAULT CONCAT('AUTO_CUSTOM_3_', EXTRACT(EPOCH FROM CURRENT_TIMESTAMP)::text),
++    o_custom_4   varchar(50)        DEFAULT CONCAT('AUTO_CUSTOM_4_', EXTRACT(EPOCH FROM CURRENT_TIMESTAMP)::text),
++    o_custom_5   varchar(50)        DEFAULT CONCAT('AUTO_CUSTOM_5_', EXTRACT(EPOCH FROM CURRENT_TIMESTAMP)::text),
++    o_custom_6   varchar(50)        DEFAULT CONCAT('AUTO_CUSTOM_6_', EXTRACT(EPOCH FROM CURRENT_TIMESTAMP)::text),
++    o_custom_7   varchar(50)        DEFAULT CONCAT('AUTO_CUSTOM_7_', EXTRACT(EPOCH FROM CURRENT_TIMESTAMP)::text),
++    o_custom_8   varchar(50)        DEFAULT CONCAT('AUTO_CUSTOM_8_', EXTRACT(EPOCH FROM CURRENT_TIMESTAMP)::text),
++    o_custom_9   varchar(50)        DEFAULT CONCAT('AUTO_CUSTOM_9_', EXTRACT(EPOCH FROM CURRENT_TIMESTAMP)::text),
++    o_custom_10  varchar(50)        DEFAULT CONCAT('AUTO_CUSTOM_10_', EXTRACT(EPOCH FROM CURRENT_TIMESTAMP)::text),
+     PRIMARY KEY (o_w_id, o_d_id, o_id),
+     FOREIGN KEY (o_w_id, o_d_id, o_c_id) REFERENCES customer (c_w_id, c_d_id, c_id) ON DELETE CASCADE,
+     UNIQUE (o_w_id, o_d_id, o_c_id, o_id)
+diff --git a/src/main/resources/benchmarks/tpcc/ddl-singlestore.sql b/src/main/resources/benchmarks/tpcc/ddl-singlestore.sql
+index 60fc744..2247928 100644
+--- a/src/main/resources/benchmarks/tpcc/ddl-singlestore.sql
++++ b/src/main/resources/benchmarks/tpcc/ddl-singlestore.sql
+@@ -97,6 +97,16 @@ CREATE TABLE OORDER (
+   O_OL_CNT DECIMAL(2,0) NOT NULL,
+   O_ALL_LOCAL DECIMAL(1,0) NOT NULL,
+   O_ENTRY_D TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
++  O_CUSTOM_1 VARCHAR(50) DEFAULT NULL,
++  O_CUSTOM_2 VARCHAR(50) DEFAULT NULL,
++  O_CUSTOM_3 VARCHAR(50) DEFAULT NULL,
++  O_CUSTOM_4 VARCHAR(50) DEFAULT NULL,
++  O_CUSTOM_5 VARCHAR(50) DEFAULT NULL,
++  O_CUSTOM_6 VARCHAR(50) DEFAULT NULL,
++  O_CUSTOM_7 VARCHAR(50) DEFAULT NULL,
++  O_CUSTOM_8 VARCHAR(50) DEFAULT NULL,
++  O_CUSTOM_9 VARCHAR(50) DEFAULT NULL,
++  O_CUSTOM_10 VARCHAR(50) DEFAULT NULL,
+   PRIMARY KEY (O_W_ID,O_D_ID,O_ID),
+   UNIQUE (O_W_ID,O_D_ID,O_C_ID,O_ID)
+ );
+diff --git a/src/main/resources/benchmarks/tpcc/ddl-sqlserver.sql b/src/main/resources/benchmarks/tpcc/ddl-sqlserver.sql
+index 89387fd..6913322 100644
+--- a/src/main/resources/benchmarks/tpcc/ddl-sqlserver.sql
++++ b/src/main/resources/benchmarks/tpcc/ddl-sqlserver.sql
+@@ -57,7 +57,7 @@ CREATE TABLE [dbo].[ORDER_LINE](
+ 	[OL_QUANTITY] [DECIMAL](2, 0) NOT NULL,
+ 	[OL_DIST_INFO] [CHAR](24) NOT NULL,
+ 	PRIMARY KEY (OL_W_ID,OL_D_ID,OL_O_ID,OL_NUMBER)
+-); 
++);
+ 
+ CREATE TABLE [dbo].[OORDER](
+ 	[O_W_ID] [INT] NOT NULL,
+@@ -68,6 +68,16 @@ CREATE TABLE [dbo].[OORDER](
+ 	[O_OL_CNT] [DECIMAL](2, 0) NOT NULL,
+ 	[O_ALL_LOCAL] [DECIMAL](1, 0) NOT NULL,
+ 	[O_ENTRY_D] [DATETIME] NULL,
++	[O_CUSTOM_1] [VARCHAR](50) NULL,
++	[O_CUSTOM_2] [VARCHAR](50) NULL,
++	[O_CUSTOM_3] [VARCHAR](50) NULL,
++	[O_CUSTOM_4] [VARCHAR](50) NULL,
++	[O_CUSTOM_5] [VARCHAR](50) NULL,
++	[O_CUSTOM_6] [VARCHAR](50) NULL,
++	[O_CUSTOM_7] [VARCHAR](50) NULL,
++	[O_CUSTOM_8] [VARCHAR](50) NULL,
++	[O_CUSTOM_9] [VARCHAR](50) NULL,
++	[O_CUSTOM_10] [VARCHAR](50) NULL,
+ 	PRIMARY KEY (O_W_ID,O_D_ID,O_ID),
+     UNIQUE (O_W_ID,O_D_ID,O_C_ID,O_ID)
+ );
+diff --git a/src/main/resources/benchmarks/tpcc/ddl-timesten.sql b/src/main/resources/benchmarks/tpcc/ddl-timesten.sql
+index 4d4eaec..618a2a6 100644
+--- a/src/main/resources/benchmarks/tpcc/ddl-timesten.sql
++++ b/src/main/resources/benchmarks/tpcc/ddl-timesten.sql
+@@ -76,6 +76,16 @@ CREATE TABLE OORDER (
+   O_OL_CNT DECIMAL(2,0) NOT NULL,
+   O_ALL_LOCAL DECIMAL(1,0) NOT NULL,
+   O_ENTRY_D TIMESTAMP NOT NULL,
++  O_CUSTOM_1 VARCHAR(50) DEFAULT NULL,
++  O_CUSTOM_2 VARCHAR(50) DEFAULT NULL,
++  O_CUSTOM_3 VARCHAR(50) DEFAULT NULL,
++  O_CUSTOM_4 VARCHAR(50) DEFAULT NULL,
++  O_CUSTOM_5 VARCHAR(50) DEFAULT NULL,
++  O_CUSTOM_6 VARCHAR(50) DEFAULT NULL,
++  O_CUSTOM_7 VARCHAR(50) DEFAULT NULL,
++  O_CUSTOM_8 VARCHAR(50) DEFAULT NULL,
++  O_CUSTOM_9 VARCHAR(50) DEFAULT NULL,
++  O_CUSTOM_10 VARCHAR(50) DEFAULT NULL,
+   PRIMARY KEY (O_W_ID,O_D_ID,O_ID)
+ --   UNIQUE (O_W_ID,O_D_ID,O_C_ID,O_ID)
+ --   CONSTRAINT O_FKEY_C FOREIGN KEY (O_W_ID, O_D_ID, O_C_ID) REFERENCES CUSTOMER (C_W_ID, C_D_ID, C_ID)

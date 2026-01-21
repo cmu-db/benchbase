@@ -55,7 +55,7 @@ public final class HYADAPTLoader extends Loader<HYADAPTBenchmark> {
   }
 
   @Override
-  public List<LoaderThread> createLoaderThreads() {
+  public List<LoaderThread> createLoaderThreads(int tableIndex) {
 
     List<LoaderThread> threads = new ArrayList<>();
 

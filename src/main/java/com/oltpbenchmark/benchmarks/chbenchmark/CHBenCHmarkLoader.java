@@ -58,7 +58,7 @@ public final class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
   }
 
   @Override
-  public List<LoaderThread> createLoaderThreads() {
+  public List<LoaderThread> createLoaderThreads(int tableIndex) {
     List<LoaderThread> threads = new ArrayList<>();
 
     final CountDownLatch regionLatch = new CountDownLatch(1);

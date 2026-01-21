@@ -34,7 +34,7 @@ public final class NoOpLoader extends Loader<NoOpBenchmark> {
   }
 
   @Override
-  public List<LoaderThread> createLoaderThreads() {
+  public List<LoaderThread> createLoaderThreads(int tableIndex) {
     return new ArrayList<>();
   }
 }

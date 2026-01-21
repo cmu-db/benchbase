@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    <type>SQLITE</type>
+    <driver>org.sqlite.JDBC</driver>
+    <url>jdbc:sqlite:otmetrics.db</url>
+    <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    <batchsize>10000</batchsize>
+    <scalefactor>0.01</scalefactor>
+
+    <!-- SQLITE only supports one writer thread -->
+    <loaderThreads>1</loaderThreads>
+
+    <!-- The workload -->
+    <terminals>1</terminals>
+    <works>
+        <work>
+            <time>60</time>
+            <rate>unlimited</rate>
+            <weights>100</weights>
+        </work>
+    </works>
+
+    <!-- Transaction Declaration -->
+    <transactiontypes>
+        <transactiontype>
+            <name>GetSessionRange</name>
+        </transactiontype>
+    </transactiontypes>
+</parameters>

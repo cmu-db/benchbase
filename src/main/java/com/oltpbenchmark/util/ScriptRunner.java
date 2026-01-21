@@ -24,6 +24,8 @@ package com.oltpbenchmark.util;
 
 import java.io.*;
 import java.sql.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,12 +38,23 @@ public class ScriptRunner {
   private final Connection connection;
   private final boolean stopOnError;
   private final boolean autoCommit;
+  private final int numTables;
 
   /** Default constructor */
   public ScriptRunner(Connection connection, boolean autoCommit, boolean stopOnError) {
     this.connection = connection;
     this.autoCommit = autoCommit;
     this.stopOnError = stopOnError;
+    this.numTables = 1; // Default to 1 table (original behavior)
+  }
+
+  /** Constructor with num_tables parameter for table replication */
+  public ScriptRunner(
+      Connection connection, boolean autoCommit, boolean stopOnError, int numTables) {
+    this.connection = connection;
+    this.autoCommit = autoCommit;
+    this.stopOnError = stopOnError;
+    this.numTables = numTables;
   }
 
   public void runExternalScript(String path) throws IOException, SQLException {
@@ -49,7 +62,6 @@ public class ScriptRunner {
     LOG.debug("trying to find external file by path {}", path);
 
     try (FileReader reader = new FileReader(path)) {
-
       runScript(reader);
     }
   }
@@ -72,25 +84,64 @@ public class ScriptRunner {
       if (originalAutoCommit != this.autoCommit) {
         connection.setAutoCommit(this.autoCommit);
       }
-      runScript(connection, reader);
+
+      // Read the entire script content first
+      StringBuilder scriptContent = new StringBuilder();
+      char[] buffer = new char[1024];
+      int charsRead;
+      while ((charsRead = reader.read(buffer)) != -1) {
+        scriptContent.append(buffer, 0, charsRead);
+      }
+      String scriptText = scriptContent.toString();
+
+      // Run the script multiple times for table replication
+      // Create numTables replicated tables with _i suffix
+      for (int i = 1; i <= numTables; i++) {
+        LOG.info("Running DDL script iteration {} of {}", i, numTables);
+
+        // Create a new StringReader for each iteration
+        try (StringReader stringReader = new StringReader(scriptText)) {
+          runScriptWithReplacement(connection, stringReader, i);
+        }
+      }
     } finally {
       connection.setAutoCommit(originalAutoCommit);
     }
   }
 
   /**
-   * Runs an SQL script (read in using the Reader parameter) using the connection passed in
+   * Runs an SQL script with placeholder replacement for table replication
    *
    * @param conn - the connection to use for the script
    * @param reader - the source of the script
+   * @param replicaNum - the replica number (1+ for replicas)
    * @throws SQLException if any SQL errors occur
    * @throws IOException if there is an error reading from the Reader
    */
-  private void runScript(Connection conn, Reader reader) throws IOException, SQLException {
+  private void runScriptWithReplacement(Connection conn, Reader reader, int replicaNum)
+      throws IOException, SQLException {
     StringBuffer command = null;
+    Pattern placeholderPattern = Pattern.compile("\\{([^}]+)\\}");
+    LOG.info("Running script with replica number {}", replicaNum);
+
     try (LineNumberReader lineReader = new LineNumberReader(reader)) {
       String line = null;
       while ((line = lineReader.readLine()) != null) {
+
+        // Replace placeholders {tablename} with tablename or tablename_i
+        if (line.contains("{")) {
+          Matcher matcher = placeholderPattern.matcher(line);
+          StringBuffer replacedLine = new StringBuffer();
+
+          while (matcher.find()) {
+            String tableName = matcher.group(1);
+            String replacement = tableName + "_" + replicaNum; // Always add replica suffix
+            matcher.appendReplacement(replacedLine, replacement);
+          }
+          matcher.appendTail(replacedLine);
+          line = replacedLine.toString();
+        }
+
         if (LOG.isDebugEnabled()) {
           LOG.debug(line);
         }

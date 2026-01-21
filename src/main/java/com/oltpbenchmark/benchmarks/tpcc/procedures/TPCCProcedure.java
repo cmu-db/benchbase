@@ -32,6 +32,11 @@ public abstract class TPCCProcedure extends Procedure {
       int numWarehouses,
       int terminalDistrictLowerID,
       int terminalDistrictUpperID,
+      int tableIndex,
       TPCCWorker w)
       throws SQLException;
+
+  protected String getTableName(String baseTableName, int tableIndex) {
+    return baseTableName + "_" + (tableIndex + 1);
+  }
 }

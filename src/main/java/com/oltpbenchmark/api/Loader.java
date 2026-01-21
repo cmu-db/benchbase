@@ -27,6 +27,7 @@ import com.oltpbenchmark.util.SQLUtil;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import org.slf4j.Logger;
@@ -64,7 +65,16 @@ public abstract class Loader<T extends BenchmarkModule> {
    *
    * @return The list of LoaderThreads the framework will launch.
    */
-  public abstract List<LoaderThread> createLoaderThreads() throws SQLException;
+  public abstract List<LoaderThread> createLoaderThreads(int tableIndex) throws SQLException;
+
+  public List<LoaderThread> createLoaderForEachTable(int numTables) throws SQLException {
+    List<LoaderThread> threads = new ArrayList<>();
+    for (int i = 1; i <= numTables; i++) {
+      List<LoaderThread> loaderThreads = createLoaderThreads(i);
+      threads.addAll(loaderThreads);
+    }
+    return threads;
+  }
 
   public void addToTableCount(String tableName, int delta) {
     this.tableSizes.put(tableName, delta);

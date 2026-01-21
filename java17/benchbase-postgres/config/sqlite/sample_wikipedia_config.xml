@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    <type>SQLITE</type>
+    <driver>org.sqlite.JDBC</driver>
+    <url>jdbc:sqlite:wikipedia.db</url>
+    <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    <batchsize>1024</batchsize>
+
+    <!-- Scale factor is the number of wikipages *1000 -->
+    <scalefactor>0.01</scalefactor>
+    
+    <!-- SQLITE only supports one writer thread -->
+    <loaderThreads>1</loaderThreads>
+
+    <!-- The workload -->
+    <terminals>1</terminals>
+    <works>
+        <work>
+            <time>60</time>
+            <rate>1000</rate>
+            <weights>1,1,7,90,1</weights>
+        </work>
+    </works>
+
+    <!-- Wikipedia Procedures Declaration -->
+    <transactiontypes>
+        <transactiontype>
+            <name>AddWatchList</name>
+        </transactiontype>
+        <transactiontype>
+            <name>RemoveWatchList</name>
+        </transactiontype>
+        <transactiontype>
+            <name>UpdatePage</name>
+        </transactiontype>
+        <transactiontype>
+            <name>GetPageAnonymous</name>
+        </transactiontype>
+        <transactiontype>
+            <name>GetPageAuthenticated</name>
+        </transactiontype>
+    </transactiontypes>
+</parameters>

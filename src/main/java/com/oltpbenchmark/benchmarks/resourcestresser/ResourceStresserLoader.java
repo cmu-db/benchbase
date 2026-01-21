@@ -41,7 +41,7 @@ public final class ResourceStresserLoader extends Loader<ResourceStresserBenchma
   }
 
   @Override
-  public List<LoaderThread> createLoaderThreads() {
+  public List<LoaderThread> createLoaderThreads(int tableIndex) {
     List<LoaderThread> threads = new ArrayList<>();
     threads.add(
         new LoaderThread(this.benchmark) {
