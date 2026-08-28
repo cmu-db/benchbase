@@ -572,7 +572,7 @@ public class DBWorkload {
           LOG.info("Histograms JSON Data: " + fileName);
         }
 
-        if (r.getState() == State.ERROR) {
+        if (r.getState() == State.ERROR || !r.getError().isEmpty()) {
           throw new RuntimeException(
               "Errors encountered during benchmark execution. See output above for details.");
         }
