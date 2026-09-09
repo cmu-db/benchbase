@@ -58,6 +58,8 @@ public class StockLevel extends TPCCProcedure {
     """
               .formatted(TPCCConstants.TABLENAME_ORDERLINE, TPCCConstants.TABLENAME_STOCK));
 
+  public SQLStmt stmtStockLevelProcSQL = new SQLStmt("SELECT tpcc_stock_level(?,?,?)");
+
   public void run(
       Connection conn,
       Random gen,
@@ -70,6 +72,11 @@ public class StockLevel extends TPCCProcedure {
 
     int threshold = TPCCUtil.randomNumber(10, 20, gen);
     int d_id = TPCCUtil.randomNumber(terminalDistrictLowerID, terminalDistrictUpperID, gen);
+
+    if (w.getBenchmark().useStoredProcedures()) {
+      stockLevelStoredProcedure(conn, w_id, d_id, threshold);
+      return;
+    }
 
     int o_id = getOrderId(conn, w_id, d_id);
 
@@ -88,6 +95,22 @@ public class StockLevel extends TPCCProcedure {
               + stock_count
               + "\n+-----------------------------------------------------------------+\n\n";
       LOG.trace(terminalMessage);
+    }
+  }
+
+  private void stockLevelStoredProcedure(Connection conn, int w_id, int d_id, int threshold)
+      throws SQLException {
+
+    try (PreparedStatement stmt = this.getPreparedStatement(conn, stmtStockLevelProcSQL)) {
+      stmt.setInt(1, w_id);
+      stmt.setInt(2, d_id);
+      stmt.setInt(3, threshold);
+
+      try (ResultSet rs = stmt.executeQuery()) {
+        if (!rs.next()) {
+          throw new RuntimeException("tpcc_stock_level returned no row");
+        }
+      }
     }
   }
 

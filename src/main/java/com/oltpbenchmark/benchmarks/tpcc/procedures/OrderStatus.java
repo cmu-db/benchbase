@@ -27,6 +27,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -87,6 +88,8 @@ public class OrderStatus extends TPCCProcedure {
     """
               .formatted(TPCCConstants.TABLENAME_CUSTOMER));
 
+  public SQLStmt stmtOrderStatusProcSQL = new SQLStmt("SELECT * FROM tpcc_order_status(?,?,?,?)");
+
   public void run(
       Connection conn,
       Random gen,
@@ -110,6 +113,11 @@ public class OrderStatus extends TPCCProcedure {
     } else {
       c_by_name = false;
       c_id = TPCCUtil.getCustomerID(gen);
+    }
+
+    if (w.getBenchmark().useStoredProcedures()) {
+      orderStatusStoredProcedure(conn, w_id, d_id, c_by_name ? null : c_id, c_last);
+      return;
     }
 
     Customer c;
@@ -169,6 +177,28 @@ public class OrderStatus extends TPCCProcedure {
       }
       sb.append("+-----------------------------------------------------------------+\n\n");
       LOG.trace(sb.toString());
+    }
+  }
+
+  private void orderStatusStoredProcedure(
+      Connection conn, int w_id, int d_id, Integer c_id, String c_last) throws SQLException {
+
+    try (PreparedStatement stmt = this.getPreparedStatement(conn, stmtOrderStatusProcSQL)) {
+      stmt.setInt(1, w_id);
+      stmt.setInt(2, d_id);
+      if (c_id == null) {
+        stmt.setNull(3, Types.INTEGER);
+        stmt.setString(4, c_last);
+      } else {
+        stmt.setInt(3, c_id);
+        stmt.setNull(4, Types.VARCHAR);
+      }
+
+      try (ResultSet rs = stmt.executeQuery()) {
+        while (rs.next()) {
+          // drain the order lines, as the statement-per-call path does
+        }
+      }
     }
   }
 

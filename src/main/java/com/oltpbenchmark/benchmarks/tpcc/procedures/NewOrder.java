@@ -131,6 +131,11 @@ public class NewOrder extends TPCCProcedure {
     """
               .formatted(TPCCConstants.TABLENAME_ORDERLINE));
 
+  public SQLStmt stmtNewOrderProcSQL = new SQLStmt("SELECT * FROM tpcc_new_order(?,?,?,?,?,?)");
+
+  /** SQLSTATE raised by tpcc_new_order for the 1% of orders that must roll back. */
+  private static final String SQLSTATE_USER_ABORT = "TPCC1";
+
   public void run(
       Connection conn,
       Random gen,
@@ -168,16 +173,68 @@ public class NewOrder extends TPCCProcedure {
       itemIDs[numItems - 1] = TPCCConfig.INVALID_ITEM_ID;
     }
 
-    newOrderTransaction(
-        terminalWarehouseID,
-        districtID,
-        customerID,
-        numItems,
-        allLocal,
-        itemIDs,
-        supplierWarehouseIDs,
-        orderQuantities,
-        conn);
+    if (w.getBenchmark().useStoredProcedures()) {
+      newOrderStoredProcedure(
+          terminalWarehouseID,
+          districtID,
+          customerID,
+          numItems,
+          itemIDs,
+          supplierWarehouseIDs,
+          orderQuantities,
+          conn);
+    } else {
+      newOrderTransaction(
+          terminalWarehouseID,
+          districtID,
+          customerID,
+          numItems,
+          allLocal,
+          itemIDs,
+          supplierWarehouseIDs,
+          orderQuantities,
+          conn);
+    }
+  }
+
+  private void newOrderStoredProcedure(
+      int w_id,
+      int d_id,
+      int c_id,
+      int o_ol_cnt,
+      int[] itemIDs,
+      int[] supplierWarehouseIDs,
+      int[] orderQuantities,
+      Connection conn)
+      throws SQLException {
+
+    try (PreparedStatement stmt = this.getPreparedStatement(conn, stmtNewOrderProcSQL)) {
+      stmt.setInt(1, w_id);
+      stmt.setInt(2, d_id);
+      stmt.setInt(3, c_id);
+      stmt.setArray(4, conn.createArrayOf("integer", box(itemIDs, o_ol_cnt)));
+      stmt.setArray(5, conn.createArrayOf("integer", box(supplierWarehouseIDs, o_ol_cnt)));
+      stmt.setArray(6, conn.createArrayOf("integer", box(orderQuantities, o_ol_cnt)));
+
+      try (ResultSet rs = stmt.executeQuery()) {
+        if (!rs.next()) {
+          throw new RuntimeException("tpcc_new_order returned no row");
+        }
+      }
+    } catch (SQLException e) {
+      if (SQLSTATE_USER_ABORT.equals(e.getSQLState())) {
+        throw new UserAbortException(e.getMessage());
+      }
+      throw e;
+    }
+  }
+
+  private static Integer[] box(int[] values, int length) {
+    Integer[] boxed = new Integer[length];
+    for (int i = 0; i < length; i++) {
+      boxed[i] = values[i];
+    }
+    return boxed;
   }
 
   private void newOrderTransaction(

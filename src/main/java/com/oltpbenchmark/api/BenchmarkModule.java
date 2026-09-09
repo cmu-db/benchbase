@@ -233,6 +233,25 @@ public abstract class BenchmarkModule {
   }
 
   /**
+   * True if every procedure of this benchmark performs one complete transaction on its own, in
+   * which case workers run on an autocommit connection and do not issue their own commit or
+   * rollback.
+   */
+  public boolean usesAutoCommit() {
+    return false;
+  }
+
+  /**
+   * Return the classpath resource holding statements that must run right after the DDL, such as
+   * stored procedure definitions. Benchmarks that do not need one return null.
+   *
+   * @param db_type
+   */
+  public String getPostDDLScriptPath(DatabaseType db_type) {
+    return null;
+  }
+
+  /**
    * Create the Benchmark Database This is the main method used to create all the database objects
    * (e.g., table, indexes, etc) needed for this benchmark
    */
@@ -250,6 +269,12 @@ public abstract class BenchmarkModule {
       String ddlPath = this.getDatabaseDDLPath(dbType);
       LOG.debug("Executing script [{}] for database type [{}]", ddlPath, dbType);
       runner.runScript(ddlPath);
+    }
+
+    String postDDLPath = this.getPostDDLScriptPath(dbType);
+    if (postDDLPath != null) {
+      LOG.debug("Executing post-DDL script [{}] for database type [{}]", postDDLPath, dbType);
+      runner.runScript(postDDLPath);
     }
   }
 
