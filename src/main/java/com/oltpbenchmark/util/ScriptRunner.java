@@ -79,6 +79,43 @@ public class ScriptRunner {
   }
 
   /**
+   * Returns the dollar quote tag left open at the end of {@code line}, given the tag that was open
+   * when the line started, or null if none is open. PostgreSQL spells function bodies as {@code $$
+   * ... $$} or {@code $tag$ ... $tag$} blocks whose contents must not be split on the statement
+   * delimiter.
+   */
+  static String scanDollarQuote(String line, String openTag) {
+    int i = 0;
+    while (i < line.length()) {
+      if (openTag == null) {
+        int start = line.indexOf('$', i);
+        if (start < 0) {
+          return null;
+        }
+        int end = start + 1;
+        while (end < line.length()
+            && (Character.isLetterOrDigit(line.charAt(end)) || line.charAt(end) == '_')) {
+          end++;
+        }
+        if (end < line.length() && line.charAt(end) == '$') {
+          openTag = line.substring(start, end + 1);
+          i = end + 1;
+        } else {
+          i = start + 1;
+        }
+      } else {
+        int close = line.indexOf(openTag, i);
+        if (close < 0) {
+          return openTag;
+        }
+        i = close + openTag.length();
+        openTag = null;
+      }
+    }
+    return openTag;
+  }
+
+  /**
    * Runs an SQL script (read in using the Reader parameter) using the connection passed in
    *
    * @param conn - the connection to use for the script
@@ -88,6 +125,7 @@ public class ScriptRunner {
    */
   private void runScript(Connection conn, Reader reader) throws IOException, SQLException {
     StringBuffer command = null;
+    String dollarTag = null;
     try (LineNumberReader lineReader = new LineNumberReader(reader)) {
       String line = null;
       while ((line = lineReader.readLine()) != null) {
@@ -98,13 +136,17 @@ public class ScriptRunner {
           command = new StringBuffer();
         }
         String trimmedLine = line.trim();
-        line = line.replaceAll("\\-\\-.*$", ""); // remove comments in line;
+        boolean insideDollarQuote = dollarTag != null;
+        dollarTag = scanDollarQuote(line, dollarTag);
+        if (!insideDollarQuote && dollarTag == null) {
+          line = line.replaceAll("\\-\\-.*$", ""); // remove comments in line;
+        }
 
-        if (trimmedLine.startsWith("--") || trimmedLine.startsWith("//")) {
+        if (!insideDollarQuote && (trimmedLine.startsWith("--") || trimmedLine.startsWith("//"))) {
           LOG.debug(trimmedLine);
-        } else if (trimmedLine.length() < 1) {
+        } else if (!insideDollarQuote && trimmedLine.length() < 1) {
           // Do nothing
-        } else if (trimmedLine.endsWith(getDelimiter())) {
+        } else if (dollarTag == null && trimmedLine.endsWith(getDelimiter())) {
           command.append(line, 0, line.lastIndexOf(getDelimiter()));
           command.append(" ");
 
@@ -154,7 +196,7 @@ public class ScriptRunner {
           }
         } else {
           command.append(line);
-          command.append(" ");
+          command.append(insideDollarQuote || dollarTag != null ? "\n" : " ");
         }
       }
       if (!autoCommit) {

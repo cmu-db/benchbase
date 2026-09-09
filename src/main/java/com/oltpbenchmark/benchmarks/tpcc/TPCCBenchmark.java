@@ -22,6 +22,7 @@ import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.tpcc.procedures.NewOrder;
+import com.oltpbenchmark.types.DatabaseType;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,8 +33,41 @@ import org.slf4j.LoggerFactory;
 public final class TPCCBenchmark extends BenchmarkModule {
   private static final Logger LOG = LoggerFactory.getLogger(TPCCBenchmark.class);
 
+  private final boolean useStoredProcedures;
+
   public TPCCBenchmark(WorkloadConfiguration workConf) {
     super(workConf);
+    this.useStoredProcedures =
+        workConf.getXmlConfig() != null
+            && workConf.getXmlConfig().getBoolean("useStoredProcedures", false);
+  }
+
+  /**
+   * When true each transaction is a single CALL of a server-side function instead of the statement
+   * sequence issued by the procedure classes. The database work is the same; only the number of
+   * client/server round trips changes.
+   */
+  public boolean useStoredProcedures() {
+    return this.useStoredProcedures;
+  }
+
+  @Override
+  public boolean usesAutoCommit() {
+    // A stored procedure call is a complete transaction, so there is nothing for the worker to
+    // commit afterwards, and skipping the commit saves the round trip it costs.
+    return this.useStoredProcedures;
+  }
+
+  @Override
+  public String getPostDDLScriptPath(DatabaseType dbType) {
+    if (!this.useStoredProcedures) {
+      return null;
+    }
+    if (dbType != DatabaseType.POSTGRES) {
+      throw new UnsupportedOperationException(
+          "TPC-C stored procedures are currently implemented for PostgreSQL only, not " + dbType);
+    }
+    return "/benchmarks/" + this.getBenchmarkName() + "/procedures-postgres.sql";
   }
 
   @Override

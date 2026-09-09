@@ -83,7 +83,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
     if (!this.configuration.getNewConnectionPerTxn()) {
       try {
         this.conn = this.benchmark.makeConnection();
-        this.conn.setAutoCommit(false);
+        this.conn.setAutoCommit(this.benchmark.usesAutoCommit());
         this.conn.setTransactionIsolation(this.configuration.getIsolationMode());
       } catch (SQLException ex) {
         throw new RuntimeException("Failed to connect to database", ex);
@@ -424,7 +424,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
               }
             }
             this.conn = this.benchmark.makeConnection();
-            this.conn.setAutoCommit(false);
+            this.conn.setAutoCommit(this.benchmark.usesAutoCommit());
             this.conn.setTransactionIsolation(this.configuration.getIsolationMode());
           } catch (SQLException ex) {
             if (LOG.isDebugEnabled()) {
@@ -453,13 +453,17 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
             LOG.debug(String.format("%s %s committing...", this, transactionType));
           }
 
-          conn.commit();
+          if (!conn.getAutoCommit()) {
+            conn.commit();
+          }
 
           break;
 
         } catch (UserAbortException ex) {
           try {
-            conn.rollback();
+            if (!conn.getAutoCommit()) {
+              conn.rollback();
+            }
           } catch (SQLException ex2) {
             LOG.error("SQLException caught while rolling back transaction.", ex2);
             // force a reconnection
@@ -517,7 +521,9 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                       ex.getErrorCode()),
                   ex);
               try {
-                conn.rollback();
+                if (!conn.getAutoCommit()) {
+                  conn.rollback();
+                }
               } catch (SQLException ex2) {
                 LOG.error("SQLException caught while attempting to rollback transaction.", ex2);
                 // force a reconnection
@@ -550,7 +556,9 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                       ex.getErrorCode()),
                   ex);
               try {
-                conn.rollback();
+                if (!conn.getAutoCommit()) {
+                  conn.rollback();
+                }
               } catch (SQLException ex2) {
                 LOG.error("SQLException caught while attempting to rollback transaction.", ex2);
                 // force a reconnection

@@ -108,6 +108,8 @@ public class Delivery extends TPCCProcedure {
     """
               .formatted(TPCCConstants.TABLENAME_CUSTOMER));
 
+  public SQLStmt stmtDeliveryProcSQL = new SQLStmt("SELECT tpcc_delivery(?,?,?)");
+
   public void run(
       Connection conn,
       Random gen,
@@ -119,6 +121,11 @@ public class Delivery extends TPCCProcedure {
       throws SQLException {
 
     int o_carrier_id = TPCCUtil.randomNumber(1, 10, gen);
+
+    if (w.getBenchmark().useStoredProcedures()) {
+      deliveryStoredProcedure(conn, w_id, o_carrier_id, terminalDistrictUpperID);
+      return;
+    }
 
     int d_id;
 
@@ -170,6 +177,23 @@ public class Delivery extends TPCCProcedure {
       terminalMessage.append(
           "+-----------------------------------------------------------------+\n\n");
       LOG.trace(terminalMessage.toString());
+    }
+  }
+
+  private void deliveryStoredProcedure(
+      Connection conn, int w_id, int o_carrier_id, int terminalDistrictUpperID)
+      throws SQLException {
+
+    try (PreparedStatement stmt = this.getPreparedStatement(conn, stmtDeliveryProcSQL)) {
+      stmt.setInt(1, w_id);
+      stmt.setInt(2, o_carrier_id);
+      stmt.setInt(3, terminalDistrictUpperID);
+
+      try (ResultSet rs = stmt.executeQuery()) {
+        if (!rs.next()) {
+          throw new RuntimeException("tpcc_delivery returned no row");
+        }
+      }
     }
   }
 

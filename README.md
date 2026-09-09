@@ -116,6 +116,13 @@ For composite benchmarks like `chbenchmark`, which require multiple schemas to b
 java -jar benchbase.jar -b tpcc,chbenchmark -c config/postgres/sample_chbenchmark_config.xml --create=true --load=true --execute=true
 ```
 
+To execute the `tpcc` benchmark with every transaction issued as a single stored procedure call (PostgreSQL only):
+```bash
+java -jar benchbase.jar -b tpcc -c config/postgres/sample_tpcc_stored_procedures_config.xml --create=true --load=true --execute=true
+```
+
+Setting `<useStoredProcedures>true</useStoredProcedures>` makes `--create=true` install `procedures-postgres.sql` alongside the schema and makes each terminal issue one `CALL` per transaction instead of the usual sequence of statements. The database does the same work either way; what changes is that a transaction costs one round trip plus the commit rather than roughly 25, which matters when the client/server round trip rather than the database is the limit.
+
 The following options are provided:
 
 ```text

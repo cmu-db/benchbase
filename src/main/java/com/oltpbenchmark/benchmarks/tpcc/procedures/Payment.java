@@ -148,6 +148,9 @@ public class Payment extends TPCCProcedure {
     """
               .formatted(TPCCConstants.TABLENAME_CUSTOMER));
 
+  public SQLStmt stmtPaymentProcSQL =
+      new SQLStmt("SELECT * FROM tpcc_payment(?,?,?,?,?,?,cast(? as decimal(6,2)))");
+
   public void run(
       Connection conn,
       Random gen,
@@ -161,6 +164,15 @@ public class Payment extends TPCCProcedure {
     int districtID = TPCCUtil.randomNumber(terminalDistrictLowerID, terminalDistrictUpperID, gen);
 
     float paymentAmount = (float) (TPCCUtil.randomNumber(100, 500000, gen) / 100.0);
+
+    if (worker.getBenchmark().useStoredProcedures()) {
+      int spX = TPCCUtil.randomNumber(1, 100, gen);
+      int spCustomerDistrictID = getCustomerDistrictId(gen, districtID, spX);
+      int spCustomerWarehouseID = getCustomerWarehouseID(gen, w_id, numWarehouses, spX);
+      paymentStoredProcedure(
+          conn, gen, w_id, districtID, spCustomerWarehouseID, spCustomerDistrictID, paymentAmount);
+      return;
+    }
 
     updateWarehouse(conn, w_id, paymentAmount);
 
@@ -338,6 +350,41 @@ public class Payment extends TPCCProcedure {
         w.w_name = rs.getString("W_NAME");
 
         return w;
+      }
+    }
+  }
+
+  private void paymentStoredProcedure(
+      Connection conn,
+      Random gen,
+      int w_id,
+      int districtID,
+      int customerWarehouseID,
+      int customerDistrictID,
+      float paymentAmount)
+      throws SQLException {
+
+    // 60% of the payments look the customer up by last name, as in getCustomer().
+    boolean byName = TPCCUtil.randomNumber(1, 100, gen) <= 60;
+
+    try (PreparedStatement stmt = this.getPreparedStatement(conn, stmtPaymentProcSQL)) {
+      stmt.setInt(1, w_id);
+      stmt.setInt(2, districtID);
+      stmt.setInt(3, customerWarehouseID);
+      stmt.setInt(4, customerDistrictID);
+      if (byName) {
+        stmt.setNull(5, Types.INTEGER);
+        stmt.setString(6, TPCCUtil.getNonUniformRandomLastNameForRun(gen));
+      } else {
+        stmt.setInt(5, TPCCUtil.getCustomerID(gen));
+        stmt.setNull(6, Types.VARCHAR);
+      }
+      stmt.setDouble(7, paymentAmount);
+
+      try (ResultSet rs = stmt.executeQuery()) {
+        if (!rs.next()) {
+          throw new RuntimeException("tpcc_payment returned no row");
+        }
       }
     }
   }
