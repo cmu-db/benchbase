@@ -116,6 +116,14 @@ For composite benchmarks like `chbenchmark`, which require multiple schemas to b
 java -jar benchbase.jar -b tpcc,chbenchmark -c config/postgres/sample_chbenchmark_config.xml --create=true --load=true --execute=true
 ```
 
+The `tpcc` benchmark assigns each terminal a warehouse and keeps it there for the whole run, as the specification requires. That also means the data a run actually touches is bounded by the number of terminals rather than by the scale factor: a thousand-warehouse database driven by thirty-two terminals is read and written as if it were a thirty-two warehouse one, and a run meant to exercise storage stays in cache instead. Setting
+
+```xml
+<useAllWarehouses>true</useAllWarehouses>
+```
+
+makes each terminal draw a warehouse, and a district within it, for every transaction, so the working set is the whole database. Runs made this way are not specification compliant and their tpmC is not comparable with compliant results; the option exists for measuring a system against a database that does not fit in memory.
+
 The following options are provided:
 
 ```text
