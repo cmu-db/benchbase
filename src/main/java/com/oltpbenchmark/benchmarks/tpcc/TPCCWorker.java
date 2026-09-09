@@ -64,14 +64,20 @@ public final class TPCCWorker extends Worker<TPCCBenchmark> {
       throws UserAbortException, SQLException {
     try {
       TPCCProcedure proc = (TPCCProcedure) this.getProcedure(nextTransaction.getProcedureClass());
-      proc.run(
-          conn,
-          gen,
-          terminalWarehouseID,
-          numWarehouses,
-          terminalDistrictLowerID,
-          terminalDistrictUpperID,
-          this);
+
+      int w_id = this.terminalWarehouseID;
+      int districtLowerID = this.terminalDistrictLowerID;
+      int districtUpperID = this.terminalDistrictUpperID;
+
+      if (this.getBenchmark().useAllWarehouses()) {
+        // Draw the warehouse per transaction and use the whole district range, so that the
+        // terminals address the entire database instead of the slice they were assigned.
+        w_id = TPCCUtil.randomNumber(1, this.numWarehouses, this.gen);
+        districtLowerID = 1;
+        districtUpperID = TPCCConfig.configDistPerWhse;
+      }
+
+      proc.run(conn, gen, w_id, numWarehouses, districtLowerID, districtUpperID, this);
     } catch (ClassCastException ex) {
       // fail gracefully
       LOG.error("We have been invoked with an INVALID transactionType?!", ex);

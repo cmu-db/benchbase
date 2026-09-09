@@ -32,8 +32,23 @@ import org.slf4j.LoggerFactory;
 public final class TPCCBenchmark extends BenchmarkModule {
   private static final Logger LOG = LoggerFactory.getLogger(TPCCBenchmark.class);
 
+  private final boolean useAllWarehouses;
+
   public TPCCBenchmark(WorkloadConfiguration workConf) {
     super(workConf);
+    this.useAllWarehouses =
+        workConf.getXmlConfig() != null
+            && workConf.getXmlConfig().getBoolean("useAllWarehouses", false);
+  }
+
+  /**
+   * When true a terminal draws a fresh warehouse for every transaction instead of staying on the
+   * one it was assigned. This departs from the specification, where a terminal belongs to a
+   * warehouse for the whole run, but it makes the working set the size of the database rather than
+   * the size of the terminal population.
+   */
+  public boolean useAllWarehouses() {
+    return this.useAllWarehouses;
   }
 
   @Override
