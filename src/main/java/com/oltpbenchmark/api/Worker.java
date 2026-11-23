@@ -34,7 +34,9 @@ import java.sql.SQLException;
 import java.sql.SQLRecoverableException;
 import java.sql.Statement;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
@@ -289,7 +291,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
         long start = System.nanoTime();
 
-        doWork(configuration.getDatabaseType(), transactionType);
+        List<TransactionStatus> attempts = doWork(configuration.getDatabaseType(), transactionType);
 
         long end = System.nanoTime();
 
@@ -319,6 +321,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
             if (preState == MEASURE && postPhase.getId() == prePhase.getId()) {
               latencies.addLatency(transactionType.getId(), start, end, this.id, prePhase.getId());
               intervalRequests.incrementAndGet();
+              recordStatuses(transactionType, attempts);
             }
             if (prePhase.isLatencyRun()) {
               workloadState.startColdQuery();
@@ -398,8 +401,10 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
    * @param databaseType TODO
    * @param transactionType TODO
    */
-  protected final void doWork(DatabaseType databaseType, TransactionType transactionType) {
+  protected final List<TransactionStatus> doWork(
+      DatabaseType databaseType, TransactionType transactionType) {
 
+    List<TransactionStatus> attempts = new ArrayList<>();
     try {
       int retryCount = 0;
       int maxRetryCount = configuration.getMaxRetries();
@@ -623,14 +628,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
             LOG.warn("Connection error detected.");
           }
 
-          switch (status) {
-            case UNKNOWN -> this.txnUnknown.put(transactionType);
-            case SUCCESS -> this.txnSuccess.put(transactionType);
-            case USER_ABORTED -> this.txnAbort.put(transactionType);
-            case RETRY -> this.txnRetry.put(transactionType);
-            case RETRY_DIFFERENT -> this.txtRetryDifferent.put(transactionType);
-            case ERROR -> this.txnErrors.put(transactionType);
-          }
+          attempts.add(status);
         }
       }
     } catch (SQLException ex) {
@@ -640,6 +638,20 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
               this, transactionType, databaseType.name());
 
       throw new RuntimeException(msg, ex);
+    }
+    return attempts;
+  }
+
+  private void recordStatuses(TransactionType transactionType, List<TransactionStatus> attempts) {
+    for (TransactionStatus status : attempts) {
+      switch (status) {
+        case UNKNOWN -> this.txnUnknown.put(transactionType);
+        case SUCCESS -> this.txnSuccess.put(transactionType);
+        case USER_ABORTED -> this.txnAbort.put(transactionType);
+        case RETRY -> this.txnRetry.put(transactionType);
+        case RETRY_DIFFERENT -> this.txtRetryDifferent.put(transactionType);
+        case ERROR -> this.txnErrors.put(transactionType);
+      }
     }
   }
 
